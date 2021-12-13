@@ -31,8 +31,8 @@ object ViewUtils {
 
   case class DataRowForView(fieldHeadings: String, fieldValues: Option[String], changeLink: Call, hiddenText: String)
 
-  def convertBoolToYesOrNo(employmentField: Option[Boolean])(implicit messages: Messages): Option[String] = {
-    employmentField.map {
+  def convertBoolToYesOrNo(cisField: Option[Boolean])(implicit messages: Messages): Option[String] = {
+    cisField.map {
       case true => messages("common.yes")
       case false => messages("common.no")
     }

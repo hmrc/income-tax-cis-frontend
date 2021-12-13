@@ -32,7 +32,7 @@ class EncryptionService @Inject()(secureGCMCipher: SecureGCMCipher, appConfig: A
       nino = userData.nino,
       taxYear = userData.taxYear,
       isPriorSubmission = userData.isPriorSubmission,
-      cis = userData.cis,
+      cis = userData.cis.map(secureGCMCipher.encrypt(_)),
       lastUpdated = userData.lastUpdated
     )
   }
@@ -47,7 +47,7 @@ class EncryptionService @Inject()(secureGCMCipher: SecureGCMCipher, appConfig: A
       nino = userData.nino,
       taxYear = userData.taxYear,
       isPriorSubmission = userData.isPriorSubmission,
-      cis = userData.cis,
+      cis = userData.cis.map(x => secureGCMCipher.decrypt[String](x.value,x.nonce)),
       lastUpdated = userData.lastUpdated
     )
   }

@@ -41,9 +41,9 @@ class InYearAction @Inject()(implicit val appConfig: AppConfig) {
     val isNowBefore: Boolean = zonedDateTime(now).isBefore(zonedDateTime(endOfYearCutOffDate))
 
     if(isNowBefore) {
-      logger.info(s"[InYearAction][inYear] Employment pages for this request will be in year.")
+      logger.info(s"[InYearAction][inYear] CIS pages for this request will be in year.")
     } else {
-      logger.info(s"[InYearAction][inYear] Employment pages for this request will not be in year.")
+      logger.info(s"[InYearAction][inYear] CIS pages for this request will not be in year.")
     }
 
     isNowBefore
