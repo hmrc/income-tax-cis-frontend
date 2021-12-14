@@ -37,6 +37,7 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   val incomeTaxCISUrlKey = "microservice.services.income-tax-cis.url"
   val signInContinueUrlKey = "microservice.services.sign-in.continueUrl"
   val incomeTaxNrsProxyUrlKey = "microservice.services.income-tax-nrs-proxy.url"
+  val uselessVal = "doesNothing  This is a test"
 
   private lazy val signInBaseUrl: String = servicesConfig.getString("microservice.services.sign-in.url")
   private lazy val signInContinueBaseUrl: String = servicesConfig.getString(signInContinueUrlKey)
