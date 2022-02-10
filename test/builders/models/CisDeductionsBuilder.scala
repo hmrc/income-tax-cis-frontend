@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package utils
+package builders.models
 
-object TypeCaster {
+import builders.models.GetPeriodDataBuilder.aGetPeriodData
+import models.CisDeductions
 
-  trait Converter[T] { self =>
-    def convert(v: String): T
-  }
+object CisDeductionsBuilder {
 
-  object Converter {
-    implicit val stringLoader: Converter[String] = (v: String) => v
-    implicit val booleanLoader: Converter[Boolean] = (v: String) => v.toBoolean
-    implicit val bigDecimalLoader: Converter[BigDecimal] = (v: String) => BigDecimal(v)
-    implicit val monthLoader: Converter[Month] = (v: String) => Month(v)
-  }
+  val aCisDeductions: CisDeductions =
+    CisDeductions(
+      fromDate = "2020-05-05",
+      toDate = "2020-06-06",
+      contractorName = Some("ABC SteelWorks"),
+      employerRef = "123/AB123456",
+      totalDeductionAmount = Some(300.00),
+      totalCostOfMaterials = Some(400.00),
+      totalGrossAmountPaid = Some(200.00),
+      periodData = Seq(aGetPeriodData)
+    )
+
 }

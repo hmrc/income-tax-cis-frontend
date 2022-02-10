@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package utils
+package builders.models
 
-object TypeCaster {
+import builders.models.mongo.CisUserDataBuilder.aCisUserData
+import models.User
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
 
-  trait Converter[T] { self =>
-    def convert(v: String): T
-  }
+object UserBuilder {
 
-  object Converter {
-    implicit val stringLoader: Converter[String] = (v: String) => v
-    implicit val booleanLoader: Converter[Boolean] = (v: String) => v.toBoolean
-    implicit val bigDecimalLoader: Converter[BigDecimal] = (v: String) => BigDecimal(v)
-    implicit val monthLoader: Converter[Month] = (v: String) => Month(v)
-  }
+  val aUser: User[AnyContentAsEmpty.type] =
+    User(
+      mtditid = aCisUserData.mtdItId,
+      arn = None,
+      nino = aCisUserData.nino,
+      sessionId = aCisUserData.sessionId,
+      affinityGroup = "affinityGroup")(FakeRequest()
+
+    )
+
 }

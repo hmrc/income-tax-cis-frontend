@@ -16,6 +16,8 @@
 
 package repositories
 
+import builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
+import builders.models.mongo.CisUserDataBuilder.aCisUserData
 import com.mongodb.MongoTimeoutException
 import common.UUID
 import models.User
@@ -66,8 +68,10 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
     mtditid,
     nino,
     taxYear,
+    employerRef = aCisUserData.employerRef,
+    submissionId = Some(aCisUserData.sessionId),
     isPriorSubmission = true,
-    cis = Some("cis"),
+    cis = Some(aCisCYAModel),
     lastUpdated = now
   )
 
@@ -76,8 +80,10 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
     mtditid,
     nino,
     taxYear,
+    employerRef = aCisUserData.employerRef,
+    submissionId = Some(aCisUserData.sessionId),
     isPriorSubmission = true,
-    cis = Some("cis"),
+    cis = Some(aCisCYAModel),
     lastUpdated = now
   )
 
@@ -86,8 +92,10 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
     mtditid,
     nino,
     taxYear,
+    employerRef = aCisUserData.employerRef,
+    submissionId = Some(aCisUserData.sessionId),
     isPriorSubmission = true,
-    cis = Some("cis"),
+    cis = Some(aCisCYAModel),
     lastUpdated = now
   )
 
@@ -169,7 +177,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       await(repo.createOrUpdate(userDataOne)(userOne)) mustBe Right()
       count mustBe 1
 
-      private val updatedCisUserData = userDataOne.copy(cis = Some("cis2"))
+      private val updatedCisUserData = userDataOne.copy(cis = Some(aCisCYAModel))
 
       await(repo.createOrUpdate(updatedCisUserData)(userOne)) mustBe Right()
       count mustBe 1

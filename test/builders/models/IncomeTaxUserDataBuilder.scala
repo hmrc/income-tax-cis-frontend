@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package utils
+package builders.models
 
-object TypeCaster {
+import builders.models.AllCISDeductionsBuilder.anAllCISDeductions
+import models.IncomeTaxUserData
 
-  trait Converter[T] { self =>
-    def convert(v: String): T
-  }
+object IncomeTaxUserDataBuilder {
 
-  object Converter {
-    implicit val stringLoader: Converter[String] = (v: String) => v
-    implicit val booleanLoader: Converter[Boolean] = (v: String) => v.toBoolean
-    implicit val bigDecimalLoader: Converter[BigDecimal] = (v: String) => BigDecimal(v)
-    implicit val monthLoader: Converter[Month] = (v: String) => Month(v)
-  }
+  val anIncomeTaxUserData: IncomeTaxUserData =
+    IncomeTaxUserData(
+      cis = Some(anAllCISDeductions)
+    )
+
 }

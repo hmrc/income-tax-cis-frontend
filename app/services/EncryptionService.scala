@@ -17,9 +17,10 @@
 package services
 
 import config.AppConfig
+
 import javax.inject.Inject
 import models.mongo._
-import utils.SecureGCMCipher
+import utils.{Month, SecureGCMCipher}
 
 class EncryptionService @Inject()(secureGCMCipher: SecureGCMCipher, appConfig: AppConfig) {
 
@@ -31,9 +32,47 @@ class EncryptionService @Inject()(secureGCMCipher: SecureGCMCipher, appConfig: A
       mtdItId = userData.mtdItId,
       nino = userData.nino,
       taxYear = userData.taxYear,
+      employerRef = userData.employerRef,
+      submissionId = userData.submissionId,
       isPriorSubmission = userData.isPriorSubmission,
-      cis = userData.cis.map(secureGCMCipher.encrypt(_)),
+      cis = userData.cis.map(encryptCisData),
       lastUpdated = userData.lastUpdated
+    )
+  }
+
+  private def encryptCisData(e: CisCYAModel)(implicit textAndKey: TextAndKey): EncryptedCisCYAModel = {
+    EncryptedCisCYAModel(
+      contractorName = secureGCMCipher.encrypt(e.contractorName),
+      periodData = e.periodData.map(encryptPeriodData)
+    )
+  }
+
+  private def decryptCisData(e: EncryptedCisCYAModel)(implicit textAndKey: TextAndKey): CisCYAModel = {
+    CisCYAModel(
+      contractorName = secureGCMCipher.decrypt[String](e.contractorName.value, e.contractorName.nonce),
+      periodData = e.periodData.map(decryptPeriodData)
+    )
+  }
+
+  private def encryptPeriodData(e: CYAPeriodData)(implicit textAndKey: TextAndKey): EncryptedCYAPeriodData = {
+    EncryptedCYAPeriodData(
+      deductionFromDate = secureGCMCipher.encrypt(e.deductionFromDate),
+      deductionToDate = secureGCMCipher.encrypt(e.deductionToDate),
+      grossAmountPaid = e.grossAmountPaid.map(secureGCMCipher.encrypt),
+      deductionAmount = e.deductionAmount.map(secureGCMCipher.encrypt),
+      costOfMaterialsQuestion = e.costOfMaterialsQuestion.map(secureGCMCipher.encrypt),
+      costOfMaterials = e.costOfMaterials.map(secureGCMCipher.encrypt)
+    )
+  }
+
+  private def decryptPeriodData(e: EncryptedCYAPeriodData)(implicit textAndKey: TextAndKey): CYAPeriodData = {
+    CYAPeriodData(
+      deductionFromDate = secureGCMCipher.decrypt[Month](e.deductionFromDate.value, e.deductionFromDate.nonce),
+      deductionToDate = secureGCMCipher.decrypt[Month](e.deductionToDate.value, e.deductionToDate.nonce),
+      grossAmountPaid = e.grossAmountPaid.map(x => secureGCMCipher.decrypt[BigDecimal](x.value, x.nonce)),
+      deductionAmount = e.deductionAmount.map(x => secureGCMCipher.decrypt[BigDecimal](x.value, x.nonce)),
+      costOfMaterialsQuestion = e.costOfMaterialsQuestion.map(x => secureGCMCipher.decrypt[Boolean](x.value, x.nonce)),
+      costOfMaterials = e.costOfMaterials.map(x => secureGCMCipher.decrypt[BigDecimal](x.value, x.nonce))
     )
   }
 
@@ -46,8 +85,10 @@ class EncryptionService @Inject()(secureGCMCipher: SecureGCMCipher, appConfig: A
       mtdItId = userData.mtdItId,
       nino = userData.nino,
       taxYear = userData.taxYear,
+      employerRef = userData.employerRef,
+      submissionId = userData.submissionId,
       isPriorSubmission = userData.isPriorSubmission,
-      cis = userData.cis.map(x => secureGCMCipher.decrypt[String](x.value,x.nonce)),
+      cis = userData.cis.map(decryptCisData),
       lastUpdated = userData.lastUpdated
     )
   }

@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package utils
+package models
 
-object TypeCaster {
+import play.api.libs.json.{Json, OFormat}
 
-  trait Converter[T] { self =>
-    def convert(v: String): T
-  }
+case class CISSource(totalDeductionAmount: Option[BigDecimal],
+                     totalCostOfMaterials: Option[BigDecimal],
+                     totalGrossAmountPaid: Option[BigDecimal],
+                     cisDeductions: Seq[CisDeductions])
 
-  object Converter {
-    implicit val stringLoader: Converter[String] = (v: String) => v
-    implicit val booleanLoader: Converter[Boolean] = (v: String) => v.toBoolean
-    implicit val bigDecimalLoader: Converter[BigDecimal] = (v: String) => BigDecimal(v)
-    implicit val monthLoader: Converter[Month] = (v: String) => Month(v)
-  }
+object CISSource {
+  implicit val format: OFormat[CISSource] = Json.format[CISSource]
 }

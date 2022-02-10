@@ -16,6 +16,7 @@
 
 package services
 
+import builders.models.mongo.CisUserDataBuilder.aCisUserData
 import models.mongo.EncryptedCisUserData
 import utils.IntegrationTest
 
@@ -24,16 +25,18 @@ class EncryptionServiceTest extends IntegrationTest {
   private val underTest: EncryptionService = app.injector.instanceOf[EncryptionService]
 
   "encryptUserData" should {
-    val data = cisUserData.copy()
+    val data = aCisUserData
 
     "encrypt relevant cis user data" in {
-      val result = underTest.encryptUserData(cisUserData)
+      val result = underTest.encryptUserData(aCisUserData)
 
       result shouldBe EncryptedCisUserData(
         sessionId = data.sessionId,
         mtdItId = data.mtdItId,
         nino = data.nino,
         taxYear = data.taxYear,
+        employerRef = data.employerRef,
+        submissionId = data.submissionId,
         isPriorSubmission = data.isPriorSubmission,
         cis = result.cis,
         lastUpdated = result.lastUpdated
