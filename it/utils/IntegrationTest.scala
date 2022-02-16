@@ -17,7 +17,6 @@
 package utils
 
 import akka.actor.ActorSystem
-import builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.SessionValues
 import config.AppConfig
@@ -199,10 +198,7 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
   ) ++ extraData)
 
 
-  def userData: IncomeTaxUserData = IncomeTaxUserData(Some(anAllCISDeductions))
-
   def userDataStub(userData: IncomeTaxUserData, nino: String, taxYear: Int): StubMapping = {
-
     stubGetWithHeadersCheck(
       s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
       Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)

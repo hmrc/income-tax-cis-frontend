@@ -26,5 +26,4 @@ object AllCISDeductionsBuilder {
       customerCISDeductions = Some(aCISSource),
       contractorCISDeductions = Some(aCISSource)
     )
-
 }

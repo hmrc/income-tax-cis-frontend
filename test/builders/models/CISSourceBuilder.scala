@@ -28,5 +28,4 @@ object CISSourceBuilder {
       totalGrossAmountPaid = Some(700.00),
       cisDeductions = Seq(aCisDeductions)
     )
-
 }

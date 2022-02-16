@@ -20,7 +20,9 @@ import config.AppConfig
 
 import javax.inject.Inject
 import models.mongo._
-import utils.{Month, SecureGCMCipher}
+import utils.SecureGCMCipher
+
+import java.time.Month
 
 class EncryptionService @Inject()(secureGCMCipher: SecureGCMCipher, appConfig: AppConfig) {
 
@@ -56,8 +58,7 @@ class EncryptionService @Inject()(secureGCMCipher: SecureGCMCipher, appConfig: A
 
   private def encryptPeriodData(e: CYAPeriodData)(implicit textAndKey: TextAndKey): EncryptedCYAPeriodData = {
     EncryptedCYAPeriodData(
-      deductionFromDate = secureGCMCipher.encrypt(e.deductionFromDate),
-      deductionToDate = secureGCMCipher.encrypt(e.deductionToDate),
+      deductionPeriod = secureGCMCipher.encrypt(e.deductionPeriod),
       grossAmountPaid = e.grossAmountPaid.map(secureGCMCipher.encrypt),
       deductionAmount = e.deductionAmount.map(secureGCMCipher.encrypt),
       costOfMaterialsQuestion = e.costOfMaterialsQuestion.map(secureGCMCipher.encrypt),
@@ -67,8 +68,7 @@ class EncryptionService @Inject()(secureGCMCipher: SecureGCMCipher, appConfig: A
 
   private def decryptPeriodData(e: EncryptedCYAPeriodData)(implicit textAndKey: TextAndKey): CYAPeriodData = {
     CYAPeriodData(
-      deductionFromDate = secureGCMCipher.decrypt[Month](e.deductionFromDate.value, e.deductionFromDate.nonce),
-      deductionToDate = secureGCMCipher.decrypt[Month](e.deductionToDate.value, e.deductionToDate.nonce),
+      deductionPeriod = secureGCMCipher.decrypt[Month](e.deductionPeriod.value, e.deductionPeriod.nonce),
       grossAmountPaid = e.grossAmountPaid.map(x => secureGCMCipher.decrypt[BigDecimal](x.value, x.nonce)),
       deductionAmount = e.deductionAmount.map(x => secureGCMCipher.decrypt[BigDecimal](x.value, x.nonce)),
       costOfMaterialsQuestion = e.costOfMaterialsQuestion.map(x => secureGCMCipher.decrypt[Boolean](x.value, x.nonce)),

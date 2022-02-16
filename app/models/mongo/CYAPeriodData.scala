@@ -17,12 +17,13 @@
 package models.mongo
 
 import org.joda.time.DateTime
-import play.api.libs.json.{Format, Json, OFormat}
+import play.api.libs.json.{Format, JsPath, JsString, Json, OFormat, Reads, Writes}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
-import utils.{EncryptedValue, Month}
+import utils.EncryptedValue
 
-case class CYAPeriodData(deductionFromDate: Month,
-                         deductionToDate: Month,
+import java.time.Month
+
+case class CYAPeriodData(deductionPeriod: Month,
                          grossAmountPaid: Option[BigDecimal] = None,
                          deductionAmount: Option[BigDecimal] = None,
                          costOfMaterialsQuestion: Option[Boolean] = None,
@@ -45,11 +46,14 @@ case class CYAPeriodData(deductionFromDate: Month,
 }
 
 object CYAPeriodData {
+  implicit val reads: Reads[Month] = JsPath.read[String].map(Month.valueOf)
+
+  implicit val writes: Writes[Month] = Writes { month => JsString(month.toString) }
+
   implicit val format: OFormat[CYAPeriodData] = Json.format[CYAPeriodData]
 }
 
-case class EncryptedCYAPeriodData(deductionFromDate: EncryptedValue,
-                                  deductionToDate: EncryptedValue,
+case class EncryptedCYAPeriodData(deductionPeriod: EncryptedValue,
                                   grossAmountPaid: Option[EncryptedValue] = None,
                                   deductionAmount: Option[EncryptedValue] = None,
                                   costOfMaterialsQuestion: Option[EncryptedValue] = None,

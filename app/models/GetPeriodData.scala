@@ -16,11 +16,15 @@
 
 package models
 
-import play.api.libs.json.{Json, OFormat}
-import utils.Month
+import play.api.Logging
+import play.api.libs.functional.syntax.toFunctionalBuilderOps
+import play.api.libs.json.{JsPath, JsString, Json, Reads, Writes}
+import utils.PagerDutyHelper.PagerDutyKeys.INVALID_PERIOD_DATES
+import utils.PagerDutyHelper.pagerDutyLog
 
-case class GetPeriodData(deductionFromDate: Month,
-                         deductionToDate: Month,
+import java.time.{LocalDate, Month}
+
+case class GetPeriodData(deductionPeriod: Month,
                          deductionAmount: Option[BigDecimal],
                          costOfMaterials: Option[BigDecimal],
                          grossAmountPaid: Option[BigDecimal],
@@ -28,7 +32,50 @@ case class GetPeriodData(deductionFromDate: Month,
                          submissionId: Option[String],
                          source: String)
 
-object GetPeriodData {
-  implicit val format: OFormat[GetPeriodData] = Json.format[GetPeriodData]
+object GetPeriodData extends Logging {
+
+  implicit val monthRead: Reads[GetPeriodData] =
+    ((JsPath \ "deductionFromDate").read[String] and
+      (JsPath \ "deductionToDate").read[String] and
+      (JsPath \ "deductionAmount").readNullable[BigDecimal] and
+      (JsPath \ "costOfMaterials").readNullable[BigDecimal] and
+      (JsPath \ "grossAmountPaid").readNullable[BigDecimal] and
+      (JsPath \ "submissionDate").read[String] and
+      (JsPath \ "submissionId").readNullable[String] and
+      (JsPath \ "source").read[String]) (
+      (from: String, to: String, deductionAmount: Option[BigDecimal], costOfMaterials: Option[BigDecimal], grossAmountPaid: Option[BigDecimal],
+       submissionDate: String, submissionId: Option[String], source: String) =>
+        GetPeriodData(validatePeriodDatesAndReturnMonth(from, to), deductionAmount, costOfMaterials, grossAmountPaid,
+          submissionDate, submissionId, source)
+    )
+
+  private def validatePeriodDatesAndReturnMonth(fromDate: String, toDate: String): Month = {
+    try {
+      val parsedFromDate = LocalDate.parse(fromDate)
+      lazy val parsedToDate = LocalDate.parse(toDate)
+
+      lazy val validMonths = parsedFromDate.plusMonths(1).getMonth == parsedToDate.getMonth
+      lazy val validDay = parsedFromDate.minusDays(1).getDayOfMonth == parsedToDate.getDayOfMonth
+
+      if (validMonths && validDay) {
+        parsedToDate.getMonth
+      } else {
+        pagerDutyLog(INVALID_PERIOD_DATES,
+          s"[GetPeriodData][validatePeriodDatesAndReturnMonth] The retrieved period dates are invalid. fromDate - $fromDate, toDate - $toDate")
+        parsedToDate.getMonth
+      }
+    }
+    catch {
+      case exception: Exception =>
+        pagerDutyLog(INVALID_PERIOD_DATES,
+          s"[GetPeriodData][validatePeriodDatesAndReturnMonth] The retrieved period dates are invalid. ${exception.getMessage}")
+        throw new Exception("The retrieved period dates are invalid.")
+    }
+
+  }
+
+  implicit val monthWrites: Writes[Month] = Writes { month => JsString(month.toString) }
+
+  implicit val writes: Writes[GetPeriodData] = Json.writes[GetPeriodData]
 }
 
