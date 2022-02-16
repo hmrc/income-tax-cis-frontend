@@ -17,9 +17,18 @@
 package models
 
 import play.api.libs.json.{Json, OFormat}
+import utils.Month
 
-case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None)
+case class GetPeriodData(deductionFromDate: Month,
+                         deductionToDate: Month,
+                         deductionAmount: Option[BigDecimal],
+                         costOfMaterials: Option[BigDecimal],
+                         grossAmountPaid: Option[BigDecimal],
+                         submissionDate: String,
+                         submissionId: Option[String],
+                         source: String)
 
-object IncomeTaxUserData {
-  implicit val formats: OFormat[IncomeTaxUserData] = Json.format[IncomeTaxUserData]
+object GetPeriodData {
+  implicit val format: OFormat[GetPeriodData] = Json.format[GetPeriodData]
 }
+

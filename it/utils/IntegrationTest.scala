@@ -17,13 +17,13 @@
 package utils
 
 import akka.actor.ActorSystem
+import builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.SessionValues
 import config.AppConfig
 import controllers.predicates.AuthorisedAction
 import helpers.{PlaySessionCookieBaker, WireMockHelper, WiremockStubHelpers}
 import models.IncomeTaxUserData
-import models.mongo.CisUserData
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -199,7 +199,7 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
   ) ++ extraData)
 
 
-  def userData(allData: String): IncomeTaxUserData = IncomeTaxUserData(Some(allData))
+  def userData: IncomeTaxUserData = IncomeTaxUserData(Some(anAllCISDeductions))
 
   def userDataStub(userData: IncomeTaxUserData, nino: String, taxYear: Int): StubMapping = {
 
@@ -217,14 +217,6 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
 
   val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-  def cisUserData: CisUserData = CisUserData(
-    sessionId,
-    mtditid,
-    nino,
-    taxYear - 1,
-    isPriorSubmission = true,
-    Some("cis")
-  )
 }
 
 // scalastyle:off number.of.methods

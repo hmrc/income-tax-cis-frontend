@@ -17,6 +17,7 @@
 package utils
 
 import akka.actor.ActorSystem
+import builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 import com.codahale.metrics.SharedMetricRegistries
 import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
 import config.{AppConfig, ErrorHandler, MockAppConfig}
@@ -149,6 +150,6 @@ trait UnitTest extends AnyWordSpec with Matchers with MockFactory with BeforeAnd
   val mtditid = "1234567890"
 
   val userData: IncomeTaxUserData = IncomeTaxUserData(
-    Some("cis")
+    Some(anAllCISDeductions)
   )
 }

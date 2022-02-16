@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package utils
+package builders.models
 
-object TypeCaster {
+import builders.models.CISSourceBuilder.aCISSource
+import models.AllCISDeductions
 
-  trait Converter[T] { self =>
-    def convert(v: String): T
-  }
+object AllCISDeductionsBuilder {
 
-  object Converter {
-    implicit val stringLoader: Converter[String] = (v: String) => v
-    implicit val booleanLoader: Converter[Boolean] = (v: String) => v.toBoolean
-    implicit val bigDecimalLoader: Converter[BigDecimal] = (v: String) => BigDecimal(v)
-    implicit val monthLoader: Converter[Month] = (v: String) => Month(v)
-  }
+  val anAllCISDeductions: AllCISDeductions =
+    AllCISDeductions(
+      customerCISDeductions = Some(aCISSource),
+      contractorCISDeductions = Some(aCISSource)
+    )
+
 }

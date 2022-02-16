@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package utils
+package models
 
-object TypeCaster {
+import builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
+import utils.UnitTest
 
-  trait Converter[T] { self =>
-    def convert(v: String): T
+class CisCYAModelSpec extends UnitTest {
+
+  "CisCYAModel.isFinished" should {
+    "return true when CYAPeriodData is not empty" in {
+      aCisCYAModel.isFinished shouldBe true
+    }
+
+    "return false when CYAPeriodData is empty" in {
+      val result = aCisCYAModel.copy(periodData = Seq())
+      result.isFinished shouldBe false
+    }
   }
 
-  object Converter {
-    implicit val stringLoader: Converter[String] = (v: String) => v
-    implicit val booleanLoader: Converter[Boolean] = (v: String) => v.toBoolean
-    implicit val bigDecimalLoader: Converter[BigDecimal] = (v: String) => BigDecimal(v)
-    implicit val monthLoader: Converter[Month] = (v: String) => Month(v)
-  }
 }

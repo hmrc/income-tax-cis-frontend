@@ -18,17 +18,17 @@ package models.mongo
 
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{Format, Json}
-import play.api.mvc.Call
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
-import utils.EncryptedValue
 
 case class CisUserData(sessionId: String,
-                              mtdItId: String,
-                              nino: String,
-                              taxYear: Int,
-                              isPriorSubmission: Boolean,
-                              cis: Option[String] = None,
-                              lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC))
+                       mtdItId: String,
+                       nino: String,
+                       taxYear: Int,
+                       employerRef: String,
+                       submissionId: Option[String],
+                       isPriorSubmission: Boolean,
+                       cis: Option[CisCYAModel],
+                       lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC))
 
 object CisUserData extends MongoJodaFormats {
 
@@ -41,8 +41,10 @@ case class EncryptedCisUserData(sessionId: String,
                                 mtdItId: String,
                                 nino: String,
                                 taxYear: Int,
+                                employerRef: String,
+                                submissionId: Option[String],
                                 isPriorSubmission: Boolean,
-                                cis: Option[EncryptedValue] = None,
+                                cis: Option[EncryptedCisCYAModel],
                                 lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC))
 
 object EncryptedCisUserData extends MongoJodaFormats {

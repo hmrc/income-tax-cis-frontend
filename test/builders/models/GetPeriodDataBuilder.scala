@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package utils
+package builders.models
 
-object TypeCaster {
+import models.GetPeriodData
+import utils.{AUGUST, MAY}
 
-  trait Converter[T] { self =>
-    def convert(v: String): T
-  }
+object GetPeriodDataBuilder {
 
-  object Converter {
-    implicit val stringLoader: Converter[String] = (v: String) => v
-    implicit val booleanLoader: Converter[Boolean] = (v: String) => v.toBoolean
-    implicit val bigDecimalLoader: Converter[BigDecimal] = (v: String) => BigDecimal(v)
-    implicit val monthLoader: Converter[Month] = (v: String) => Month(v)
-  }
+  val aGetPeriodData: GetPeriodData =
+    GetPeriodData(
+      deductionFromDate = MAY,
+      deductionToDate = AUGUST,
+      deductionAmount = Some(100.00),
+      costOfMaterials = Some(50.00),
+      grossAmountPaid = Some(450.00),
+      submissionDate = "2020-05-11T16:38:57.489Z",
+      submissionId = Some("submissionId"),
+      source = "customer"
+    )
+
 }
