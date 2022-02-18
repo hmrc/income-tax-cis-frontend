@@ -21,15 +21,14 @@ import models.CisDeductions
 
 object CisDeductionsBuilder {
 
-  val aCisDeductions: CisDeductions =
-    CisDeductions(
-      fromDate = "2020-05-05",
-      toDate = "2020-06-06",
-      contractorName = Some("ABC SteelWorks"),
-      employerRef = "123/AB123456",
-      totalDeductionAmount = Some(300.00),
-      totalCostOfMaterials = Some(400.00),
-      totalGrossAmountPaid = Some(200.00),
-      periodData = Seq(aGetPeriodData)
-    )
+  val aCisDeductions: CisDeductions = CisDeductions(
+    fromDate = "2020-05-05",
+    toDate = "2020-06-06",
+    contractorName = Some("ABC SteelWorks"),
+    employerRef = "123/AB123456",
+    totalDeductionAmount = Some(300.00),
+    totalCostOfMaterials = Some(400.00),
+    totalGrossAmountPaid = Some(200.00),
+    periodData = Seq(aGetPeriodData)
+  )
 }

@@ -17,6 +17,7 @@
 package utils
 
 import akka.actor.ActorSystem
+import builders.models.UserBuilder.aUser
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.SessionValues
 import config.AppConfig
@@ -45,20 +46,11 @@ import views.html.templates.AgentAuthErrorPageView
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
-// scalastyle:off number.of.methods
-// scalastyle:off number.of.types
 trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSuite with WireMockHelper
   with WiremockStubHelpers with BeforeAndAfterAll {
-  val nino = "AA123456A"
-  val mtditid = "1234567890"
-  val sessionId = "sessionId-eb3158c2-0aff-4ce8-8d1b-f2208ace52fe"
-  val affinityGroup = "affinityGroup"
-  val taxYear = 2022
-
-  val xSessionId: (String, String) = "X-Session-ID" -> sessionId
 
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
-  implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> mtditid)
+  implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid)
 
   implicit val actorSystem: ActorSystem = ActorSystem()
 
@@ -183,37 +175,27 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
     )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L50
   )
 
-  def incorrectCredsRetrieval: Future[Enrolments ~ Some[AffinityGroup] ~ ConfidenceLevel] = Future.successful(
-    Enrolments(Set(
-      Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("UTR", "1234567890")), "Activated", None),
-      Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-    )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
-  )
-
   def playSessionCookies(taxYear: Int, extraData: Map[String, String] = Map.empty): String = PlaySessionCookieBaker.bakeSessionCookie(Map(
     SessionValues.TAX_YEAR -> taxYear.toString,
-    SessionKeys.sessionId -> sessionId,
-    SessionValues.CLIENT_NINO -> nino,
-    SessionValues.CLIENT_MTDITID -> mtditid
+    SessionKeys.sessionId -> aUser.sessionId,
+    SessionValues.CLIENT_NINO -> aUser.nino,
+    SessionValues.CLIENT_MTDITID -> aUser.mtditid
   ) ++ extraData)
 
 
   def userDataStub(userData: IncomeTaxUserData, nino: String, taxYear: Int): StubMapping = {
     stubGetWithHeadersCheck(
       s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
-      Json.toJson(userData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
+      Json.toJson(userData).toString(), "X-Session-ID" -> aUser.sessionId, "mtditid" -> aUser.mtditid)
   }
 
   def noUserDataStub(nino: String, taxYear: Int): StubMapping = {
 
     stubGetWithHeadersCheck(
       s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", NO_CONTENT,
-      "{}", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
+      "{}", "X-Session-ID" -> aUser.sessionId, "mtditid" -> aUser.mtditid)
   }
 
   val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
 }
-
-// scalastyle:off number.of.methods
-// scalastyle:off number.of.types

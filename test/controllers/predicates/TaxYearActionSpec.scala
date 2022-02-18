@@ -16,32 +16,29 @@
 
 package controllers.predicates
 
+import builders.models.UserBuilder.aUser
 import common.SessionValues
 import config.AppConfig
-import models.User
+import models.AuthorisationRequest
 import play.api.http.Status.SEE_OTHER
 import play.api.i18n.MessagesApi
-import uk.gov.hmrc.auth.core.AffinityGroup
 import utils.UnitTest
 
 class TaxYearActionSpec extends UnitTest {
-  val validTaxYear: Int = 2022
-  val invalidTaxYear: Int = 3000
 
-  implicit lazy val mockedConfig: AppConfig = mock[AppConfig]
-  implicit lazy val cc: MessagesApi = mockControllerComponents.messagesApi
+  private val validTaxYear: Int = 2022
+  private val invalidTaxYear: Int = 3000
 
-  def taxYearAction(taxYear: Int, reset: Boolean = true): TaxYearAction = new TaxYearAction(taxYear, reset)
+  private implicit lazy val mockedConfig: AppConfig = mock[AppConfig]
+  private implicit lazy val cc: MessagesApi = mockControllerComponents.messagesApi
+
+  private def taxYearAction(taxYear: Int, reset: Boolean = true): TaxYearAction = new TaxYearAction(taxYear, reset)
 
   "TaxYearAction.refine" should {
-
+    val request = fakeRequest.withSession(SessionValues.TAX_YEAR -> validTaxYear.toString)
     "return a Right(request)" when {
-
       "the tax year is within range of allowed years, and matches that in session if the feature switch is on" in {
-        lazy val userRequest = User("1234567890", None, "AA123456A",sessionId, AffinityGroup.Individual.toString)(
-          fakeRequest.withSession(SessionValues.TAX_YEAR -> validTaxYear.toString)
-        )
-
+        lazy val userRequest = AuthorisationRequest(aUser, request)
         lazy val result = {
           mockedConfig.defaultTaxYear _ expects() returning validTaxYear
           mockedConfig.taxYearErrorFeature _ expects() returning true
@@ -53,7 +50,8 @@ class TaxYearActionSpec extends UnitTest {
       }
 
       "the tax year is equal to the session value if the feature switch is off" in {
-        lazy val userRequest = User("1234567890", None, "AA123456A",sessionId, AffinityGroup.Individual.toString)(
+        lazy val userRequest = AuthorisationRequest(
+          aUser,
           fakeRequest.withSession(SessionValues.TAX_YEAR -> (validTaxYear + 1).toString)
         )
 
@@ -67,9 +65,7 @@ class TaxYearActionSpec extends UnitTest {
       }
 
       "the tax year is different to the session value if the reset variable input is false" in {
-        lazy val userRequest = User("1234567890", None, "AA123456A",sessionId, AffinityGroup.Individual.toString)(
-          fakeRequest.withSession(SessionValues.TAX_YEAR -> (validTaxYear).toString)
-        )
+        lazy val userRequest = AuthorisationRequest(aUser, request)
 
         lazy val result = {
           mockedConfig.taxYearErrorFeature _ expects() returning false
@@ -79,14 +75,13 @@ class TaxYearActionSpec extends UnitTest {
 
         result.isRight shouldBe true
       }
-
     }
 
     "return a Left(result)" when {
-
       "the tax year is different from that in session and the feature switch is off" which {
-        lazy val userRequest = User("1234567890", None, "AA123456A",sessionId, AffinityGroup.Individual.toString)(
-          fakeRequest.withSession(SessionValues.TAX_YEAR ->validTaxYear.toString)
+        lazy val userRequest = AuthorisationRequest(
+          aUser,
+          request
         )
 
         lazy val result = {
@@ -111,9 +106,7 @@ class TaxYearActionSpec extends UnitTest {
       }
 
       "the tax year is outside of the allowed limit while the feature switch is on" which {
-        lazy val userRequest = User("1234567890", None, "AA123456A",sessionId, AffinityGroup.Individual.toString)(
-          fakeRequest.withSession(SessionValues.TAX_YEAR -> validTaxYear.toString)
-        )
+        lazy val userRequest = AuthorisationRequest(aUser, request)
 
         lazy val result = {
           mockedConfig.taxYearErrorFeature _ expects() returning true
@@ -132,5 +125,4 @@ class TaxYearActionSpec extends UnitTest {
       }
     }
   }
-
 }

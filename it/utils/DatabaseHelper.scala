@@ -16,7 +16,7 @@
 
 package utils
 
-import models.User
+import models.AuthorisationRequest
 import models.mongo.CisUserData
 import repositories.CisUserDataRepositoryImpl
 
@@ -32,13 +32,13 @@ trait DatabaseHelper {
   }
 
   //noinspection ScalaStyle
-  def insertCyaData(cya: CisUserData, user: User[_]) {
-    await(cisDatabase.createOrUpdate(cya)(user))
+  def insertCyaData(cya: CisUserData, request: AuthorisationRequest[_]): Unit = {
+    await(cisDatabase.createOrUpdate(cya)(request))
   }
 
   //noinspection ScalaStyle
-  def findCyaData(taxYear: Int, user: User[_]): Option[CisUserData] = {
-    await(cisDatabase.find(taxYear)(user).map {
+  def findCyaData(taxYear: Int, request: AuthorisationRequest[_]): Option[CisUserData] = {
+    await(cisDatabase.find(taxYear)(request).map {
       case Left(_) => None
       case Right(value) => value
     })
