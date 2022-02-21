@@ -46,8 +46,12 @@ import views.html.templates.AgentAuthErrorPageView
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
 
-trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSuite with WireMockHelper
-  with WiremockStubHelpers with BeforeAndAfterAll {
+trait IntegrationTest extends AnyWordSpec
+  with Matchers
+  with GuiceOneServerPerSuite
+  with WireMockHelper
+  with WiremockStubHelpers
+  with BeforeAndAfterAll {
 
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid)
@@ -182,20 +186,21 @@ trait IntegrationTest extends AnyWordSpec with Matchers with GuiceOneServerPerSu
     SessionValues.CLIENT_MTDITID -> aUser.mtditid
   ) ++ extraData)
 
+  def userDataStub(userData: IncomeTaxUserData, nino: String, taxYear: Int): StubMapping = stubGetWithHeadersCheck(
+    url = s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear",
+    status = OK,
+    responseBody = Json.toJson(userData).toString(),
+    sessionHeader = "X-Session-ID" -> aUser.sessionId,
+    mtdidHeader = "mtditid" -> aUser.mtditid
+  )
 
-  def userDataStub(userData: IncomeTaxUserData, nino: String, taxYear: Int): StubMapping = {
-    stubGetWithHeadersCheck(
-      s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
-      Json.toJson(userData).toString(), "X-Session-ID" -> aUser.sessionId, "mtditid" -> aUser.mtditid)
-  }
-
-  def noUserDataStub(nino: String, taxYear: Int): StubMapping = {
-
-    stubGetWithHeadersCheck(
-      s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", NO_CONTENT,
-      "{}", "X-Session-ID" -> aUser.sessionId, "mtditid" -> aUser.mtditid)
-  }
+  def noUserDataStub(nino: String, taxYear: Int): StubMapping = stubGetWithHeadersCheck(
+    url = s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear",
+    status = NO_CONTENT,
+    responseBody = "{}",
+    sessionHeader = "X-Session-ID" -> aUser.sessionId,
+    mtdidHeader = "mtditid" -> aUser.mtditid
+  )
 
   val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-
 }

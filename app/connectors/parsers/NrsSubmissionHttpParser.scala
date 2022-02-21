@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package connectors.httpParsers
+package connectors.parsers
 
 import models.APIErrorModel
 import play.api.http.Status._

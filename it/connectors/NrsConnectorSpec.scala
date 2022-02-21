@@ -18,18 +18,19 @@ package connectors
 
 import builders.models.UserBuilder.aUser
 import models.{APIErrorBodyModel, APIErrorModel}
-import play.api.libs.json.{JsString, Writes}
 import play.mvc.Http.Status._
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
-import utils.IntegrationTest
+import utils.ConnectorIntegrationTest
 
-class NrsConnectorSpec extends IntegrationTest {
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
 
-  private lazy val connector: NrsConnector = app.injector.instanceOf[NrsConnector]
+class NrsConnectorSpec extends ConnectorIntegrationTest {
+
+  private lazy val underTest: NrsConnector = new NrsConnector(httpClient, appConfig)
 
   private implicit val headerCarrierWithSession: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(aUser.sessionId)))
-
-  private implicit val writesObject: Writes[String] = (o: String) => JsString(o)
 
   private val url: String = s"/income-tax-nrs-proxy/${aUser.nino}/itsa-personal-income-submission"
 
@@ -37,7 +38,7 @@ class NrsConnectorSpec extends IntegrationTest {
     "return an Accepted response when successful" in {
       stubPost(url, ACCEPTED, "{}")
 
-      await(connector.postNrsConnector(aUser.nino, "cis")) shouldBe Right()
+      Await.result(underTest.postNrsConnector(aUser.nino, "cis"), Duration.Inf) shouldBe Right()
     }
 
     "return an InternalServerError" in {
@@ -45,7 +46,7 @@ class NrsConnectorSpec extends IntegrationTest {
 
       stubPost(url, INTERNAL_SERVER_ERROR, expectedResult.toJson.toString())
 
-      await(connector.postNrsConnector(aUser.nino, "cis")) shouldBe Left(expectedResult)
+      Await.result(underTest.postNrsConnector(aUser.nino, "cis"), Duration.Inf) shouldBe Left(expectedResult)
     }
 
     "return a NotFound error" in {
@@ -53,7 +54,7 @@ class NrsConnectorSpec extends IntegrationTest {
 
       stubPost(url, NOT_FOUND, expectedResult.toJson.toString())
 
-      await(connector.postNrsConnector(aUser.nino, "cis")) shouldBe Left(expectedResult)
+      Await.result(underTest.postNrsConnector(aUser.nino, "cis"), Duration.Inf) shouldBe Left(expectedResult)
     }
 
     "return a ParsingError when an unexpected error has occurred" in {
@@ -61,7 +62,7 @@ class NrsConnectorSpec extends IntegrationTest {
 
       stubPost(url, CONFLICT, expectedResult.toJson.toString())
 
-      await(connector.postNrsConnector(aUser.nino, "cis")) shouldBe Left(expectedResult)
+      Await.result(underTest.postNrsConnector(aUser.nino, "cis"), Duration.Inf) shouldBe Left(expectedResult)
     }
   }
 }

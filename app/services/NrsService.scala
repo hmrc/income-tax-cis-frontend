@@ -17,14 +17,14 @@
 package services
 
 import connectors.NrsConnector
-import connectors.httpParsers.NrsSubmissionHttpParser.NrsSubmissionResponse
-import javax.inject.Inject
+import connectors.parsers.NrsSubmissionHttpParser.NrsSubmissionResponse
 import play.api.libs.json.Writes
 import uk.gov.hmrc.http.HeaderCarrier
 
+import javax.inject.Inject
 import scala.concurrent.Future
 
-class NrsService @Inject() (nrsConnector: NrsConnector) {
+class NrsService @Inject()(nrsConnector: NrsConnector) {
 
   def submit[A](nino: String, payload: A, mtditid: String)(implicit hc: HeaderCarrier, writes: Writes[A]): Future[NrsSubmissionResponse] = {
 

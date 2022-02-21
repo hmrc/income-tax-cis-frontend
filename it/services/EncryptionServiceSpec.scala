@@ -20,34 +20,32 @@ import builders.models.mongo.CisUserDataBuilder.aCisUserData
 import models.mongo.EncryptedCisUserData
 import utils.IntegrationTest
 
-class EncryptionServiceTest extends IntegrationTest {
+class EncryptionServiceSpec extends IntegrationTest {
 
   private val underTest: EncryptionService = app.injector.instanceOf[EncryptionService]
 
   "encryptUserData" should {
-    val data = aCisUserData
-
     "encrypt relevant cis user data" in {
       val result = underTest.encryptUserData(aCisUserData)
 
       result shouldBe EncryptedCisUserData(
-        sessionId = data.sessionId,
-        mtdItId = data.mtdItId,
-        nino = data.nino,
-        taxYear = data.taxYear,
-        employerRef = data.employerRef,
-        submissionId = data.submissionId,
-        isPriorSubmission = data.isPriorSubmission,
+        sessionId = aCisUserData.sessionId,
+        mtdItId = aCisUserData.mtdItId,
+        nino = aCisUserData.nino,
+        taxYear = aCisUserData.taxYear,
+        employerRef = aCisUserData.employerRef,
+        submissionId = aCisUserData.submissionId,
+        isPriorSubmission = aCisUserData.isPriorSubmission,
         cis = result.cis,
         lastUpdated = result.lastUpdated
       )
     }
 
     "encrypt the data and decrypt it back to the initial model" in {
-      val encryptResult = underTest.encryptUserData(data)
+      val encryptResult = underTest.encryptUserData(aCisUserData)
       val decryptResult = underTest.decryptUserData(encryptResult)
 
-      decryptResult shouldBe data
+      decryptResult shouldBe aCisUserData
     }
   }
 }
