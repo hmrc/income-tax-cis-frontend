@@ -22,8 +22,5 @@ import models.IncomeTaxUserData
 object IncomeTaxUserDataBuilder {
 
   val anIncomeTaxUserData: IncomeTaxUserData =
-    IncomeTaxUserData(
-      cis = Some(anAllCISDeductions)
-    )
-
+    IncomeTaxUserData(cis = Some(anAllCISDeductions))
 }

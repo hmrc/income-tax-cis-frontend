@@ -32,5 +32,4 @@ object CisDeductionsBuilder {
       totalGrossAmountPaid = Some(200.00),
       periodData = Seq(aGetPeriodData)
     )
-
 }

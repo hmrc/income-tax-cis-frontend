@@ -17,14 +17,14 @@
 package builders.models
 
 import models.GetPeriodData
-import utils.{AUGUST, MAY}
+
+import java.time.Month
 
 object GetPeriodDataBuilder {
 
   val aGetPeriodData: GetPeriodData =
     GetPeriodData(
-      deductionFromDate = MAY,
-      deductionToDate = AUGUST,
+      deductionPeriod = Month.MAY,
       deductionAmount = Some(100.00),
       costOfMaterials = Some(50.00),
       grossAmountPaid = Some(450.00),
@@ -32,5 +32,4 @@ object GetPeriodDataBuilder {
       submissionId = Some("submissionId"),
       source = "customer"
     )
-
 }
