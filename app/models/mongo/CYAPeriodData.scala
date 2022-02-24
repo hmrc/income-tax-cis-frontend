@@ -17,7 +17,7 @@
 package models.mongo
 
 import org.joda.time.DateTime
-import play.api.libs.json.{Format, JsPath, JsString, Json, OFormat, Reads, Writes}
+import play.api.libs.json._
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
 import utils.EncryptedValue
 
@@ -29,14 +29,11 @@ case class CYAPeriodData(deductionPeriod: Month,
                          costOfMaterialsQuestion: Option[Boolean] = None,
                          costOfMaterials: Option[BigDecimal] = None) {
 
-  val isFinished: Boolean = {
-
-    val costOfMaterialsFinished = {
-      costOfMaterialsQuestion match {
-        case Some(true) => costOfMaterials.isDefined
-        case Some(false) => true
-        case None => false
-      }
+  def isFinished(): Boolean = {
+    val costOfMaterialsFinished = costOfMaterialsQuestion match {
+      case Some(true) => costOfMaterials.isDefined
+      case Some(false) => true
+      case None => false
     }
 
     grossAmountPaid.isDefined &&

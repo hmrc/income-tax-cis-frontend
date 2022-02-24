@@ -17,28 +17,16 @@
 package builders.models.mongo
 
 import models.mongo.CYAPeriodData
-import play.api.libs.json.{JsObject, Json}
 
 import java.time.Month
 
 object CYAPeriodDataBuilder {
 
-  val aCYAPeriodData: CYAPeriodData =
-    CYAPeriodData(
-      deductionPeriod = Month.MAY,
-      grossAmountPaid = Some(500.00),
-      deductionAmount = Some(100.00),
-      costOfMaterialsQuestion = Some(true),
-      costOfMaterials = Some(250.00)
-    )
-
-  val aCYAPeriodDataJson: JsObject =
-    Json.obj(
-    "deductionPeriod"-> Month.MAY.toString,
-      "grossAmountPaid" -> Some(500.00),
-      "deductionAmount" -> Some(100.00),
-      "costOfMaterialsQuestion" -> Some(true),
-      "costOfMaterials" -> Some(250.00)
+  val aCYAPeriodData: CYAPeriodData = CYAPeriodData(
+    deductionPeriod = Month.MAY,
+    grossAmountPaid = Some(500.00),
+    deductionAmount = Some(100.00),
+    costOfMaterialsQuestion = Some(true),
+    costOfMaterials = Some(250.00)
   )
-
 }

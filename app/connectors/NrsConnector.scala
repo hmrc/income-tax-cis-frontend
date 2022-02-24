@@ -17,11 +17,11 @@
 package connectors
 
 import config.AppConfig
-import connectors.httpParsers.NrsSubmissionHttpParser.{NrsSubmissionHttpReads, NrsSubmissionResponse}
-import javax.inject.Inject
+import connectors.parsers.NrsSubmissionHttpParser.{NrsSubmissionHttpReads, NrsSubmissionResponse}
 import play.api.libs.json.Writes
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class NrsConnector @Inject()(val http: HttpClient,

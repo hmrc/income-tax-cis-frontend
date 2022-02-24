@@ -25,7 +25,8 @@ class MockAppConfig extends MockFactory {
   def config(encrypt: Boolean = true): AppConfig = new AppConfig(mock[ServicesConfig]) {
     override lazy val signInUrl: String = "/signIn"
 
-    override lazy val nrsProxyBaseUrl: String = "/nrsProxyBaseUrl"
+    override lazy val incomeTaxSubmissionBEBaseUrl: String = s"http://localhost:11111"
+    override lazy val nrsProxyBaseUrl: String = "http://localhost:11111"
 
     override lazy val defaultTaxYear: Int = 2022
 

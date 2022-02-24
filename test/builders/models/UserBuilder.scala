@@ -16,21 +16,16 @@
 
 package builders.models
 
-import builders.models.mongo.CisUserDataBuilder.aCisUserData
 import models.User
-import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.AffinityGroup
 
 object UserBuilder {
 
-  val aUser: User[AnyContentAsEmpty.type] =
-    User(
-      mtditid = aCisUserData.mtdItId,
-      arn = None,
-      nino = aCisUserData.nino,
-      sessionId = aCisUserData.sessionId,
-      affinityGroup = "affinityGroup")(FakeRequest()
-
-    )
-
+  val aUser: User = User(
+    mtditid = "1234567890",
+    arn = None,
+    nino = "AA123456A",
+    sessionId = "sessionId-eb3158c2-0aff-4ce8-8d1b-f2208ace52fe",
+    affinityGroup = AffinityGroup.Individual.toString
+  )
 }

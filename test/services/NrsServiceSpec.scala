@@ -17,7 +17,7 @@
 package services
 
 import connectors.NrsConnector
-import connectors.httpParsers.NrsSubmissionHttpParser.NrsSubmissionResponse
+import connectors.parsers.NrsSubmissionHttpParser.NrsSubmissionResponse
 import play.api.libs.json.{JsString, Writes}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.UnitTest

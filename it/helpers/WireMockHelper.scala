@@ -16,6 +16,7 @@
 
 package helpers
 
+import builders.models.UserBuilder.aUser
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.client.{MappingBuilder, WireMock}
@@ -35,7 +36,6 @@ trait WireMockHelper {
 
   lazy val wmConfig: WireMockConfiguration = wireMockConfig().port(wiremockPort)
   lazy val wireMockServer = new WireMockServer(wmConfig)
-
 
 
   def startWiremock(): Unit = {
@@ -69,7 +69,11 @@ trait WireMockHelper {
       )
     )
 
-  def stubGetWithHeadersCheck(url: String, status: Int, responseBody: String, sessionHeader: (String, String), mtdidHeader: (String, String)): StubMapping =
+  def stubGetWithHeadersCheck(url: String,
+                              status: Int,
+                              responseBody: String,
+                              sessionHeader: (String, String) = "X-Session-ID" -> aUser.sessionId,
+                              mtdidHeader: (String, String) = "mtditid" -> aUser.mtditid): StubMapping =
     stubFor(get(urlMatching(url))
       .withHeader(sessionHeader._1, equalTo(sessionHeader._2))
       .withHeader(mtdidHeader._1, equalTo(mtdidHeader._2))
@@ -81,7 +85,7 @@ trait WireMockHelper {
     )
 
   def stubPost(url: String, status: Int, responseBody: String, requestHeaders: Seq[HttpHeader] = Seq.empty): StubMapping = {
-    val mappingWithHeaders: MappingBuilder = requestHeaders.foldLeft(post(urlMatching(url))){ (result, nxt) =>
+    val mappingWithHeaders: MappingBuilder = requestHeaders.foldLeft(post(urlMatching(url))) { (result, nxt) =>
       result.withHeader(nxt.key(), equalTo(nxt.firstValue()))
     }
 
@@ -93,8 +97,9 @@ trait WireMockHelper {
       )
     )
   }
+
   def stubPut(url: String, status: Int, responseBody: String, requestHeaders: Seq[HttpHeader] = Seq.empty): StubMapping = {
-    val mappingWithHeaders: MappingBuilder = requestHeaders.foldLeft(put(urlMatching(url))){ (result, nxt) =>
+    val mappingWithHeaders: MappingBuilder = requestHeaders.foldLeft(put(urlMatching(url))) { (result, nxt) =>
       result.withHeader(nxt.key(), equalTo(nxt.firstValue()))
     }
 

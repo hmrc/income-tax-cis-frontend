@@ -21,9 +21,8 @@ import models.AllCISDeductions
 
 object AllCISDeductionsBuilder {
 
-  val anAllCISDeductions: AllCISDeductions =
-    AllCISDeductions(
-      customerCISDeductions = Some(aCISSource),
-      contractorCISDeductions = Some(aCISSource)
-    )
+  val anAllCISDeductions: AllCISDeductions = AllCISDeductions(
+    customerCISDeductions = Some(aCISSource),
+    contractorCISDeductions = Some(aCISSource)
+  )
 }

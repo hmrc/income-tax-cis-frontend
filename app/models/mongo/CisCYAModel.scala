@@ -24,9 +24,7 @@ import utils.EncryptedValue
 case class CisCYAModel(contractorName: String,
                        periodData: Seq[CYAPeriodData]) {
 
-  val isFinished: Boolean = {
-    periodData.nonEmpty
-  }
+  def isFinished(): Boolean = periodData.nonEmpty
 }
 
 object CisCYAModel {

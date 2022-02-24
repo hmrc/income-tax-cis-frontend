@@ -16,15 +16,24 @@
 
 package models
 
-import builders.models.mongo.CYAPeriodDataBuilder.{aCYAPeriodData, aCYAPeriodDataJson}
+import builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import models.mongo.CYAPeriodData
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import utils.UnitTest
+
+import java.time.Month
 
 class CYAPeriodDataSpec extends UnitTest {
 
-  "CYAPeriodData" should {
+  val aCYAPeriodDataJson: JsObject = Json.obj(
+    "deductionPeriod" -> Month.MAY.toString,
+    "grossAmountPaid" -> Some(500.00),
+    "deductionAmount" -> Some(100.00),
+    "costOfMaterialsQuestion" -> Some(true),
+    "costOfMaterials" -> Some(250.00)
+  )
 
+  "CYAPeriodData" should {
     "write to Json correctly when using implicit writes" in {
       val actualResult = Json.toJson(aCYAPeriodData)
       actualResult shouldBe aCYAPeriodDataJson
@@ -37,7 +46,6 @@ class CYAPeriodDataSpec extends UnitTest {
   }
 
   "CYAPeriodData.isFinish" should {
-
     "return true" when {
       "grossAmountPaid.isDefined, deductionAmount.isDefined and costOfMaterialsQuestion is false" in {
         val result = aCYAPeriodData.copy(costOfMaterialsQuestion = Some(false), costOfMaterials = None)
@@ -71,5 +79,4 @@ class CYAPeriodDataSpec extends UnitTest {
       }
     }
   }
-
 }

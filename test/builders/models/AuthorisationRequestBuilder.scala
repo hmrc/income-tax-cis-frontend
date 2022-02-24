@@ -16,15 +16,15 @@
 
 package builders.models
 
-import builders.models.CisDeductionsBuilder.aCisDeductions
-import models.CISSource
+import builders.models.mongo.CisUserDataBuilder.aCisUserData
+import models.{AuthorisationRequest, User}
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
 
-object CISSourceBuilder {
+object AuthorisationRequestBuilder {
 
-  val aCISSource: CISSource = CISSource(
-    totalDeductionAmount = Some(900.00),
-    totalCostOfMaterials = Some(800.00),
-    totalGrossAmountPaid = Some(700.00),
-    cisDeductions = Seq(aCisDeductions)
+  val anAuthorisationRequest: AuthorisationRequest[AnyContentAsEmpty.type] = AuthorisationRequest(
+    User(aCisUserData.mtdItId, None, aCisUserData.nino, aCisUserData.sessionId, "affinityGroup"),
+    FakeRequest()
   )
 }

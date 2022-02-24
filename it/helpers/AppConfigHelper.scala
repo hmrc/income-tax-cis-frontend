@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 
-package builders.models
+package helpers
 
-import builders.models.CisDeductionsBuilder.aCisDeductions
-import models.CISSource
+import config.{AppConfig, MockAppConfig}
 
-object CISSourceBuilder {
+trait AppConfigHelper {
 
-  val aCISSource: CISSource = CISSource(
-    totalDeductionAmount = Some(900.00),
-    totalCostOfMaterials = Some(800.00),
-    totalGrossAmountPaid = Some(700.00),
-    cisDeductions = Seq(aCisDeductions)
-  )
+  val appConfig: AppConfig = new MockAppConfig().config()
 }

@@ -17,31 +17,29 @@
 package connectors
 
 import builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
+import builders.models.UserBuilder.aUser
 import models.{APIErrorBodyModel, APIErrorModel, IncomeTaxUserData}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.test.Helpers.OK
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
-import utils.IntegrationTest
+import utils.ConnectorIntegrationTest
 
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class IncomeTaxUserDataConnectorSpec extends IntegrationTest {
+class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
 
-  private lazy val connector: IncomeTaxUserDataConnector = app.injector.instanceOf[IncomeTaxUserDataConnector]
-  private lazy val externalConnector: IncomeTaxUserDataConnector = appWithFakeExternalCall.injector.instanceOf[IncomeTaxUserDataConnector]
+  private val taxYear = 2022
+  private implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid, "X-Session-ID" -> aUser.sessionId)
 
-  implicit override val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> mtditid, "X-Session-ID" -> sessionId)
+  private lazy val underTest = new IncomeTaxUserDataConnector(httpClient, appConfig)
 
   "IncomeTaxUserDataConnector" should {
     "Return a success result" when {
       "submission returns a 204" in {
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", NO_CONTENT, responseBody = "{}")
 
-        stubGetWithHeadersCheck(s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", NO_CONTENT,
-          "{}", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
-
-        Await.result(connector.getUserData(nino, taxYear), Duration.Inf) shouldBe Right(IncomeTaxUserData())
+        await(underTest.getUserData(aUser.nino, taxYear)) shouldBe Right(IncomeTaxUserData())
       }
 
       "submission returns a 200" in {
@@ -107,50 +105,49 @@ class IncomeTaxUserDataConnectorSpec extends IntegrationTest {
             |  }
             |}""".stripMargin
 
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", OK,
+          expectedResponse, "X-Session-ID" -> aUser.sessionId, "mtditid" -> aUser.mtditid)
 
-        stubGetWithHeadersCheck(s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
-          expectedResponse, "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
-
-        Await.result(connector.getUserData(nino, taxYear), Duration.Inf) shouldBe Right(anIncomeTaxUserData)
+        await(underTest.getUserData(aUser.nino, taxYear)) shouldBe Right(anIncomeTaxUserData)
       }
     }
 
     "Return an error result" when {
-      "the stub isn't matched due to the call being external as the headers won't be passed along" in {
-        implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid" -> mtditid)
+      "the header carrier not as expected" in {
+        val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid" -> aUser.mtditid)
 
-        stubGetWithHeadersCheck(s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
-          Json.toJson(anIncomeTaxUserData).toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", OK,
+          Json.toJson(anIncomeTaxUserData).toString(), "X-Session-ID" -> aUser.sessionId, "mtditid" -> aUser.mtditid)
 
-        Await.result(externalConnector.getUserData(nino, taxYear)(hc), Duration.Inf) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError))
+        await(underTest.getUserData(aUser.nino, taxYear)(hc)) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError))
       }
 
       "submission returns a 200 but invalid json" in {
-        stubGetWithHeadersCheck(s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", OK,
-          Json.toJson("""{"invalid": true}""").toString(), "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", OK,
+          Json.toJson("""{"invalid": true}""").toString())
 
-        Await.result(connector.getUserData(nino, taxYear), Duration.Inf) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError))
+        await(underTest.getUserData(aUser.nino, taxYear)) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError))
       }
 
       "submission returns a 500" in {
-        stubGetWithHeadersCheck(s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR,
-          """{"code": "FAILED", "reason": "failed"}""", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR,
+          """{"code": "FAILED", "reason": "failed"}""")
 
-        Await.result(connector.getUserData(nino, taxYear), Duration.Inf) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("FAILED", "failed")))
+        await(underTest.getUserData(aUser.nino, taxYear)) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("FAILED", "failed")))
       }
 
       "submission returns a 503" in {
-        stubGetWithHeadersCheck(s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", SERVICE_UNAVAILABLE,
-          """{"code": "FAILED", "reason": "failed"}""", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", SERVICE_UNAVAILABLE,
+          """{"code": "FAILED", "reason": "failed"}""")
 
-        Await.result(connector.getUserData(nino, taxYear), Duration.Inf) shouldBe Left(APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("FAILED", "failed")))
+        await(underTest.getUserData(aUser.nino, taxYear)) shouldBe Left(APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("FAILED", "failed")))
       }
 
       "submission returns an unexpected result" in {
-        stubGetWithHeadersCheck(s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear", BAD_REQUEST,
-          """{"code": "FAILED", "reason": "failed"}""", "X-Session-ID" -> sessionId, "mtditid" -> mtditid)
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", BAD_REQUEST,
+          """{"code": "FAILED", "reason": "failed"}""")
 
-        Await.result(connector.getUserData(nino, taxYear), Duration.Inf) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("FAILED", "failed")))
+        await(underTest.getUserData(aUser.nino, taxYear)) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("FAILED", "failed")))
       }
     }
   }

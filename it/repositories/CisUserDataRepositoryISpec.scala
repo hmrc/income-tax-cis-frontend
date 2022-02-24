@@ -20,15 +20,14 @@ import builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import builders.models.mongo.CisUserDataBuilder.aCisUserData
 import com.mongodb.MongoTimeoutException
 import common.UUID
-import models.User
+import models.AuthorisationRequest
 import models.mongo._
 import org.joda.time.{DateTime, DateTimeZone}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import org.mongodb.scala.{MongoException, MongoInternalException, MongoWriteException}
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
-import play.api.mvc.AnyContent
-import play.api.test.{DefaultAwaitTimeout, FakeRequest, FutureAwaits}
+import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import services.EncryptionService
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.mongo.MongoUtils
@@ -39,17 +38,17 @@ import scala.concurrent.Future
 
 class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with DefaultAwaitTimeout {
 
+  private val taxYear = 2022
   private val repo: CisUserDataRepositoryImpl = app.injector.instanceOf[CisUserDataRepositoryImpl]
   private val encryptionService = app.injector.instanceOf[EncryptionService]
+  private val sessionIdOne = UUID.randomUUID
+  private val now = DateTime.now(DateTimeZone.UTC)
+  private val userDataFull: CisUserData = aCisUserData.copy(sessionId = sessionIdOne)
+  private val userDataOne: CisUserData = aCisUserData.copy(sessionId = sessionIdOne, taxYear = taxYear, lastUpdated = now)
+  private val userOne = AuthorisationRequest(models.User(userDataOne.mtdItId, None, userDataOne.nino, userDataOne.sessionId, Individual.toString), fakeRequest)
+  private val repoWithInvalidEncryption = appWithInvalidEncryptionKey.injector.instanceOf[CisUserDataRepositoryImpl]
 
   private def count = await(repo.collection.countDocuments().toFuture())
-
-  private def find(cisUserData: CisUserData)(implicit user: User[_]): Future[Option[EncryptedCisUserData]] = {
-    repo.collection
-      .find(filter = Repository.filter(user.sessionId, user.mtditid, user.nino, cisUserData.taxYear))
-      .toFuture()
-      .map(_.headOption)
-  }
 
   private def countFromOtherDatabase = await(repo.collection.countDocuments().toFuture())
 
@@ -58,52 +57,6 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
     await(repo.ensureIndexes)
     count mustBe 0
   }
-  private val sessionIdOne = UUID.randomUUID
-  private val sessionIdTwo = UUID.randomUUID
-
-  private val now = DateTime.now(DateTimeZone.UTC)
-
-  val userDataOne: CisUserData = CisUserData(
-    sessionIdOne,
-    mtditid,
-    nino,
-    taxYear,
-    employerRef = aCisUserData.employerRef,
-    submissionId = Some(aCisUserData.sessionId),
-    isPriorSubmission = true,
-    cis = Some(aCisCYAModel),
-    lastUpdated = now
-  )
-
-  val userDataFull: CisUserData = CisUserData(
-    sessionIdOne,
-    mtditid,
-    nino,
-    taxYear,
-    employerRef = aCisUserData.employerRef,
-    submissionId = Some(aCisUserData.sessionId),
-    isPriorSubmission = true,
-    cis = Some(aCisCYAModel),
-    lastUpdated = now
-  )
-
-  val userDataTwo: CisUserData = CisUserData(
-    sessionIdTwo,
-    mtditid,
-    nino,
-    taxYear,
-    employerRef = aCisUserData.employerRef,
-    submissionId = Some(aCisUserData.sessionId),
-    isPriorSubmission = true,
-    cis = Some(aCisCYAModel),
-    lastUpdated = now
-  )
-
-  implicit val request: FakeRequest[AnyContent] = fakeRequest
-
-  private val userOne = User(userDataOne.mtdItId, None, userDataOne.nino, userDataOne.sessionId, Individual.toString)
-
-  private val repoWithInvalidEncryption = appWithInvalidEncryptionKey.injector.instanceOf[CisUserDataRepositoryImpl]
 
   "update with invalid encryption" should {
     "fail to add data" in new EmptyDatabase {
@@ -145,7 +98,6 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
 
   "createOrUpdate" should {
     "fail to add a document to the collection when a mongo error occurs" in new EmptyDatabase {
-
       def ensureIndexes: Future[Seq[String]] = {
         val indexes = Seq(IndexModel(ascending("taxYear"), IndexOptions().unique(true).name("fakeIndex")))
         MongoUtils.ensureIndexes(repo.collection, indexes, replaceIndexes = true)
@@ -242,9 +194,8 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
   "mongoRecover" should {
     Seq(new MongoTimeoutException(""), new MongoInternalException(""), new MongoException("")).foreach { exception =>
       s"recover when the exception is a MongoException or a subclass of MongoException - ${exception.getClass.getSimpleName}" in {
-        val result =
-          Future.failed(exception)
-            .recover(repo.mongoRecover[Int]("CreateOrUpdate", FAILED_TO_CREATE_UPDATE_CIS_DATA)(userOne))
+        val result = Future.failed(exception)
+          .recover(repo.mongoRecover[Int]("CreateOrUpdate", FAILED_TO_CREATE_UPDATE_CIS_DATA)(userOne))
 
         await(result) mustBe None
       }
@@ -252,9 +203,8 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
 
     Seq(new NullPointerException(""), new RuntimeException("")).foreach { exception =>
       s"not recover when the exception is not a subclass of MongoException - ${exception.getClass.getSimpleName}" in {
-        val result =
-          Future.failed(exception)
-            .recover(repo.mongoRecover[Int]("CreateOrUpdate", FAILED_TO_CREATE_UPDATE_CIS_DATA)(userOne))
+        val result = Future.failed(exception)
+          .recover(repo.mongoRecover[Int]("CreateOrUpdate", FAILED_TO_CREATE_UPDATE_CIS_DATA)(userOne))
 
         assertThrows[RuntimeException] {
           await(result)

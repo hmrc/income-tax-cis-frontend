@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-package builders.models
+package models
 
-import builders.models.CisDeductionsBuilder.aCisDeductions
-import models.CISSource
+import play.api.mvc.{Request, WrappedRequest}
 
-object CISSourceBuilder {
-
-  val aCISSource: CISSource = CISSource(
-    totalDeductionAmount = Some(900.00),
-    totalCostOfMaterials = Some(800.00),
-    totalGrossAmountPaid = Some(700.00),
-    cisDeductions = Seq(aCisDeductions)
-  )
-}
+case class AuthorisationRequest[T](user: User, request: Request[T]) extends WrappedRequest[T](request)

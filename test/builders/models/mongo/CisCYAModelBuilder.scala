@@ -25,5 +25,4 @@ object CisCYAModelBuilder {
     contractorName = "ABC Steelworks",
     periodData = Seq(aCYAPeriodData)
   )
-
 }
