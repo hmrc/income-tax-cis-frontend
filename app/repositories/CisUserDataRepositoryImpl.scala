@@ -25,23 +25,21 @@ import org.joda.time.{DateTime, DateTimeZone}
 import org.mongodb.scala.MongoException
 import org.mongodb.scala.model.{FindOneAndReplaceOptions, FindOneAndUpdateOptions}
 import play.api.Logging
-import services.EncryptionService
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.Codecs.toBson
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
 import utils.PagerDutyHelper.PagerDutyKeys.{FAILED_TO_CREATE_UPDATE_CIS_DATA, FAILED_TO_ClEAR_CIS_DATA, FAILED_TO_FIND_CIS_DATA}
 import utils.PagerDutyHelper.{PagerDutyKeys, pagerDutyLog}
+import utils.SecureGCMCipher
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 @Singleton
-class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent,
-                                          appConfig: AppConfig,
-                                          encryptionService: EncryptionService)
-                                         (implicit ec: ExecutionContext) extends PlayMongoRepository[EncryptedCisUserData](
+class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppConfig)
+                                         (implicit secureGCMCipher: SecureGCMCipher, ec: ExecutionContext) extends PlayMongoRepository[EncryptedCisUserData](
   mongoComponent = mongo,
   collectionName = "cisUserData",
   domainFormat = EncryptedCisUserData.formats,
@@ -66,7 +64,10 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent,
       case Left(error) => Left(error)
       case Right(encryptedData) =>
         Try {
-          encryptedData.map(encryptionService.decryptUserData)
+          encryptedData.map { encryptedCisUserData: EncryptedCisUserData =>
+            implicit val textAndKey: TextAndKey = TextAndKey(encryptedCisUserData.mtdItId, appConfig.encryptionKey)
+            encryptedCisUserData.decrypted
+          }
         }.toEither match {
           case Left(exception: Exception) => handleEncryptionDecryptionException(exception, start)
           case Right(decryptedData) => Right(decryptedData)
@@ -74,12 +75,12 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent,
     }
   }
 
-  def createOrUpdate[T](userData: CisUserData)(implicit user: AuthorisationRequest[T]): Future[Either[DatabaseError, Unit]] = {
-
+  def createOrUpdate[T](cisUserData: CisUserData)(implicit request: AuthorisationRequest[T]): Future[Either[DatabaseError, Unit]] = {
     lazy val start = "[CisUserDataRepositoryImpl][update]"
 
     Try {
-      encryptionService.encryptUserData(userData)
+      implicit val textAndKey: TextAndKey = TextAndKey(cisUserData.mtdItId, appConfig.encryptionKey)
+      cisUserData.encrypted
     }.toEither match {
       case Left(exception: Exception) => Future.successful(handleEncryptionDecryptionException(exception, start))
       case Right(encryptedData) =>

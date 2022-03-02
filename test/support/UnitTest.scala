@@ -14,22 +14,9 @@
  * limitations under the License.
  */
 
-package models
+package support
 
-import builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
-import utils.UnitTest
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class CisCYAModelSpec extends UnitTest {
-
-  "CisCYAModel.isFinished" should {
-    "return true when CYAPeriodData is not empty" in {
-      aCisCYAModel.isFinished shouldBe true
-    }
-
-    "return false when CYAPeriodData is empty" in {
-      val result = aCisCYAModel.copy(periodData = Seq())
-      result.isFinished shouldBe false
-    }
-  }
-
-}
+trait UnitTest extends AnyWordSpec with Matchers

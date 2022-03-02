@@ -19,12 +19,21 @@ package models.mongo
 import org.joda.time.DateTime
 import play.api.libs.json.{Format, Json, OFormat}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
-import utils.EncryptedValue
+import utils.DecryptableSyntax.DecryptableOps
+import utils.DecryptorInstances.stringDecryptor
+import utils.EncryptableSyntax.EncryptableOps
+import utils.EncryptorInstances.stringEncryptor
+import utils.{EncryptedValue, SecureGCMCipher}
 
 case class CisCYAModel(contractorName: String,
                        periodData: Seq[CYAPeriodData]) {
 
-  def isFinished(): Boolean = periodData.nonEmpty
+  def encrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCisCYAModel = EncryptedCisCYAModel(
+    contractorName = contractorName.encrypted,
+    periodData = periodData.map(_.encrypted)
+  )
+
+  def isFinished: Boolean = periodData.nonEmpty
 }
 
 object CisCYAModel {
@@ -32,10 +41,15 @@ object CisCYAModel {
 }
 
 case class EncryptedCisCYAModel(contractorName: EncryptedValue,
-                                periodData: Seq[EncryptedCYAPeriodData])
+                                periodData: Seq[EncryptedCYAPeriodData]) {
+
+  def decrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CisCYAModel = CisCYAModel(
+    contractorName = contractorName.decrypted[String],
+    periodData = periodData.map(_.decrypted)
+  )
+}
 
 object EncryptedCisCYAModel extends MongoJodaFormats {
-
   implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
 
   implicit val formats: Format[EncryptedCisCYAModel] = Json.format[EncryptedCisCYAModel]

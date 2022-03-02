@@ -24,7 +24,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.twirl.api.Html
 import utils.ViewTest
 
-class AgentAuthErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ViewTest{
+class AgentAuthErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ViewTest {
 
   val p1Selector = "#main-content > div > div > p:nth-child(2)"
   val p2Selector = "#main-content > div > div > p:nth-child(3)"

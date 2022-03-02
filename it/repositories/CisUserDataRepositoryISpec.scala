@@ -28,33 +28,33 @@ import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import org.mongodb.scala.{MongoException, MongoInternalException, MongoWriteException}
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
-import services.EncryptionService
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.mongo.MongoUtils
-import utils.IntegrationTest
 import utils.PagerDutyHelper.PagerDutyKeys.FAILED_TO_CREATE_UPDATE_CIS_DATA
+import utils.{IntegrationTest, SecureGCMCipher}
 
 import scala.concurrent.Future
 
 class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with DefaultAwaitTimeout {
 
   private val taxYear = 2022
-  private val repo: CisUserDataRepositoryImpl = app.injector.instanceOf[CisUserDataRepositoryImpl]
-  private val encryptionService = app.injector.instanceOf[EncryptionService]
   private val sessionIdOne = UUID.randomUUID
   private val now = DateTime.now(DateTimeZone.UTC)
-  private val userDataFull: CisUserData = aCisUserData.copy(sessionId = sessionIdOne)
-  private val userDataOne: CisUserData = aCisUserData.copy(sessionId = sessionIdOne, taxYear = taxYear, lastUpdated = now)
+  private val userDataFull = aCisUserData.copy(sessionId = sessionIdOne)
+  private val userDataOne = aCisUserData.copy(sessionId = sessionIdOne, taxYear = taxYear, lastUpdated = now)
   private val userOne = AuthorisationRequest(models.User(userDataOne.mtdItId, None, userDataOne.nino, userDataOne.sessionId, Individual.toString), fakeRequest)
   private val repoWithInvalidEncryption = appWithInvalidEncryptionKey.injector.instanceOf[CisUserDataRepositoryImpl]
+  private implicit val secureGCMCipher: SecureGCMCipher = app.injector.instanceOf[SecureGCMCipher]
 
-  private def count = await(repo.collection.countDocuments().toFuture())
+  private def count: Long = await(underTest.collection.countDocuments().toFuture())
 
-  private def countFromOtherDatabase = await(repo.collection.countDocuments().toFuture())
+  private def countFromOtherDatabase: Long = await(underTest.collection.countDocuments().toFuture())
+
+  private val underTest: CisUserDataRepositoryImpl = app.injector.instanceOf[CisUserDataRepositoryImpl]
 
   class EmptyDatabase {
-    await(repo.collection.drop().toFuture())
-    await(repo.ensureIndexes)
+    await(underTest.collection.drop().toFuture())
+    await(underTest.ensureIndexes)
     count mustBe 0
   }
 
@@ -69,8 +69,9 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
 
   "find with invalid encryption" should {
     "fail to find data" in new EmptyDatabase {
+      implicit val textAndKey: TextAndKey = TextAndKey(userDataOne.mtdItId, appConfig.encryptionKey)
       countFromOtherDatabase mustBe 0
-      await(repoWithInvalidEncryption.collection.insertOne(encryptionService.encryptUserData(userDataOne)).toFuture())
+      await(repoWithInvalidEncryption.collection.insertOne(userDataOne.encrypted).toFuture())
       countFromOtherDatabase mustBe 1
       private val res = await(repoWithInvalidEncryption.find(userDataOne.taxYear)(userOne))
       res mustBe Left(EncryptionDecryptionError(
@@ -88,10 +89,10 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
   "clear" should {
     "remove a record" in new EmptyDatabase {
       count mustBe 0
-      await(repo.createOrUpdate(userDataOne)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right()
       count mustBe 1
 
-      await(repo.clear(taxYear)(userOne)) mustBe true
+      await(underTest.clear(taxYear)(userOne)) mustBe true
       count mustBe 0
     }
   }
@@ -100,48 +101,48 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
     "fail to add a document to the collection when a mongo error occurs" in new EmptyDatabase {
       def ensureIndexes: Future[Seq[String]] = {
         val indexes = Seq(IndexModel(ascending("taxYear"), IndexOptions().unique(true).name("fakeIndex")))
-        MongoUtils.ensureIndexes(repo.collection, indexes, replaceIndexes = true)
+        MongoUtils.ensureIndexes(underTest.collection, indexes, replaceIndexes = true)
       }
 
       await(ensureIndexes)
       count mustBe 0
 
-      private val res = await(repo.createOrUpdate(userDataOne)(userOne))
+      private val res = await(underTest.createOrUpdate(userDataOne)(userOne))
       res mustBe Right()
       count mustBe 1
 
-      private val res2 = await(repo.createOrUpdate(userDataOne.copy(sessionId = "1234567890"))(userOne))
+      private val res2 = await(underTest.createOrUpdate(userDataOne.copy(sessionId = "1234567890"))(userOne))
       res2.left.get.message must include("Command failed with error 11000 (DuplicateKey)")
       count mustBe 1
     }
 
     "create a document in collection when one does not exist" in new EmptyDatabase {
-      await(repo.createOrUpdate(userDataOne)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right()
       count mustBe 1
     }
 
     "create a document in collection with all fields present" in new EmptyDatabase {
-      await(repo.createOrUpdate(userDataFull)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(userDataFull)(userOne)) mustBe Right()
       count mustBe 1
     }
 
     "update a document in collection when one already exists" in new EmptyDatabase {
-      await(repo.createOrUpdate(userDataOne)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right()
       count mustBe 1
 
       private val updatedCisUserData = userDataOne.copy(cis = Some(aCisCYAModel))
 
-      await(repo.createOrUpdate(updatedCisUserData)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(updatedCisUserData)(userOne)) mustBe Right()
       count mustBe 1
     }
 
     "create a new document when the same documents exists but the sessionId is different" in new EmptyDatabase {
-      await(repo.createOrUpdate(userDataOne)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right()
       count mustBe 1
 
       private val newUserData = userDataOne.copy(sessionId = UUID.randomUUID)
 
-      await(repo.createOrUpdate(newUserData)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(newUserData)(userOne)) mustBe Right()
       count mustBe 2
     }
   }
@@ -151,21 +152,21 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       private val now = DateTime.now(DateTimeZone.UTC)
       private val data = userDataOne.copy(lastUpdated = now)
 
-      await(repo.createOrUpdate(data)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(data)(userOne)) mustBe Right()
       count mustBe 1
 
-      private val findResult = await(repo.find(data.taxYear)(userOne))
+      private val findResult = await(underTest.find(data.taxYear)(userOne))
 
       findResult.right.get.map(_.copy(lastUpdated = data.lastUpdated)) mustBe Some(data)
       findResult.right.get.map(_.lastUpdated.isAfter(data.lastUpdated)) mustBe Some(true)
     }
 
     "find a document in collection with all fields present" in new EmptyDatabase {
-      await(repo.createOrUpdate(userDataFull)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(userDataFull)(userOne)) mustBe Right()
       count mustBe 1
 
       val findResult: Either[DatabaseError, Option[CisUserData]] = {
-        await(repo.find(userDataFull.taxYear)(userOne))
+        await(underTest.find(userDataFull.taxYear)(userOne))
       }
 
       findResult mustBe Right(Some(userDataFull.copy(lastUpdated = findResult.right.get.get.lastUpdated)))
@@ -173,18 +174,19 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
 
     "return None when find operation succeeds but no data is found for the given inputs" in new EmptyDatabase {
       val taxYear = 2021
-      await(repo.find(taxYear)(userOne)) mustBe Right(None)
+      await(underTest.find(taxYear)(userOne)) mustBe Right(None)
     }
   }
 
   "the set indexes" should {
     "enforce uniqueness" in new EmptyDatabase {
-      await(repo.createOrUpdate(userDataOne)(userOne)) mustBe Right()
+      implicit val textAndKey: TextAndKey = TextAndKey(userDataOne.mtdItId, appConfig.encryptionKey)
+      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right()
       count mustBe 1
 
-      private val encryptedCISUserData: EncryptedCisUserData = encryptionService.encryptUserData(userDataOne)
+      private val encryptedCISUserData: EncryptedCisUserData = userDataOne.encrypted
 
-      private val caught = intercept[MongoWriteException](await(repo.collection.insertOne(encryptedCISUserData).toFuture()))
+      private val caught = intercept[MongoWriteException](await(underTest.collection.insertOne(encryptedCISUserData).toFuture()))
 
       caught.getMessage must
         include("E11000 duplicate key error collection: income-tax-cis-frontend.cisUserData index: UserDataLookupIndex dup key:")
@@ -195,7 +197,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
     Seq(new MongoTimeoutException(""), new MongoInternalException(""), new MongoException("")).foreach { exception =>
       s"recover when the exception is a MongoException or a subclass of MongoException - ${exception.getClass.getSimpleName}" in {
         val result = Future.failed(exception)
-          .recover(repo.mongoRecover[Int]("CreateOrUpdate", FAILED_TO_CREATE_UPDATE_CIS_DATA)(userOne))
+          .recover(underTest.mongoRecover[Int]("CreateOrUpdate", FAILED_TO_CREATE_UPDATE_CIS_DATA)(userOne))
 
         await(result) mustBe None
       }
@@ -204,7 +206,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
     Seq(new NullPointerException(""), new RuntimeException("")).foreach { exception =>
       s"not recover when the exception is not a subclass of MongoException - ${exception.getClass.getSimpleName}" in {
         val result = Future.failed(exception)
-          .recover(repo.mongoRecover[Int]("CreateOrUpdate", FAILED_TO_CREATE_UPDATE_CIS_DATA)(userOne))
+          .recover(underTest.mongoRecover[Int]("CreateOrUpdate", FAILED_TO_CREATE_UPDATE_CIS_DATA)(userOne))
 
         assertThrows[RuntimeException] {
           await(result)
