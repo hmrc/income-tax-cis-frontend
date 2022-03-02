@@ -19,19 +19,22 @@ package controllers.errors
 import play.api.http.Status.UNAUTHORIZED
 import play.api.test.Helpers.contentType
 import play.api.test.{DefaultAwaitTimeout, FakeRequest}
-import utils.{UnitTest, ViewTest}
+import support.ControllerUnitTest
+import utils.ViewTest
 import views.html.templates.UnauthorisedUserErrorPageView
 
-class UnauthorisedUserErrorControllerSpec extends UnitTest with DefaultAwaitTimeout with ViewTest {
+class UnauthorisedUserErrorControllerSpec extends ControllerUnitTest with DefaultAwaitTimeout with ViewTest {
 
-  lazy val controller = new UnauthorisedUserErrorController(mockMessagesControllerComponents,
-    app.injector.instanceOf[UnauthorisedUserErrorPageView], mockAppConfig)
+  private lazy val underTest = new UnauthorisedUserErrorController(
+    mockMessagesControllerComponents,
+    app.injector.instanceOf[UnauthorisedUserErrorPageView],
+    appConfig
+  )
+
   "The show method" should {
-
     "return an OK response when .show() is called" in {
-
       val fakeRequest = FakeRequest("GET", "/error/not-authorised-to-use-service")
-      val result = controller.show()(fakeRequest)
+      val result = underTest.show()(fakeRequest)
 
       status(result) shouldBe UNAUTHORIZED
       contentType(result) shouldBe Some("text/html")

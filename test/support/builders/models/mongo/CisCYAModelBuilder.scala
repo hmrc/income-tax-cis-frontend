@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package filters
+package support.builders.models.mongo
 
-import support.UnitTest
+import models.mongo.CisCYAModel
+import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 
-class InputFiltersSpec extends UnitTest with InputFilters {
+object CisCYAModelBuilder {
 
-  "Input filter" must {
-    "filter out those hackers" in {
-      filter("<script>(.*?)</script>") shouldBe ""
-      filter("<script(.*?)>") shouldBe ""
-      filter("</script>") shouldBe ""
-      filter("javascript:") shouldBe ""
-      filter("vbscript:") shouldBe ""
-      filter("onload(.*?)=") shouldBe ""
-      filter("eval((.*?)") shouldBe ""
-      filter("expression((.*?)") shouldBe ""
-      filter("abc|bcd") shouldBe "abcbcd"
-    }
-  }
+  val aCisCYAModel: CisCYAModel = CisCYAModel(
+    contractorName = "ABC Steelworks",
+    periodData = Seq(aCYAPeriodData)
+  )
 }

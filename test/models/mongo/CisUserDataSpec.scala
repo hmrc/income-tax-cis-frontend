@@ -16,10 +16,10 @@
 
 package models.mongo
 
-import builders.models.mongo.CisUserDataBuilder.aCisUserData
 import org.joda.time.DateTime
 import org.scalamock.scalatest.MockFactory
 import support.UnitTest
+import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.SecureGCMCipher
 
 class CisUserDataSpec extends UnitTest

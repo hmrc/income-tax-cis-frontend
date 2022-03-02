@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package builders.models.mongo
+package support.builders.models
 
-import builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
-import models.mongo.CisCYAModel
+import models.AllCISDeductions
+import support.builders.models.CISSourceBuilder.aCISSource
 
-object CisCYAModelBuilder {
+object AllCISDeductionsBuilder {
 
-  val aCisCYAModel: CisCYAModel = CisCYAModel(
-    contractorName = "ABC Steelworks",
-    periodData = Seq(aCYAPeriodData)
+  val anAllCISDeductions: AllCISDeductions = AllCISDeductions(
+    customerCISDeductions = Some(aCISSource),
+    contractorCISDeductions = Some(aCISSource)
   )
 }

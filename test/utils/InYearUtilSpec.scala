@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package controllers.predicates
-
-import java.time.LocalDateTime
+package utils
 
 import config.AppConfig
 import play.api.http.HeaderNames
 import play.api.mvc.{Result, Results}
 import play.api.test.Helpers._
-import utils.UnitTest
 
+import java.time.LocalDateTime
 import scala.concurrent.Future
 
-class InYearActionSpec extends UnitTest {
+class InYearUtilSpec extends UnitTest {
   val year2021: Int = 2021
   val year2022: Int = 2022
   val month4: Int = 4
@@ -65,7 +63,9 @@ class InYearActionSpec extends UnitTest {
 
   "InYearAction.notInYear" when {
 
-    def block: Future[Result] = { Future.successful(Results.Ok("Success Response")) }
+    def block: Future[Result] = {
+      Future.successful(Results.Ok("Success Response"))
+    }
 
     "current date is before April 6th 2021 which means the tax year is 2020-21" should {
       val currentDate = LocalDateTime.of(2021, 4, 5, 23, 59, 59, 999)
@@ -85,8 +85,8 @@ class InYearActionSpec extends UnitTest {
         header(HeaderNames.LOCATION, result) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(year2022))
       }
 
-      Seq(2018, 2019, 2020).foreach{ previousTaxYear =>
-        val yearMinusOne = currentDate.getYear-1
+      Seq(2018, 2019, 2020).foreach { previousTaxYear =>
+        val yearMinusOne = currentDate.getYear - 1
         s"return Ok when the requested tax year ($previousTaxYear) precedes the current tax year ($yearMinusOne-${currentDate.getYear})" in {
           val result = inYearAction.notInYear(previousTaxYear, currentDate)(block)
 
@@ -113,8 +113,8 @@ class InYearActionSpec extends UnitTest {
         header(HeaderNames.LOCATION, result) shouldBe Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(year2022))
       }
 
-      Seq(2019, 2020, 2021).foreach{ previousTaxYear =>
-        val yearMinusOne = currentDate.getYear-1
+      Seq(2019, 2020, 2021).foreach { previousTaxYear =>
+        val yearMinusOne = currentDate.getYear - 1
         s"return Ok when the requested tax year ($previousTaxYear) precedes the current tax year ($yearMinusOne-${currentDate.getYear})" in {
           val result = inYearAction.notInYear(previousTaxYear, currentDate)(block)
 

@@ -16,8 +16,6 @@
 
 package repositories
 
-import builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
-import builders.models.mongo.CisUserDataBuilder.aCisUserData
 import com.mongodb.MongoTimeoutException
 import common.UUID
 import models.AuthorisationRequest
@@ -28,6 +26,8 @@ import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import org.mongodb.scala.{MongoException, MongoInternalException, MongoWriteException}
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
+import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.mongo.MongoUtils
 import utils.PagerDutyHelper.PagerDutyKeys.FAILED_TO_CREATE_UPDATE_CIS_DATA

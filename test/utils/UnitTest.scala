@@ -16,13 +16,11 @@
 
 package utils
 
+import actions.AuthorisedAction
 import akka.actor.ActorSystem
-import builders.models.AllCISDeductionsBuilder.anAllCISDeductions
-import builders.models.UserBuilder.aUser
 import com.codahale.metrics.SharedMetricRegistries
 import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
 import config.{AppConfig, ErrorHandler, MockAppConfig}
-import controllers.predicates.{AuthorisedAction, InYearAction}
 import models.{AuthorisationRequest, IncomeTaxUserData}
 import org.scalamock.handlers.CallHandler4
 import org.scalamock.scalatest.MockFactory
@@ -33,6 +31,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc._
 import play.api.test.{FakeRequest, Helpers}
 import services.AuthService
+import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
+import support.builders.models.UserBuilder.aUser
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
@@ -91,7 +91,7 @@ trait UnitTest extends AnyWordSpec
 
   val authorisedAction = new AuthorisedAction(mockAppConfig)(mockAuthService, stubMessagesControllerComponents())
 
-  val inYearAction = new InYearAction
+  val inYearAction = new InYearUtil
 
   def status(awaitable: Future[Result]): Int = await(awaitable).header.status
 

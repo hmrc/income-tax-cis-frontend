@@ -16,10 +16,10 @@
 
 package models.mongo
 
-import builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import org.scalamock.scalatest.MockFactory
 import play.api.libs.json.{JsObject, Json}
 import support.UnitTest
+import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import utils.TypeCaster.Converter
 import utils.{EncryptedValue, SecureGCMCipher}
 

@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package builders.models
+package support
 
-import builders.models.CisDeductionsBuilder.aCisDeductions
-import models.CISSource
+trait UserScenarios {
 
-object CISSourceBuilder {
+  case class UserScenario[CommonExpectedResults, SpecificExpectedResults](isWelsh: Boolean,
+                                                                          isAgent: Boolean,
+                                                                          commonExpectedResults: CommonExpectedResults,
+                                                                          specificExpectedResults: Option[SpecificExpectedResults] = None)
 
-  val aCISSource: CISSource = CISSource(
-    totalDeductionAmount = Some(900.00),
-    totalCostOfMaterials = Some(800.00),
-    totalGrossAmountPaid = Some(700.00),
-    cisDeductions = Seq(aCisDeductions)
-  )
+  protected val userScenarios: Seq[UserScenario[_, _]]
 }

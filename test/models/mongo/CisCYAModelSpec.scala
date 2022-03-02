@@ -16,9 +16,9 @@
 
 package models.mongo
 
-import builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import org.scalamock.scalatest.MockFactory
 import support.UnitTest
+import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import utils.TypeCaster.Converter
 import utils.{EncryptedValue, SecureGCMCipher}
 

@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package httpParsers
+package connectors.parsers
 
-import connectors.parsers.APIParser
 import models.{APIErrorBodyModel, APIErrorModel, APIErrorsBodyModel}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.{JsValue, Json}
+import support.UnitTest
 import uk.gov.hmrc.http.HttpResponse
-import utils.UnitTest
 
 class APIParserSpec extends UnitTest {
 
@@ -30,11 +29,10 @@ class APIParserSpec extends UnitTest {
     override val service: String = "service"
   }
 
-  def httpResponse(json: JsValue =
-                   Json.parse(
-                     """{"failures":[
-                       |{"code":"SERVICE_UNAVAILABLE","reason":"The service is currently unavailable"},
-                       |{"code":"INTERNAL_SERVER_ERROR","reason":"The service is currently facing issues."}]}""".stripMargin)): HttpResponse = HttpResponse(
+  def httpResponse(json: JsValue = Json.parse(
+    """{"failures":[
+      |{"code":"SERVICE_UNAVAILABLE","reason":"The service is currently unavailable"},
+      |{"code":"INTERNAL_SERVER_ERROR","reason":"The service is currently facing issues."}]}""".stripMargin)): HttpResponse = HttpResponse(
     INTERNAL_SERVER_ERROR,
     json,
     Map("CorrelationId" -> Seq("1234645654645"))

@@ -24,7 +24,7 @@ import utils.TypeCaster.Converter.{bigDecimalLoader, booleanLoader, monthLoader,
 
 import java.time.Month
 
-class DecryptorInstancesTest extends UnitTest
+class DecryptorInstancesTest extends support.UnitTest
   with MockFactory {
 
   private val encryptedValue = EncryptedValue("some-value", "some-nonce")

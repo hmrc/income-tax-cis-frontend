@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package controllers.predicates
+package actions
 
-import builders.models.UserBuilder.aUser
 import common.SessionValues
 import config.AppConfig
 import models.AuthorisationRequest
 import play.api.http.Status.SEE_OTHER
 import play.api.i18n.MessagesApi
+import support.builders.models.UserBuilder.aUser
 import utils.UnitTest
 
 class TaxYearActionSpec extends UnitTest {

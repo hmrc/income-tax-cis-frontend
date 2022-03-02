@@ -17,15 +17,16 @@
 package controllers
 
 import config.AppConfig
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{Configuration, Environment}
+import support.ControllerUnitTest
+import support.builders.models.UserBuilder.aUser
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
-import utils.UnitTest
 
-class LanguageSwitchControllerSpec extends UnitTest with GuiceOneAppPerSuite {
+class LanguageSwitchControllerSpec extends ControllerUnitTest {
 
   private val env = Environment.simple()
   private val configuration = Configuration.load(env)
@@ -33,20 +34,21 @@ class LanguageSwitchControllerSpec extends UnitTest with GuiceOneAppPerSuite {
   private val serviceConfig = new ServicesConfig(configuration)
   private val mockFrontendAppConfig = new AppConfig(serviceConfig)
 
-  private val controller = new LanguageSwitchController(appConfig = mockFrontendAppConfig, controllerComponents = stubMessagesControllerComponents(),
-    messagesApi = stubMessagesApi())
+  private val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("X-Session-ID" -> aUser.sessionId)
+
+  private val underTest = new LanguageSwitchController(appConfig = mockFrontendAppConfig, controllerComponents = cc, messagesApi = stubMessagesApi())
 
   "calling the SwitchToLanguage method" when {
     "return a redirect with the referer url" in {
-      val result = controller.switchToLanguage("en")(fakeRequest.withHeaders("Referer" -> "/referrer-url"))
+      val result = underTest.switchToLanguage("en")(fakeRequest.withHeaders("Referer" -> "/referrer-url"))
       status(result) shouldBe Status.SEE_OTHER
     }
     "return a redirect to the fallback url with a default taxYear" in {
-      val result = controller.switchToLanguage("en")(fakeRequest)
+      val result = underTest.switchToLanguage("en")(fakeRequest)
       status(result) shouldBe Status.SEE_OTHER
     }
     "return a redirect to the fallback url with a specific taxYear" in {
-      val result = controller.switchToLanguage("en")(fakeRequest.withSession("TAX_YEAR" -> "2010"))
+      val result = underTest.switchToLanguage("en")(fakeRequest.withSession("TAX_YEAR" -> "2010"))
       status(result) shouldBe Status.SEE_OTHER
     }
   }

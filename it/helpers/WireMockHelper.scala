@@ -16,7 +16,6 @@
 
 package helpers
 
-import builders.models.UserBuilder.aUser
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.client.{MappingBuilder, WireMock}
@@ -27,6 +26,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.{EnrolmentIdentifiers, EnrolmentKeys}
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
+import support.builders.models.UserBuilder.aUser
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 
 trait WireMockHelper {

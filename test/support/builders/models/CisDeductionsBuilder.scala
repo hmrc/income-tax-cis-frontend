@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package builders.models
+package support.builders.models
 
-import builders.models.mongo.CisUserDataBuilder.aCisUserData
-import models.{AuthorisationRequest, User}
-import play.api.mvc.AnyContentAsEmpty
-import play.api.test.FakeRequest
+import models.CisDeductions
+import support.builders.models.GetPeriodDataBuilder.aGetPeriodData
 
-object AuthorisationRequestBuilder {
+object CisDeductionsBuilder {
 
-  val anAuthorisationRequest: AuthorisationRequest[AnyContentAsEmpty.type] = AuthorisationRequest(
-    User(aCisUserData.mtdItId, None, aCisUserData.nino, aCisUserData.sessionId, "affinityGroup"),
-    FakeRequest()
+  val aCisDeductions: CisDeductions = CisDeductions(
+    fromDate = "2020-05-05",
+    toDate = "2020-06-06",
+    contractorName = Some("ABC SteelWorks"),
+    employerRef = "123/AB123456",
+    totalDeductionAmount = Some(300.00),
+    totalCostOfMaterials = Some(400.00),
+    totalGrossAmountPaid = Some(200.00),
+    periodData = Seq(aGetPeriodData)
   )
 }

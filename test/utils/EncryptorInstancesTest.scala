@@ -22,7 +22,7 @@ import utils.EncryptorInstances.{bigDecimalEncryptor, booleanEncryptor, monthEnc
 
 import java.time.Month
 
-class EncryptorInstancesTest extends UnitTest
+class EncryptorInstancesTest extends support.UnitTest
   with MockFactory {
 
   private val encryptedBoolean = mock[EncryptedValue]

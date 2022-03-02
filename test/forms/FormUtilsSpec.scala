@@ -18,7 +18,7 @@ package forms
 
 import forms.AmountForm.amountForm
 import play.api.data.Form
-import utils.UnitTest
+import support.UnitTest
 
 class FormUtilsSpec extends UnitTest with FormUtils {
 
@@ -26,18 +26,16 @@ class FormUtilsSpec extends UnitTest with FormUtils {
     amountForm("nothing to see here", "this not good", "too big")
   }
 
-
   "The form" should {
-
     "fill the form" when {
       "the prior and cya amount are different" in {
-        val actual = fillForm(theForm(),Some(44.44),Some(23.33))
+        val actual = fillForm(theForm(), Some(44.44), Some(23.33))
         actual shouldBe theForm().fill(23.33)
       }
 
       "there's cya data and no prior data" in {
         val actual = fillForm(theForm(), None, Some(5.55))
-          actual shouldBe theForm().fill(5.55)
+        actual shouldBe theForm().fill(5.55)
       }
     }
   }

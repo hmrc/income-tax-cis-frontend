@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package builders.models
+package support.builders.models
 
-import models.User
-import uk.gov.hmrc.auth.core.AffinityGroup
+import models.CISSource
+import support.builders.models.CisDeductionsBuilder.aCisDeductions
 
-object UserBuilder {
+object CISSourceBuilder {
 
-  val aUser: User = User(
-    mtditid = "1234567890",
-    arn = None,
-    nino = "AA123456A",
-    sessionId = "sessionId-eb3158c2-0aff-4ce8-8d1b-f2208ace52fe",
-    affinityGroup = AffinityGroup.Individual.toString
+  val aCISSource: CISSource = CISSource(
+    totalDeductionAmount = Some(900.00),
+    totalCostOfMaterials = Some(800.00),
+    totalGrossAmountPaid = Some(700.00),
+    cisDeductions = Seq(aCisDeductions)
   )
 }

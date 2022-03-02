@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package builders.models
+package support.builders.models
 
-import models.GetPeriodData
+import models.IncomeTaxUserData
+import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 
-import java.time.Month
+object IncomeTaxUserDataBuilder {
 
-object GetPeriodDataBuilder {
-
-  val aGetPeriodData: GetPeriodData = GetPeriodData(
-    deductionPeriod = Month.MAY,
-    deductionAmount = Some(100.00),
-    costOfMaterials = Some(50.00),
-    grossAmountPaid = Some(450.00),
-    submissionDate = "2020-05-11T16:38:57.489Z",
-    submissionId = Some("submissionId"),
-    source = "customer"
-  )
+  val anIncomeTaxUserData: IncomeTaxUserData =
+    IncomeTaxUserData(cis = Some(anAllCISDeductions))
 }

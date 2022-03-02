@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package builders.models
+package support
 
-import builders.models.CISSourceBuilder.aCISSource
-import models.AllCISDeductions
+import org.joda.time.DateTime
 
-object AllCISDeductionsBuilder {
+trait TaxYearHelper {
 
-  val anAllCISDeductions: AllCISDeductions = AllCISDeductions(
-    customerCISDeductions = Some(aCISSource),
-    contractorCISDeductions = Some(aCISSource)
-  )
+  private val month = DateTime.now().monthOfYear().get()
+  private val dayOfMonth = DateTime.now().dayOfMonth().get()
+
+  val taxYear: Int = if (month >= 4 && dayOfMonth >= 5) DateTime.now().year().get() + 1 else DateTime.now().year().get()
+  val taxYearEOY: Int = taxYear - 1
 }

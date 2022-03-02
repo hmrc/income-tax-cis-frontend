@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package builders.models.mongo
+package support.builders.models
 
-import models.mongo.CYAPeriodData
+import models.User
+import uk.gov.hmrc.auth.core.AffinityGroup
 
-import java.time.Month
+object UserBuilder {
 
-object CYAPeriodDataBuilder {
-
-  val aCYAPeriodData: CYAPeriodData = CYAPeriodData(
-    deductionPeriod = Month.MAY,
-    grossAmountPaid = Some(500.00),
-    deductionAmount = Some(100.00),
-    costOfMaterialsQuestion = Some(true),
-    costOfMaterials = Some(250.00)
+  val aUser: User = User(
+    mtditid = "1234567890",
+    arn = None,
+    nino = "AA123456A",
+    sessionId = "sessionId-eb3158c2-0aff-4ce8-8d1b-f2208ace52fe",
+    affinityGroup = AffinityGroup.Individual.toString
   )
 }

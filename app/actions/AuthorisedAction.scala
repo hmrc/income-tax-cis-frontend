@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.predicates
+package actions
 
 import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
 import config.AppConfig
@@ -39,7 +39,6 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
                                 ) extends ActionBuilder[AuthorisationRequest, AnyContent] with I18nSupport {
 
   private lazy val logger: Logger = Logger.apply(this.getClass)
-  private implicit val config: AppConfig = appConfig
 
   implicit val executionContext: ExecutionContext = mcc.executionContext
   implicit val messagesApi: MessagesApi = mcc.messagesApi
@@ -108,8 +107,8 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
     }
   }
 
-  private[predicates] def agentAuthentication[A](block: AuthorisationRequest[A] => Future[Result])
-                                                (implicit request: Request[A], hc: HeaderCarrier): Future[Result] = {
+  private[actions] def agentAuthentication[A](block: AuthorisationRequest[A] => Future[Result])
+                                             (implicit request: Request[A], hc: HeaderCarrier): Future[Result] = {
 
     lazy val agentDelegatedAuthRuleKey = "mtd-it-auth"
 
@@ -156,10 +155,10 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
     }
   }
 
-  private[predicates] def enrolmentGetIdentifierValue(checkedKey: String,
-                                                      checkedIdentifier: String,
-                                                      enrolments: Enrolments
-                                                     ): Option[String] = enrolments.enrolments.collectFirst {
+  private[actions] def enrolmentGetIdentifierValue(checkedKey: String,
+                                                   checkedIdentifier: String,
+                                                   enrolments: Enrolments
+                                                  ): Option[String] = enrolments.enrolments.collectFirst {
     case Enrolment(`checkedKey`, enrolmentIdentifiers, _, _) => enrolmentIdentifiers.collectFirst {
       case EnrolmentIdentifier(`checkedIdentifier`, identifierValue) => identifierValue
     }

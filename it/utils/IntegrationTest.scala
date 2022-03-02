@@ -16,12 +16,11 @@
 
 package utils
 
+import actions.AuthorisedAction
 import akka.actor.ActorSystem
-import builders.models.UserBuilder.aUser
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.SessionValues
 import config.AppConfig
-import controllers.predicates.AuthorisedAction
 import helpers.{PlaySessionCookieBaker, WireMockHelper, WiremockStubHelpers}
 import models.IncomeTaxUserData
 import org.scalatest.BeforeAndAfterAll
@@ -37,6 +36,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
 import services.AuthService
+import support.builders.models.UserBuilder.aUser
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved

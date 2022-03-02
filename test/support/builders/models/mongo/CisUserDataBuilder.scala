@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package builders.models.mongo
+package support.builders.models.mongo
 
-import builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import models.mongo.CisUserData
 import org.joda.time.{DateTime, DateTimeZone}
+import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 
 object CisUserDataBuilder {
 

@@ -18,25 +18,23 @@ package forms
 
 import forms.AmountForm._
 import play.api.data.{Form, FormError}
-import utils.UnitTest
+import support.UnitTest
 
 class AmountFormSpec extends UnitTest {
 
-  def theForm(): Form[BigDecimal] = {
+  private def theForm(): Form[BigDecimal] = {
     amountForm("nothing to see here", "this not good", "too big")
   }
 
-  val testCurrencyValid = 1000
-  val testCurrencyWithSpaces = "100 0. 00"
-  val testCurrencyEmpty = ""
-  val testCurrencyInvalidInt = "!"
-  val testCurrencyInvalidFormat = 12345.123
-  val testCurrencyTooBig = "100000000000.00"
+  private val testCurrencyValid = 1000
+  private val testCurrencyWithSpaces = "100 0. 00"
+  private val testCurrencyEmpty = ""
+  private val testCurrencyInvalidInt = "!"
+  private val testCurrencyInvalidFormat = 12345.123
+  private val testCurrencyTooBig = "100000000000.00"
 
   "The AmountForm" should {
-
     "correctly validate a currency" when {
-
       "a valid currency is entered" in {
         val testInput = Map(amount -> testCurrencyValid.toString)
         val expected = testCurrencyValid
@@ -46,7 +44,6 @@ class AmountFormSpec extends UnitTest {
     }
 
     "correctly validate a currency with spaces" when {
-
       "a valid currency is entered" in {
         val testInput = Map(amount -> testCurrencyWithSpaces.toString)
         val expected = testCurrencyValid

@@ -16,9 +16,9 @@
 
 package connectors
 
-import builders.models.UserBuilder.aUser
 import models.{APIErrorBodyModel, APIErrorModel}
 import play.mvc.Http.Status._
+import support.builders.models.UserBuilder.aUser
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import utils.ConnectorIntegrationTest
 

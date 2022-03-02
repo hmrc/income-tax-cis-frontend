@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package builders.models
+package support.builders.models.mongo
 
-import builders.models.AllCISDeductionsBuilder.anAllCISDeductions
-import models.IncomeTaxUserData
+import models.mongo.CYAPeriodData
 
-object IncomeTaxUserDataBuilder {
+import java.time.Month
 
-  val anIncomeTaxUserData: IncomeTaxUserData =
-    IncomeTaxUserData(cis = Some(anAllCISDeductions))
+object CYAPeriodDataBuilder {
+
+  val aCYAPeriodData: CYAPeriodData = CYAPeriodData(
+    deductionPeriod = Month.MAY,
+    grossAmountPaid = Some(500.00),
+    deductionAmount = Some(100.00),
+    costOfMaterialsQuestion = Some(true),
+    costOfMaterials = Some(250.00)
+  )
 }
