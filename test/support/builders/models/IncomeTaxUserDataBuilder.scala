@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-package filters
+package support.builders.models
 
-import support.UnitTest
+import models.IncomeTaxUserData
+import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 
-class InputFiltersSpec extends UnitTest with InputFilters {
+object IncomeTaxUserDataBuilder {
 
-  "Input filter" must {
-    "filter out those hackers" in {
-      filter("<script>(.*?)</script>") shouldBe ""
-      filter("<script(.*?)>") shouldBe ""
-      filter("</script>") shouldBe ""
-      filter("javascript:") shouldBe ""
-      filter("vbscript:") shouldBe ""
-      filter("onload(.*?)=") shouldBe ""
-      filter("eval((.*?)") shouldBe ""
-      filter("expression((.*?)") shouldBe ""
-      filter("abc|bcd") shouldBe "abcbcd"
-    }
-  }
+  val anIncomeTaxUserData: IncomeTaxUserData =
+    IncomeTaxUserData(cis = Some(anAllCISDeductions))
 }

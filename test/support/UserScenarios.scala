@@ -14,23 +14,14 @@
  * limitations under the License.
  */
 
-package filters
+package support
 
-import support.UnitTest
+trait UserScenarios {
 
-class InputFiltersSpec extends UnitTest with InputFilters {
+  case class UserScenario[CommonExpectedResults, SpecificExpectedResults](isWelsh: Boolean,
+                                                                          isAgent: Boolean,
+                                                                          commonExpectedResults: CommonExpectedResults,
+                                                                          specificExpectedResults: Option[SpecificExpectedResults] = None)
 
-  "Input filter" must {
-    "filter out those hackers" in {
-      filter("<script>(.*?)</script>") shouldBe ""
-      filter("<script(.*?)>") shouldBe ""
-      filter("</script>") shouldBe ""
-      filter("javascript:") shouldBe ""
-      filter("vbscript:") shouldBe ""
-      filter("onload(.*?)=") shouldBe ""
-      filter("eval((.*?)") shouldBe ""
-      filter("expression((.*?)") shouldBe ""
-      filter("abc|bcd") shouldBe "abcbcd"
-    }
-  }
+  protected val userScenarios: Seq[UserScenario[_, _]]
 }

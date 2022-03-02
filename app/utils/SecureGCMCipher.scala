@@ -16,18 +16,17 @@
 
 package utils
 
-import java.security.{InvalidAlgorithmParameterException, InvalidKeyException, NoSuchAlgorithmException, SecureRandom}
-import java.util.Base64
-
 import config.AppConfig
-import javax.crypto._
-import javax.crypto.spec.{GCMParameterSpec, SecretKeySpec}
-import javax.inject.{Inject, Singleton}
 import models.mongo.TextAndKey
 import play.api.Logging
 import play.api.libs.json.{Json, OFormat}
 import utils.TypeCaster.Converter
 
+import java.security.{InvalidAlgorithmParameterException, InvalidKeyException, NoSuchAlgorithmException, SecureRandom}
+import java.util.Base64
+import javax.crypto._
+import javax.crypto.spec.{GCMParameterSpec, SecretKeySpec}
+import javax.inject.{Inject, Singleton}
 import scala.util.{Failure, Success, Try}
 
 case class EncryptedValue(value: String, nonce: String)
@@ -147,5 +146,4 @@ class SecureGCMCipher @Inject()(implicit private val appConfig: AppConfig) exten
     case e: BadPaddingException => throw new EncryptionDecryptionException(method, "Error occured due to padding scheme", e.getMessage)
     case _ => throw new EncryptionDecryptionException(method, "Unexpected exception", ex.getMessage)
   }
-
 }

@@ -14,23 +14,9 @@
  * limitations under the License.
  */
 
-package filters
+package support
 
-import support.UnitTest
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class InputFiltersSpec extends UnitTest with InputFilters {
-
-  "Input filter" must {
-    "filter out those hackers" in {
-      filter("<script>(.*?)</script>") shouldBe ""
-      filter("<script(.*?)>") shouldBe ""
-      filter("</script>") shouldBe ""
-      filter("javascript:") shouldBe ""
-      filter("vbscript:") shouldBe ""
-      filter("onload(.*?)=") shouldBe ""
-      filter("eval((.*?)") shouldBe ""
-      filter("expression((.*?)") shouldBe ""
-      filter("abc|bcd") shouldBe "abcbcd"
-    }
-  }
-}
+trait UnitTest extends AnyWordSpec with Matchers

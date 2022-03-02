@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package filters
+package support.builders.models
 
-import support.UnitTest
+import models.AllCISDeductions
+import support.builders.models.CISSourceBuilder.aCISSource
 
-class InputFiltersSpec extends UnitTest with InputFilters {
+object AllCISDeductionsBuilder {
 
-  "Input filter" must {
-    "filter out those hackers" in {
-      filter("<script>(.*?)</script>") shouldBe ""
-      filter("<script(.*?)>") shouldBe ""
-      filter("</script>") shouldBe ""
-      filter("javascript:") shouldBe ""
-      filter("vbscript:") shouldBe ""
-      filter("onload(.*?)=") shouldBe ""
-      filter("eval((.*?)") shouldBe ""
-      filter("expression((.*?)") shouldBe ""
-      filter("abc|bcd") shouldBe "abcbcd"
-    }
-  }
+  val anAllCISDeductions: AllCISDeductions = AllCISDeductions(
+    customerCISDeductions = Some(aCISSource),
+    contractorCISDeductions = Some(aCISSource)
+  )
 }

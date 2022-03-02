@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package filters
+package support.builders.models
 
-import support.UnitTest
+import models.User
+import uk.gov.hmrc.auth.core.AffinityGroup
 
-class InputFiltersSpec extends UnitTest with InputFilters {
+object UserBuilder {
 
-  "Input filter" must {
-    "filter out those hackers" in {
-      filter("<script>(.*?)</script>") shouldBe ""
-      filter("<script(.*?)>") shouldBe ""
-      filter("</script>") shouldBe ""
-      filter("javascript:") shouldBe ""
-      filter("vbscript:") shouldBe ""
-      filter("onload(.*?)=") shouldBe ""
-      filter("eval((.*?)") shouldBe ""
-      filter("expression((.*?)") shouldBe ""
-      filter("abc|bcd") shouldBe "abcbcd"
-    }
-  }
+  val aUser: User = User(
+    mtditid = "1234567890",
+    arn = None,
+    nino = "AA123456A",
+    sessionId = "sessionId-eb3158c2-0aff-4ce8-8d1b-f2208ace52fe",
+    affinityGroup = AffinityGroup.Individual.toString
+  )
 }

@@ -16,14 +16,22 @@
 
 package config
 
+import org.scalamock.scalatest.MockFactory
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import support.UnitTest
+import support.builders.models.UserBuilder.aUser
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.UnitTest
 
-class AppConfigSpec extends UnitTest {
+class AppConfigSpec extends UnitTest
+  with MockFactory {
+
+  private val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("X-Session-ID" -> aUser.sessionId)
   private val mockServicesConfig: ServicesConfig = mock[ServicesConfig]
   private val appUrl = "http://localhost:9308"
-  private val appConfig = new AppConfig(mockServicesConfig)
+
+  private val underTest = new AppConfig(mockServicesConfig)
 
   (mockServicesConfig.getString(_: String)).expects("microservice.services.bas-gateway-frontend.url").returns("http://bas-gateway-frontend:9553")
 
@@ -58,17 +66,17 @@ class AppConfigSpec extends UnitTest {
       val expectedSignInUrl = "http://sign-in?continue=http%3A%2F%2Fsign-in-continue-url&origin=income-tax-cis-frontend"
       val expectedSignInContinueUrl = "http%3A%2F%2Fsign-in-continue-url"
 
-      appConfig.betaFeedbackUrl(fakeRequest, isAgent) shouldBe expectedBetaFeedbackUrl
-      appConfig.feedbackSurveyUrl shouldBe expectedFeedbackSurveyUrl
-      appConfig.contactUrl shouldBe expectedContactUrl
-      appConfig.signOutUrl shouldBe expectedSignOutUrl
+      underTest.betaFeedbackUrl(fakeRequest, isAgent) shouldBe expectedBetaFeedbackUrl
+      underTest.feedbackSurveyUrl shouldBe expectedFeedbackSurveyUrl
+      underTest.contactUrl shouldBe expectedContactUrl
+      underTest.signOutUrl shouldBe expectedSignOutUrl
 
-      appConfig.signInUrl shouldBe expectedSignInUrl
+      underTest.signInUrl shouldBe expectedSignInUrl
 
-      appConfig.incomeTaxSubmissionBaseUrl shouldBe "http://income-tax-submission-frontend/update-and-submit-income-tax-return"
-      appConfig.viewAndChangeEnterUtrUrl shouldBe "http://view-and-change/report-quarterly/income-and-expenses/view/agents/client-utr"
-      appConfig.incomeTaxSubmissionBEBaseUrl shouldBe "http://income-tax-submission/income-tax-submission-service"
-      appConfig.incomeTaxSubmissionIvRedirect shouldBe "http://income-tax-submission-frontend/update-and-submit-income-tax-return/iv-uplift"
+      underTest.incomeTaxSubmissionBaseUrl shouldBe "http://income-tax-submission-frontend/update-and-submit-income-tax-return"
+      underTest.viewAndChangeEnterUtrUrl shouldBe "http://view-and-change/report-quarterly/income-and-expenses/view/agents/client-utr"
+      underTest.incomeTaxSubmissionBEBaseUrl shouldBe "http://income-tax-submission/income-tax-submission-service"
+      underTest.incomeTaxSubmissionIvRedirect shouldBe "http://income-tax-submission-frontend/update-and-submit-income-tax-return/iv-uplift"
     }
 
     "return the correct feedback url when the user is an agent" in {
@@ -84,10 +92,10 @@ class AppConfigSpec extends UnitTest {
       val expectedContactUrl = s"http://contact-frontend:9250/contact/contact-hmrc?service=$expectedServiceIdentifierAgent"
       val expectedSignOutUrl = s"http://bas-gateway-frontend:9553/bas-gateway/sign-out-without-state"
 
-      appConfig.betaFeedbackUrl(fakeRequest, isAgent) shouldBe expectedBetaFeedbackUrl
-      appConfig.feedbackSurveyUrl shouldBe expectedFeedbackSurveyUrl
-      appConfig.contactUrl shouldBe expectedContactUrl
-      appConfig.signOutUrl shouldBe expectedSignOutUrl
+      underTest.betaFeedbackUrl(fakeRequest, isAgent) shouldBe expectedBetaFeedbackUrl
+      underTest.feedbackSurveyUrl shouldBe expectedFeedbackSurveyUrl
+      underTest.contactUrl shouldBe expectedContactUrl
+      underTest.signOutUrl shouldBe expectedSignOutUrl
     }
   }
 }

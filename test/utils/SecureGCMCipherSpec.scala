@@ -16,20 +16,20 @@
 
 package utils
 
-import java.security.InvalidAlgorithmParameterException
-import java.util.Base64
-
 import com.codahale.metrics.SharedMetricRegistries
 import config.{AppConfig, MockAppConfig}
-import javax.crypto.spec.GCMParameterSpec
-import javax.crypto.{Cipher, IllegalBlockSizeException, KeyGenerator, NoSuchPaddingException}
 import models.mongo.TextAndKey
 import utils.TypeCaster.Converter.stringLoader
 
-class SecureGCMCipherSpec extends UnitTest {
+import java.security.InvalidAlgorithmParameterException
+import java.util.Base64
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.{Cipher, IllegalBlockSizeException, KeyGenerator, NoSuchPaddingException}
+
+class SecureGCMCipherSpec extends support.UnitTest {
   SharedMetricRegistries.clear()
 
-  private implicit lazy val appConfig: AppConfig = mockAppConfig
+  private implicit lazy val appConfig: AppConfig = new MockAppConfig().config()
 
   private val underTest = new SecureGCMCipher
 

@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package filters
+package support.builders.models.mongo
 
-import support.UnitTest
+import models.mongo.CYAPeriodData
 
-class InputFiltersSpec extends UnitTest with InputFilters {
+import java.time.Month
 
-  "Input filter" must {
-    "filter out those hackers" in {
-      filter("<script>(.*?)</script>") shouldBe ""
-      filter("<script(.*?)>") shouldBe ""
-      filter("</script>") shouldBe ""
-      filter("javascript:") shouldBe ""
-      filter("vbscript:") shouldBe ""
-      filter("onload(.*?)=") shouldBe ""
-      filter("eval((.*?)") shouldBe ""
-      filter("expression((.*?)") shouldBe ""
-      filter("abc|bcd") shouldBe "abcbcd"
-    }
-  }
+object CYAPeriodDataBuilder {
+
+  val aCYAPeriodData: CYAPeriodData = CYAPeriodData(
+    deductionPeriod = Month.MAY,
+    grossAmountPaid = Some(500.00),
+    deductionAmount = Some(100.00),
+    costOfMaterialsQuestion = Some(true),
+    costOfMaterials = Some(250.00)
+  )
 }

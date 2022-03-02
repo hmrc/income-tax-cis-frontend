@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package filters
+package support
 
-import support.UnitTest
+import org.joda.time.DateTime
 
-class InputFiltersSpec extends UnitTest with InputFilters {
+trait TaxYearHelper {
 
-  "Input filter" must {
-    "filter out those hackers" in {
-      filter("<script>(.*?)</script>") shouldBe ""
-      filter("<script(.*?)>") shouldBe ""
-      filter("</script>") shouldBe ""
-      filter("javascript:") shouldBe ""
-      filter("vbscript:") shouldBe ""
-      filter("onload(.*?)=") shouldBe ""
-      filter("eval((.*?)") shouldBe ""
-      filter("expression((.*?)") shouldBe ""
-      filter("abc|bcd") shouldBe "abcbcd"
-    }
-  }
+  private val month = DateTime.now().monthOfYear().get()
+  private val dayOfMonth = DateTime.now().dayOfMonth().get()
+
+  val taxYear: Int = if (month >= 4 && dayOfMonth >= 5) DateTime.now().year().get() + 1 else DateTime.now().year().get()
+  val taxYearEOY: Int = taxYear - 1
 }

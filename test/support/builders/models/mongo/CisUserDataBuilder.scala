@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package filters
+package support.builders.models.mongo
 
-import support.UnitTest
+import models.mongo.CisUserData
+import org.joda.time.{DateTime, DateTimeZone}
+import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 
-class InputFiltersSpec extends UnitTest with InputFilters {
+object CisUserDataBuilder {
 
-  "Input filter" must {
-    "filter out those hackers" in {
-      filter("<script>(.*?)</script>") shouldBe ""
-      filter("<script(.*?)>") shouldBe ""
-      filter("</script>") shouldBe ""
-      filter("javascript:") shouldBe ""
-      filter("vbscript:") shouldBe ""
-      filter("onload(.*?)=") shouldBe ""
-      filter("eval((.*?)") shouldBe ""
-      filter("expression((.*?)") shouldBe ""
-      filter("abc|bcd") shouldBe "abcbcd"
-    }
-  }
+  val aCisUserData: CisUserData = CisUserData(
+    sessionId = "sessionId-eb3158c2-0aff-4ce8-8d1b-f2208ace52fe",
+    mtdItId = "1234567890",
+    nino = "AA123456A",
+    taxYear = 2021,
+    employerRef = "123/AB12345",
+    submissionId = Some("submissionId"),
+    isPriorSubmission = true,
+    cis = Some(aCisCYAModel),
+    lastUpdated = DateTime.now(DateTimeZone.UTC)
+  )
 }

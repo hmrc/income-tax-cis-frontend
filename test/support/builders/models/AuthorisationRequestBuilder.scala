@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package filters
+package support.builders.models
 
-import support.UnitTest
+import models.{AuthorisationRequest, User}
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 
-class InputFiltersSpec extends UnitTest with InputFilters {
+object AuthorisationRequestBuilder {
 
-  "Input filter" must {
-    "filter out those hackers" in {
-      filter("<script>(.*?)</script>") shouldBe ""
-      filter("<script(.*?)>") shouldBe ""
-      filter("</script>") shouldBe ""
-      filter("javascript:") shouldBe ""
-      filter("vbscript:") shouldBe ""
-      filter("onload(.*?)=") shouldBe ""
-      filter("eval((.*?)") shouldBe ""
-      filter("expression((.*?)") shouldBe ""
-      filter("abc|bcd") shouldBe "abcbcd"
-    }
-  }
+  val anAuthorisationRequest: AuthorisationRequest[AnyContentAsEmpty.type] = AuthorisationRequest(
+    User(aCisUserData.mtdItId, None, aCisUserData.nino, aCisUserData.sessionId, "affinityGroup"),
+    FakeRequest()
+  )
 }

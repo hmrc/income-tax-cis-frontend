@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package filters
+package support.builders.models
 
-import support.UnitTest
+import models.GetPeriodData
 
-class InputFiltersSpec extends UnitTest with InputFilters {
+import java.time.Month
 
-  "Input filter" must {
-    "filter out those hackers" in {
-      filter("<script>(.*?)</script>") shouldBe ""
-      filter("<script(.*?)>") shouldBe ""
-      filter("</script>") shouldBe ""
-      filter("javascript:") shouldBe ""
-      filter("vbscript:") shouldBe ""
-      filter("onload(.*?)=") shouldBe ""
-      filter("eval((.*?)") shouldBe ""
-      filter("expression((.*?)") shouldBe ""
-      filter("abc|bcd") shouldBe "abcbcd"
-    }
-  }
+object GetPeriodDataBuilder {
+
+  val aGetPeriodData: GetPeriodData = GetPeriodData(
+    deductionPeriod = Month.MAY,
+    deductionAmount = Some(100.00),
+    costOfMaterials = Some(50.00),
+    grossAmountPaid = Some(450.00),
+    submissionDate = "2020-05-11T16:38:57.489Z",
+    submissionId = Some("submissionId"),
+    source = "customer"
+  )
 }

@@ -19,6 +19,7 @@ package models.mongo
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
+import utils.SecureGCMCipher
 
 case class CisUserData(sessionId: String,
                        mtdItId: String,
@@ -28,7 +29,20 @@ case class CisUserData(sessionId: String,
                        submissionId: Option[String],
                        isPriorSubmission: Boolean,
                        cis: Option[CisCYAModel],
-                       lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC))
+                       lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)) {
+
+  def encrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCisUserData = EncryptedCisUserData(
+    sessionId = sessionId,
+    mtdItId = mtdItId,
+    nino = nino,
+    taxYear = taxYear,
+    employerRef = employerRef,
+    submissionId = submissionId,
+    isPriorSubmission = isPriorSubmission,
+    cis = cis.map(_.encrypted),
+    lastUpdated = lastUpdated
+  )
+}
 
 object CisUserData extends MongoJodaFormats {
 
@@ -45,10 +59,22 @@ case class EncryptedCisUserData(sessionId: String,
                                 submissionId: Option[String],
                                 isPriorSubmission: Boolean,
                                 cis: Option[EncryptedCisCYAModel],
-                                lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC))
+                                lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)) {
+
+  def decrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CisUserData = CisUserData(
+    sessionId = sessionId,
+    mtdItId = mtdItId,
+    nino = nino,
+    taxYear = taxYear,
+    employerRef = employerRef,
+    submissionId = submissionId,
+    isPriorSubmission = isPriorSubmission,
+    cis = cis.map(_.decrypted),
+    lastUpdated = lastUpdated
+  )
+}
 
 object EncryptedCisUserData extends MongoJodaFormats {
-
   implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
 
   implicit val formats: Format[EncryptedCisUserData] = Json.format[EncryptedCisUserData]

@@ -18,49 +18,44 @@ package models
 
 import play.api.http.Status.SERVICE_UNAVAILABLE
 import play.api.libs.json.{JsObject, Json}
-import utils.UnitTest
+import support.UnitTest
 
 class APIErrorBodyModelSpec extends UnitTest {
-  val model: APIErrorBodyModel = new APIErrorBodyModel(
-    "SERVICE_UNAVAILABLE", "The service is currently unavailable")
-  val jsModel: JsObject = Json.obj(
+
+  private val model: APIErrorBodyModel = new APIErrorBodyModel("SERVICE_UNAVAILABLE", "The service is currently unavailable")
+  private val jsModel: JsObject = Json.obj(
     "code" -> "SERVICE_UNAVAILABLE",
     "reason" -> "The service is currently unavailable"
   )
 
-  val errorsJsModel: JsObject = Json.obj(
-    "failures" -> Json.arr(
-      Json.obj("code" -> "SERVICE_UNAVAILABLE",
-        "reason" -> "The service is currently unavailable"),
-      Json.obj("code" -> "INTERNAL_SERVER_ERROR",
-        "reason" -> "The service is currently facing issues.")
-    )
-  )
+  private val errorsJsModel: JsObject = Json.obj("failures" -> Json.arr(
+    Json.obj("code" -> "SERVICE_UNAVAILABLE", "reason" -> "The service is currently unavailable"),
+    Json.obj("code" -> "INTERNAL_SERVER_ERROR", "reason" -> "The service is currently facing issues.")
+  ))
 
   "The APIErrorBodyModel" should {
-
     "parse to Json" in {
       Json.toJson(model) shouldBe jsModel
     }
+
     "parse from json" in {
       jsModel.as[APIErrorBodyModel]
     }
   }
 
   "The APIErrorModel" should {
-
-    val model = APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("SERVICE_UNAVAILABLE","The service is currently unavailable"))
+    val model = APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("SERVICE_UNAVAILABLE", "The service is currently unavailable"))
     val errorsModel = APIErrorModel(SERVICE_UNAVAILABLE, APIErrorsBodyModel(Seq(
-      APIErrorBodyModel("SERVICE_UNAVAILABLE","The service is currently unavailable"),
-      APIErrorBodyModel("INTERNAL_SERVER_ERROR","The service is currently facing issues.")
+      APIErrorBodyModel("SERVICE_UNAVAILABLE", "The service is currently unavailable"),
+      APIErrorBodyModel("INTERNAL_SERVER_ERROR", "The service is currently facing issues.")
     )))
 
     "parse to Json" in {
       model.toJson shouldBe jsModel
     }
+
     "parse to Json for multiple errors" in {
       errorsModel.toJson shouldBe errorsJsModel
     }
   }
-
 }

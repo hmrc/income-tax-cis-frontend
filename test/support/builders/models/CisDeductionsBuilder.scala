@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package filters
+package support.builders.models
 
-import support.UnitTest
+import models.CisDeductions
+import support.builders.models.GetPeriodDataBuilder.aGetPeriodData
 
-class InputFiltersSpec extends UnitTest with InputFilters {
+object CisDeductionsBuilder {
 
-  "Input filter" must {
-    "filter out those hackers" in {
-      filter("<script>(.*?)</script>") shouldBe ""
-      filter("<script(.*?)>") shouldBe ""
-      filter("</script>") shouldBe ""
-      filter("javascript:") shouldBe ""
-      filter("vbscript:") shouldBe ""
-      filter("onload(.*?)=") shouldBe ""
-      filter("eval((.*?)") shouldBe ""
-      filter("expression((.*?)") shouldBe ""
-      filter("abc|bcd") shouldBe "abcbcd"
-    }
-  }
+  val aCisDeductions: CisDeductions = CisDeductions(
+    fromDate = "2020-05-05",
+    toDate = "2020-06-06",
+    contractorName = Some("ABC SteelWorks"),
+    employerRef = "123/AB123456",
+    totalDeductionAmount = Some(300.00),
+    totalCostOfMaterials = Some(400.00),
+    totalGrossAmountPaid = Some(200.00),
+    periodData = Seq(aGetPeriodData)
+  )
 }

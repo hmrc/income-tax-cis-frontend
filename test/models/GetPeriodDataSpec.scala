@@ -16,16 +16,16 @@
 
 package models
 
-import builders.models.GetPeriodDataBuilder.aGetPeriodData
 import play.api.libs.json.{JsObject, Json}
-import utils.{LogCapturing, PagerDutyHelper, UnitTest}
+import support.UnitTest
+import support.builders.models.GetPeriodDataBuilder.aGetPeriodData
+import utils.{LogCapturing, PagerDutyHelper}
 
 import java.time.Month
 
 class GetPeriodDataSpec extends UnitTest with LogCapturing {
 
   "GetPeriodData" should {
-
     "write to Json correctly when using implicit writes" in {
       val actualResult = Json.toJson(aGetPeriodData)
       val aGetPeriodDataJsonWrites: JsObject =
@@ -56,7 +56,6 @@ class GetPeriodDataSpec extends UnitTest with LogCapturing {
         val data: GetPeriodData = Json.parse(result).as[GetPeriodData]
 
         data.deductionPeriod shouldBe Month.MAY
-
       }
 
       "returns a month and logs when the month is invalid" in {
@@ -101,7 +100,6 @@ class GetPeriodDataSpec extends UnitTest with LogCapturing {
     "throw an exception when the period dates cannot be parsed" in {
       withCaptureOfLoggingFrom(PagerDutyHelper.logger) {
         logs =>
-
           val caught =
             intercept[Exception] {
               val result =
@@ -121,5 +119,4 @@ class GetPeriodDataSpec extends UnitTest with LogCapturing {
       }
     }
   }
-
 }
