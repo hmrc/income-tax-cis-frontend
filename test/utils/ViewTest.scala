@@ -16,14 +16,37 @@
 
 package utils
 
+import config.{AppConfig, MockAppConfig}
+import models.AuthorisationRequest
 import org.jsoup.nodes.{Document, Element}
 import org.jsoup.select.Elements
-import org.scalatest.Assertion
+import org.scalamock.scalatest.MockFactory
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatest.{Assertion, BeforeAndAfterEach}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Play.materializer
 import play.api.i18n.{Lang, Messages, MessagesApi}
-import play.api.mvc.Call
+import play.api.mvc._
+import play.api.test.{FakeRequest, Helpers}
+import support.builders.models.UserBuilder.aUser
 
-trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Awaitable, Future}
+
+// TODO: Get rid of this trait
+trait ViewTest extends AnyWordSpec
+  with Matchers
+  with MockFactory
+  with BeforeAndAfterEach
+  with GuiceOneAppPerSuite {
+
+  val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("X-Session-ID" -> aUser.sessionId)
+  implicit lazy val authorisationRequest: AuthorisationRequest[AnyContent] = new AuthorisationRequest[AnyContent](aUser, fakeRequest)
+  implicit val mockAppConfig: AppConfig = new MockAppConfig().config()
+
+  implicit lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
 
   val testBackUrl = "/test-back-url"
   val testCall: Call = Call("POST", "/test-url")
@@ -115,7 +138,7 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
         document.select(selector).attr("class") should include("govuk-button")
       }
 
-      if(href.isDefined) {
+      if (href.isDefined) {
         s"has a href to '${href.get}'" in {
           document.select(selector).attr("href") shouldBe href.get
         }
@@ -179,16 +202,16 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
   }
 
   def checkMessagesAreUnique(initial: List[(String, String)], keysToExplore: List[(String, String)], result: Set[String]): Set[String] = {
-      keysToExplore match {
-        case Nil => result
-        case head :: tail =>
-          val (currentMessageKey, currentMessage) = (head._1, head._2)
-          val duplicate = initial.collect {
-            case (messageKey, message) if currentMessageKey != messageKey && currentMessage == message => currentMessageKey
-          }.toSet
+    keysToExplore match {
+      case Nil => result
+      case head :: tail =>
+        val (currentMessageKey, currentMessage) = (head._1, head._2)
+        val duplicate = initial.collect {
+          case (messageKey, message) if currentMessageKey != messageKey && currentMessage == message => currentMessageKey
+        }.toSet
 
-          checkMessagesAreUnique(initial, tail, duplicate ++ result)
-      }
+        checkMessagesAreUnique(initial, tail, duplicate ++ result)
+    }
   }
 
   def welshToggleCheck(activeLanguage: String)(implicit document: Document): Unit = {
@@ -215,5 +238,18 @@ trait ViewTest extends UnitTest with GuiceOneAppPerSuite {
           s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/language/${linkLanguage(otherLanguage).toLowerCase}"
       }
     }
+  }
+
+  def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
+
+  def status(awaitable: Future[Result]): Int = await(awaitable).header.status
+
+  def bodyOf(awaitable: Future[Result]): String = {
+    val awaited = await(awaitable)
+    await(awaited.body.consumeData.map(_.utf8String))
+  }
+
+  def redirectUrl(awaitable: Future[Result]): String = {
+    await(awaitable).header.headers.getOrElse("Location", "/")
   }
 }

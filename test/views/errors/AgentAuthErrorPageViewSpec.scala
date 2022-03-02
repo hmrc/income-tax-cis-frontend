@@ -23,21 +23,23 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.twirl.api.Html
 import utils.ViewTest
+import views.html.templates.AgentAuthErrorPageView
 
 class AgentAuthErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOneAppPerSuite with ViewTest {
 
-  val p1Selector = "#main-content > div > div > p:nth-child(2)"
-  val p2Selector = "#main-content > div > div > p:nth-child(3)"
-  val authoriseAsAnAgentLinkSelector = "#client_auth_link"
-  val anotherClientDetailsButtonSelector = "#main-content > div > div > a"
+  private val p1Selector = "#main-content > div > div > p:nth-child(2)"
+  private val authoriseAsAnAgentLinkSelector = "#client_auth_link"
+  private val anotherClientDetailsButtonSelector = "#main-content > div > div > a"
 
-  val h1Expected = "There’s a problem"
-  val youCannotViewText: String = "You cannot view this client’s information. Your client needs to"
-  val authoriseYouAsText = "authorise you as their agent (opens in new tab)"
-  val beforeYouCanTryText = "before you can sign in to this service."
-  val tryAnotherClientText = "Try another client’s details"
-  val tryAnotherClientExpectedHref = "/report-quarterly/income-and-expenses/view/agents/client-utr"
-  val authoriseAsAnAgentLink = "https://www.gov.uk/guidance/client-authorisation-an-overview"
+  private val h1Expected = "There’s a problem"
+  private val youCannotViewText: String = "You cannot view this client’s information. Your client needs to"
+  private val authoriseYouAsText = "authorise you as their agent (opens in new tab)"
+  private val beforeYouCanTryText = "before you can sign in to this service."
+  private val tryAnotherClientText = "Try another client’s details"
+  private val tryAnotherClientExpectedHref = "/report-quarterly/income-and-expenses/view/agents/client-utr"
+  private val authoriseAsAnAgentLink = "https://www.gov.uk/guidance/client-authorisation-an-overview"
+
+  private val agentAuthErrorPageView: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]
 
   "AgentAuthErrorPageView in English" should {
 

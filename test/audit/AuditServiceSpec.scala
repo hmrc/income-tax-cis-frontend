@@ -16,17 +16,25 @@
 
 package audit
 
+import org.scalamock.scalatest.MockFactory
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Configuration
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.HeaderCarrier
+import support.UnitTest
+import support.builders.models.UserBuilder.aUser
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-import utils.UnitTestWithApp
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuditServiceSpec extends UnitTestWithApp {
+class AuditServiceSpec extends UnitTest
+  with MockFactory
+  with GuiceOneAppPerSuite {
+
+  private implicit val headerCarrierWithSession: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(aUser.sessionId)))
 
   private trait Test {
     val mockedAppName = "some-app-name"
@@ -55,7 +63,6 @@ class AuditServiceSpec extends UnitTestWithApp {
         val event = AuditModel(auditType, transactionName, eventDetails)
         target.sendAudit(event) shouldBe expected
       }
-
 
 
       "generates an event with the correct auditSource" in new Test {

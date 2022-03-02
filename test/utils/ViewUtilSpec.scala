@@ -17,8 +17,9 @@
 package utils
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import support.UnitTest
 
-class ViewUtilSpec extends support.UnitTest with GuiceOneAppPerSuite with ViewTest {
+class ViewUtilSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
 
   "calling method convertBoolToYesNo" should {
     "return yes when cis field is true" in {
