@@ -19,20 +19,35 @@ package actions
 import common.SessionValues
 import config.AppConfig
 import models.AuthorisationRequest
+import org.scalamock.scalatest.MockFactory
 import play.api.http.Status.SEE_OTHER
 import play.api.i18n.MessagesApi
+import play.api.mvc.{AnyContent, AnyContentAsEmpty, ControllerComponents, Result}
+import play.api.test.Helpers.{await, defaultAwaitTimeout, status}
+import play.api.test.{FakeRequest, Helpers}
+import support.UnitTest
 import support.builders.models.UserBuilder.aUser
-import utils.UnitTest
 
-class TaxYearActionSpec extends UnitTest {
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
+class TaxYearActionSpec extends UnitTest
+  with MockFactory {
 
   private val validTaxYear: Int = 2022
   private val invalidTaxYear: Int = 3000
 
+  private val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("X-Session-ID" -> aUser.sessionId)
   private implicit lazy val mockedConfig: AppConfig = mock[AppConfig]
+  private val mockControllerComponents: ControllerComponents = Helpers.stubControllerComponents()
   private implicit lazy val cc: MessagesApi = mockControllerComponents.messagesApi
+  private implicit lazy val authorisationRequest: AuthorisationRequest[AnyContent] = new AuthorisationRequest[AnyContent](aUser, fakeRequest)
 
   private def taxYearAction(taxYear: Int, reset: Boolean = true): TaxYearAction = new TaxYearAction(taxYear, reset)
+
+  private def redirectUrl(awaitable: Future[Result]): String = {
+    await(awaitable).header.headers.getOrElse("Location", "/")
+  }
 
   "TaxYearAction.refine" should {
     val request = fakeRequest.withSession(SessionValues.TAX_YEAR -> validTaxYear.toString)

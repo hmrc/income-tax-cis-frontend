@@ -18,23 +18,22 @@ package controllers
 
 import play.api.http.HeaderNames.LOCATION
 import play.api.http.Status.SEE_OTHER
-import play.api.test.Helpers.header
-import play.api.test.{DefaultAwaitTimeout, FakeRequest}
-import utils.UnitTestWithApp
+import play.api.mvc.MessagesControllerComponents
+import play.api.test.Helpers.{header, status}
+import play.api.test.{DefaultAwaitTimeout, FakeRequest, Helpers}
+import support.ControllerUnitTest
 
-class SignOutControllerTest extends UnitTestWithApp with DefaultAwaitTimeout {
+class SignOutControllerTest extends ControllerUnitTest with DefaultAwaitTimeout {
 
-  val controller = new SignOutController(mockMessagesControllerComponents, mockAppConfig)
+  private lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
+
+  private val underTest = new SignOutController(mockMessagesControllerComponents, appConfig)
 
   "SigOutController" should {
-
     "redirect user to exit survey" when {
-
       "signOut() is called it" should {
-
         val request = FakeRequest("GET", "/sign-out")
-
-        val responseF = controller.signOut(false)(request)
+        val responseF = underTest.signOut(false)(request)
 
         "return status code 303" in {
           status(responseF) shouldBe SEE_OTHER
@@ -44,9 +43,6 @@ class SignOutControllerTest extends UnitTestWithApp with DefaultAwaitTimeout {
           header(LOCATION, responseF) shouldBe Some("/sign-out-url?continue=%2FfeedbackUrl")
         }
       }
-
     }
-
   }
-
 }

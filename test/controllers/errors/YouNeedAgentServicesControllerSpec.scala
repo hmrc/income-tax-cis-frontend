@@ -17,21 +17,26 @@
 package controllers.errors
 
 import play.api.http.Status.UNAUTHORIZED
-import play.api.test.Helpers.contentType
-import play.api.test.{DefaultAwaitTimeout, FakeRequest}
-import utils.UnitTestWithApp
+import play.api.mvc.MessagesControllerComponents
+import play.api.test.Helpers.{contentType, status}
+import play.api.test.{DefaultAwaitTimeout, FakeRequest, Helpers}
+import support.ControllerUnitTest
 import views.html.templates.YouNeedAgentServicesView
 
-class YouNeedAgentServicesControllerSpec extends UnitTestWithApp with DefaultAwaitTimeout {
+class YouNeedAgentServicesControllerSpec extends ControllerUnitTest with DefaultAwaitTimeout {
 
-  lazy val controller = new YouNeedAgentServicesController(mockMessagesControllerComponents, app.injector.instanceOf[YouNeedAgentServicesView], mockAppConfig)
+  private implicit lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
+
+  private lazy val underTest = new YouNeedAgentServicesController(
+    mockMessagesControllerComponents,
+    app.injector.instanceOf[YouNeedAgentServicesView],
+    appConfig
+  )
 
   "The show method" should {
-
     "return an OK response when .show() is called" in {
-
       val fakeRequest = FakeRequest("GET", "/error/you-need-agent-services-account")
-      val result = controller.show()(fakeRequest)
+      val result = underTest.show()(fakeRequest)
 
       status(result) shouldBe UNAUTHORIZED
       contentType(result) shouldBe Some("text/html")

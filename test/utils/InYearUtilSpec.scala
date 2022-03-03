@@ -16,27 +16,33 @@
 
 package utils
 
-import config.AppConfig
+import config.{AppConfig, MockAppConfig}
+import org.scalamock.scalatest.MockFactory
 import play.api.http.HeaderNames
 import play.api.mvc.{Result, Results}
 import play.api.test.Helpers._
+import support.UnitTest
 
 import java.time.LocalDateTime
 import scala.concurrent.Future
 
-class InYearUtilSpec extends UnitTest {
-  val year2021: Int = 2021
-  val year2022: Int = 2022
-  val month4: Int = 4
-  val day5: Int = 5
-  val day6: Int = 6
-  val hour23: Int = 23
-  val minute59: Int = 59
+class InYearUtilSpec extends UnitTest
+  with MockFactory {
 
+  private val year2022: Int = 2022
+  private val month4: Int = 4
+  private val day5: Int = 5
+  private val day6: Int = 6
+  private val hour23: Int = 23
+  private val minute59: Int = 59
 
   implicit lazy val mockedConfig: AppConfig = mock[AppConfig]
 
-  def newDate(year: Int, month: Int, day: Int): LocalDateTime = LocalDateTime.of(year, month, day, 0, 0)
+  private def newDate(year: Int, month: Int, day: Int): LocalDateTime = LocalDateTime.of(year, month, day, 0, 0)
+
+  private val mockAppConfig: AppConfig = new MockAppConfig().config()
+
+  private val inYearAction = new InYearUtil()(mockAppConfig)
 
   "InYearAction.inYear" when {
 

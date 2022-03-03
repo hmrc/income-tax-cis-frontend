@@ -18,11 +18,12 @@ package utils
 
 import models.mongo.TextAndKey
 import org.scalamock.scalatest.MockFactory
+import support.UnitTest
 import utils.EncryptorInstances.{bigDecimalEncryptor, booleanEncryptor, monthEncryptor, stringEncryptor}
 
 import java.time.Month
 
-class EncryptorInstancesTest extends support.UnitTest
+class EncryptorInstancesTest extends UnitTest
   with MockFactory {
 
   private val encryptedBoolean = mock[EncryptedValue]
