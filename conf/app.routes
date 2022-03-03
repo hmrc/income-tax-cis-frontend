@@ -12,6 +12,10 @@ GET        /keep-alive                                                          
 
 GET        /timeout                                                                 controllers.SessionExpiredController.timeout
 
+##########################      Summary Pages      #################################
+
+GET         /:taxYear/construction-industry-scheme-deductions/contractor            controllers.ContractorPageController.show(taxYear: Int)
+
 ###########################     Error pages     ####################################
 
 GET        /error/you-need-to-sign-up                                               controllers.errors.IndividualAuthErrorController.show
