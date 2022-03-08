@@ -22,7 +22,7 @@ import utils.ViewTest
 
 class MessagesSpec extends ViewTest with GuiceOneAppPerSuite {
 
-  val exclusionKeys = Set(
+  private val exclusionKeys = Set(
     "global.error.badRequest400.title",
     "global.error.badRequest400.heading",
     "global.error.badRequest400.message",

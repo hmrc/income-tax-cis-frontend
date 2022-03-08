@@ -90,7 +90,7 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
         val options = FindOneAndReplaceOptions().upsert(true).returnDocument(ReturnDocument.AFTER)
 
         collection.findOneAndReplace(queryFilter, replacement, options).toFutureOption().map {
-          case Some(_) => Right()
+          case Some(_) => Right(())
           case None =>
             pagerDutyLog(FAILED_TO_CREATE_UPDATE_CIS_DATA, s"$start Failed to update user data.")
             Left(DataNotUpdated)

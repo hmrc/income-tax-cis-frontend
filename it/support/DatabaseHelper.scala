@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package utils
+package support
 
 import models.AuthorisationRequest
 import models.mongo.CisUserData
@@ -25,18 +25,15 @@ trait DatabaseHelper {
 
   lazy val cisDatabase: CisUserDataRepositoryImpl = app.injector.instanceOf[CisUserDataRepositoryImpl]
 
-  //noinspection ScalaStyle
   def dropCISDB(): Unit = {
     await(cisDatabase.collection.drop().toFutureOption())
     await(cisDatabase.ensureIndexes)
   }
 
-  //noinspection ScalaStyle
   def insertCyaData(cya: CisUserData, request: AuthorisationRequest[_]): Unit = {
     await(cisDatabase.createOrUpdate(cya)(request))
   }
 
-  //noinspection ScalaStyle
   def findCyaData(taxYear: Int, request: AuthorisationRequest[_]): Option[CisUserData] = {
     await(cisDatabase.find(taxYear)(request).map {
       case Left(_) => None

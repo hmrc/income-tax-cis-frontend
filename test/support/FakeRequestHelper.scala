@@ -16,13 +16,17 @@
 
 package support
 
-import org.joda.time.DateTime
+import common.SessionValues
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import support.builders.models.UserBuilder.aUser
 
-trait TaxYearHelper {
+trait FakeRequestHelper {
 
-  private val month = DateTime.now().monthOfYear().get()
-  private val dayOfMonth = DateTime.now().dayOfMonth().get()
+  protected val fakeIndividualRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+    .withHeaders(newHeaders = "X-Session-ID" -> aUser.sessionId)
 
-  protected val taxYear: Int = if (month >= 4 && dayOfMonth >= 5) DateTime.now().year().get() + 1 else DateTime.now().year().get()
-  protected val taxYearEOY: Int = taxYear - 1
+  protected val fakeAgentRequest: FakeRequest[AnyContentAsEmpty.type] = fakeIndividualRequest
+    .withHeaders(newHeaders = "X-Session-ID" -> aUser.sessionId)
+    .withSession(SessionValues.CLIENT_MTDITID -> aUser.mtditid, SessionValues.CLIENT_NINO -> aUser.nino)
 }

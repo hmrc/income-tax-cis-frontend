@@ -17,6 +17,7 @@
 package support.builders.models
 
 import models.CISSource
+import play.api.libs.json.{JsObject, Json}
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 
 object CISSourceBuilder {
@@ -26,5 +27,12 @@ object CISSourceBuilder {
     totalCostOfMaterials = Some(800.00),
     totalGrossAmountPaid = Some(700.00),
     cisDeductions = Seq(aCisDeductions)
+  )
+
+  def mapToJsonWrite(cisSource: CISSource)(implicit taxYear: Int): JsObject = Json.obj(fields =
+    "totalDeductionAmount" -> cisSource.totalDeductionAmount,
+    "totalCostOfMaterials" -> cisSource.totalCostOfMaterials,
+    "totalGrossAmountPaid" -> cisSource.totalGrossAmountPaid,
+    "cisDeductions" -> cisSource.cisDeductions.map(CisDeductionsBuilder.mapToJsonWrite)
   )
 }

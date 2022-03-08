@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package utils
+package support
 
 import actions.AuthorisedAction
 import akka.actor.ActorSystem
@@ -29,18 +29,19 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.http.Status.NO_CONTENT
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
 import services.AuthService
+import support.builders.models.IncomeTaxUserDataBuilder
 import support.builders.models.UserBuilder.aUser
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import utils.{IntegrationTestClock, MockAuthConnector}
 import views.html.templates.AgentAuthErrorPageView
 
 import scala.concurrent.duration.Duration
@@ -51,7 +52,8 @@ trait IntegrationTest extends AnyWordSpec
   with GuiceOneServerPerSuite
   with WireMockHelper
   with WiremockStubHelpers
-  with BeforeAndAfterAll {
+  with BeforeAndAfterAll
+  with TaxYearHelper {
 
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid)
@@ -61,6 +63,8 @@ trait IntegrationTest extends AnyWordSpec
   implicit val integrationTestClock: IntegrationTestClock.type = IntegrationTestClock
 
   implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
+
+  protected def fullUrl(endOfUrl: String): String = s"http://localhost:$port" + endOfUrl
 
   lazy val appUrl = s"http://localhost:$port/update-and-submit-income-tax-return/construction-industry-scheme-deductions"
 
@@ -186,13 +190,15 @@ trait IntegrationTest extends AnyWordSpec
     SessionValues.CLIENT_MTDITID -> aUser.mtditid
   ) ++ extraData)
 
-  def userDataStub(userData: IncomeTaxUserData, nino: String, taxYear: Int): StubMapping = stubGetWithHeadersCheck(
-    url = s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear",
-    status = OK,
-    responseBody = Json.toJson(userData).toString(),
-    sessionHeader = "X-Session-ID" -> aUser.sessionId,
-    mtdidHeader = "mtditid" -> aUser.mtditid
-  )
+  def userDataStub(userData: IncomeTaxUserData, nino: String, taxYear: Int): StubMapping = {
+    stubGetWithHeadersCheck(
+      url = s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear",
+      status = OK,
+      responseBody = IncomeTaxUserDataBuilder.mapToJsonWrite(userData)(taxYear).toString(),
+      sessionHeader = "X-Session-ID" -> aUser.sessionId,
+      mtdidHeader = "mtditid" -> aUser.mtditid
+    )
+  }
 
   def noUserDataStub(nino: String, taxYear: Int): StubMapping = stubGetWithHeadersCheck(
     url = s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear",

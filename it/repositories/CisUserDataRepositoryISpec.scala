@@ -26,18 +26,18 @@ import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import org.mongodb.scala.{MongoException, MongoInternalException, MongoWriteException}
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+import support.IntegrationTest
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.mongo.MongoUtils
 import utils.PagerDutyHelper.PagerDutyKeys.FAILED_TO_CREATE_UPDATE_CIS_DATA
-import utils.{IntegrationTest, SecureGCMCipher}
+import utils.SecureGCMCipher
 
 import scala.concurrent.Future
 
 class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with DefaultAwaitTimeout {
 
-  private val taxYear = 2022
   private val sessionIdOne = UUID.randomUUID
   private val now = DateTime.now(DateTimeZone.UTC)
   private val userDataFull = aCisUserData.copy(sessionId = sessionIdOne)
@@ -89,7 +89,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
   "clear" should {
     "remove a record" in new EmptyDatabase {
       count mustBe 0
-      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right(())
       count mustBe 1
 
       await(underTest.clear(taxYear)(userOne)) mustBe true
@@ -108,7 +108,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       count mustBe 0
 
       private val res = await(underTest.createOrUpdate(userDataOne)(userOne))
-      res mustBe Right()
+      res mustBe Right(())
       count mustBe 1
 
       private val res2 = await(underTest.createOrUpdate(userDataOne.copy(sessionId = "1234567890"))(userOne))
@@ -117,32 +117,32 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
     }
 
     "create a document in collection when one does not exist" in new EmptyDatabase {
-      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right(())
       count mustBe 1
     }
 
     "create a document in collection with all fields present" in new EmptyDatabase {
-      await(underTest.createOrUpdate(userDataFull)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(userDataFull)(userOne)) mustBe Right(())
       count mustBe 1
     }
 
     "update a document in collection when one already exists" in new EmptyDatabase {
-      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right(())
       count mustBe 1
 
       private val updatedCisUserData = userDataOne.copy(cis = Some(aCisCYAModel))
 
-      await(underTest.createOrUpdate(updatedCisUserData)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(updatedCisUserData)(userOne)) mustBe Right(())
       count mustBe 1
     }
 
     "create a new document when the same documents exists but the sessionId is different" in new EmptyDatabase {
-      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right(())
       count mustBe 1
 
       private val newUserData = userDataOne.copy(sessionId = UUID.randomUUID)
 
-      await(underTest.createOrUpdate(newUserData)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(newUserData)(userOne)) mustBe Right(())
       count mustBe 2
     }
   }
@@ -152,7 +152,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       private val now = DateTime.now(DateTimeZone.UTC)
       private val data = userDataOne.copy(lastUpdated = now)
 
-      await(underTest.createOrUpdate(data)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(data)(userOne)) mustBe Right(())
       count mustBe 1
 
       private val findResult = await(underTest.find(data.taxYear)(userOne))
@@ -162,7 +162,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
     }
 
     "find a document in collection with all fields present" in new EmptyDatabase {
-      await(underTest.createOrUpdate(userDataFull)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(userDataFull)(userOne)) mustBe Right(())
       count mustBe 1
 
       val findResult: Either[DatabaseError, Option[CisUserData]] = {
@@ -181,7 +181,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
   "the set indexes" should {
     "enforce uniqueness" in new EmptyDatabase {
       implicit val textAndKey: TextAndKey = TextAndKey(userDataOne.mtdItId, appConfig.encryptionKey)
-      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right()
+      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right(())
       count mustBe 1
 
       private val encryptedCISUserData: EncryptedCisUserData = userDataOne.encrypted

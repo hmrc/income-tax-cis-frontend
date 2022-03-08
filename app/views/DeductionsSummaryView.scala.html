@@ -1,0 +1,78 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.templates.Layout
+@import views.html.templates.helpers.Heading
+@import views.html.templates.helpers.Button
+@import models.pages.DeductionsSummaryPage
+@import utils.ViewUtils.bigDecimalCurrency
+@import views.html.templates.helpers.Link
+
+@this(
+    layout: Layout,
+    heading: Heading,
+    govukInsetText: GovukInsetText,
+    govukTable: GovukTable,
+    link: Link,
+    button: Button
+)
+
+@(pageModel: DeductionsSummaryPage)(implicit request: AuthorisationRequest[_], messages: Messages, appConfig: AppConfig)
+
+@title = @{messages("deductionsSummary.title")}
+
+@layout(pageTitle = title, taxYear = Some(pageModel.taxYear), isAgent = request.user.isAgent) {
+
+@heading(title, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
+
+    @if(!pageModel.isInYear){
+        <h1>Note: Page not yet implemented</h1>
+    } else {
+    <p class="govuk-body">@messages(s"deductionsSummary.p1.${if(request.user.isAgent) "agent" else "individual"}")</p>
+
+    @if(pageModel.isInYear)@{
+        govukInsetText(InsetText(content = Text(messages(s"deductionsSummary.insetText.${if(request.user.isAgent) "agent" else "individual"}", pageModel.taxYear.toString))))
+    }
+
+    <div class="govuk-!-padding-bottom-4">
+    @{
+        val rows = pageModel.contractorDeductions.map{ contractorDeduction =>
+            val contractor = contractorDeduction.contractorName.getOrElse(messages("deductionsSummary.table.row.contractor.employerRef", contractorDeduction.employerRef))
+            val htmlLink = link("", contractor, isKey = false)
+            Seq(
+                TableRow(content = HtmlContent(htmlLink)),
+                TableRow(content = Text(contractorDeduction.amount.map(value => bigDecimalCurrency(value.toString)).getOrElse("")))
+            )
+        }
+
+        govukTable(Table(
+            rows = rows,
+            head = Some(Seq(HeadCell(content = Text(messages("deductionsSummary.table.head.contractor"))), HeadCell(content = Text(messages("deductionsSummary.table.head.deductionsToDate"))))),
+            caption = Some(messages("deductionsSummary.table.caption")),
+            captionClasses = "govuk-table__caption--m",
+            firstCellIsHeader = true
+        ))
+    }
+    </div>
+
+    @button(alternativeText = "common.return.overview.buttonText", attributes = Map("id" -> "return-to-overview-button-id"))
+
+    }
+}
+
+@{
+// $COVERAGE-OFF$
+}

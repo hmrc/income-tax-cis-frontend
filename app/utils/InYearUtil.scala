@@ -16,16 +16,12 @@
 
 package utils
 
-import config.AppConfig
 import play.api.Logger
-import play.api.mvc.Result
-import play.api.mvc.Results.Redirect
 
 import java.time.{LocalDateTime, ZoneId}
 import javax.inject.Inject
-import scala.concurrent.Future
 
-class InYearUtil @Inject()(implicit val appConfig: AppConfig) {
+class InYearUtil @Inject()() {
 
   lazy val logger: Logger = Logger.apply(this.getClass)
 
@@ -48,13 +44,4 @@ class InYearUtil @Inject()(implicit val appConfig: AppConfig) {
 
     isNowBefore
   }
-
-  def notInYear(taxYear: Int, now: LocalDateTime = LocalDateTime.now)(block: Future[Result]): Future[Result] = {
-    if (!inYear(taxYear, now)) {
-      block
-    } else {
-      Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-    }
-  }
-
 }

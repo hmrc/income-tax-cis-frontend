@@ -18,11 +18,12 @@
 
 @(
         link: String,
-        messageKey: String,
+        messageKeyOrValue: String,
         id: Option[String] = None,
         isExternal: Boolean = false,
-        fullStop: Boolean = false
+        fullStop: Boolean = false,
+        isKey: Boolean = true
 )(implicit messages: Messages)
 
-<a href="@link" class="govuk-link" @id.map(x => s"id=$x") @if(isExternal) { target="_blank"  rel="noopener noreferrer" }>@messages(messageKey)@if(isExternal)(" " + messages("common.opensInNewTab"))</a>@{if(fullStop)messages("common.fullStop")}
+<a href="@link" class="govuk-link" @id.map(x => s"id=$x") @if(isExternal) { target="_blank"  rel="noopener noreferrer" }>@{if (isKey) messages(messageKeyOrValue) else messageKeyOrValue}@if(isExternal)(" " + messages("common.opensInNewTab"))</a>@{if(fullStop)messages("common.fullStop")}
 

@@ -19,7 +19,12 @@ package models
 import play.api.libs.json.{Json, OFormat}
 
 case class AllCISDeductions(customerCISDeductions: Option[CISSource],
-                            contractorCISDeductions: Option[CISSource])
+                            contractorCISDeductions: Option[CISSource]) {
+
+  def inYearCisDeductions: Seq[CisDeductions] = contractorCISDeductions
+    .map(_.cisDeductions)
+    .getOrElse(Seq.empty)
+}
 
 object AllCISDeductions {
   implicit val format: OFormat[AllCISDeductions] = Json.format[AllCISDeductions]

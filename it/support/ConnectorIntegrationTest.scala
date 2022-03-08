@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package utils
+package support
 
 import helpers.{AppConfigHelper, WireMockHelper, WiremockStubHelpers}
 import org.scalatest.BeforeAndAfterAll

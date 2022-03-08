@@ -17,6 +17,7 @@
 package support.builders.models
 
 import models.AllCISDeductions
+import play.api.libs.json.{JsObject, Json}
 import support.builders.models.CISSourceBuilder.aCISSource
 
 object AllCISDeductionsBuilder {
@@ -24,5 +25,10 @@ object AllCISDeductionsBuilder {
   val anAllCISDeductions: AllCISDeductions = AllCISDeductions(
     customerCISDeductions = Some(aCISSource),
     contractorCISDeductions = Some(aCISSource)
+  )
+
+  def mapToJsonWrite(cis: AllCISDeductions)(implicit taxYear: Int): JsObject = Json.obj(fields =
+    "customerCISDeductions" -> cis.customerCISDeductions.map(CISSourceBuilder.mapToJsonWrite),
+    "contractorCISDeductions" -> cis.contractorCISDeductions.map(CISSourceBuilder.mapToJsonWrite)
   )
 }

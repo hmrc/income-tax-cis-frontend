@@ -18,16 +18,16 @@ package models
 
 import play.api.libs.json.{JsObject, Json}
 import support.UnitTest
-import support.builders.models.GetPeriodDataBuilder.aGetPeriodData
+import support.builders.models.PeriodDataBuilder.aPeriodData
 import utils.{LogCapturing, PagerDutyHelper}
 
 import java.time.Month
 
-class GetPeriodDataSpec extends UnitTest with LogCapturing {
+class PeriodDataSpec extends UnitTest with LogCapturing {
 
-  "GetPeriodData" should {
+  "PeriodData" should {
     "write to Json correctly when using implicit writes" in {
-      val actualResult = Json.toJson(aGetPeriodData)
+      val actualResult = Json.toJson(aPeriodData)
       val aGetPeriodDataJsonWrites: JsObject =
         Json.obj(
           "deductionPeriod" -> Month.MAY.toString,
@@ -53,7 +53,7 @@ class GetPeriodDataSpec extends UnitTest with LogCapturing {
             |   "source": "customer"
             |}""".stripMargin
 
-        val data: GetPeriodData = Json.parse(result).as[GetPeriodData]
+        val data: PeriodData = Json.parse(result).as[PeriodData]
 
         data.deductionPeriod shouldBe Month.MAY
       }
@@ -69,10 +69,10 @@ class GetPeriodDataSpec extends UnitTest with LogCapturing {
 
         withCaptureOfLoggingFrom(PagerDutyHelper.logger) {
           logs =>
-            val data: GetPeriodData = Json.parse(result).as[GetPeriodData]
+            val data: PeriodData = Json.parse(result).as[PeriodData]
             data.deductionPeriod shouldBe Month.JULY
 
-            logs.map(_.toString).contains("[ERROR] INVALID_PERIOD_DATES [GetPeriodData][validatePeriodDatesAndReturnMonth]" +
+            logs.map(_.toString).contains("[ERROR] INVALID_PERIOD_DATES [PeriodData][validatePeriodDatesAndReturnMonth]" +
               " The retrieved period dates are invalid. fromDate - 2020-04-06, toDate - 2020-07-05") shouldBe true
         }
       }
@@ -88,10 +88,10 @@ class GetPeriodDataSpec extends UnitTest with LogCapturing {
 
         withCaptureOfLoggingFrom(PagerDutyHelper.logger) {
           logs =>
-            val data: GetPeriodData = Json.parse(result).as[GetPeriodData]
+            val data: PeriodData = Json.parse(result).as[PeriodData]
             data.deductionPeriod shouldBe Month.MAY
 
-            logs.map(_.toString).contains("[ERROR] INVALID_PERIOD_DATES [GetPeriodData][validatePeriodDatesAndReturnMonth]" +
+            logs.map(_.toString).contains("[ERROR] INVALID_PERIOD_DATES [PeriodData][validatePeriodDatesAndReturnMonth]" +
               " The retrieved period dates are invalid. fromDate - 2020-04-06, toDate - 2020-05-02") shouldBe true
         }
       }
@@ -110,10 +110,10 @@ class GetPeriodDataSpec extends UnitTest with LogCapturing {
                   |   "source": "customer"
                   |}""".stripMargin
 
-              Json.parse(result).as[GetPeriodData]
+              Json.parse(result).as[PeriodData]
             }
 
-          logs.map(_.toString).contains("[ERROR] INVALID_PERIOD_DATES [GetPeriodData][validatePeriodDatesAndReturnMonth] "
+          logs.map(_.toString).contains("[ERROR] INVALID_PERIOD_DATES [PeriodData][validatePeriodDatesAndReturnMonth] "
             + "The retrieved period dates are invalid. Text 'invalid-to-date' could not be parsed at index 0") shouldBe true
           assert(caught.getMessage == "The retrieved period dates are invalid.")
       }

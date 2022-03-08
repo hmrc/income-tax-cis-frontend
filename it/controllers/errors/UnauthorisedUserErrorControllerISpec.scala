@@ -20,7 +20,8 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status.UNAUTHORIZED
 import play.api.libs.ws.WSResponse
-import utils.{IntegrationTest, ViewHelpers}
+import support.IntegrationTest
+import utils.ViewHelpers
 
 class UnauthorisedUserErrorControllerISpec extends IntegrationTest with ViewHelpers {
 

@@ -28,4 +28,6 @@ object UserBuilder {
     sessionId = "sessionId-eb3158c2-0aff-4ce8-8d1b-f2208ace52fe",
     affinityGroup = AffinityGroup.Individual.toString
   )
+
+  val anAgentUser: User = aUser.copy(arn = Some("0987654321"), affinityGroup = AffinityGroup.Agent.toString)
 }

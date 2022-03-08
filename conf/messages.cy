@@ -35,7 +35,18 @@ common.status.updated = Updated
 common.update = Update
 common.use = use
 common.yes = Yes
-cis.caption = CIS for 6 April {0} to 5 April {1}
+cis.caption = Construction Industry Scheme (CIS) deductions for 6 April {0} to 5 April {1}
+
+#################       Deductions Summary Page    #######################################
+deductionsSummary.title = CIS deductions
+deductionsSummary.p1.agent = Your client’s CIS deductions are based on the information we already hold about them.
+deductionsSummary.p1.individual = Your CIS deductions are based on the information we already hold about you.
+deductionsSummary.insetText.agent = You cannot update your client’s CIS information until 6 April {0}.
+deductionsSummary.insetText.individual = You cannot update your CIS information until 6 April {0}.
+deductionsSummary.table.caption = Contractors and CIS deductions to date
+deductionsSummary.table.head.contractor = Contractor
+deductionsSummary.table.head.deductionsToDate = CIS deductions to date
+deductionsSummary.table.row.contractor.employerRef = Contractor: {0}
 
 #################       Error messages        ########################################
 
