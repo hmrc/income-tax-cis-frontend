@@ -41,20 +41,20 @@
     @if(!pageModel.isInYear){
         <h1>Note: Page not yet implemented</h1>
     } else {
-    <p class="govuk-body">@messages(s"deductionsSummary.p1.${if(request.user.isAgent) "agent" else "individual"}")</p>
+    <p class="govuk-body">@messages(s"cis.deductionsInfo.p1.${if(request.user.isAgent) "agent" else "individual"}")</p>
 
     @if(pageModel.isInYear)@{
-        govukInsetText(InsetText(content = Text(messages(s"deductionsSummary.insetText.${if(request.user.isAgent) "agent" else "individual"}", pageModel.taxYear.toString))))
+        govukInsetText(InsetText(content = Text(messages(s"cis.insetText.${if(request.user.isAgent) "agent" else "individual"}", pageModel.taxYear.toString))))
     }
 
     <div class="govuk-!-padding-bottom-4">
     @{
-        val rows = pageModel.contractorDeductions.map{ contractorDeduction =>
-            val contractor = contractorDeduction.contractorName.getOrElse(messages("deductionsSummary.table.row.contractor.employerRef", contractorDeduction.employerRef))
+        val rows = pageModel.deductions.map{ deduction =>
+            val contractor = deduction.contractorName.getOrElse(messages("deductionsSummary.table.row.contractor.employerRef", deduction.employerRef))
             val htmlLink = link("", contractor, isKey = false)
             Seq(
                 TableRow(content = HtmlContent(htmlLink)),
-                TableRow(content = Text(contractorDeduction.amount.map(value => bigDecimalCurrency(value.toString)).getOrElse("")))
+                TableRow(content = Text(deduction.amount.map(value => bigDecimalCurrency(value.toString)).getOrElse("")))
             )
         }
 

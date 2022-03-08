@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package support.builders.models.pages.elements
+package models.pages.elements
 
-import models.pages.elements.ContractorDeduction
-import support.TaxYearHelper
+import support.UnitTest
+import support.builders.models.CisDeductionsBuilder.aCisDeductions
 
-object ContractorDeductionBuilder extends TaxYearHelper {
+class ContractorDeductionToDateSpec extends UnitTest {
 
-  val aContractorDeduction: ContractorDeduction = ContractorDeduction(
-    contractorName = Some("default-contractor-name"),
-    employerRef = "default-employer-ref",
-    amount = Some(100.0)
-  )
+  ".apply(...)" should {
+    "map to ContractorDeduction from CisDeductions" in {
+      ContractorDeductionToDate.apply(aCisDeductions) shouldBe ContractorDeductionToDate(
+        contractorName = aCisDeductions.contractorName,
+        employerRef = aCisDeductions.employerRef,
+        amount = aCisDeductions.totalDeductionAmount
+      )
+    }
+  }
 }

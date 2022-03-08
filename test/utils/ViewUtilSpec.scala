@@ -19,15 +19,17 @@ package utils
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import support.UnitTest
 
+import java.time.Month
+
 class ViewUtilSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
 
   "calling method convertBoolToYesNo" should {
     "return yes when cis field is true" in {
-      ViewUtils.convertBoolToYesOrNo(Some(true)).get shouldBe "Yes"
+      ViewUtils.convertBoolToYesOrNo(cisField = true) shouldBe "Yes"
     }
 
     "return no when cis field is false" in {
-      ViewUtils.convertBoolToYesOrNo(Some(false)).get shouldBe "No"
+      ViewUtils.convertBoolToYesOrNo(cisField = false) shouldBe "No"
     }
   }
 
@@ -42,9 +44,24 @@ class ViewUtilSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
       ViewUtils.dateFormatter("01 March 2022") shouldBe None
     }
   }
+
   "bigDecimalCurrency" should {
     "Place comma in appropriate place when given amount over 999" in {
       ViewUtils.bigDecimalCurrency("45000.10") shouldBe "£45,000.10"
+    }
+  }
+
+  "monthToTaxYearConverter" should {
+    "return the correct taxYear when a month is passed" in {
+      ViewUtils.monthToTaxYearConverter(Month.JUNE, 2022) shouldBe 2021
+      ViewUtils.monthToTaxYearConverter(Month.FEBRUARY, 2022) shouldBe 2022
+    }
+  }
+
+  "translateMonthAndTaxYear" should {
+    "should correctly translate the month and tax year" in {
+      ViewUtils.translatedMonthAndTaxYear(Month.APRIL, 2022) shouldBe "April 2022"
+      ViewUtils.translatedMonthAndTaxYear(Month.JULY, 2022) shouldBe "July 2021"
     }
   }
 }

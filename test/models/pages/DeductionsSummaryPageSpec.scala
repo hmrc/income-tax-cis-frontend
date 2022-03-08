@@ -17,7 +17,7 @@
 package models.pages
 
 import models.AllCISDeductions
-import models.pages.elements.ContractorDeduction
+import models.pages.elements.ContractorDeductionToDate
 import support.UnitTest
 import support.builders.models.CISSourceBuilder.aCISSource
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
@@ -44,8 +44,8 @@ class DeductionsSummaryPageSpec extends UnitTest {
       val data = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
 
       DeductionsSummaryPage.mapToInYearPage(anyTaxYear, data) shouldBe DeductionsSummaryPage(anyTaxYear, isInYear = true, Seq(
-        ContractorDeduction(aCisDeductions1.contractorName, aCisDeductions1.employerRef, aCisDeductions1.totalDeductionAmount),
-        ContractorDeduction(aCisDeductions2.contractorName, aCisDeductions2.employerRef, aCisDeductions2.totalDeductionAmount)
+        ContractorDeductionToDate(aCisDeductions1.contractorName, aCisDeductions1.employerRef, aCisDeductions1.totalDeductionAmount),
+        ContractorDeductionToDate(aCisDeductions2.contractorName, aCisDeductions2.employerRef, aCisDeductions2.totalDeductionAmount)
       ))
     }
   }

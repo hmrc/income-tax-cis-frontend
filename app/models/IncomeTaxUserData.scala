@@ -18,7 +18,24 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None)
+import java.time.Month
+
+case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) {
+
+  val hasInYearCisDeductions: Boolean = cis.exists(_.inYearCisDeductions.nonEmpty)
+
+  def inYearCisDeductionsWith(employerRef: String): Option[CisDeductions] =
+    cis.flatMap(_.inYearCisDeductions.find(_.employerRef == employerRef))
+
+  def hasInYearCisDeductionsWith(employerRef: String): Boolean =
+    inYearCisDeductionsWith(employerRef).nonEmpty
+
+  def inYearPeriodDataFor(employerRef: String, month: Month): Option[PeriodData] =
+    inYearCisDeductionsWith(employerRef).flatMap(_.periodData.find(_.deductionPeriod == month))
+
+  def hasInYearPeriodDataFor(employerRef: String, month: Month): Boolean =
+    inYearPeriodDataFor(employerRef, month).nonEmpty
+}
 
 object IncomeTaxUserData {
   implicit val formats: OFormat[IncomeTaxUserData] = Json.format[IncomeTaxUserData]

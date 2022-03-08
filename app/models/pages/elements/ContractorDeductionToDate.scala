@@ -16,18 +16,18 @@
 
 package models.pages.elements
 
-import support.UnitTest
-import support.builders.models.CisDeductionsBuilder.aCisDeductions
+import models.CisDeductions
 
-class ContractorDeductionSpec extends UnitTest {
+case class ContractorDeductionToDate(contractorName: Option[String],
+                                     employerRef: String,
+                                     amount: Option[BigDecimal])
 
-  "ContractorDeduction.apply(...)" should {
-    "map to ContractorDeduction from CisDeductions" in {
-      ContractorDeduction.apply(aCisDeductions) shouldBe ContractorDeduction(
-        contractorName = aCisDeductions.contractorName,
-        employerRef = aCisDeductions.employerRef,
-        amount = aCisDeductions.totalDeductionAmount
-      )
-    }
-  }
+object ContractorDeductionToDate {
+
+  def apply(cisDeductions: CisDeductions): ContractorDeductionToDate =
+    ContractorDeductionToDate(
+      contractorName = cisDeductions.contractorName,
+      employerRef = cisDeductions.employerRef,
+      amount = cisDeductions.totalDeductionAmount
+    )
 }

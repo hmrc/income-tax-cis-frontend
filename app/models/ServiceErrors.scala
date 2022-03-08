@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package models.pages.elements
+package models
 
-import models.CisDeductions
+sealed trait ServiceErrors
 
-case class ContractorDeduction(contractorName: Option[String],
-                               employerRef: String,
-                               amount: Option[BigDecimal])
-
-object ContractorDeduction {
-
-  def apply(cisDeductions: CisDeductions): ContractorDeduction =
-    ContractorDeduction(
-      contractorName = cisDeductions.contractorName,
-      employerRef = cisDeductions.employerRef,
-      amount = cisDeductions.totalDeductionAmount
-    )
-}
+case class HttpParserError(status: Int) extends ServiceErrors
+case object EmptyPriorCisDataError extends ServiceErrors
+case object EmptyInYearDeductionsError extends ServiceErrors
+case object EmployerRefNotFoundError extends ServiceErrors
+case object DeductionPeriodNotFoundError extends ServiceErrors

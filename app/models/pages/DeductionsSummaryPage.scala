@@ -17,11 +17,11 @@
 package models.pages
 
 import models.IncomeTaxUserData
-import models.pages.elements.ContractorDeduction
+import models.pages.elements.ContractorDeductionToDate
 
 case class DeductionsSummaryPage(taxYear: Int,
                                  isInYear: Boolean,
-                                 contractorDeductions: Seq[ContractorDeduction])
+                                 deductions: Seq[ContractorDeductionToDate])
 
 object DeductionsSummaryPage {
 
@@ -29,7 +29,7 @@ object DeductionsSummaryPage {
     val deductions = incomeTaxUserData.cis
       .map(_.inYearCisDeductions)
       .getOrElse(Seq.empty)
-      .map(ContractorDeduction(_))
+      .map(ContractorDeductionToDate(_))
 
     DeductionsSummaryPage(taxYear, isInYear = true, deductions)
   }
