@@ -18,9 +18,9 @@ package connectors
 
 import models.{APIErrorBodyModel, APIErrorModel}
 import play.mvc.Http.Status._
+import support.ConnectorIntegrationTest
 import support.builders.models.UserBuilder.aUser
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
-import utils.ConnectorIntegrationTest
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global

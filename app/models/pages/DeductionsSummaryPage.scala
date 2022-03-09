@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package support.builders.models
+package models.pages
 
 import models.IncomeTaxUserData
-import play.api.libs.json.{JsObject, Json}
-import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
+import models.pages.elements.ContractorDeduction
 
-object IncomeTaxUserDataBuilder {
+case class DeductionsSummaryPage(taxYear: Int,
+                                 isInYear: Boolean,
+                                 contractorDeductions: Seq[ContractorDeduction])
 
-  val anIncomeTaxUserData: IncomeTaxUserData =
-    IncomeTaxUserData(cis = Some(anAllCISDeductions))
+object DeductionsSummaryPage {
 
-  def mapToJsonWrite(incomeTaxUserData: IncomeTaxUserData)(implicit taxYear: Int): JsObject = Json.obj(fields =
-    "cis" -> incomeTaxUserData.cis.map(AllCISDeductionsBuilder.mapToJsonWrite)
-  )
+  def mapToInYearPage(taxYear: Int, incomeTaxUserData: IncomeTaxUserData): DeductionsSummaryPage = {
+    val deductions = incomeTaxUserData.cis
+      .map(_.inYearCisDeductions)
+      .getOrElse(Seq.empty)
+      .map(ContractorDeduction(_))
+
+    DeductionsSummaryPage(taxYear, isInYear = true, deductions)
+  }
 }

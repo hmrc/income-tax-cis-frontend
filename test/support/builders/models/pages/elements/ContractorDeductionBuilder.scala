@@ -14,21 +14,16 @@
  * limitations under the License.
  */
 
-package support.builders.models
+package support.builders.models.pages.elements
 
-import models.GetPeriodData
+import models.pages.elements.ContractorDeduction
+import support.TaxYearHelper
 
-import java.time.Month
+object ContractorDeductionBuilder extends TaxYearHelper {
 
-object GetPeriodDataBuilder {
-
-  val aGetPeriodData: GetPeriodData = GetPeriodData(
-    deductionPeriod = Month.MAY,
-    deductionAmount = Some(100.00),
-    costOfMaterials = Some(50.00),
-    grossAmountPaid = Some(450.00),
-    submissionDate = "2020-05-11T16:38:57.489Z",
-    submissionId = Some("submissionId"),
-    source = "customer"
+  val aContractorDeduction: ContractorDeduction = ContractorDeduction(
+    contractorName = Some("default-contractor-name"),
+    employerRef = "default-employer-ref",
+    amount = Some(100.0)
   )
 }

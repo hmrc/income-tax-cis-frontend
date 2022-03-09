@@ -27,7 +27,9 @@ import scala.concurrent.ExecutionContext
 trait ControllerUnitTest extends UnitTest
   with FutureAwaits with DefaultAwaitTimeout
   with GuiceOneAppPerSuite
-  with Injecting {
+  with Injecting
+  with TaxYearHelper
+  with FakeRequestHelper {
 
   protected implicit val cc: MessagesControllerComponents = stubMessagesControllerComponents()
   protected implicit val appConfig: AppConfig = new MockAppConfig().config()

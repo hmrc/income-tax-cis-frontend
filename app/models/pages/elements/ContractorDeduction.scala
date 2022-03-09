@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package support
+package models.pages.elements
 
-import org.joda.time.DateTime
+import models.CisDeductions
 
-trait TaxYearHelper {
+case class ContractorDeduction(contractorName: Option[String],
+                               employerRef: String,
+                               amount: Option[BigDecimal])
 
-  private val month = DateTime.now().monthOfYear().get()
-  private val dayOfMonth = DateTime.now().dayOfMonth().get()
+object ContractorDeduction {
 
-  protected val taxYear: Int = if (month >= 4 && dayOfMonth >= 5) DateTime.now().year().get() + 1 else DateTime.now().year().get()
-  protected val taxYearEOY: Int = taxYear - 1
+  def apply(cisDeductions: CisDeductions): ContractorDeduction =
+    ContractorDeduction(
+      contractorName = cisDeductions.contractorName,
+      employerRef = cisDeductions.employerRef,
+      amount = cisDeductions.totalDeductionAmount
+    )
 }

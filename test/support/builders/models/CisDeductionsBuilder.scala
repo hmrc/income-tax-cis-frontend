@@ -17,7 +17,8 @@
 package support.builders.models
 
 import models.CisDeductions
-import support.builders.models.GetPeriodDataBuilder.aGetPeriodData
+import play.api.libs.json.{JsObject, Json}
+import support.builders.models.PeriodDataBuilder.aPeriodData
 
 object CisDeductionsBuilder {
 
@@ -29,6 +30,17 @@ object CisDeductionsBuilder {
     totalDeductionAmount = Some(300.00),
     totalCostOfMaterials = Some(400.00),
     totalGrossAmountPaid = Some(200.00),
-    periodData = Seq(aGetPeriodData)
+    periodData = Seq(aPeriodData)
+  )
+
+  def mapToJsonWrite(cisDeductions: CisDeductions)(implicit taxYear: Int): JsObject = Json.obj(fields =
+    "fromDate" -> cisDeductions.fromDate,
+    "toDate" -> cisDeductions.toDate,
+    "contractorName" -> cisDeductions.contractorName,
+    "employerRef" -> cisDeductions.employerRef,
+    "totalDeductionAmount" -> cisDeductions.totalDeductionAmount,
+    "totalCostOfMaterials" -> cisDeductions.totalCostOfMaterials,
+    "totalGrossAmountPaid" -> cisDeductions.totalGrossAmountPaid,
+    "periodData" -> cisDeductions.periodData.map(PeriodDataBuilder.mapToJsonWrite)
   )
 }

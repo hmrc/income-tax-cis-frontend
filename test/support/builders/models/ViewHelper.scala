@@ -254,7 +254,7 @@ trait ViewHelper {
       }
       s"has a link to change the language" in {
         document.select(".hmrc-language-select__list-item > a").attr("href") shouldBe
-          s"/update-and-submit-income-tax-return/employment-income/language/${linkLanguage(otherLanguage).toLowerCase}"
+          s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/language/${linkLanguage(otherLanguage).toLowerCase}"
       }
     }
   }

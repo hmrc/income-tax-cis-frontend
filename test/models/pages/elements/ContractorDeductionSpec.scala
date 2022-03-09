@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package support
+package models.pages.elements
 
-import org.joda.time.DateTime
+import support.UnitTest
+import support.builders.models.CisDeductionsBuilder.aCisDeductions
 
-trait TaxYearHelper {
+class ContractorDeductionSpec extends UnitTest {
 
-  private val month = DateTime.now().monthOfYear().get()
-  private val dayOfMonth = DateTime.now().dayOfMonth().get()
-
-  protected val taxYear: Int = if (month >= 4 && dayOfMonth >= 5) DateTime.now().year().get() + 1 else DateTime.now().year().get()
-  protected val taxYearEOY: Int = taxYear - 1
+  "ContractorDeduction.apply(...)" should {
+    "map to ContractorDeduction from CisDeductions" in {
+      ContractorDeduction.apply(aCisDeductions) shouldBe ContractorDeduction(
+        contractorName = aCisDeductions.contractorName,
+        employerRef = aCisDeductions.employerRef,
+        amount = aCisDeductions.totalDeductionAmount
+      )
+    }
+  }
 }

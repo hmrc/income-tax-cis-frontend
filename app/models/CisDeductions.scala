@@ -25,7 +25,7 @@ case class CisDeductions(fromDate: String,
                          totalDeductionAmount: Option[BigDecimal],
                          totalCostOfMaterials: Option[BigDecimal],
                          totalGrossAmountPaid: Option[BigDecimal],
-                         periodData: Seq[GetPeriodData])
+                         periodData: Seq[PeriodData])
 
 object CisDeductions {
   implicit val format: OFormat[CisDeductions] = Json.format[CisDeductions]

@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package support
+package support.mocks
 
-import org.joda.time.DateTime
+import config.ErrorHandler
+import org.scalamock.scalatest.MockFactory
+import play.api.mvc.{Request, Result}
 
-trait TaxYearHelper {
+trait MockErrorHandler extends MockFactory {
 
-  private val month = DateTime.now().monthOfYear().get()
-  private val dayOfMonth = DateTime.now().dayOfMonth().get()
+  protected val mockErrorHandler: ErrorHandler = mock[ErrorHandler]
 
-  protected val taxYear: Int = if (month >= 4 && dayOfMonth >= 5) DateTime.now().year().get() + 1 else DateTime.now().year().get()
-  protected val taxYearEOY: Int = taxYear - 1
+  def mockHandleError(status: Int, result: Result): Unit = {
+    (mockErrorHandler.handleError(_: Int)(_: Request[_]))
+      .expects(status, *)
+      .returns(result)
+  }
 }
