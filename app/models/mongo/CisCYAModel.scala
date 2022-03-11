@@ -25,12 +25,14 @@ import utils.EncryptableSyntax.EncryptableOps
 import utils.EncryptorInstances.stringEncryptor
 import utils.{EncryptedValue, SecureGCMCipher}
 
-case class CisCYAModel(contractorName: String,
-                       periodData: Seq[CYAPeriodData]) {
+case class CisCYAModel(contractorName: Option[String] = None,
+                       periodData: Option[CYAPeriodData] = None,
+                       priorPeriodData: Seq[CYAPeriodData] = Seq.empty) {
 
   def encrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCisCYAModel = EncryptedCisCYAModel(
-    contractorName = contractorName.encrypted,
-    periodData = periodData.map(_.encrypted)
+    contractorName = contractorName.map(_.encrypted),
+    periodData = periodData.map(_.encrypted),
+    priorPeriodData = priorPeriodData.map(_.encrypted)
   )
 
   def isFinished: Boolean = periodData.nonEmpty
@@ -40,12 +42,14 @@ object CisCYAModel {
   implicit val format: OFormat[CisCYAModel] = Json.format[CisCYAModel]
 }
 
-case class EncryptedCisCYAModel(contractorName: EncryptedValue,
-                                periodData: Seq[EncryptedCYAPeriodData]) {
+case class EncryptedCisCYAModel(contractorName: Option[EncryptedValue] = None,
+                                periodData: Option[EncryptedCYAPeriodData] = None,
+                                priorPeriodData: Seq[EncryptedCYAPeriodData] = Seq()) {
 
   def decrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CisCYAModel = CisCYAModel(
-    contractorName = contractorName.decrypted[String],
-    periodData = periodData.map(_.decrypted)
+    contractorName = contractorName.map(_.decrypted[String]),
+    periodData = periodData.map(_.decrypted),
+    priorPeriodData = priorPeriodData.map(_.decrypted)
   )
 }
 

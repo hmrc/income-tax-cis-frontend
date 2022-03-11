@@ -14,24 +14,14 @@
  * limitations under the License.
  */
 
-package utils
+package models.forms
 
-import java.time.format.DateTimeFormatter
+import java.time.Month
 
-import org.joda.time.DateTime
-import play.api.Logging
+case class DeductionPeriod(month: Month)
 
-object DateTimeUtil extends Logging {
+object DeductionPeriod {
+  def formApply(month: String): DeductionPeriod = DeductionPeriod(Month.valueOf(month.toUpperCase))
 
-  val localDateTimeFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
-  def parseDate(submittedOn: String): Option[DateTime] = {
-    try {
-      Some(DateTime.parse(submittedOn))
-    } catch {
-      case e: Exception =>
-        logger.error(s"[DateTimeUtil][parseDate] Couldn't parse submission date to DateTime - ${e.getMessage}")
-        None
-    }
-  }
+  def formUnapply(form: DeductionPeriod): Option[String] = Some(form.month.toString)
 }

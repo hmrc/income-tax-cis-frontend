@@ -28,7 +28,7 @@ case class CisUserData(sessionId: String,
                        employerRef: String,
                        submissionId: Option[String],
                        isPriorSubmission: Boolean,
-                       cis: Option[CisCYAModel],
+                       cis: CisCYAModel,
                        lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)) {
 
   def encrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCisUserData = EncryptedCisUserData(
@@ -39,7 +39,7 @@ case class CisUserData(sessionId: String,
     employerRef = employerRef,
     submissionId = submissionId,
     isPriorSubmission = isPriorSubmission,
-    cis = cis.map(_.encrypted),
+    cis = cis.encrypted(),
     lastUpdated = lastUpdated
   )
 }
@@ -58,7 +58,7 @@ case class EncryptedCisUserData(sessionId: String,
                                 employerRef: String,
                                 submissionId: Option[String],
                                 isPriorSubmission: Boolean,
-                                cis: Option[EncryptedCisCYAModel],
+                                cis: EncryptedCisCYAModel,
                                 lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)) {
 
   def decrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CisUserData = CisUserData(
@@ -69,7 +69,7 @@ case class EncryptedCisUserData(sessionId: String,
     employerRef = employerRef,
     submissionId = submissionId,
     isPriorSubmission = isPriorSubmission,
-    cis = cis.map(_.decrypted),
+    cis = cis.decrypted(),
     lastUpdated = lastUpdated
   )
 }

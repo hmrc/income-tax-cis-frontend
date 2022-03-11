@@ -1,0 +1,62 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.templates.Layout
+@import views.html.templates.helpers.Heading
+@import views.html.templates.helpers.Button
+@import views.html.templates.helpers.ErrorSummary
+@import models.pages.DeductionPeriodPage
+@import models.forms.DeductionPeriod
+@import utils.ViewUtils.availableMonths
+
+@this(heading : Heading,
+      layout: Layout,
+      formHelper: FormWithCSRF,
+      button: Button,
+      errorSummary: ErrorSummary,
+      govukSelect : GovukSelect)
+
+@(pageModel: DeductionPeriodPage, form: Form[DeductionPeriod])(implicit request: AuthorisationRequest[_], messages: Messages, appConfig: AppConfig)
+
+@hasFormErrors = @{form.hasErrors}
+
+@title = @{messages(s"deductionPeriod.title.${if(request.user.isAgent) "agent" else "individual"}")}
+
+@contractor = @{pageModel.contractorName.getOrElse(messages("common.contractor.employerRef", pageModel.employerRef))}
+
+@layout(pageTitle = title, backLink = true, hasErrors = hasFormErrors, isAgent = request.user.isAgent) {
+
+    @errorSummary(form.errors, fieldId = Some("month"))
+
+    @heading(messages("deductionPeriod.heading", contractor), Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
+
+    <p class="govuk-body">@messages(s"deductionPeriod.p1.${if(request.user.isAgent) "agent" else "individual"}")</p>
+
+    @formHelper(action = controllers.routes.DeductionPeriodController.submit(pageModel.taxYear, pageModel.employerRef)) {
+
+        @govukSelect(Select(
+            id = "month",
+            name = "month",
+            items = availableMonths(pageModel.priorSubmittedPeriods, pageModel.taxYear, pageModel.period),
+            label = Label(
+                content = Text(messages("deductionPeriod.taxMonthEnding")),
+                classes = "govuk-label govuk-label--s govuk-!-margin-bottom-3"
+            )
+        ))
+
+        @button()
+    }
+}

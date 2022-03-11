@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-package utils
+package support.builders.models.pages
 
-import java.time.format.DateTimeFormatter
+import java.time.Month
 
-import org.joda.time.DateTime
-import play.api.Logging
+import models.pages.DeductionPeriodPage
+import support.TaxYearHelper
 
-object DateTimeUtil extends Logging {
+object DeductionPeriodPageBuilder extends TaxYearHelper {
 
-  val localDateTimeFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
-  def parseDate(submittedOn: String): Option[DateTime] = {
-    try {
-      Some(DateTime.parse(submittedOn))
-    } catch {
-      case e: Exception =>
-        logger.error(s"[DateTimeUtil][parseDate] Couldn't parse submission date to DateTime - ${e.getMessage}")
-        None
-    }
-  }
+  val aDeductionPeriodPage: DeductionPeriodPage = DeductionPeriodPage(
+    taxYear = taxYear,
+    contractorName = Some("Michele Lamy Paving Ltd"),
+    employerRef = "111/11111",
+    period = Some(Month.DECEMBER),
+    priorSubmittedPeriods = Seq(Month.APRIL)
+  )
 }

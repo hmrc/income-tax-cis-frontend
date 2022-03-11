@@ -40,22 +40,24 @@ class CisCYAModelSpec extends UnitTest
     }
 
     "return false when CYAPeriodData is empty" in {
-      val result = aCisCYAModel.copy(periodData = Seq())
+      val result = aCisCYAModel.copy(periodData = None)
       result.isFinished shouldBe false
     }
   }
 
   "CisCYAModel.encrypted" should {
     "return EncryptedCisCYAModel" in {
-      val underTest = CisCYAModel("some-contractor-name", Seq(cyaPeriodData1, cyaPeriodData2))
+      val underTest = CisCYAModel(Some("some-contractor-name"), Some(cyaPeriodData1), Seq(cyaPeriodData1, cyaPeriodData2))
 
-      (secureGCMCipher.encrypt(_: String)(_: TextAndKey)).expects(underTest.contractorName, textAndKey).returning(encryptedContractorName)
+      (secureGCMCipher.encrypt(_: String)(_: TextAndKey)).expects(underTest.contractorName.get, textAndKey).returning(encryptedContractorName)
+      (cyaPeriodData1.encrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(encryptedPeriodData1)
       (cyaPeriodData1.encrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(encryptedPeriodData1)
       (cyaPeriodData2.encrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(encryptedPeriodData2)
 
       underTest.encrypted shouldBe EncryptedCisCYAModel(
-        contractorName = encryptedContractorName,
-        periodData = Seq(encryptedPeriodData1, encryptedPeriodData2)
+        contractorName = Some(encryptedContractorName),
+        periodData = Some(encryptedPeriodData1),
+        priorPeriodData = Seq(encryptedPeriodData1, encryptedPeriodData2)
       )
     }
   }
@@ -65,10 +67,11 @@ class CisCYAModelSpec extends UnitTest
       (secureGCMCipher.decrypt[String](_: String, _: String)(_: TextAndKey, _: Converter[String]))
         .expects(encryptedContractorName.value, encryptedContractorName.nonce, textAndKey, *).returning(value = "contractor-name")
       (encryptedPeriodData1.decrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData1)
+      (encryptedPeriodData1.decrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData1)
       (encryptedPeriodData2.decrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData2)
 
-      EncryptedCisCYAModel(encryptedContractorName, Seq(encryptedPeriodData1, encryptedPeriodData2)).decrypted shouldBe
-        CisCYAModel(contractorName = "contractor-name", periodData = Seq(cyaPeriodData1, cyaPeriodData2))
+      EncryptedCisCYAModel(Some(encryptedContractorName), Some(encryptedPeriodData1), Seq(encryptedPeriodData1, encryptedPeriodData2)).decrypted shouldBe
+        CisCYAModel(contractorName = Some("contractor-name"), Some(cyaPeriodData1), Seq(cyaPeriodData1, cyaPeriodData2))
     }
   }
 }

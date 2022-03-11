@@ -24,7 +24,7 @@ import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 import support.builders.models.CISSourceBuilder.aCISSource
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
-import support.mocks.MockIncomeTaxUserDataConnector
+import support.mocks.MockCISSessionService
 import support.{TaxYearHelper, UnitTest}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.InYearUtil
@@ -32,14 +32,14 @@ import utils.InYearUtil
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class DeductionsSummaryServiceSpec extends UnitTest
-  with MockIncomeTaxUserDataConnector
+  with MockCISSessionService
   with TaxYearHelper {
 
   implicit private val hc: HeaderCarrier = HeaderCarrier()
 
   private val underTest = new DeductionsSummaryService(
     inYearUtil = new InYearUtil(),
-    mockIncomeTaxUserDataConnector
+    mockCISSessionService
   )
 
   ".pageModelFor" should {
@@ -48,33 +48,33 @@ class DeductionsSummaryServiceSpec extends UnitTest
     }
 
     "return error when in year and incomeTaxUserDataConnector getUserData errors with HttpParserError" in {
-      mockGetUserData(aUser.nino, taxYear, Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError)))
+      mockGetPriorData(taxYear, aUser, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
 
       await(underTest.pageModelFor(taxYear, aUser)) shouldBe Left(HttpParserError(INTERNAL_SERVER_ERROR))
     }
 
     "return EmptyCisDataError when in year and incomeTaxUserDataConnector returns userData with empty cis" in {
-      mockGetUserData(aUser.nino, taxYear, Right(IncomeTaxUserData(None)))
+      mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(None)))
 
       await(underTest.pageModelFor(taxYear, aUser)) shouldBe Left(EmptyPriorCisDataError)
     }
 
     "return EmptyInYearDeductionsError when in year and incomeTaxUserDataConnector returns userData with empty Constructor CIS Deductions" in {
       val userDataWithEmptyContractorDeductions = anAllCISDeductions.copy(contractorCISDeductions = None)
-      mockGetUserData(aUser.nino, taxYear, Right(IncomeTaxUserData(cis = Some(userDataWithEmptyContractorDeductions))))
+      mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(userDataWithEmptyContractorDeductions))))
 
       await(underTest.pageModelFor(taxYear, aUser)) shouldBe Left(EmptyInYearDeductionsError)
     }
 
     "return EmptyInYearDeductionsError when in year and incomeTaxUserDataConnector returns userData errors with empty Constructor CIS Deductions list" in {
       val userDataWithEmptyContractorCisDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq.empty)))
-      mockGetUserData(aUser.nino, taxYear, Right(IncomeTaxUserData(cis = Some(userDataWithEmptyContractorCisDeductions))))
+      mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(userDataWithEmptyContractorCisDeductions))))
 
       await(underTest.pageModelFor(taxYear, aUser)) shouldBe Left(EmptyInYearDeductionsError)
     }
 
     "return page with deductions when in year and incomeTaxUserDataConnector getUserData succeeds" in {
-      mockGetUserData(aUser.nino, taxYear, Right(anIncomeTaxUserData))
+      mockGetPriorData(taxYear, aUser, Right(anIncomeTaxUserData))
 
       await(underTest.pageModelFor(taxYear, aUser)) shouldBe Right(mapToInYearPage(taxYear, anIncomeTaxUserData))
     }

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package models
+package models.pages
 
-sealed trait ServiceErrors
+import java.time.Month
 
-case class HttpParserError(status: Int) extends ServiceErrors
-case object EmptyPriorCisDataError extends ServiceErrors
-case object EmptyInYearDeductionsError extends ServiceErrors
-case object EmployerRefNotFoundError extends ServiceErrors
-case object DeductionPeriodNotFoundError extends ServiceErrors
+case class DeductionPeriodPage(contractorName: Option[String],
+                               employerRef: String,
+                               taxYear: Int,
+                               period: Option[Month] = None,
+                               priorSubmittedPeriods: Seq[Month] = Seq.empty)

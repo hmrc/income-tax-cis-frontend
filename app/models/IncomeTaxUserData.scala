@@ -16,11 +16,13 @@
 
 package models
 
+import play.api.Logging
 import play.api.libs.json.{Json, OFormat}
+import utils.DateTimeUtil.parseDate
 
 import java.time.Month
 
-case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) {
+case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) extends Logging {
 
   val hasInYearCisDeductions: Boolean = cis.exists(_.inYearCisDeductions.nonEmpty)
 
@@ -35,6 +37,45 @@ case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) {
 
   def hasInYearPeriodDataFor(employerRef: String, month: Month): Boolean =
     inYearPeriodDataFor(employerRef, month).nonEmpty
+
+  def getCISDeductionsFor(employerRef: String): Option[CisDeductions] = {
+    val contractorCISDeductions: Option[CisDeductions] = cis.flatMap(_.contractorCISDeductions.flatMap(_.cisDeductions.find(_.employerRef == employerRef)))
+    val customerCISDeductions: Option[CisDeductions] = cis.flatMap(_.customerCISDeductions.flatMap(_.cisDeductions.find(_.employerRef == employerRef)))
+
+    def log(customerLatest: Boolean): Unit = logger.info(s"[IncomeTaxUserData][getCISDeductionsFor] User has both contractor and customer data. " +
+      s"The latest data that will be returned will be ${if(customerLatest) "customer" else "contractor"} data.")
+
+    (contractorCISDeductions, customerCISDeductions) match {
+      case (Some(contractorCISDeductions), Some(customerCISDeductions)) =>
+
+        val latestContractorSubmissionDate = parseDate(contractorCISDeductions.periodData.maxBy(_.submissionDate).submissionDate)
+        val latestCustomerSubmissionDate = parseDate(customerCISDeductions.periodData.maxBy(_.submissionDate).submissionDate)
+
+        Some((latestContractorSubmissionDate,latestCustomerSubmissionDate) match {
+          case (Some(contractorSubmission), Some(customerSubmission)) =>
+            if(contractorSubmission.isAfter(customerSubmission)){
+              log(false)
+              contractorCISDeductions
+            } else {
+              log(true)
+              customerCISDeductions
+            }
+          case (Some(_), None) =>
+            log(false)
+            contractorCISDeductions
+          case (None, Some(_)) =>
+            log(true)
+            customerCISDeductions
+          case (None, None) =>
+            log(true)
+            customerCISDeductions
+        })
+
+      case (Some(contractorCISDeductions), None) => Some(contractorCISDeductions)
+      case (None, Some(customerCISDeductions)) => Some(customerCISDeductions)
+      case _ => None
+    }
+  }
 }
 
 object IncomeTaxUserData {

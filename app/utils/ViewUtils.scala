@@ -18,6 +18,7 @@ package utils
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
+import uk.gov.hmrc.govukfrontend.views.Aliases.SelectItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
@@ -53,15 +54,13 @@ object ViewUtils {
     s"$msgKey.${if (isAgent) "agent" else "individual"}"
   }
 
-  def monthToTaxYearConverter(month: Month, taxYear: Int): Int = {
-    month match {
-      case Month.JANUARY | Month.FEBRUARY | Month.MARCH | Month.APRIL => taxYear
-      case _ => taxYear - 1
-    }
+  def monthToTaxYearConverter(month: Month, taxYear: Int): Int = month match {
+    case Month.JANUARY | Month.FEBRUARY | Month.MARCH | Month.APRIL => taxYear
+    case _ => taxYear - 1
   }
 
   def translatedMonthAndTaxYear(month: Month, taxYear: Int)(implicit messages: Messages): String =
-    messages(month.toString) + " " + monthToTaxYearConverter(month, taxYear)
+    messages("common." + month.toString.toLowerCase) + " " + monthToTaxYearConverter(month, taxYear)
 
   def summaryListRow(key: HtmlContent,
                      value: HtmlContent,
@@ -104,5 +103,31 @@ object ViewUtils {
       .map(amount => currencySymbol + f"$amount%1.2f".replace(".00", ""))
       .getOrElse(value)
       .replaceAll("\\B(?=(\\d{3})+(?!\\d))", ",")
+  }
+
+  private def allMonthsSelectItems(taxYear: Int, prefillMonth: Option[Month])(implicit messages: Messages): Seq[SelectItem] = {
+    val upToApril = 4
+    val monthsOrdered: Seq[Month] = Month.values().drop(upToApril) ++ Month.values().take(upToApril)
+
+    monthsOrdered.map {
+      month =>
+
+        val monthMsg = messages(s"common.${month.name().toLowerCase}")
+
+        SelectItem(
+          value = Some(month.name().toLowerCase),
+          text = messages("common.taxMonth", monthMsg, monthToTaxYearConverter(month, taxYear).toString),
+          selected = prefillMonth.contains(month)
+        )
+    }
+  }
+
+  def availableMonths(submittedMonths: Seq[Month], taxYear: Int, prefillMonth: Option[Month])(implicit messages: Messages): Seq[SelectItem] = {
+    allMonthsSelectItems(taxYear, prefillMonth)
+    // Filters out already submitted months
+    //  .filterNot{
+    //  selectItem =>
+    //    submittedMonths.map(_.name().toLowerCase).contains(selectItem.value.getOrElse(""))
+    //}
   }
 }

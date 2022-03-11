@@ -52,8 +52,8 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
             |      "totalGrossAmountPaid": 700,
             |      "cisDeductions": [
             |        {
-            |          "fromDate": "2020-05-05",
-            |          "toDate": "2020-06-06",
+            |          "fromDate": "2020-04-06",
+            |          "toDate": "2021-04-05",
             |          "contractorName": "ABC SteelWorks",
             |          "employerRef": "123/AB123456",
             |          "totalDeductionAmount": 300,
@@ -80,8 +80,8 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
             |      "totalGrossAmountPaid": 700,
             |      "cisDeductions": [
             |        {
-            |          "fromDate": "2020-05-05",
-            |          "toDate": "2020-06-06",
+            |          "fromDate": "2020-04-06",
+            |          "toDate": "2021-04-05",
             |          "contractorName": "ABC SteelWorks",
             |          "employerRef": "123/AB123456",
             |          "totalDeductionAmount": 300,

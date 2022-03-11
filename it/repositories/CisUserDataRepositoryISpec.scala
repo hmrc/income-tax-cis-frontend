@@ -61,7 +61,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
   "update with invalid encryption" should {
     "fail to add data" in new EmptyDatabase {
       countFromOtherDatabase mustBe 0
-      val res: Either[DatabaseError, Unit] = await(repoWithInvalidEncryption.createOrUpdate(userDataOne)(userOne))
+      val res: Either[DatabaseError, Unit] = await(repoWithInvalidEncryption.createOrUpdate(userDataOne))
       res mustBe Left(EncryptionDecryptionError(
         "Key being used is not valid. It could be due to invalid encoding, wrong length or uninitialized for encrypt Invalid AES key length: 2 bytes"))
     }
@@ -73,7 +73,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       countFromOtherDatabase mustBe 0
       await(repoWithInvalidEncryption.collection.insertOne(userDataOne.encrypted).toFuture())
       countFromOtherDatabase mustBe 1
-      private val res = await(repoWithInvalidEncryption.find(userDataOne.taxYear)(userOne))
+      private val res = await(repoWithInvalidEncryption.find(userDataOne.taxYear,aCisUserData.employerRef,userOne.user))
       res mustBe Left(EncryptionDecryptionError(
         "Key being used is not valid. It could be due to invalid encoding, wrong length or uninitialized for decrypt Invalid AES key length: 2 bytes"))
     }
@@ -89,10 +89,10 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
   "clear" should {
     "remove a record" in new EmptyDatabase {
       count mustBe 0
-      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right(())
+      await(underTest.createOrUpdate(userDataOne)) mustBe Right(())
       count mustBe 1
 
-      await(underTest.clear(taxYear)(userOne)) mustBe true
+      await(underTest.clear(taxYear,userDataOne.employerRef, userOne.user)) mustBe true
       count mustBe 0
     }
   }
@@ -107,42 +107,42 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       await(ensureIndexes)
       count mustBe 0
 
-      private val res = await(underTest.createOrUpdate(userDataOne)(userOne))
+      private val res = await(underTest.createOrUpdate(userDataOne))
       res mustBe Right(())
       count mustBe 1
 
-      private val res2 = await(underTest.createOrUpdate(userDataOne.copy(sessionId = "1234567890"))(userOne))
+      private val res2 = await(underTest.createOrUpdate(userDataOne.copy(sessionId = "1234567890")))
       res2.left.get.message must include("Command failed with error 11000 (DuplicateKey)")
       count mustBe 1
     }
 
     "create a document in collection when one does not exist" in new EmptyDatabase {
-      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right(())
+      await(underTest.createOrUpdate(userDataOne)) mustBe Right(())
       count mustBe 1
     }
 
     "create a document in collection with all fields present" in new EmptyDatabase {
-      await(underTest.createOrUpdate(userDataFull)(userOne)) mustBe Right(())
+      await(underTest.createOrUpdate(userDataFull)) mustBe Right(())
       count mustBe 1
     }
 
     "update a document in collection when one already exists" in new EmptyDatabase {
-      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right(())
+      await(underTest.createOrUpdate(userDataOne)) mustBe Right(())
       count mustBe 1
 
-      private val updatedCisUserData = userDataOne.copy(cis = Some(aCisCYAModel))
+      private val updatedCisUserData = userDataOne.copy(cis =aCisCYAModel)
 
-      await(underTest.createOrUpdate(updatedCisUserData)(userOne)) mustBe Right(())
+      await(underTest.createOrUpdate(updatedCisUserData)) mustBe Right(())
       count mustBe 1
     }
 
     "create a new document when the same documents exists but the sessionId is different" in new EmptyDatabase {
-      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right(())
+      await(underTest.createOrUpdate(userDataOne)) mustBe Right(())
       count mustBe 1
 
       private val newUserData = userDataOne.copy(sessionId = UUID.randomUUID)
 
-      await(underTest.createOrUpdate(newUserData)(userOne)) mustBe Right(())
+      await(underTest.createOrUpdate(newUserData)) mustBe Right(())
       count mustBe 2
     }
   }
@@ -152,21 +152,21 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       private val now = DateTime.now(DateTimeZone.UTC)
       private val data = userDataOne.copy(lastUpdated = now)
 
-      await(underTest.createOrUpdate(data)(userOne)) mustBe Right(())
+      await(underTest.createOrUpdate(data)) mustBe Right(())
       count mustBe 1
 
-      private val findResult = await(underTest.find(data.taxYear)(userOne))
+      private val findResult = await(underTest.find(data.taxYear,userDataOne.employerRef, userOne.user))
 
       findResult.right.get.map(_.copy(lastUpdated = data.lastUpdated)) mustBe Some(data)
       findResult.right.get.map(_.lastUpdated.isAfter(data.lastUpdated)) mustBe Some(true)
     }
 
     "find a document in collection with all fields present" in new EmptyDatabase {
-      await(underTest.createOrUpdate(userDataFull)(userOne)) mustBe Right(())
+      await(underTest.createOrUpdate(userDataFull)) mustBe Right(())
       count mustBe 1
 
       val findResult: Either[DatabaseError, Option[CisUserData]] = {
-        await(underTest.find(userDataFull.taxYear)(userOne))
+        await(underTest.find(userDataFull.taxYear,userDataOne.employerRef, userOne.user))
       }
 
       findResult mustBe Right(Some(userDataFull.copy(lastUpdated = findResult.right.get.get.lastUpdated)))
@@ -174,14 +174,14 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
 
     "return None when find operation succeeds but no data is found for the given inputs" in new EmptyDatabase {
       val taxYear = 2021
-      await(underTest.find(taxYear)(userOne)) mustBe Right(None)
+      await(underTest.find(taxYear,userDataOne.employerRef, userOne.user)) mustBe Right(None)
     }
   }
 
   "the set indexes" should {
     "enforce uniqueness" in new EmptyDatabase {
       implicit val textAndKey: TextAndKey = TextAndKey(userDataOne.mtdItId, appConfig.encryptionKey)
-      await(underTest.createOrUpdate(userDataOne)(userOne)) mustBe Right(())
+      await(underTest.createOrUpdate(userDataOne)) mustBe Right(())
       count mustBe 1
 
       private val encryptedCISUserData: EncryptedCisUserData = userDataOne.encrypted
@@ -197,7 +197,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
     Seq(new MongoTimeoutException(""), new MongoInternalException(""), new MongoException("")).foreach { exception =>
       s"recover when the exception is a MongoException or a subclass of MongoException - ${exception.getClass.getSimpleName}" in {
         val result = Future.failed(exception)
-          .recover(underTest.mongoRecover[Int]("CreateOrUpdate", FAILED_TO_CREATE_UPDATE_CIS_DATA)(userOne))
+          .recover(underTest.mongoRecover[Int]("CreateOrUpdate", FAILED_TO_CREATE_UPDATE_CIS_DATA, userOne.user))
 
         await(result) mustBe None
       }
@@ -206,7 +206,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
     Seq(new NullPointerException(""), new RuntimeException("")).foreach { exception =>
       s"not recover when the exception is not a subclass of MongoException - ${exception.getClass.getSimpleName}" in {
         val result = Future.failed(exception)
-          .recover(underTest.mongoRecover[Int]("CreateOrUpdate", FAILED_TO_CREATE_UPDATE_CIS_DATA)(userOne))
+          .recover(underTest.mongoRecover[Int]("CreateOrUpdate", FAILED_TO_CREATE_UPDATE_CIS_DATA, userOne.user))
 
         assertThrows[RuntimeException] {
           await(result)

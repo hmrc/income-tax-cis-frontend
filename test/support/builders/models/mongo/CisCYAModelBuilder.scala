@@ -17,12 +17,13 @@
 package support.builders.models.mongo
 
 import models.mongo.CisCYAModel
-import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
+import support.builders.models.mongo.CYAPeriodDataBuilder.{aCYAPeriodData, alreadySubmittedCYAPeriodData}
 
 object CisCYAModelBuilder {
 
   val aCisCYAModel: CisCYAModel = CisCYAModel(
-    contractorName = "ABC Steelworks",
-    periodData = Seq(aCYAPeriodData)
+    contractorName = Some("ABC Steelworks"),
+    periodData = Some(aCYAPeriodData),
+    priorPeriodData = Seq(alreadySubmittedCYAPeriodData)
   )
 }

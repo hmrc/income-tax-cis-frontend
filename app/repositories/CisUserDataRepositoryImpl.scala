@@ -19,7 +19,8 @@ package repositories
 import com.mongodb.client.model.ReturnDocument
 import com.mongodb.client.model.Updates.set
 import config.AppConfig
-import models.AuthorisationRequest
+import javax.inject.{Inject, Singleton}
+import models.User
 import models.mongo._
 import org.joda.time.{DateTime, DateTimeZone}
 import org.mongodb.scala.MongoException
@@ -33,7 +34,6 @@ import utils.PagerDutyHelper.PagerDutyKeys.{FAILED_TO_CREATE_UPDATE_CIS_DATA, FA
 import utils.PagerDutyHelper.{PagerDutyKeys, pagerDutyLog}
 import utils.SecureGCMCipher
 
-import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
@@ -46,11 +46,11 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
   indexes = CisUserDataIndexes.indexes(appConfig)
 ) with Repository with CisUserDataRepository with Logging {
 
-  def find[T](taxYear: Int)(implicit request: AuthorisationRequest[T]): Future[Either[DatabaseError, Option[CisUserData]]] = {
+  def find(taxYear: Int, employerRef: String, user: User): Future[Either[DatabaseError, Option[CisUserData]]] = {
 
     lazy val start = "[CisUserDataRepositoryImpl][find]"
 
-    val queryFilter = filter(request.user.sessionId, request.user.mtditid, request.user.nino, taxYear)
+    val queryFilter = filter(user.sessionId, user.mtditid, user.nino, taxYear, employerRef)
     val update = set("lastUpdated", toBson(DateTime.now(DateTimeZone.UTC))(MongoJodaFormats.dateTimeWrites))
     val options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
 
@@ -75,7 +75,7 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
     }
   }
 
-  def createOrUpdate[T](cisUserData: CisUserData)(implicit request: AuthorisationRequest[T]): Future[Either[DatabaseError, Unit]] = {
+  def createOrUpdate(cisUserData: CisUserData): Future[Either[DatabaseError, Unit]] = {
     lazy val start = "[CisUserDataRepositoryImpl][update]"
 
     Try {
@@ -85,7 +85,7 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
       case Left(exception: Exception) => Future.successful(handleEncryptionDecryptionException(exception, start))
       case Right(encryptedData) =>
 
-        val queryFilter = filter(encryptedData.sessionId, encryptedData.mtdItId, encryptedData.nino, encryptedData.taxYear)
+        val queryFilter = filter(encryptedData.sessionId, encryptedData.mtdItId, encryptedData.nino, encryptedData.taxYear, encryptedData.employerRef)
         val replacement = encryptedData
         val options = FindOneAndReplaceOptions().upsert(true).returnDocument(ReturnDocument.AFTER)
 
@@ -102,21 +102,21 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
     }
   }
 
-  def clear[T](taxYear: Int)(implicit request: AuthorisationRequest[T]): Future[Boolean] =
-    collection.deleteOne(filter(request.user.sessionId, request.user.mtditid, request.user.nino, taxYear))
+  def clear(taxYear: Int, employerRef: String, user: User): Future[Boolean] =
+    collection.deleteOne(filter(user.sessionId, user.mtditid, user.nino, taxYear, employerRef))
       .toFutureOption()
-      .recover(mongoRecover("Clear", FAILED_TO_ClEAR_CIS_DATA))
+      .recover(mongoRecover("Clear", FAILED_TO_ClEAR_CIS_DATA, user))
       .map(_.exists(_.wasAcknowledged()))
 
-  def mongoRecover[T](operation: String, pagerDutyKey: PagerDutyKeys.Value)
-                     (implicit request: AuthorisationRequest[_]): PartialFunction[Throwable, Option[T]] = new PartialFunction[Throwable, Option[T]] {
+  def mongoRecover[T](operation: String, pagerDutyKey: PagerDutyKeys.Value,
+                      user: User): PartialFunction[Throwable, Option[T]] = new PartialFunction[Throwable, Option[T]] {
 
     override def isDefinedAt(x: Throwable): Boolean = x.isInstanceOf[MongoException]
 
     override def apply(e: Throwable): Option[T] = {
       pagerDutyLog(
         pagerDutyKey,
-        s"[CisUserDataRepositoryImpl][$operation] Failed to create cis user data. Error:${e.getMessage}. SessionId: ${request.user.sessionId}"
+        s"[CisUserDataRepositoryImpl][$operation] Failed to create cis user data. Error:${e.getMessage}. SessionId: ${user.sessionId}"
       )
       None
     }
@@ -124,9 +124,9 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
 }
 
 trait CisUserDataRepository {
-  def createOrUpdate[T](userData: CisUserData)(implicit user: AuthorisationRequest[T]): Future[Either[DatabaseError, Unit]]
+  def createOrUpdate(userData: CisUserData): Future[Either[DatabaseError, Unit]]
 
-  def find[T](taxYear: Int)(implicit user: AuthorisationRequest[T]): Future[Either[DatabaseError, Option[CisUserData]]]
+  def find(taxYear: Int, employerRef: String, user: User): Future[Either[DatabaseError, Option[CisUserData]]]
 
-  def clear[T](taxYear: Int)(implicit user: AuthorisationRequest[T]): Future[Boolean]
+  def clear(taxYear: Int, employerRef: String, user: User): Future[Boolean]
 }

@@ -17,7 +17,7 @@
 package support.mocks
 
 import models.pages.DeductionsSummaryPage
-import models.{ServiceErrors, User}
+import models.{ServiceError, User}
 import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
 import services.DeductionsSummaryService
@@ -31,8 +31,8 @@ trait MockDeductionsSummaryService extends MockFactory {
 
   def mockPageModelFor(taxYear: Int,
                        user: User,
-                       result: Either[ServiceErrors, DeductionsSummaryPage]
-                      ): CallHandler3[Int, User, HeaderCarrier, Future[Either[ServiceErrors, DeductionsSummaryPage]]] = {
+                       result: Either[ServiceError, DeductionsSummaryPage]
+                      ): CallHandler3[Int, User, HeaderCarrier, Future[Either[ServiceError, DeductionsSummaryPage]]] = {
     (mockDeductionsSummaryService.pageModelFor(_: Int, _: User)(_: HeaderCarrier))
       .expects(taxYear, user, *)
       .returns(Future.successful(result))

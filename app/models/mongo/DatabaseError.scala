@@ -16,7 +16,9 @@
 
 package models.mongo
 
-trait DatabaseError {
+import models.ServiceError
+
+trait DatabaseError extends ServiceError {
   val message: String
 }
 

@@ -50,7 +50,7 @@
     <div class="govuk-!-padding-bottom-4">
     @{
         val rows = pageModel.deductions.map{ deduction =>
-            val contractor = deduction.contractorName.getOrElse(messages("deductionsSummary.table.row.contractor.employerRef", deduction.employerRef))
+            val contractor = deduction.contractorName.getOrElse(messages("common.contractor.employerRef", deduction.employerRef))
             val htmlLink = link("", contractor, isKey = false)
             Seq(
                 TableRow(content = HtmlContent(htmlLink)),

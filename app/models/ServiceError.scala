@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package utils
+package models
 
-import java.time.format.DateTimeFormatter
+trait ServiceError
 
-import org.joda.time.DateTime
-import play.api.Logging
-
-object DateTimeUtil extends Logging {
-
-  val localDateTimeFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
-  def parseDate(submittedOn: String): Option[DateTime] = {
-    try {
-      Some(DateTime.parse(submittedOn))
-    } catch {
-      case e: Exception =>
-        logger.error(s"[DateTimeUtil][parseDate] Couldn't parse submission date to DateTime - ${e.getMessage}")
-        None
-    }
-  }
-}
+case class HttpParserError(status: Int) extends ServiceError
+case object EmptyPriorCisDataError extends ServiceError
+case object EmptyInYearDeductionsError extends ServiceError
+case object EmployerRefNotFoundError extends ServiceError
+case object DeductionPeriodNotFoundError extends ServiceError
