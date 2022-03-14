@@ -1,0 +1,79 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.templates.Layout
+@import views.html.templates.helpers.Heading
+@import views.html.templates.helpers.Button
+@import utils.ViewUtils._
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import models.pages.ContractorCYAPage
+
+
+@this(
+  layout: Layout,
+  heading: Heading,
+  govukSummaryList: GovukSummaryList,
+  govukInsetText: GovukInsetText,
+  button: Button
+)
+
+@(pageModel: ContractorCYAPage)(implicit request: AuthorisationRequest[_], messages: Messages, appConfig: AppConfig)
+
+@titleText = @{messages(s"contractorCYAPage.title.${if(request.user.isAgent) "agent" else "individual"}")}
+
+@layout(pageTitle = titleText, taxYear = Some(pageModel.taxYear), isAgent = request.user.isAgent) {
+
+    @heading(titleText, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
+
+@if(!pageModel.isInYear){
+    <h1>Note: Page not yet implemented</h1>
+} else {
+
+    <p class="govuk-body">@messages(s"cis.deductionsInfo.p1.${if(request.user.isAgent) "agent" else "individual"}")</p>
+
+    @govukInsetText(InsetText(content = Text(messages(s"cis.insetText.${if(request.user.isAgent) "agent" else "individual"}", pageModel.taxYear.toString))))
+
+    @{
+        val contractorNamePart = "<p class='govuk-!-margin-bottom-0'>" + messages("contractorCYAPage.lineItem.contractorDetails.name", pageModel.contractorName.getOrElse(""))+ "</p>"
+        val contractorRefPart = "<p class='govuk-!-margin-top-0'>" + messages("contractorCYAPage.lineItem.contractorDetails.ern", pageModel.employerRef)+ "</p>"
+
+        val rowsData = Seq(
+            DataRowForView(messages("contractorCYAPage.lineItem.contractorDetails"), Some(contractorNamePart  + contractorRefPart)),
+            DataRowForView(messages("contractorCYAPage.lineItem.endOfTaxMonth"), Some("5 " + translatedMonthAndTaxYear(pageModel.month, pageModel.taxYear))),
+            DataRowForView(messages("contractorCYAPage.lineItem.labour"), pageModel.labourAmount.map(amount => bigDecimalCurrency(amount.toString))),
+            DataRowForView(messages("contractorCYAPage.lineItem.cisDeduction"), pageModel.deductionAmount.map(amount => bigDecimalCurrency(amount.toString))),
+            DataRowForView(messages("contractorCYAPage.lineItem.paidForMaterials"), Some(convertBoolToYesOrNo(cisField = pageModel.hasPaidForMaterials)))
+        ) ++ { if(pageModel.hasPaidForMaterials) Seq(DataRowForView(messages("contractorCYAPage.lineItem.costOfMaterials"), pageModel.costOfMaterials.map(amount => bigDecimalCurrency(amount.toString)))) else Seq.empty }
+
+        val summaryRows = rowsData.map(dataRow => summaryListRow(
+            key = HtmlContent(dataRow.fieldHeadings),
+            value = dataRow.fieldValues.fold(ariaVisuallyHiddenText(messages("common.notProvided")))(HtmlContent(_)),
+            keyClasses = "govuk-!-width-one-third",
+            valueClasses = "govuk-!-width-two-thirds",
+            actions = Seq.empty
+        ))
+
+        govukSummaryList(SummaryList(summaryRows))
+    }
+
+    @button(alternativeText = "contractorCYAPage.buttonText", attributes = Map("id" -> "return-to-contractor-button-id"))
+}
+
+}
+
+@{
+// $COVERAGE-OFF$
+}

@@ -16,7 +16,9 @@ GET        /timeout                                                             
 
 GET         /:taxYear/summary                     controllers.DeductionsSummaryController.show(taxYear: Int)
 
-###########################     Error pages       ####################################
+GET        /:taxYear/check-construction-industry-scheme-deductions                  controllers.ContractorCYAController.show(taxYear: Int, month: String, contractor: String)
+
+###########################     Error pages     ####################################
 
 GET        /error/you-need-to-sign-up                                               controllers.errors.IndividualAuthErrorController.show
 

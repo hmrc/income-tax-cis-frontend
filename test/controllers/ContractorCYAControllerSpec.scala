@@ -17,27 +17,29 @@
 package controllers
 
 import controllers.errors.routes.UnauthorisedUserErrorController
-import models.{EmptyPriorCisDataError, HttpParserError}
+import models.{EmployerRefNotFoundError, HttpParserError}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.mvc.Results.{InternalServerError, Redirect}
 import play.api.test.Helpers.{contentType, status}
 import support.ControllerUnitTest
 import support.builders.models.UserBuilder.aUser
-import support.builders.models.pages.DeductionsSummaryPageBuilder.aDeductionsSummaryPage
-import support.mocks.{MockAuthorisedAction, MockDeductionsSummaryService, MockErrorHandler}
-import views.html.DeductionsSummaryView
+import support.builders.models.pages.ContractorCYAPageBuilder.aContractorCYAPage
+import support.mocks.{MockAuthorisedAction, MockContractorCYAService, MockErrorHandler}
+import views.html.ContractorCYAView
 
-class DeductionsSummaryControllerSpec extends ControllerUnitTest
+import java.time.Month
+
+class ContractorCYAControllerSpec extends ControllerUnitTest
   with MockAuthorisedAction
-  with MockDeductionsSummaryService
+  with MockContractorCYAService
   with MockErrorHandler {
 
-  private val pageView = inject[DeductionsSummaryView]
+  private val pageView = inject[ContractorCYAView]
 
-  private val underTest = new DeductionsSummaryController(
+  private val underTest = new ContractorCYAController(
     mockAuthorisedAction,
     pageView,
-    mockDeductionsSummaryService,
+    mockContractorCYAService,
     mockErrorHandler
   )
 
@@ -45,30 +47,30 @@ class DeductionsSummaryControllerSpec extends ControllerUnitTest
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()
 
-      await(underTest.show(taxYear = taxYearEOY)(fakeIndividualRequest)) shouldBe
+      await(underTest.show(taxYear = taxYearEOY, Month.MAY.toString, contractor = "some-ref")(fakeIndividualRequest)) shouldBe
         Redirect(UnauthorisedUserErrorController.show())
     }
 
-    "return INTERNAL_SERVER_ERROR when deductionsSummaryService returns HttpParserError" in {
+    "return INTERNAL_SERVER_ERROR when contractorCYAService returns HttpParserError" in {
       mockAuthAsIndividual(Some(aUser.nino))
-      mockPageModelFor(taxYear, aUser, Left(HttpParserError(500)))
+      mockPageModelFor(taxYear, Month.MAY, refNumber = "some-ref", aUser, Left(HttpParserError(500)))
       mockHandleError(INTERNAL_SERVER_ERROR, InternalServerError)
 
-      await(underTest.show(taxYear).apply(fakeIndividualRequest)) shouldBe InternalServerError
+      await(underTest.show(taxYear, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest)) shouldBe InternalServerError
     }
 
-    "redirect to Income Tax Submission Overview when deductionsSummaryService returns error different than HttpParserError" in {
+    "redirect to Income Tax Submission Overview when contractorCYAService returns error different than HttpParserError" in {
       mockAuthAsIndividual(Some(aUser.nino))
-      mockPageModelFor(taxYear, aUser, Left(EmptyPriorCisDataError))
+      mockPageModelFor(taxYear, Month.MAY, refNumber = "some-ref", aUser, result = Left(EmployerRefNotFoundError))
 
-      await(underTest.show(taxYear).apply(fakeIndividualRequest)) shouldBe Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+      await(underTest.show(taxYear, Month.MAY.toString, "some-ref").apply(fakeIndividualRequest)) shouldBe Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
 
     "return successful response" in {
       mockAuthAsIndividual(Some(aUser.nino))
-      mockPageModelFor(taxYear, aUser, Right(aDeductionsSummaryPage))
+      mockPageModelFor(taxYear, Month.MAY, refNumber = "12345", aUser, result = Right(aContractorCYAPage))
 
-      val result = underTest.show(taxYear).apply(fakeIndividualRequest)
+      val result = underTest.show(taxYear, Month.MAY.toString, contractor = "12345").apply(fakeIndividualRequest)
 
       status(result) shouldBe OK
       contentType(result) shouldBe Some("text/html")

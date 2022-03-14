@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
-package models
+package support.builders.models.pages.elements
 
-sealed trait GetIncomeTaxUserDataError
+import models.pages.elements.ContractorDeductionToDate
+import support.TaxYearHelper
 
-object EmptyCisDataError extends GetIncomeTaxUserDataError
-object EmptyInYearDeductionsError extends GetIncomeTaxUserDataError
-case class IncomeTaxUserDataHttpParserError(status: Int) extends GetIncomeTaxUserDataError
+object ContractorDeductionToDateBuilder extends TaxYearHelper {
+
+  val aContractorDeductionToDate: ContractorDeductionToDate = ContractorDeductionToDate(
+    contractorName = Some("default-contractor-name"),
+    employerRef = "default-employer-ref",
+    amount = Some(100.0)
+  )
+}

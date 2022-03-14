@@ -16,26 +16,23 @@
 
 package utils
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
-
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
 
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, Month}
+import java.util.Locale
 import scala.util.Try
 
 object ViewUtils {
 
-  case class DataRowForView(fieldHeadings: String, fieldValues: Option[String], changeLink: Call, hiddenText: String)
+  case class DataRowForView(fieldHeadings: String, fieldValues: Option[String],
+                            changeLink: Option[Call] = None, hiddenText: Option[String] = None)
 
-  def convertBoolToYesOrNo(cisField: Option[Boolean])(implicit messages: Messages): Option[String] = {
-    cisField.map {
-      case true => messages("common.yes")
-      case false => messages("common.no")
-    }
+  def convertBoolToYesOrNo(cisField: Boolean)(implicit messages: Messages): String = {
+    if (cisField) messages("common.yes") else messages("common.no")
   }
 
   def dateFormatter(date: String): Option[String] = {
@@ -52,9 +49,19 @@ object ViewUtils {
     date.format(DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.UK))
   }
 
-  def getAgentDynamicContent(msgKey:String, isAgent:Boolean): String ={
+  def getAgentDynamicContent(msgKey: String, isAgent: Boolean): String = {
     s"$msgKey.${if (isAgent) "agent" else "individual"}"
   }
+
+  def monthToTaxYearConverter(month: Month, taxYear: Int): Int = {
+    month match {
+      case Month.JANUARY | Month.FEBRUARY | Month.MARCH | Month.APRIL => taxYear
+      case _ => taxYear - 1
+    }
+  }
+
+  def translatedMonthAndTaxYear(month: Month, taxYear: Int)(implicit messages: Messages): String =
+    messages(month.toString) + " " + monthToTaxYearConverter(month, taxYear)
 
   def summaryListRow(key: HtmlContent,
                      value: HtmlContent,
@@ -85,9 +92,11 @@ object ViewUtils {
   }
 
   def ariaHiddenChangeLink(linkText: String): HtmlContent = {
-    HtmlContent(
-      s"""<span aria-hidden="true">$linkText</span>"""
-    )
+    HtmlContent(s"""<span aria-hidden="true">$linkText</span>""")
+  }
+
+  def ariaVisuallyHiddenText(text: String): HtmlContent = {
+    HtmlContent(s"""<span class="govuk-visually-hidden">$text</span>""")
   }
 
   def bigDecimalCurrency(value: String, currencySymbol: String = "£"): String = {

@@ -18,7 +18,7 @@ package views
 
 import models.AuthorisationRequest
 import models.pages.DeductionsSummaryPage
-import models.pages.elements.ContractorDeduction
+import models.pages.elements.ContractorDeductionToDate
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.i18n.Messages
@@ -108,9 +108,9 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
   )
 
   val deductions = Seq(
-    ContractorDeduction(Some("Contractor-1"), "ref-1", Some(123.23)),
-    ContractorDeduction(None, "ref-2", Some(123.24)),
-    ContractorDeduction(Some("Contractor-3"), "ref-3", None),
+    ContractorDeductionToDate(Some("Contractor-1"), "ref-1", Some(123.23)),
+    ContractorDeductionToDate(None, "ref-2", Some(123.24)),
+    ContractorDeductionToDate(Some("Contractor-3"), "ref-3", None),
   )
 
   private val pageModel = DeductionsSummaryPage(taxYear, isInYear = true, deductions)

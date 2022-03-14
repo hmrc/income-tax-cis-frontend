@@ -17,27 +17,32 @@
 package controllers
 
 import actions.AuthorisedAction
+import akka.util.ByteString.UTF_8
 import config.{AppConfig, ErrorHandler}
 import models.HttpParserError
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.DeductionsSummaryService
+import services.ContractorCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
-import views.html.DeductionsSummaryView
+import views.html.ContractorCYAView
 
+import java.net.URLDecoder
+import java.time.Month
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class DeductionsSummaryController @Inject()(authAction: AuthorisedAction,
-                                            pageView: DeductionsSummaryView,
-                                            deductionsSummaryService: DeductionsSummaryService,
-                                            errorHandler: ErrorHandler)
-                                           (implicit val cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
-  extends FrontendController(cc) with I18nSupport with SessionHelper {
+class ContractorCYAController @Inject()(authAction: AuthorisedAction,
+                                        pageView: ContractorCYAView,
+                                        contractorCYAService: ContractorCYAService,
+                                        errorHandler: ErrorHandler)
+                                       (implicit mcc: MessagesControllerComponents, ec: ExecutionContext, appConfig: AppConfig)
+  extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
-  def show(taxYear: Int): Action[AnyContent] = authAction.async { implicit request =>
-    deductionsSummaryService.pageModelFor(taxYear, request.user).map {
+  def show(taxYear: Int, month: String, contractor: String): Action[AnyContent] = authAction.async { implicit request =>
+    val employerRef = URLDecoder.decode(contractor, UTF_8)
+
+    contractorCYAService.pageModelFor(taxYear, Month.valueOf(month.toUpperCase), employerRef, request.user).map {
       case Left(HttpParserError(status)) => errorHandler.handleError(status)
       case Left(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       case Right(pageModel) => Ok(pageView(pageModel))

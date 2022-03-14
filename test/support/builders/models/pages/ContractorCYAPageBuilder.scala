@@ -16,18 +16,21 @@
 
 package support.builders.models.pages
 
-import models.pages.DeductionsSummaryPage
+import models.pages.ContractorCYAPage
 import support.TaxYearHelper
-import support.builders.models.pages.elements.ContractorDeductionToDateBuilder.aContractorDeductionToDate
 
-object DeductionsSummaryPageBuilder extends TaxYearHelper {
+import java.time.Month
 
-  val aDeductionsSummaryPage: DeductionsSummaryPage = DeductionsSummaryPage(
+object ContractorCYAPageBuilder extends TaxYearHelper {
+
+  val aContractorCYAPage: ContractorCYAPage = ContractorCYAPage(
     taxYear = taxYear,
     isInYear = true,
-    deductions = Seq(
-      aContractorDeductionToDate.copy(contractorName = Some("contractor-name-1"), employerRef = "ref-1", amount = Some(100.0)),
-      aContractorDeductionToDate.copy(contractorName = Some("contractor-name-2"), employerRef = "ref-2", amount = Some(200.0))
-    )
+    contractorName = Some("default-contractor-name"),
+    employerRef = "default-employer-ref",
+    month = Month.MAY,
+    labourAmount = Some(100),
+    deductionAmount = Some(200),
+    costOfMaterials = Some(300)
   )
 }

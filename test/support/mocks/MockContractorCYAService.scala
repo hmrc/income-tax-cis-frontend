@@ -16,25 +16,28 @@
 
 package support.mocks
 
-import models.pages.DeductionsSummaryPage
+import models.pages.ContractorCYAPage
 import models.{ServiceErrors, User}
-import org.scalamock.handlers.CallHandler3
+import org.scalamock.handlers.CallHandler5
 import org.scalamock.scalatest.MockFactory
-import services.DeductionsSummaryService
+import services.ContractorCYAService
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.Month
 import scala.concurrent.Future
 
-trait MockDeductionsSummaryService extends MockFactory {
+trait MockContractorCYAService extends MockFactory {
 
-  protected val mockDeductionsSummaryService: DeductionsSummaryService = mock[DeductionsSummaryService]
+  protected val mockContractorCYAService: ContractorCYAService = mock[ContractorCYAService]
 
   def mockPageModelFor(taxYear: Int,
+                       month: Month,
+                       refNumber: String,
                        user: User,
-                       result: Either[ServiceErrors, DeductionsSummaryPage]
-                      ): CallHandler3[Int, User, HeaderCarrier, Future[Either[ServiceErrors, DeductionsSummaryPage]]] = {
-    (mockDeductionsSummaryService.pageModelFor(_: Int, _: User)(_: HeaderCarrier))
-      .expects(taxYear, user, *)
+                       result: Either[ServiceErrors, ContractorCYAPage]
+                      ): CallHandler5[Int, Month, String, User, HeaderCarrier, Future[Either[ServiceErrors, ContractorCYAPage]]] = {
+    (mockContractorCYAService.pageModelFor(_: Int, _: Month, _: String, _: User)(_: HeaderCarrier))
+      .expects(taxYear, month, refNumber, user, *)
       .returns(Future.successful(result))
   }
 }

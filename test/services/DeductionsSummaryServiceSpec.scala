@@ -47,19 +47,19 @@ class DeductionsSummaryServiceSpec extends UnitTest
       await(underTest.pageModelFor(taxYearEOY, aUser)) shouldBe Right(DeductionsSummaryPage(taxYearEOY, isInYear = false, Seq.empty))
     }
 
-    "return error when in year and incomeTaxUserDataConnector getUserData errors with IncomeTaxUserDataHttpParserError" in {
+    "return error when in year and incomeTaxUserDataConnector getUserData errors with HttpParserError" in {
       mockGetUserData(aUser.nino, taxYear, Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError)))
 
-      await(underTest.pageModelFor(taxYear, aUser)) shouldBe Left(IncomeTaxUserDataHttpParserError(INTERNAL_SERVER_ERROR))
+      await(underTest.pageModelFor(taxYear, aUser)) shouldBe Left(HttpParserError(INTERNAL_SERVER_ERROR))
     }
 
     "return EmptyCisDataError when in year and incomeTaxUserDataConnector returns userData with empty cis" in {
       mockGetUserData(aUser.nino, taxYear, Right(IncomeTaxUserData(None)))
 
-      await(underTest.pageModelFor(taxYear, aUser)) shouldBe Left(EmptyCisDataError)
+      await(underTest.pageModelFor(taxYear, aUser)) shouldBe Left(EmptyPriorCisDataError)
     }
 
-    "return EmptyInYearDeductionsError when in year and incomeTaxUserDataConnector returns userData errors with empty Constructor CIS Deductions" in {
+    "return EmptyInYearDeductionsError when in year and incomeTaxUserDataConnector returns userData with empty Constructor CIS Deductions" in {
       val userDataWithEmptyContractorDeductions = anAllCISDeductions.copy(contractorCISDeductions = None)
       mockGetUserData(aUser.nino, taxYear, Right(IncomeTaxUserData(cis = Some(userDataWithEmptyContractorDeductions))))
 
