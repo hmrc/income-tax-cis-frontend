@@ -19,6 +19,7 @@ package controllers
 import actions.AuthorisedAction
 import config.{AppConfig, ErrorHandler}
 import models.HttpParserError
+import play.api.{Logger, Logging}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.DeductionsSummaryService
@@ -34,9 +35,10 @@ class DeductionsSummaryController @Inject()(authAction: AuthorisedAction,
                                             deductionsSummaryService: DeductionsSummaryService,
                                             errorHandler: ErrorHandler)
                                            (implicit val cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
-  extends FrontendController(cc) with I18nSupport with SessionHelper {
+  extends FrontendController(cc) with I18nSupport with SessionHelper with Logging {
 
   def show(taxYear: Int): Action[AnyContent] = authAction.async { implicit request =>
+    logger.info("TEMP_LOGGING: Entered DeductionsSummaryController")
     deductionsSummaryService.pageModelFor(taxYear, request.user).map {
       case Left(HttpParserError(status)) => errorHandler.handleError(status)
       case Left(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
