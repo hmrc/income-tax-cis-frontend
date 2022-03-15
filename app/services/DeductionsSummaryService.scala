@@ -20,6 +20,7 @@ import connectors.IncomeTaxUserDataConnector
 import models._
 import models.pages.DeductionsSummaryPage
 import models.pages.DeductionsSummaryPage.mapToInYearPage
+import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.InYearUtil
 
@@ -27,9 +28,10 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeductionsSummaryService @Inject()(inYearUtil: InYearUtil, incomeTaxUserDataConnector: IncomeTaxUserDataConnector)
-                                        (implicit ec: ExecutionContext) {
+                                        (implicit ec: ExecutionContext) extends Logging {
 
   def pageModelFor(taxYear: Int, user: User)(implicit hc: HeaderCarrier): Future[Either[ServiceErrors, DeductionsSummaryPage]] = {
+    logger.info("TEMP_LOGGING: Entered DeductionsSummaryService")
     if (!inYearUtil.inYear(taxYear)) {
       Future.successful(Right(DeductionsSummaryPage(taxYear = taxYear, isInYear = false, deductions = Seq.empty)))
     } else {
