@@ -27,10 +27,10 @@ object CisUserDataBuilder {
     mtdItId = "1234567890",
     nino = "AA123456A",
     taxYear = 2021,
-    employerRef = "123/AB12345",
+    employerRef = "123/AB123456",
     submissionId = Some("submissionId"),
     isPriorSubmission = true,
-    cis = Some(aCisCYAModel),
+    cis = aCisCYAModel,
     lastUpdated = DateTime.now(DateTimeZone.UTC)
   )
 }

@@ -16,22 +16,17 @@
 
 package utils
 
-import java.time.format.DateTimeFormatter
-
 import org.joda.time.DateTime
-import play.api.Logging
+import support.UnitTest
 
-object DateTimeUtil extends Logging {
+class DateTimeUtilSpec extends UnitTest {
 
-  val localDateTimeFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
-  def parseDate(submittedOn: String): Option[DateTime] = {
-    try {
-      Some(DateTime.parse(submittedOn))
-    } catch {
-      case e: Exception =>
-        logger.error(s"[DateTimeUtil][parseDate] Couldn't parse submission date to DateTime - ${e.getMessage}")
-        None
+  "calling parseDate" should {
+    "return none when not a valid date" in {
+      DateTimeUtil.parseDate("no date") shouldBe None
+    }
+    "return date when a valid date" in {
+      DateTimeUtil.parseDate("2020-05-11T16:38:57.489Z") shouldBe Some(DateTime.parse("2020-05-11T16:38:57.489Z"))
     }
   }
 }

@@ -23,8 +23,8 @@ import support.builders.models.PeriodDataBuilder.aPeriodData
 object CisDeductionsBuilder {
 
   val aCisDeductions: CisDeductions = CisDeductions(
-    fromDate = "2020-05-05",
-    toDate = "2020-06-06",
+    fromDate = "2020-04-06",
+    toDate = "2021-04-05",
     contractorName = Some("ABC SteelWorks"),
     employerRef = "123/AB123456",
     totalDeductionAmount = Some(300.00),

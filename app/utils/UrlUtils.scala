@@ -16,22 +16,11 @@
 
 package utils
 
-import java.time.format.DateTimeFormatter
+import java.net.URLDecoder
+import akka.util.ByteString.UTF_8
 
-import org.joda.time.DateTime
-import play.api.Logging
+object UrlUtils {
 
-object DateTimeUtil extends Logging {
+  def decodeEmployerRef(employerRef: String): String = URLDecoder.decode(employerRef,UTF_8)
 
-  val localDateTimeFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
-  def parseDate(submittedOn: String): Option[DateTime] = {
-    try {
-      Some(DateTime.parse(submittedOn))
-    } catch {
-      case e: Exception =>
-        logger.error(s"[DateTimeUtil][parseDate] Couldn't parse submission date to DateTime - ${e.getMessage}")
-        None
-    }
-  }
 }

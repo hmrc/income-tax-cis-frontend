@@ -25,7 +25,7 @@ import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.pages.ContractorCYAPageBuilder.aContractorCYAPage
-import support.mocks.MockIncomeTaxUserDataConnector
+import support.mocks.MockCISSessionService
 import support.{TaxYearHelper, UnitTest}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.InYearUtil
@@ -34,45 +34,45 @@ import java.time.Month
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ContractorCYAServiceSpec extends UnitTest
-  with MockIncomeTaxUserDataConnector
+  with MockCISSessionService
   with TaxYearHelper {
 
   implicit private val hc: HeaderCarrier = HeaderCarrier()
 
   private val underTest = new ContractorCYAService(
     inYearUtil = new InYearUtil(),
-    mockIncomeTaxUserDataConnector
+    mockCISSessionService
   )
 
   ".pageModelFor" should {
     "return error when in year and incomeTaxUserDataConnector getUserData errors with HttpParserError" in {
-      mockGetUserData(aUser.nino, taxYear, Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError)))
+      mockGetPriorData(taxYear, aUser, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
 
       await(underTest.pageModelFor(taxYear, Month.MAY, refNumber = "some-ref", user = aUser)) shouldBe Left(HttpParserError(INTERNAL_SERVER_ERROR))
     }
 
     "return EmptyCisDataError when in year and incomeTaxUserDataConnector returns userData with empty cis" in {
-      mockGetUserData(aUser.nino, taxYear, Right(IncomeTaxUserData(None)))
+      mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(None)))
 
       await(underTest.pageModelFor(taxYear, Month.MAY, refNumber = "some-ref", aUser)) shouldBe Left(EmptyPriorCisDataError)
     }
 
     "return EmptyInYearDeductionsError when in year and incomeTaxUserDataConnector returns userData with empty Constructor CIS Deductions" in {
       val userDataWithEmptyContractorDeductions = anAllCISDeductions.copy(contractorCISDeductions = None)
-      mockGetUserData(aUser.nino, taxYear, Right(IncomeTaxUserData(cis = Some(userDataWithEmptyContractorDeductions))))
+      mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(userDataWithEmptyContractorDeductions))))
 
       await(underTest.pageModelFor(taxYear, Month.MAY, refNumber = "some-ref", aUser)) shouldBe Left(EmptyInYearDeductionsError)
     }
 
     "return EmptyInYearDeductionsError when in year and incomeTaxUserDataConnector returns userData with empty Constructor CIS Deductions list" in {
       val userDataWithEmptyContractorCisDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq.empty)))
-      mockGetUserData(aUser.nino, taxYear, Right(IncomeTaxUserData(cis = Some(userDataWithEmptyContractorCisDeductions))))
+      mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(userDataWithEmptyContractorCisDeductions))))
 
       await(underTest.pageModelFor(taxYear, Month.MAY, refNumber = "some-ref", aUser)) shouldBe Left(EmptyInYearDeductionsError)
     }
 
     "return EmployerRefNotFoundError when in year and incomeTaxUserDataConnector returns userData but employerRef does not exist" in {
-      mockGetUserData(aUser.nino, taxYear, Right(IncomeTaxUserData(cis = Some(anAllCISDeductions))))
+      mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(anAllCISDeductions))))
 
       await(underTest.pageModelFor(taxYear, Month.MAY, refNumber = "unknown-ref", aUser)) shouldBe Left(EmployerRefNotFoundError)
     }
@@ -80,7 +80,7 @@ class ContractorCYAServiceSpec extends UnitTest
     "return DeductionPeriodNotFoundError when in year and incomeTaxUserDataConnector returns userData but deduction period does not exist exist" in {
       val periodData = aPeriodData.copy(deductionPeriod = Month.MAY)
       val cisSource = aCISSource.copy(cisDeductions = Seq(aCisDeductions.copy(employerRef = "12345", periodData = Seq(periodData))))
-      mockGetUserData(aUser.nino, taxYear, Right(IncomeTaxUserData(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = Some(cisSource))))))
+      mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = Some(cisSource))))))
 
       await(underTest.pageModelFor(taxYear, Month.JULY, refNumber = "12345", aUser)) shouldBe Left(DeductionPeriodNotFoundError)
     }
@@ -89,7 +89,7 @@ class ContractorCYAServiceSpec extends UnitTest
       val periodData = aPeriodData.copy(deductionPeriod = Month.JUNE, grossAmountPaid = Some(101), deductionAmount = Some(201), costOfMaterials = Some(301))
       val cisDeductions = aCisDeductions.copy(contractorName = Some("some-contractor"), employerRef = "some-employer-ref", periodData = Seq(aPeriodData, periodData))
       val cisSource = aCISSource.copy(cisDeductions = Seq(aCisDeductions, cisDeductions))
-      mockGetUserData(aUser.nino, taxYear, Right(anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = Some(cisSource))))))
+      mockGetPriorData(taxYear, aUser, Right(anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = Some(cisSource))))))
 
       val expectedPage = aContractorCYAPage.copy(
         taxYear = taxYear,

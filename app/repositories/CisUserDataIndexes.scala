@@ -29,7 +29,8 @@ private[repositories] object CisUserDataIndexes {
     ascending("sessionId"),
     ascending("mtdItId"),
     ascending("nino"),
-    ascending("taxYear")
+    ascending("taxYear"),
+    ascending("employerRef")
   )
 
   def indexes(appConfig: AppConfig): Seq[IndexModel] = {

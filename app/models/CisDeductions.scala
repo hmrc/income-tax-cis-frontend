@@ -16,6 +16,7 @@
 
 package models
 
+import models.mongo.{CYAPeriodData, CisCYAModel}
 import play.api.libs.json.{Json, OFormat}
 
 case class CisDeductions(fromDate: String,
@@ -25,7 +26,32 @@ case class CisDeductions(fromDate: String,
                          totalDeductionAmount: Option[BigDecimal],
                          totalCostOfMaterials: Option[BigDecimal],
                          totalGrossAmountPaid: Option[BigDecimal],
-                         periodData: Seq[PeriodData])
+                         periodData: Seq[PeriodData]){
+
+  def findSubmissionId: Option[String] ={
+    periodData.find(_.submissionId.isDefined).flatMap(_.submissionId)
+  }
+
+  def toCYA: CisCYAModel ={
+
+    val periods: Seq[CYAPeriodData] = periodData.map {
+      period =>
+        CYAPeriodData(
+          period.deductionPeriod,
+          grossAmountPaid = period.grossAmountPaid,
+          deductionAmount = period.deductionAmount,
+          costOfMaterialsQuestion = Some(period.costOfMaterials.isDefined),
+          costOfMaterials = period.costOfMaterials
+        )
+    }
+
+    CisCYAModel(
+      contractorName = contractorName,
+      periodData = None,
+      priorPeriodData = periods
+    )
+  }
+}
 
 object CisDeductions {
   implicit val format: OFormat[CisDeductions] = Json.format[CisDeductions]

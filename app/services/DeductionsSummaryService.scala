@@ -16,25 +16,24 @@
 
 package services
 
-import connectors.IncomeTaxUserDataConnector
+import javax.inject.Inject
 import models._
 import models.pages.DeductionsSummaryPage
 import models.pages.DeductionsSummaryPage.mapToInYearPage
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.InYearUtil
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeductionsSummaryService @Inject()(inYearUtil: InYearUtil, incomeTaxUserDataConnector: IncomeTaxUserDataConnector)
+class DeductionsSummaryService @Inject()(inYearUtil: InYearUtil, cisSessionService: CISSessionService)
                                         (implicit ec: ExecutionContext) {
 
-  def pageModelFor(taxYear: Int, user: User)(implicit hc: HeaderCarrier): Future[Either[ServiceErrors, DeductionsSummaryPage]] = {
+  def pageModelFor(taxYear: Int, user: User)(implicit hc: HeaderCarrier): Future[Either[ServiceError, DeductionsSummaryPage]] = {
     if (!inYearUtil.inYear(taxYear)) {
       Future.successful(Right(DeductionsSummaryPage(taxYear = taxYear, isInYear = false, deductions = Seq.empty)))
     } else {
-      incomeTaxUserDataConnector.getUserData(user.nino, taxYear)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)).map {
-        case Left(error) => Left(HttpParserError(error.status))
+      cisSessionService.getPriorData(user,taxYear).map {
+        case Left(error) => Left(error)
         case Right(IncomeTaxUserData(None)) => Left(EmptyPriorCisDataError)
         case Right(incomeTaxUserData) if !incomeTaxUserData.hasInYearCisDeductions => Left(EmptyInYearDeductionsError)
         case Right(incomeTaxUserData) => Right(mapToInYearPage(taxYear, incomeTaxUserData))

@@ -17,7 +17,7 @@
 package support.mocks
 
 import models.pages.ContractorCYAPage
-import models.{ServiceErrors, User}
+import models.{ServiceError, User}
 import org.scalamock.handlers.CallHandler5
 import org.scalamock.scalatest.MockFactory
 import services.ContractorCYAService
@@ -34,8 +34,8 @@ trait MockContractorCYAService extends MockFactory {
                        month: Month,
                        refNumber: String,
                        user: User,
-                       result: Either[ServiceErrors, ContractorCYAPage]
-                      ): CallHandler5[Int, Month, String, User, HeaderCarrier, Future[Either[ServiceErrors, ContractorCYAPage]]] = {
+                       result: Either[ServiceError, ContractorCYAPage]
+                      ): CallHandler5[Int, Month, String, User, HeaderCarrier, Future[Either[ServiceError, ContractorCYAPage]]] = {
     (mockContractorCYAService.pageModelFor(_: Int, _: Month, _: String, _: User)(_: HeaderCarrier))
       .expects(taxYear, month, refNumber, user, *)
       .returns(Future.successful(result))

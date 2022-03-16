@@ -29,4 +29,12 @@ object CYAPeriodDataBuilder {
     costOfMaterialsQuestion = Some(true),
     costOfMaterials = Some(250.00)
   )
+
+  val alreadySubmittedCYAPeriodData: CYAPeriodData = CYAPeriodData(
+    deductionPeriod = Month.NOVEMBER,
+    grossAmountPaid = Some(500.00),
+    deductionAmount = Some(100.00),
+    costOfMaterialsQuestion = Some(true),
+    costOfMaterials = Some(250.00)
+  )
 }

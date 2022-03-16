@@ -36,33 +36,43 @@ common.status.updated = Updated
 common.update = Update
 common.use = use
 common.yes = Yes
+common.contractor.employerRef = Contractor: {0}
+common.january = January
+common.february = February
+common.march = March
+common.april = April
+common.may = May
+common.june = June
+common.july = July
+common.august = August
+common.september = September
+common.october = October
+common.november = November
+common.december = December
+common.taxMonth = 5 {0} {1}
 cis.caption = Construction Industry Scheme (CIS) deductions for 6 April {0} to 5 April {1}
 cis.insetText.agent = You cannot update your client’s CIS information until 6 April {0}.
 cis.insetText.individual = You cannot update your CIS information until 6 April {0}.
 cis.deductionsInfo.p1.agent = Your client’s CIS deductions are based on the information we already hold about them.
 cis.deductionsInfo.p1.individual = Your CIS deductions are based on the information we already hold about you.
 
-#################       Months      #########################################################
+#################       Deduction Period Page    #######################################
 
-JANUARY = January
-FEBRUARY = February
-MARCH = March
-APRIL = April
-MAY = May
-JUNE = June
-JULY = July
-AUGUST = August
-SEPTEMBER = September
-OCTOBER = October
-NOVEMBER = November
-DECEMBER = December
+deductionPeriod.title.individual = When did your contractor make CIS deductions?
+deductionPeriod.title.agent = When did your client’s contractor make CIS deductions?
+deductionPeriod.heading = When did {0} make CIS deductions?
+deductionPeriod.p1.agent = Tell us the end date on your client’s CIS statement.
+deductionPeriod.p1.individual = Tell us the end date on your CIS statement.
+deductionPeriod.taxMonthEnding = Tax month ending
+deductionPeriod.error.individual = You cannot select a date you already have information for
+deductionPeriod.error.agent = You cannot select a date your client already has information for
 
 #################       Deductions Summary Page    #######################################
+
 deductionsSummary.title = CIS deductions
 deductionsSummary.table.caption = Contractors and CIS deductions to date
 deductionsSummary.table.head.contractor = Contractor
 deductionsSummary.table.head.deductionsToDate = CIS deductions to date
-deductionsSummary.table.row.contractor.employerRef = Contractor: {0}
 
 #################       Contractor CYA Page       #######################################
 
@@ -73,7 +83,6 @@ contractorCYAPage.lineItem.contractorDetails = Contractor details
 contractorCYAPage.lineItem.contractorDetails.name = Name: {0}
 contractorCYAPage.lineItem.contractorDetails.ern = ERN: {0}
 contractorCYAPage.lineItem.endOfTaxMonth = End of tax month
-contractorCYAPage.lineItem.endOfTaxMonth.text = 5 {0} {1}
 contractorCYAPage.lineItem.labour = Labour
 contractorCYAPage.lineItem.cisDeduction = CIS deduction
 contractorCYAPage.lineItem.paidForMaterials = Paid for materials

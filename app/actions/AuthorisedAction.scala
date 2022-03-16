@@ -60,7 +60,7 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
         Redirect(appConfig.signInUrl)
       case _: AuthorisationException =>
         logger.info(s"[AuthorisedAction][invokeBlock] - User failed to authenticate")
-        Redirect(controllers.errors.routes.UnauthorisedUserErrorController.show)
+        Redirect(controllers.errors.routes.UnauthorisedUserErrorController.show())
     }
   }
 

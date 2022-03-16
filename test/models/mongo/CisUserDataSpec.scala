@@ -19,6 +19,7 @@ package models.mongo
 import org.joda.time.DateTime
 import org.scalamock.scalatest.MockFactory
 import support.UnitTest
+import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.SecureGCMCipher
 
@@ -33,7 +34,8 @@ class CisUserDataSpec extends UnitTest
 
   "CisUserData.encrypted" should {
     "return EncryptedCisUserData object" in {
-      val underTest = aCisUserData.copy(cis = Some(cisCYAModel))
+      val encryptedCisCYAModel = EncryptedCisCYAModel()
+      val underTest = aCisUserData.copy(cis = cisCYAModel)
 
       (cisCYAModel.encrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(secureGCMCipher, textAndKey).returning(encryptedCisCYAModel)
 
@@ -45,7 +47,7 @@ class CisUserDataSpec extends UnitTest
         employerRef = underTest.employerRef,
         submissionId = underTest.submissionId,
         isPriorSubmission = underTest.isPriorSubmission,
-        cis = Some(encryptedCisCYAModel),
+        cis = encryptedCisCYAModel,
         lastUpdated = underTest.lastUpdated
       )
     }
@@ -61,11 +63,11 @@ class CisUserDataSpec extends UnitTest
         employerRef = "some-employer-ref",
         submissionId = Some("some-submission-id"),
         isPriorSubmission = true,
-        cis = Some(encryptedCisCYAModel),
+        cis = encryptedCisCYAModel,
         lastUpdated = DateTime.now
       )
 
-      (encryptedCisCYAModel.decrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(secureGCMCipher, textAndKey).returning(cisCYAModel)
+      (encryptedCisCYAModel.decrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(secureGCMCipher, textAndKey).returning(aCisCYAModel)
 
       underTest.decrypted shouldBe CisUserData(
         sessionId = underTest.sessionId,
@@ -75,7 +77,7 @@ class CisUserDataSpec extends UnitTest
         employerRef = underTest.employerRef,
         submissionId = underTest.submissionId,
         isPriorSubmission = underTest.isPriorSubmission,
-        cis = Some(cisCYAModel),
+        cis = aCisCYAModel,
         lastUpdated = underTest.lastUpdated
       )
     }

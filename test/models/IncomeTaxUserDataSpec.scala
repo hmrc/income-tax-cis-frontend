@@ -109,4 +109,53 @@ class IncomeTaxUserDataSpec extends UnitTest {
       underTest.hasInYearPeriodDataFor(employerRef = "unknown-reference", Month.JUNE) shouldBe false
     }
   }
+
+  ".getCISDeductionsFor" should {
+    "extract the latest cisDeductions" in {
+
+      val underTest = anIncomeTaxUserData
+
+      underTest.getCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
+    }
+    "extract the latest cisDeductions when no customer data" in {
+
+      val underTest = anIncomeTaxUserData.copy(
+        cis = Some(anAllCISDeductions.copy(
+          customerCISDeductions = None
+        ))
+      )
+
+      underTest.getCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
+    }
+    "extract the latest cisDeductions when contractor data is latest" in {
+
+      val underTest = anIncomeTaxUserData.copy(
+        cis = Some(anAllCISDeductions.copy(
+          customerCISDeductions = Some(aCISSource),
+          contractorCISDeductions = Some(aCISSource.copy(
+            cisDeductions = Seq(
+              aCisDeductions.copy(
+                periodData = Seq(aPeriodData, aPeriodData.copy(submissionDate = "2021-05-11T16:38:57.489Z"))
+              )
+            )
+          ))
+        ))
+      )
+
+      underTest.getCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions.copy(
+        periodData = Seq(aPeriodData, aPeriodData.copy(submissionDate = "2021-05-11T16:38:57.489Z"))
+      ))
+    }
+    "extract the latest cisDeductions when no contractor data" in {
+
+      val underTest = anIncomeTaxUserData.copy(
+        cis = Some(anAllCISDeductions.copy(
+          customerCISDeductions = None
+        ))
+      )
+
+      underTest.getCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
+    }
+  }
+
 }

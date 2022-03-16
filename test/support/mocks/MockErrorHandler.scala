@@ -17,6 +17,7 @@
 package support.mocks
 
 import config.ErrorHandler
+import models.AuthorisationRequest
 import org.scalamock.scalatest.MockFactory
 import play.api.mvc.{Request, Result}
 
@@ -27,6 +28,12 @@ trait MockErrorHandler extends MockFactory {
   def mockHandleError(status: Int, result: Result): Unit = {
     (mockErrorHandler.handleError(_: Int)(_: Request[_]))
       .expects(status, *)
+      .returns(result)
+  }
+
+  def mockInternalError(result: Result): Unit = {
+    (mockErrorHandler.internalServerError()(_: AuthorisationRequest[_]))
+      .expects(*)
       .returns(result)
   }
 }
