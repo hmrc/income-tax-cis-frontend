@@ -18,7 +18,7 @@ package services
 
 import connectors.IncomeTaxUserDataConnector
 import javax.inject.Inject
-import models.mongo.{CisCYAModel, CisUserData, DataNotUpdated, DatabaseError}
+import models.mongo.{CisCYAModel, CisUserData, DataNotUpdatedError, DatabaseError}
 import models._
 import org.joda.time.DateTimeZone
 import repositories.CisUserDataRepository
@@ -79,7 +79,7 @@ class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
             val cya = deductions.toCYA
 
             createOrUpdateCISUserData(user, taxYear, employerRef, submissionId, true, cya).map {
-              case Left(_) => Left(DataNotUpdated)
+              case Left(_) => Left(DataNotUpdatedError)
               case Right(value) => Right(value)
             }
 

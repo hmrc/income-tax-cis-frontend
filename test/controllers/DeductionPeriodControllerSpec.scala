@@ -16,13 +16,12 @@
 
 package controllers
 
-import java.time.Month
-
 import common.SessionValues
 import controllers.errors.routes.UnauthorisedUserErrorController
+import controllers.routes.LabourPayController
 import forms.DeductionPeriodFormProvider
 import models.HttpParserError
-import models.mongo.{DataNotFound, DataNotUpdated}
+import models.mongo.{DataNotFoundError, DataNotUpdatedError}
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
 import play.api.mvc.Results.{InternalServerError, Redirect}
 import play.api.test.Helpers.{contentType, redirectLocation, status}
@@ -33,7 +32,10 @@ import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.builders.models.pages.DeductionPeriodPageBuilder.aDeductionPeriodPage
 import support.mocks.{MockAuthorisedAction, MockCISSessionService, MockDeductionPeriodService, MockErrorHandler}
 import utils.InYearUtil
+import utils.UrlUtils.encoded
 import views.html.cis.DeductionPeriodView
+
+import java.time.Month
 
 class DeductionPeriodControllerSpec extends ControllerUnitTest
   with MockAuthorisedAction
@@ -68,7 +70,7 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
 
     "return INTERNAL_SERVER_ERROR when DeductionPeriodService returns DataNotFound" in {
       mockAuthAsIndividual(Some(aUser.nino))
-      mockPageModelFor(taxYearEOY, aCisDeductions.employerRef, aUser, Left(DataNotFound))
+      mockPageModelFor(taxYearEOY, aCisDeductions.employerRef, aUser, Left(DataNotFoundError))
       mockGetPriorAndMakeCYA(taxYearEOY, aCisDeductions.employerRef, aUser, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
       mockHandleError(INTERNAL_SERVER_ERROR, InternalServerError)
 
@@ -117,7 +119,7 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
     "handle error response from getting data" in {
       mockAuthAsIndividual(Some(aUser.nino))
       mockPageModelFor(taxYearEOY, aCisDeductions.employerRef, aUser, Right(Some(aDeductionPeriodPage)))
-      mockPageModelFor(taxYearEOY, aCisDeductions.employerRef, aUser, Left(DataNotFound))
+      mockPageModelFor(taxYearEOY, aCisDeductions.employerRef, aUser, Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
       val result = underTest.show(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString))
@@ -148,7 +150,7 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
     }
     "return INTERNAL_SERVER_ERROR when DeductionPeriodService returns DataNotFound" in {
       mockAuthAsIndividual(Some(aUser.nino))
-      mockPageModelFor(taxYearEOY, aCisDeductions.employerRef, aUser, Left(DataNotFound))
+      mockPageModelFor(taxYearEOY, aCisDeductions.employerRef, aUser, Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
       await(underTest.submit(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest
@@ -163,7 +165,7 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
         .withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june"))
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result).get shouldBe controllers.routes.DeductionsSummaryController.show(taxYearEOY).url
+      redirectLocation(result).get shouldBe LabourPayController.show(taxYearEOY, Month.JUNE.toString, encoded(aCisDeductions.employerRef)).url
     }
     "redirect when no months can be added" in {
       mockAuthAsIndividual(Some(aUser.nino))
@@ -178,7 +180,7 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
     "handle submit failure" in {
       mockAuthAsIndividual(Some(aUser.nino))
       mockPageModelFor(taxYearEOY, aCisDeductions.employerRef, aUser, Right(Some(aDeductionPeriodPage)))
-      mockSubmitMonth(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JUNE, Left(DataNotUpdated))
+      mockSubmitMonth(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JUNE, Left(DataNotUpdatedError))
       mockInternalError(InternalServerError)
 
       val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest

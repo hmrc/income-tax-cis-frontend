@@ -49,12 +49,15 @@ trait MockCISSessionService extends MockFactory {
   }
 
   def mockCreateOrUpdateCISUserData(taxYear: Int,
-                         user: User,
-                         employerRef: String,
-                         result: Either[Unit, CisUserData]
-                        ): CallHandler6[User, Int, String, Option[String], Boolean, CisCYAModel, Future[Either[Unit, CisUserData]]] = {
+                                    user: User,
+                                    employerRef: String,
+                                    submissionId: Option[String],
+                                    isPriorSubmission: Boolean,
+                                    cisCYAModel: CisCYAModel,
+                                    result: Either[Unit, CisUserData]
+                                   ): CallHandler6[User, Int, String, Option[String], Boolean, CisCYAModel, Future[Either[Unit, CisUserData]]] = {
     (mockCISSessionService.createOrUpdateCISUserData(_: User, _: Int, _: String, _: Option[String], _: Boolean, _: CisCYAModel))
-      .expects(user, taxYear, employerRef, *, *, *)
+      .expects(user, taxYear, employerRef, submissionId, isPriorSubmission, cisCYAModel)
       .returns(Future.successful(result))
   }
 

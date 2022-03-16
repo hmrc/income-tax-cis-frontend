@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package models
+package utils
 
-trait ServiceError
+import org.joda.time.{DateTime, DateTimeZone}
 
-case class HttpParserError(status: Int) extends ServiceError
-case object EmptyPriorCisDataError extends ServiceError
-case object EmptyInYearDeductionsError extends ServiceError
-case object EmployerRefNotFoundError extends ServiceError
-case object DeductionPeriodNotFoundError extends ServiceError
-case object NoCisUserDataError extends ServiceError
-case object NoCYAPeriodDataError extends ServiceError
+object TestingClock extends Clock {
+  private val year = 2021
+  private val month = 1
+  private val day = 1
+  private val hour = 0
+  private val minute = 0
+
+  override def now(zone: DateTimeZone = DateTimeZone.UTC): DateTime = new DateTime(year, month, day, hour, minute, zone)
+}

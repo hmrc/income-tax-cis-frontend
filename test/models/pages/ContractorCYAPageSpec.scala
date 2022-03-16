@@ -16,14 +16,16 @@
 
 package models.pages
 
-import support.ControllerUnitTest
+import support.UnitTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.pages.ContractorCYAPageBuilder.aContractorCYAPage
 
 import java.time.Month
 
-class ContractorCYAPageSpec extends ControllerUnitTest {
+class ContractorCYAPageSpec extends UnitTest {
+
+  private val anyTaxYear: Int = 2022
 
   ".hasPaidForMaterials" should {
     "return true when costOfMaterials has value" in {
@@ -47,8 +49,8 @@ class ContractorCYAPageSpec extends ControllerUnitTest {
       )
       val cisDeductions = aCisDeductions.copy(contractorName = Some("contractor-1"), employerRef = "ref-1", periodData = periodData)
 
-      ContractorCYAPage.mapToInYearPage(taxYear, cisDeductions, Month.JUNE) shouldBe ContractorCYAPage(
-        taxYear = taxYear,
+      ContractorCYAPage.mapToInYearPage(anyTaxYear, cisDeductions, Month.JUNE) shouldBe ContractorCYAPage(
+        taxYear = anyTaxYear,
         isInYear = true,
         contractorName = Some("contractor-1"),
         employerRef = "ref-1",

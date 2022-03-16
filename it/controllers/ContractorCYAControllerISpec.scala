@@ -27,12 +27,14 @@ import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
 import utils.ViewHelpers
 
-import java.net.URLEncoder
+import java.net.URLEncoder.encode
 
 class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
 
-  private def url(taxYear: Int, month: String, employerRef: String): String =
-    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/check-construction-industry-scheme-deductions?month=$month&contractor=$employerRef"
+  private def url(taxYear: Int, month: String, employerRef: String): String = {
+    val contractor = encode(employerRef, UTF_8)
+    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/check-construction-industry-scheme-deductions?month=$month&contractor=$contractor"
+  }
 
   override val userScenarios: Seq[UserScenario[_, _]] = Seq.empty
 
@@ -41,7 +43,7 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYear)
-        urlGet(fullUrl(url(taxYear, month = aPeriodData.deductionPeriod.toString, employerRef = URLEncoder.encode(aCisDeductions.employerRef, UTF_8))),
+        urlGet(fullUrl(url(taxYear, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
           headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
       }
 

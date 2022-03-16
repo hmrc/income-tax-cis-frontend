@@ -22,11 +22,11 @@ trait DatabaseError extends ServiceError {
   val message: String
 }
 
-case object DataNotUpdated extends DatabaseError {
+case object DataNotUpdatedError extends DatabaseError {
   override val message: String = "User data was not updated due to mongo exception"
 }
 
-case object DataNotFound extends DatabaseError {
+case object DataNotFoundError extends DatabaseError {
   override val message: String = "User data could not be found due to mongo exception"
 }
 

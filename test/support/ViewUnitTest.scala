@@ -17,13 +17,14 @@
 package support
 
 import config.{AppConfig, MockAppConfig}
-import models.AuthorisationRequest
+import models.{AuthorisationRequest, UserSessionDataRequest}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.mvc.AnyContent
 import play.api.test.{FakeRequest, Injecting}
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.ViewHelper
+import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import uk.gov.hmrc.auth.core.AffinityGroup
 
 trait ViewUnitTest extends UnitTest
@@ -48,4 +49,11 @@ trait ViewUnitTest extends UnitTest
 
   protected def getAuthRequest(isAgent: Boolean): AuthorisationRequest[AnyContent] =
     if (isAgent) agentUserRequest else individualUserRequest
+
+  protected def getUserSessionDataRequest(isAgent: Boolean): UserSessionDataRequest[AnyContent] =
+    if (isAgent) {
+      UserSessionDataRequest(aCisUserData, agentUserRequest.user, agentUserRequest.request)
+    } else {
+      UserSessionDataRequest(aCisUserData, individualUserRequest.user, individualUserRequest.request)
+    }
 }

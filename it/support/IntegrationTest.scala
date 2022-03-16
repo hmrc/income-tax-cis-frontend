@@ -41,7 +41,7 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
-import utils.{IntegrationTestClock, MockAuthConnector}
+import utils.MockAuthConnector
 import views.html.templates.AgentAuthErrorPageView
 
 import scala.concurrent.duration.Duration
@@ -53,14 +53,13 @@ trait IntegrationTest extends AnyWordSpec
   with WireMockHelper
   with WiremockStubHelpers
   with BeforeAndAfterAll
-  with TaxYearHelper {
+  with TaxYearHelper
+  with DatabaseHelper {
 
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid)
 
   implicit val actorSystem: ActorSystem = ActorSystem()
-
-  implicit val integrationTestClock: IntegrationTestClock.type = IntegrationTestClock
 
   implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
 

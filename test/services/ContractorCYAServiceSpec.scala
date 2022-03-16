@@ -45,39 +45,39 @@ class ContractorCYAServiceSpec extends UnitTest
   )
 
   ".pageModelFor" should {
-    "return error when in year and incomeTaxUserDataConnector getUserData errors with HttpParserError" in {
+    "return error when in year and CISSessionService getUserData errors with HttpParserError" in {
       mockGetPriorData(taxYear, aUser, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
 
       await(underTest.pageModelFor(taxYear, Month.MAY, refNumber = "some-ref", user = aUser)) shouldBe Left(HttpParserError(INTERNAL_SERVER_ERROR))
     }
 
-    "return EmptyCisDataError when in year and incomeTaxUserDataConnector returns userData with empty cis" in {
+    "return EmptyCisDataError when in year and CISSessionService returns userData with empty cis" in {
       mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(None)))
 
       await(underTest.pageModelFor(taxYear, Month.MAY, refNumber = "some-ref", aUser)) shouldBe Left(EmptyPriorCisDataError)
     }
 
-    "return EmptyInYearDeductionsError when in year and incomeTaxUserDataConnector returns userData with empty Constructor CIS Deductions" in {
+    "return EmptyInYearDeductionsError when in year and CISSessionService returns userData with empty Constructor CIS Deductions" in {
       val userDataWithEmptyContractorDeductions = anAllCISDeductions.copy(contractorCISDeductions = None)
       mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(userDataWithEmptyContractorDeductions))))
 
       await(underTest.pageModelFor(taxYear, Month.MAY, refNumber = "some-ref", aUser)) shouldBe Left(EmptyInYearDeductionsError)
     }
 
-    "return EmptyInYearDeductionsError when in year and incomeTaxUserDataConnector returns userData with empty Constructor CIS Deductions list" in {
+    "return EmptyInYearDeductionsError when in year and CISSessionService returns userData with empty Constructor CIS Deductions list" in {
       val userDataWithEmptyContractorCisDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq.empty)))
       mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(userDataWithEmptyContractorCisDeductions))))
 
       await(underTest.pageModelFor(taxYear, Month.MAY, refNumber = "some-ref", aUser)) shouldBe Left(EmptyInYearDeductionsError)
     }
 
-    "return EmployerRefNotFoundError when in year and incomeTaxUserDataConnector returns userData but employerRef does not exist" in {
+    "return EmployerRefNotFoundError when in year and CISSessionService returns userData but employerRef does not exist" in {
       mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(anAllCISDeductions))))
 
       await(underTest.pageModelFor(taxYear, Month.MAY, refNumber = "unknown-ref", aUser)) shouldBe Left(EmployerRefNotFoundError)
     }
 
-    "return DeductionPeriodNotFoundError when in year and incomeTaxUserDataConnector returns userData but deduction period does not exist exist" in {
+    "return DeductionPeriodNotFoundError when in year and CISSessionService returns userData but deduction period does not exist exist" in {
       val periodData = aPeriodData.copy(deductionPeriod = Month.MAY)
       val cisSource = aCISSource.copy(cisDeductions = Seq(aCisDeductions.copy(employerRef = "12345", periodData = Seq(periodData))))
       mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = Some(cisSource))))))
@@ -85,7 +85,7 @@ class ContractorCYAServiceSpec extends UnitTest
       await(underTest.pageModelFor(taxYear, Month.JULY, refNumber = "12345", aUser)) shouldBe Left(DeductionPeriodNotFoundError)
     }
 
-    "return page with deductions when in year and incomeTaxUserDataConnector getUserData succeeds" in {
+    "return page with deductions when in year and CISSessionService getUserData succeeds" in {
       val periodData = aPeriodData.copy(deductionPeriod = Month.JUNE, grossAmountPaid = Some(101), deductionAmount = Some(201), costOfMaterials = Some(301))
       val cisDeductions = aCisDeductions.copy(contractorName = Some("some-contractor"), employerRef = "some-employer-ref", periodData = Seq(aPeriodData, periodData))
       val cisSource = aCISSource.copy(cisDeductions = Seq(aCisDeductions, cisDeductions))

@@ -31,6 +31,8 @@ case class CisUserData(sessionId: String,
                        cis: CisCYAModel,
                        lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)) {
 
+  lazy val hasPeriodData: Boolean = cis.periodData.nonEmpty
+
   def encrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCisUserData = EncryptedCisUserData(
     sessionId = sessionId,
     mtdItId = mtdItId,

@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
-package models
+package support.builders.models.pages
 
-trait ServiceError
+import forms.FormsProvider
+import models.pages.LabourPayPage
+import support.TaxYearHelper
 
-case class HttpParserError(status: Int) extends ServiceError
-case object EmptyPriorCisDataError extends ServiceError
-case object EmptyInYearDeductionsError extends ServiceError
-case object EmployerRefNotFoundError extends ServiceError
-case object DeductionPeriodNotFoundError extends ServiceError
-case object NoCisUserDataError extends ServiceError
-case object NoCYAPeriodDataError extends ServiceError
+import java.time.Month
+
+object LabourPayPageBuilder extends TaxYearHelper {
+
+  val aLabourPayPage: LabourPayPage = LabourPayPage(
+    taxYear = taxYearEOY,
+    month = Month.MAY,
+    contractorName = Some("default-contractor"),
+    employerRef = "default-employer-ref",
+    form = new FormsProvider().labourPayAmountForm(isAgent = false),
+    originalGrossAmount = None
+  )
+}

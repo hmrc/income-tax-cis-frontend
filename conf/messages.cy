@@ -88,6 +88,25 @@ contractorCYAPage.lineItem.cisDeduction = CIS deduction
 contractorCYAPage.lineItem.paidForMaterials = Paid for materials
 contractorCYAPage.lineItem.costOfMaterials = Cost of materials
 
+#################       Labour Pay Page       #######################################
+labourPayPage.title.agent = How much did the contractor pay your client for labour?
+labourPayPage.title.individual = How much did your contractor pay you for labour?
+labourPayPage.heading.agent = How much did {0} pay your client for labour?
+labourPayPage.heading.individual = How much did {0} pay you for labour?
+labourPayPage.p1.agent = Tell us the amount on your client’s {0} CIS statement, before any deductions were made.
+labourPayPage.p1.individual = Tell us the amount on your {0} CIS statement, before any deductions were made.
+labourPayPage.p.noVAT = Do not include VAT or cost of materials.
+labourPayPage.p1.replay.agent = If your client was not paid {0} for labour, tell us the correct amount.
+labourPayPage.p1.replay.individual = If you were not paid {0} for labour, tell us the correct amount.
+labourPayPage.p2.replay.agent = It’s the amount on their {0} CIS statement, before any deductions were made.
+labourPayPage.p2.replay.individual = It’s the amount on your {0} CIS statement, before any deductions were made.
+labourPayPage.error.noEntry.agent = Enter the amount your client was paid for labour
+labourPayPage.error.noEntry.individual = Enter the amount you were paid for labour
+labourPayPage.error.wrongFormat.agent = Enter the amount your client was paid for labour in the correct format
+labourPayPage.error.wrongFormat.individual = Enter the amount you were paid for labour in the correct format
+labourPayPage.error.overMaximum.agent = The amount your client was paid for labour must be less than £100,000,000,000
+labourPayPage.error.overMaximum.individual = The amount you were paid for labour must be less than £100,000,000,000
+
 #################       Error messages        ########################################
 
 common.error.self-assessment.paragraph.1.1 = If the web address is correct or you selected a link or button, you can use

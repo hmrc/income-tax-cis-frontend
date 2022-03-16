@@ -38,12 +38,13 @@ case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) extends Loggi
   def hasInYearPeriodDataFor(employerRef: String, month: Month): Boolean =
     inYearPeriodDataFor(employerRef, month).nonEmpty
 
+  // TODO: Logging should be moved something else and some refactoring can also be done
   def getCISDeductionsFor(employerRef: String): Option[CisDeductions] = {
     val contractorCISDeductions: Option[CisDeductions] = cis.flatMap(_.contractorCISDeductions.flatMap(_.cisDeductions.find(_.employerRef == employerRef)))
     val customerCISDeductions: Option[CisDeductions] = cis.flatMap(_.customerCISDeductions.flatMap(_.cisDeductions.find(_.employerRef == employerRef)))
 
     def log(customerLatest: Boolean): Unit = logger.info(s"[IncomeTaxUserData][getCISDeductionsFor] User has both contractor and customer data. " +
-      s"The latest data that will be returned will be ${if(customerLatest) "customer" else "contractor"} data.")
+      s"The latest data that will be returned will be ${if (customerLatest) "customer" else "contractor"} data.")
 
     (contractorCISDeductions, customerCISDeductions) match {
       case (Some(contractorCISDeductions), Some(customerCISDeductions)) =>
@@ -51,9 +52,9 @@ case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) extends Loggi
         val latestContractorSubmissionDate = parseDate(contractorCISDeductions.periodData.maxBy(_.submissionDate).submissionDate)
         val latestCustomerSubmissionDate = parseDate(customerCISDeductions.periodData.maxBy(_.submissionDate).submissionDate)
 
-        Some((latestContractorSubmissionDate,latestCustomerSubmissionDate) match {
+        Some((latestContractorSubmissionDate, latestCustomerSubmissionDate) match {
           case (Some(contractorSubmission), Some(customerSubmission)) =>
-            if(contractorSubmission.isAfter(customerSubmission)){
+            if (contractorSubmission.isAfter(customerSubmission)) {
               log(false)
               contractorCISDeductions
             } else {
