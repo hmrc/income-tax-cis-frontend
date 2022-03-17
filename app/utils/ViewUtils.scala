@@ -16,15 +16,14 @@
 
 package utils
 
+import java.time.{LocalDate, Month}
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.govukfrontend.views.Aliases.SelectItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
-
-import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, Month}
-import java.util.Locale
 import scala.util.Try
 
 object ViewUtils {

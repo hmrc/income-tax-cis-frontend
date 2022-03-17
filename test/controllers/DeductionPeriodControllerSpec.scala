@@ -32,7 +32,7 @@ import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.builders.models.pages.DeductionPeriodPageBuilder.aDeductionPeriodPage
 import support.mocks.{MockAuthorisedAction, MockCISSessionService, MockDeductionPeriodService, MockErrorHandler}
 import utils.InYearUtil
-import utils.UrlUtils.encoded
+import utils.UrlUtils.encode
 import views.html.cis.DeductionPeriodView
 
 import java.time.Month
@@ -165,7 +165,7 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
         .withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june"))
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result).get shouldBe LabourPayController.show(taxYearEOY, Month.JUNE.toString, encoded(aCisDeductions.employerRef)).url
+      redirectLocation(result).get shouldBe LabourPayController.show(taxYearEOY, Month.JUNE.toString, encode(aCisDeductions.employerRef)).url
     }
     "redirect when no months can be added" in {
       mockAuthAsIndividual(Some(aUser.nino))

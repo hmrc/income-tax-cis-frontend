@@ -20,6 +20,8 @@
 @import utils.ViewUtils._
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import models.pages.ContractorCYAPage
+@import controllers.routes.ContractorSummaryController
+@import utils.UrlUtils.encode
 
 
 @this(
@@ -69,7 +71,7 @@
         govukSummaryList(SummaryList(summaryRows))
     }
 
-    @button(alternativeText = "contractorCYAPage.buttonText", attributes = Map("id" -> "return-to-contractor-button-id"))
+    @button(alternativeText = "contractorCYAPage.buttonText", attributes = Map("id" -> "return-to-contractor-button-id"), href = Some(ContractorSummaryController.show(pageModel.taxYear, encode(pageModel.employerRef)).url))
 }
 
 }

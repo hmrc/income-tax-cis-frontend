@@ -38,6 +38,15 @@ case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) extends Loggi
   def hasInYearPeriodDataFor(employerRef: String, month: Month): Boolean =
     inYearPeriodDataFor(employerRef, month).nonEmpty
 
+  def inYearPeriodDataWith(employerRef: String): Seq[PeriodData] =
+    inYearCisDeductionsWith(employerRef)
+      .map(_.periodData)
+      .getOrElse(Seq.empty)
+
+  def hasInYearPeriodDataWith(employerRef: String): Boolean = {
+    inYearPeriodDataWith(employerRef).nonEmpty
+  }
+
   // TODO: Logging should be moved something else and some refactoring can also be done
   def getCISDeductionsFor(employerRef: String): Option[CisDeductions] = {
     val contractorCISDeductions: Option[CisDeductions] = cis.flatMap(_.contractorCISDeductions.flatMap(_.cisDeductions.find(_.employerRef == employerRef)))

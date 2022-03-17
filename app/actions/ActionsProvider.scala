@@ -22,7 +22,7 @@ import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import services.CISSessionService
 import utils.InYearUtil
-import utils.UrlUtils.decoded
+import utils.UrlUtils.decode
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -73,7 +73,7 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
       override protected def executionContext: ExecutionContext = ec
 
       override protected def refine[A](input: AuthorisationRequest[A]): Future[Either[Result, UserSessionDataRequest[A]]] = {
-        val employerRef = decoded(contractor)
+        val employerRef = decode(contractor)
 
         cisSessionService.getSessionData(taxYear, employerRef, input.user).map {
           case Left(_) => Left(errorHandler.internalServerError()(input))

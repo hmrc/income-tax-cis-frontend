@@ -59,9 +59,9 @@ class ViewUtilSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
   }
 
   "translateMonthAndTaxYear" should {
-    "should correctly translate the month and tax year" in {
-      ViewUtils.translatedMonthAndTaxYear(Month.APRIL, 2022) shouldBe "April 2022"
+    "correctly translate the month and tax year" in {
       ViewUtils.translatedMonthAndTaxYear(Month.JULY, 2022) shouldBe "July 2021"
+      ViewUtils.translatedMonthAndTaxYear(Month.APRIL, 2022) shouldBe "April 2022"
     }
   }
 }

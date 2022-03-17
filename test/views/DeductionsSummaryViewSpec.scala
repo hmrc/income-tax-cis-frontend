@@ -25,6 +25,8 @@ import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import support.ViewUnitTest
 import views.html.DeductionsSummaryView
+import controllers.routes.ContractorSummaryController
+import utils.UrlUtils.encode
 
 class DeductionsSummaryViewSpec extends ViewUnitTest {
 
@@ -134,11 +136,14 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
         textOnPageCheck(userScenario.commonExpectedResults.expectedTableCaption, Selectors.tableCaption)
         textOnPageCheck(userScenario.commonExpectedResults.expectedTableHeadContractor, Selectors.tableHeadContractor)
         textOnPageCheck(userScenario.commonExpectedResults.expectedTableHeadDeductionsToDate, Selectors.tableHeadDeductionsToDate)
-        textOnPageCheck(text = "Contractor-1", selector = Selectors.contractorEmployerRef(rowId = 1), additionalTestText = "first column")
+        linkCheck(text = "Contractor-1", selector = Selectors.contractorEmployerRef(rowId = 1),
+          href = ContractorSummaryController.show(taxYear, contractor = encode("ref-1")).url , additionalTestText = "first column")
         textOnPageCheck(text = "£123.23", selector = Selectors.contractorDeductions(rowId = 1), additionalTestText = "second column")
-        textOnPageCheck(userScenario.commonExpectedResults.expectedTableRowEmployerRef("ref-2"), Selectors.contractorEmployerRef(rowId = 2), additionalTestText = "first column")
+        linkCheck(userScenario.commonExpectedResults.expectedTableRowEmployerRef("ref-2"), Selectors.contractorEmployerRef(rowId = 2),
+          href = ContractorSummaryController.show(taxYear, contractor = encode("ref-2")).url , additionalTestText = "first column")
         textOnPageCheck(text = "£123.24", selector = Selectors.contractorDeductions(rowId = 2), additionalTestText = "second column")
-        textOnPageCheck(text = "Contractor-3", Selectors.contractorEmployerRef(rowId = 3), additionalTestText = "first column")
+        linkCheck(text = "Contractor-3", Selectors.contractorEmployerRef(rowId = 3),
+          href = ContractorSummaryController.show(taxYear, contractor = encode("ref-3")).url , additionalTestText = "first column")
         textOnPageCheck(text = "", selector = Selectors.contractorDeductions(rowId = 3), additionalTestText = "second column")
         buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector)
       }

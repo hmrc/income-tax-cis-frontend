@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.LabourPayService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
-import utils.UrlUtils.decoded
+import utils.UrlUtils.decode
 import views.html.LabourPayView
 
 import java.time.Month
@@ -59,7 +59,7 @@ class LabourPayController @Inject()(actionsProvider: ActionsProvider,
 
     formsProvider.labourPayAmountForm(request.user.isAgent).bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(pageView(LabourPayPage(monthValue, request.cisUserData, formWithErrors)))),
-      amount => labourPayService.saveLabourPay(taxYear, decoded(contractor), request.user, amount).map {
+      amount => labourPayService.saveLabourPay(taxYear, decode(contractor), request.user, amount).map {
         case Left(_: NoCYAPeriodDataError.type) => Redirect(DeductionPeriodController.show(taxYear, contractor))
         case Left(_: DatabaseError) => errorHandler.internalServerError()
         case Left(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
