@@ -26,7 +26,7 @@ import org.joda.time.{DateTime, DateTimeZone}
 import org.mongodb.scala.MongoException
 import org.mongodb.scala.model.{FindOneAndReplaceOptions, FindOneAndUpdateOptions}
 import play.api.Logging
-import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.{MongoComponent, MongoUtils}
 import uk.gov.hmrc.mongo.play.json.Codecs.toBson
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
@@ -45,6 +45,9 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
   domainFormat = EncryptedCisUserData.formats,
   indexes = CisUserDataIndexes.indexes(appConfig)
 ) with Repository with CisUserDataRepository with Logging {
+
+  collection.dropIndexes()
+  MongoUtils.ensureIndexes(collection, indexes, true)
 
   def find(taxYear: Int, employerRef: String, user: User): Future[Either[DatabaseError, Option[CisUserData]]] = {
 
