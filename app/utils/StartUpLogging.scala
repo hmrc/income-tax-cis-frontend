@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package config
+package utils
 
-import com.google.inject.AbstractModule
-import common.UUID
-import repositories.{CisUserDataRepository, CisUserDataRepositoryImpl}
-import utils.{Clock, StartUpLogging}
+import javax.inject.Inject
+import repositories.CisUserDataRepositoryImpl
 
-class Modules extends AbstractModule {
+import scala.concurrent.ExecutionContext
 
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[UUID]).toInstance(UUID)
-    bind(classOf[Clock]).toInstance(Clock)
-    bind(classOf[CisUserDataRepository]).to(classOf[CisUserDataRepositoryImpl]).asEagerSingleton()
-    bind(classOf[StartUpLogging]).asEagerSingleton()
-  }
+class StartUpLogging @Inject()(implicit val ec: ExecutionContext,
+                               repo: CisUserDataRepositoryImpl) {
+  repo.logOutIndexes
 }
