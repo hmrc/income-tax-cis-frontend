@@ -50,7 +50,7 @@
         @govukSelect(Select(
             id = "month",
             name = "month",
-            items = availableMonths(pageModel.priorSubmittedPeriods, pageModel.taxYear, pageModel.period),
+            items = availableMonths(pageModel.priorSubmittedPeriods, pageModel.taxYear, if(form.data.get("month").isDefined) try{Some(java.time.Month.valueOf(form.data("month").toUpperCase))} catch { case _: Exception => None} else pageModel.period),
             label = Label(
                 content = Text(messages("deductionPeriod.taxMonthEnding")),
                 classes = "govuk-label govuk-label--s govuk-!-margin-bottom-3"
