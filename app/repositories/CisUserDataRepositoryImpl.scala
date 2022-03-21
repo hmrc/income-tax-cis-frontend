@@ -26,7 +26,7 @@ import org.joda.time.{DateTime, DateTimeZone}
 import org.mongodb.scala.MongoException
 import org.mongodb.scala.model.{FindOneAndReplaceOptions, FindOneAndUpdateOptions}
 import play.api.Logging
-import uk.gov.hmrc.mongo.{MongoComponent, MongoUtils}
+import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.Codecs.toBson
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
@@ -35,8 +35,7 @@ import utils.PagerDutyHelper.PagerDutyKeys.{FAILED_TO_CREATE_UPDATE_CIS_DATA, FA
 import utils.PagerDutyHelper.{PagerDutyKeys, pagerDutyLog}
 import utils.SecureGCMCipher
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 @Singleton
@@ -45,15 +44,10 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
   mongoComponent = mongo,
   collectionName = "cisUserData",
   domainFormat = EncryptedCisUserData.formats,
-  indexes = CisUserDataIndexes.indexes(appConfig),
-  replaceIndexes = true
+  indexes = CisUserDataIndexes.indexes(appConfig)
 ) with Repository with CisUserDataRepository with Logging {
 
   def logOutIndexes(implicit ec: ExecutionContext): Future[Unit] = {
-
-    Await.result(collection.dropIndexes().toFuture(), Duration.Inf)
-    Await.result(MongoUtils.ensureIndexes(collection, indexes, replaceIndexes = true), Duration.Inf)
-
     val StartOfLog: String = "INDEX_IN_CIS_USER_DATA"
     Mdc.preservingMdc(collection.listIndexes().toFuture())
       .map { listOfIndexes =>
