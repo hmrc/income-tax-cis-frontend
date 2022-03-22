@@ -17,7 +17,6 @@
 package controllers
 
 import actions.AuthorisedAction
-import akka.util.ByteString.UTF_8
 import config.{AppConfig, ErrorHandler}
 import models.HttpParserError
 import play.api.i18n.I18nSupport
@@ -25,9 +24,9 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.ContractorCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
+import utils.UrlUtils.decoded
 import views.html.ContractorCYAView
 
-import java.net.URLDecoder
 import java.time.Month
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -40,9 +39,7 @@ class ContractorCYAController @Inject()(authAction: AuthorisedAction,
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int, month: String, contractor: String): Action[AnyContent] = authAction.async { implicit request =>
-    val employerRef = URLDecoder.decode(contractor, UTF_8)
-
-    contractorCYAService.pageModelFor(taxYear, Month.valueOf(month.toUpperCase), employerRef, request.user).map {
+    contractorCYAService.pageModelFor(taxYear, Month.valueOf(month.toUpperCase), decoded(contractor), request.user).map {
       case Left(HttpParserError(status)) => errorHandler.handleError(status)
       case Left(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       case Right(pageModel) => Ok(pageView(pageModel))

@@ -16,15 +16,19 @@
 
 package controllers
 
-import java.net.URLEncoder
-
+import controllers.routes.LabourPayController
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
+import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.{DatabaseHelper, IntegrationTest}
+import utils.UrlUtils.encoded
 import utils.ViewHelpers
+
+import java.net.URLEncoder
+import java.time.Month
 
 class DeductionPeriodControllerISpec extends IntegrationTest with ViewHelpers with DatabaseHelper {
 
@@ -33,7 +37,7 @@ class DeductionPeriodControllerISpec extends IntegrationTest with ViewHelpers wi
   val employerRef: String = aCisDeductions.employerRef
 
   private def url(taxYear: Int, employerRef: String): String = {
-    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/when-deductions-made?contractor=${URLEncoder.encode(employerRef,"UTF8")}"
+    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/when-deductions-made?contractor=${URLEncoder.encode(employerRef, "UTF8")}"
   }
 
   ".show" should {
@@ -51,17 +55,15 @@ class DeductionPeriodControllerISpec extends IntegrationTest with ViewHelpers wi
 
   ".submit" should {
     "submit Deductions Period data" in {
-
-      val form: Map[String, String] = Map("month" -> "january")
-
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         insertCyaData(aCisUserData)
-        urlPost(fullUrl(url(taxYearEOY, employerRef)), body = form, follow = false, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
+        urlPost(fullUrl(url(taxYearEOY, employerRef)), body = Map("month" -> "january"), follow = false, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
       }
 
       result.status shouldBe SEE_OTHER
-      result.header("location").get shouldBe controllers.routes.DeductionsSummaryController.show(taxYearEOY).url
+      result.header(name = "location").get shouldBe LabourPayController.show(taxYearEOY, Month.JANUARY.toString, encoded(aCisDeductions.employerRef)).url
+      findCyaData(taxYearEOY, employerRef, aUser).get.cis.periodData.get.deductionPeriod shouldBe Month.JANUARY
     }
   }
 }

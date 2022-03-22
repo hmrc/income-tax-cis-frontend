@@ -14,16 +14,27 @@
  * limitations under the License.
  */
 
-package utils
+package support.mocks
 
-import org.joda.time.{DateTime, DateTimeZone}
+import actions.ActionsProvider
+import config.MockAppConfig
+import org.scalamock.scalatest.MockFactory
+import utils.InYearUtil
 
-object IntegrationTestClock extends Clock {
-  private val year = 2021
-  private val month = 1
-  private val day = 1
-  private val hour = 0
-  private val minute = 0
+import scala.concurrent.ExecutionContext.Implicits.global
 
-  override def now(zone: DateTimeZone = DateTimeZone.UTC): DateTime = new DateTime(year, month, day, hour, minute, zone)
+trait MockActionsProvider extends MockFactory
+  with MockAuthorisedAction
+  with MockCISSessionService
+  with MockErrorHandler {
+
+  private val mockAppConfig = new MockAppConfig().config()
+
+  protected val mockActionsProvider = new ActionsProvider(
+    mockAuthorisedAction,
+    mockCISSessionService,
+    mockErrorHandler,
+    new InYearUtil,
+    mockAppConfig
+  )
 }

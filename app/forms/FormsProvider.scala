@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package models
+package forms
 
-trait ServiceError
+import play.api.data.Form
 
-case class HttpParserError(status: Int) extends ServiceError
-case object EmptyPriorCisDataError extends ServiceError
-case object EmptyInYearDeductionsError extends ServiceError
-case object EmployerRefNotFoundError extends ServiceError
-case object DeductionPeriodNotFoundError extends ServiceError
-case object NoCisUserDataError extends ServiceError
-case object NoCYAPeriodDataError extends ServiceError
+import javax.inject.Singleton
+
+@Singleton
+class FormsProvider {
+
+  def labourPayAmountForm(isAgent: Boolean): Form[BigDecimal] = AmountForm.amountForm(
+    emptyFieldKey = s"labourPayPage.error.noEntry.${if (isAgent) "agent" else "individual"}",
+    wrongFormatKey = s"labourPayPage.error.wrongFormat.${if (isAgent) "agent" else "individual"}",
+    exceedsMaxAmountKey = s"labourPayPage.error.overMaximum.${if (isAgent) "agent" else "individual"}"
+  )
+}

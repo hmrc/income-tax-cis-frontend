@@ -16,13 +16,13 @@
 
 package services
 
-import javax.inject.Inject
 import models._
 import models.pages.DeductionsSummaryPage
 import models.pages.DeductionsSummaryPage.mapToInYearPage
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.InYearUtil
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeductionsSummaryService @Inject()(inYearUtil: InYearUtil, cisSessionService: CISSessionService)
@@ -32,7 +32,7 @@ class DeductionsSummaryService @Inject()(inYearUtil: InYearUtil, cisSessionServi
     if (!inYearUtil.inYear(taxYear)) {
       Future.successful(Right(DeductionsSummaryPage(taxYear = taxYear, isInYear = false, deductions = Seq.empty)))
     } else {
-      cisSessionService.getPriorData(user,taxYear).map {
+      cisSessionService.getPriorData(user, taxYear).map {
         case Left(error) => Left(error)
         case Right(IncomeTaxUserData(None)) => Left(EmptyPriorCisDataError)
         case Right(incomeTaxUserData) if !incomeTaxUserData.hasInYearCisDeductions => Left(EmptyInYearDeductionsError)

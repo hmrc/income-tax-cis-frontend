@@ -104,7 +104,7 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
           case Some(_) => Right(())
           case None =>
             pagerDutyLog(FAILED_TO_CREATE_UPDATE_CIS_DATA, s"$start Failed to update user data.")
-            Left(DataNotUpdated)
+            Left(DataNotUpdatedError)
         }.recover {
           case exception: Exception =>
             pagerDutyLog(FAILED_TO_CREATE_UPDATE_CIS_DATA, s"$start Failed to update user data. Exception: ${exception.getMessage}")

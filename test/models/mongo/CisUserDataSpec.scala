@@ -19,6 +19,7 @@ package models.mongo
 import org.joda.time.DateTime
 import org.scalamock.scalatest.MockFactory
 import support.UnitTest
+import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.SecureGCMCipher
@@ -31,6 +32,20 @@ class CisUserDataSpec extends UnitTest
 
   private val cisCYAModel = mock[CisCYAModel]
   private val encryptedCisCYAModel = mock[EncryptedCisCYAModel]
+
+  "CisUserData.hasPeriodData" should {
+    "return false when does not have periodData is None" in {
+      val underTest = aCisUserData.copy(cis = aCisCYAModel.copy(periodData = None))
+
+      underTest.hasPeriodData shouldBe false
+    }
+
+    "return true when periodData exists" in {
+      val underTest = aCisUserData.copy(cis = aCisCYAModel.copy(periodData = Some(aCYAPeriodData)))
+
+      underTest.hasPeriodData shouldBe true
+    }
+  }
 
   "CisUserData.encrypted" should {
     "return EncryptedCisUserData object" in {

@@ -16,7 +16,6 @@
 
 package config
 
-import models.AuthorisationRequest
 import play.api.http.Status._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results._
@@ -40,7 +39,7 @@ class ErrorHandler @Inject()(internalServerErrorTemplate: InternalServerErrorTem
 
   override def notFoundTemplate(implicit request: Request[_]): Html = notFoundTemplate()
 
-  def internalServerError()(implicit request: AuthorisationRequest[_]): Result = {
+  def internalServerError()(implicit request: Request[_]): Result = {
     InternalServerError(internalServerErrorTemplate())
   }
 

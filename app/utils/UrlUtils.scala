@@ -16,11 +16,13 @@
 
 package utils
 
-import java.net.URLDecoder
 import akka.util.ByteString.UTF_8
+
+import java.net.{URLDecoder, URLEncoder}
 
 object UrlUtils {
 
-  def decodeEmployerRef(employerRef: String): String = URLDecoder.decode(employerRef,UTF_8)
+  def decoded(value: String): String = URLDecoder.decode(value, UTF_8)
 
+  def encoded(value: String): String = URLEncoder.encode(value, UTF_8)
 }
