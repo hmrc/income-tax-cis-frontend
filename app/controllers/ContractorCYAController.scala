@@ -24,7 +24,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.ContractorCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
-import utils.UrlUtils.decoded
+import utils.UrlUtils.decode
 import views.html.ContractorCYAView
 
 import java.time.Month
@@ -39,7 +39,7 @@ class ContractorCYAController @Inject()(authAction: AuthorisedAction,
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int, month: String, contractor: String): Action[AnyContent] = authAction.async { implicit request =>
-    contractorCYAService.pageModelFor(taxYear, Month.valueOf(month.toUpperCase), decoded(contractor), request.user).map {
+    contractorCYAService.pageModelFor(taxYear, Month.valueOf(month.toUpperCase), decode(contractor), request.user).map {
       case Left(HttpParserError(status)) => errorHandler.handleError(status)
       case Left(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       case Right(pageModel) => Ok(pageView(pageModel))

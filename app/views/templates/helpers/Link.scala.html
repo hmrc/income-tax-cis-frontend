@@ -22,8 +22,12 @@
         id: Option[String] = None,
         isExternal: Boolean = false,
         fullStop: Boolean = false,
-        isKey: Boolean = true
+        isMessageKey: Boolean = true,
+        hiddenText: Option[String] = None
 )(implicit messages: Messages)
 
-<a href="@link" class="govuk-link" @id.map(x => s"id=$x") @if(isExternal) { target="_blank"  rel="noopener noreferrer" }>@{if (isKey) messages(messageKeyOrValue) else messageKeyOrValue}@if(isExternal)(" " + messages("common.opensInNewTab"))</a>@{if(fullStop)messages("common.fullStop")}
-
+@if(hiddenText.isDefined) {
+    <a href="@link" class="govuk-link" @id.map(x => s"id=$x") @if(isExternal) { target="_blank"  rel="noopener noreferrer" }><span aria-hidden="true">@{if (isMessageKey) messages(messageKeyOrValue) else messageKeyOrValue}@if(isExternal)(" " + messages("common.opensInNewTab"))</span><span class="govuk-visually-hidden">@{messages(hiddenText.get)}</span></a>@{if(fullStop)messages("common.fullStop")}
+} else {
+    <a href="@link" class="govuk-link" @id.map(x => s"id=$x") @if(isExternal) { target="_blank"  rel="noopener noreferrer" }>@{if (isMessageKey) messages(messageKeyOrValue) else messageKeyOrValue}@if(isExternal)(" " + messages("common.opensInNewTab"))</a>@{if(fullStop)messages("common.fullStop")}
+}

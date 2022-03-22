@@ -1,0 +1,73 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.templates.Layout
+@import views.html.templates.helpers.Heading
+@import views.html.templates.helpers.Button
+@import utils.ViewUtils._
+@import java.time.Month
+@import models.pages.ContractorSummaryPage
+@import views.html.templates.helpers.Link
+@import controllers.routes.ContractorCYAController
+@import controllers.routes.DeductionsSummaryController
+@import utils.UrlUtils.encode
+
+@this(
+    layout: Layout,
+    heading: Heading,
+    govukSummaryList: GovukSummaryList,
+    govukInsetText: GovukInsetText,
+    link: Link,
+    button: Button
+)
+@(pageModel: ContractorSummaryPage)(implicit request: AuthorisationRequest[_], messages: Messages, appConfig: AppConfig)
+
+@titleText = @{ messages("contractorSummary.title") }
+
+@headingToUse = @{pageModel.contractorName.getOrElse(messages("common.contractor.employerRef", pageModel.employerRef))}
+
+@layout(pageTitle = titleText, taxYear = Some(pageModel.taxYear), isAgent = request.user.isAgent) {
+
+    @heading(headingToUse, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
+
+    <p class="govuk-body">@messages(s"cis.deductionsInfo.p1.${if(request.user.isAgent) "agent" else "individual"}")</p>
+
+    @govukInsetText(InsetText(
+    content = Text(messages(s"cis.insetText.${if(request.user.isAgent) "agent" else "individual"}", pageModel.taxYear.toString))
+    ))
+
+    @{
+        def mapToSummaryListRow(deductionPeriod: Month): SummaryListRow = {
+            val htmlLink = link(ContractorCYAController.show(pageModel.taxYear, deductionPeriod.toString.toLowerCase, encode(pageModel.employerRef)).url, "contractorSummary.view", hiddenText = Some(messages("contractorSummary.hiddenText", translatedMonthAndTaxYear(deductionPeriod, pageModel.taxYear))))
+            summaryListRow(
+                key = HtmlContent(messages("contractorSummary.lineItem", translatedMonthAndTaxYear(deductionPeriod, pageModel.taxYear))),
+                value = HtmlContent(htmlLink),
+                keyClasses = "govuk-!-width-two-thirds",
+                valueClasses = "govuk-!-width-one-third right-align",
+                actions = Seq()
+                )
+            }
+
+        govukSummaryList(SummaryList(pageModel.deductionPeriods.map(taxMonthEnd => mapToSummaryListRow(taxMonthEnd))))
+    }
+
+    @button(alternativeText = "contractorSummary.buttonText", attributes = Map("id" -> "return-to-summary-button-id"), href = Some(DeductionsSummaryController.show(pageModel.taxYear).url))
+
+}
+
+@{
+// $COVERAGE-OFF$
+}

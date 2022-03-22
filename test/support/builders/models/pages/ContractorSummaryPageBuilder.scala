@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package utils
+package support.builders.models.pages
 
-import java.net.{URLDecoder, URLEncoder}
-import akka.util.ByteString.UTF_8
+import models.pages.ContractorSummaryPage
+import support.TaxYearHelper
+import support.builders.models.CisDeductionsBuilder.aCisDeductions
+import support.builders.models.PeriodDataBuilder.aPeriodData
 
-
-object UrlUtils {
-
-  def decode(value: String): String = URLDecoder.decode(value,UTF_8)
-
-  def encode(value: String): String = URLEncoder.encode(value, UTF_8)
+object ContractorSummaryPageBuilder extends TaxYearHelper {
+  val aContractorSummaryPage: ContractorSummaryPage = ContractorSummaryPage(
+    taxYear = taxYear,
+    contractorName = aCisDeductions.contractorName,
+    employerRef = aCisDeductions.employerRef,
+    deductionPeriods = Seq(aPeriodData.deductionPeriod)
+  )
 
 }

@@ -74,6 +74,14 @@ deductionsSummary.table.caption = Contractors and CIS deductions to date
 deductionsSummary.table.head.contractor = Contractor
 deductionsSummary.table.head.deductionsToDate = CIS deductions to date
 
+#################       Contractor Summary Page       #######################################
+
+contractorSummary.title = Contractor CIS deductions
+contractorSummary.lineItem = Tax month end 5 {0}
+contractorSummary.hiddenText = View tax month end 5 {0}
+contractorSummary.buttonText = Return to CIS summary
+contractorSummary.view = View
+
 #################       Contractor CYA Page       #######################################
 
 contractorCYAPage.title.individual = Check your CIS deductions

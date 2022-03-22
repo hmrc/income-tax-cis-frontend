@@ -110,6 +110,60 @@ class IncomeTaxUserDataSpec extends UnitTest {
     }
   }
 
+  ".inYearPeriodDataWith(...)" should {
+    "return in year PeriodData for a given employer" in {
+      val periodData1 = aPeriodData.copy(deductionPeriod = Month.SEPTEMBER)
+      val periodData2 = aPeriodData.copy(deductionPeriod = Month.OCTOBER)
+      val periodData3 = aPeriodData.copy(deductionPeriod = Month.NOVEMBER)
+      val cisDeductions1 = aCisDeductions.copy(employerRef = "12345", periodData = Seq(periodData1, periodData2))
+      val cisDeduction2 = aCisDeductions.copy(employerRef = "678910", periodData = Seq(periodData3))
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions1, cisDeduction2))))
+
+      val underTest = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
+
+      underTest.inYearPeriodDataWith(employerRef = "12345") shouldBe Seq(periodData1, periodData2)
+      underTest.inYearPeriodDataWith(employerRef = "678910") shouldBe Seq(periodData3)
+    }
+
+    "return empty in year PeriodData for a given employer if the sequence is empty" in {
+      val cisDeductions = aCisDeductions.copy(employerRef = "12345", periodData = Seq())
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions))))
+
+      val underTest = anIncomeTaxUserData.copy(Some(allCISDeductions))
+
+      underTest.inYearPeriodDataWith(employerRef = "12345") shouldBe Seq.empty
+    }
+
+    "return empty in year PeriodData for a given employer if the employerRef is unknown" in {
+      val cisDeductions = aCisDeductions.copy(employerRef = "12345", periodData = Seq(aPeriodData))
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions))))
+      val underTest = anIncomeTaxUserData.copy(Some(allCISDeductions))
+
+      underTest.inYearPeriodDataWith(employerRef = "unknown-employerRef") shouldBe Seq.empty
+    }
+  }
+
+  ".hasInYearPeriodDataWith(...)" should {
+    "return true when in year period data exists for a given employerRef" in {
+      val periodData = aPeriodData.copy(deductionPeriod = Month.OCTOBER)
+      val cisDeductions = aCisDeductions.copy(employerRef = "12345", periodData = Seq(periodData))
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions))))
+
+      val underTest = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
+
+      underTest.hasInYearPeriodDataWith(employerRef = "12345") shouldBe true
+    }
+
+    "return false when is in year period data doesn't exist for a given employerRef" in {
+      val cisDeductions = aCisDeductions.copy(employerRef = "12345", periodData = Seq())
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions))))
+
+      val underTest = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
+
+      underTest.hasInYearPeriodDataWith(employerRef = "12345") shouldBe false
+    }
+  }
+
   ".getCISDeductionsFor" should {
     "extract the latest cisDeductions" in {
 

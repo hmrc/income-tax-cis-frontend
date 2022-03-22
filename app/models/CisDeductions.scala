@@ -26,13 +26,13 @@ case class CisDeductions(fromDate: String,
                          totalDeductionAmount: Option[BigDecimal],
                          totalCostOfMaterials: Option[BigDecimal],
                          totalGrossAmountPaid: Option[BigDecimal],
-                         periodData: Seq[PeriodData]){
+                         periodData: Seq[PeriodData]) {
 
-  def findSubmissionId: Option[String] ={
+  def findSubmissionId: Option[String] = {
     periodData.find(_.submissionId.isDefined).flatMap(_.submissionId)
   }
 
-  def toCYA: CisCYAModel ={
+  def toCYA: CisCYAModel = {
 
     val periods: Seq[CYAPeriodData] = periodData.map {
       period =>
@@ -51,6 +51,7 @@ case class CisDeductions(fromDate: String,
       priorPeriodData = periods
     )
   }
+
 }
 
 object CisDeductions {

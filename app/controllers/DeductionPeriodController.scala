@@ -29,7 +29,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{CISSessionService, DeductionPeriodService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.UrlUtils.{decoded, encoded}
+import utils.UrlUtils.{decode, encode}
 import utils.{InYearUtil, SessionHelper}
 import views.html.cis.DeductionPeriodView
 
@@ -50,7 +50,7 @@ class DeductionPeriodController @Inject()(authorisedAction: AuthorisedAction,
 
   def show(taxYear: Int, contractor: String): Action[AnyContent] = (authorisedAction andThen TaxYearAction.taxYearAction(taxYear)).async { implicit request =>
 
-    val employerRef = decoded(contractor)
+    val employerRef = decode(contractor)
     val inYear: Boolean = inYearAction.inYear(taxYear)
 
     if (inYear) {
@@ -97,7 +97,7 @@ class DeductionPeriodController @Inject()(authorisedAction: AuthorisedAction,
   def submit(taxYear: Int, contractor: String): Action[AnyContent] = authorisedAction.async { implicit request =>
 
     lazy val method = "submit"
-    val employerRef = decoded(contractor)
+    val employerRef = decode(contractor)
     val inYear: Boolean = inYearAction.inYear(taxYear)
 
     if (inYear) {
@@ -130,7 +130,7 @@ class DeductionPeriodController @Inject()(authorisedAction: AuthorisedAction,
         deductionPeriodService.submitDeductionPeriod(taxYear, employerRef, request.user, deductionPeriod.month).map {
           case Left(_) => defaultErrorPage
           case Right(_) =>
-            Redirect(LabourPayController.show(taxYear, deductionPeriod.month.toString, encoded(employerRef)))
+            Redirect(LabourPayController.show(taxYear, deductionPeriod.month.toString, encode(employerRef)))
         }
     )
   }

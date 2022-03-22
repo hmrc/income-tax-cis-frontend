@@ -24,7 +24,7 @@ import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.{DatabaseHelper, IntegrationTest}
-import utils.UrlUtils.encoded
+import utils.UrlUtils.encode
 import utils.ViewHelpers
 
 import java.net.URLEncoder
@@ -62,7 +62,7 @@ class DeductionPeriodControllerISpec extends IntegrationTest with ViewHelpers wi
       }
 
       result.status shouldBe SEE_OTHER
-      result.header(name = "location").get shouldBe LabourPayController.show(taxYearEOY, Month.JANUARY.toString, encoded(aCisDeductions.employerRef)).url
+      result.header(name = "location").get shouldBe LabourPayController.show(taxYearEOY, Month.JANUARY.toString, encode(aCisDeductions.employerRef)).url
       findCyaData(taxYearEOY, employerRef, aUser).get.cis.periodData.get.deductionPeriod shouldBe Month.JANUARY
     }
   }

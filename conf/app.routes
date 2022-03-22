@@ -16,6 +16,8 @@ GET        /timeout                                                             
 
 GET         /:taxYear/summary                                                       controllers.DeductionsSummaryController.show(taxYear: Int)
 
+GET         /:taxYear/contractor                                                    controllers.ContractorSummaryController.show(taxYear: Int, contractor: String)
+
 
 ###########################     Check your CIS deductions pages     ########################
 

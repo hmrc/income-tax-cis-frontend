@@ -25,6 +25,8 @@ import support.ViewUnitTest
 import support.builders.models.pages.ContractorCYAPageBuilder.aContractorCYAPage
 import utils.ViewUtils.translatedMonthAndTaxYear
 import views.html.ContractorCYAView
+import utils.UrlUtils.encode
+import controllers.routes.ContractorSummaryController
 
 class ContractorCYAViewSpec extends ViewUnitTest {
 
@@ -154,7 +156,8 @@ class ContractorCYAViewSpec extends ViewUnitTest {
           textOnPageCheck(text = "Yes", selector = Selectors.summaryListValue(rowId = 5))
           textOnPageCheck(userScenario.commonExpectedResults.expectedCostOfMaterials, selector = Selectors.summaryListLabel(rowId = 6))
           textOnPageCheck(text = "£300", selector = Selectors.summaryListValue(rowId = 6), additionalTestText = "Cost of materials ")
-          buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector)
+          buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector,
+            href = Some(ContractorSummaryController.show(taxYear, encode(aContractorCYAPage.employerRef)).url))
         }
 
         "without contractor name and None for other optional fields" which {
@@ -190,7 +193,7 @@ class ContractorCYAViewSpec extends ViewUnitTest {
           textOnPageCheck(text = "No", selector = Selectors.summaryListValue(rowId = 5))
           elementNotOnPageCheck(selector = Selectors.summaryListLabel(rowId = 6))
           elementNotOnPageCheck(selector = Selectors.summaryListValue(rowId = 6))
-          buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector)
+          buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector, href = Some(ContractorSummaryController.show(taxYear, encode(pageModel.employerRef)).url))
         }
       }
     }
