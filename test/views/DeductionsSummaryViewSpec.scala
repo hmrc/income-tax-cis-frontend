@@ -145,7 +145,7 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
         linkCheck(text = "Contractor-3", Selectors.contractorEmployerRef(rowId = 3),
           href = ContractorSummaryController.show(taxYear, contractor = encode("ref-3")).url , additionalTestText = "first column")
         textOnPageCheck(text = "", selector = Selectors.contractorDeductions(rowId = 3), additionalTestText = "second column")
-        buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector)
+        buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector, Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       }
     }
   }

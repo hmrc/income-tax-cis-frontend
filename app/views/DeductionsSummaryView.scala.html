@@ -70,7 +70,7 @@
     }
     </div>
 
-    @button(alternativeText = "common.return.overview.buttonText", attributes = Map("id" -> "return-to-overview-button-id"))
+    @button(href = Some(appConfig.incomeTaxSubmissionOverviewUrl(pageModel.taxYear)), alternativeText = "common.return.overview.buttonText", attributes = Map("id" -> "return-to-overview-button-id"))
 
     }
 }
