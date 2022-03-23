@@ -17,18 +17,18 @@
 package services
 
 import models._
-import models.mongo.{CisUserData, DataNotUpdatedError}
+import models.mongo.{CYAPeriodData, CisUserData, DataNotUpdatedError}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class LabourPayService @Inject()(cisSessionService: CISSessionService)
-                                (implicit ec: ExecutionContext) {
+class DeductionAmountService @Inject()(cisSessionService: CISSessionService)
+                                      (implicit ec: ExecutionContext) {
 
-  def saveLabourPay(user: User,
-                    cisUserData: CisUserData,
-                    amount: BigDecimal): Future[Either[ServiceError, Unit]] = {
-    val periodData = cisUserData.cis.periodData.map(_.copy(grossAmountPaid = Some(amount))).get
+  def saveDeductionAmount(user: User,
+                          cisUserData: CisUserData,
+                          amount: BigDecimal): Future[Either[ServiceError, Unit]] = {
+    val periodData: CYAPeriodData = cisUserData.cis.periodData.map(_.copy(deductionAmount = Some(amount))).get
     val updatedCYA = cisUserData.cis.copy(periodData = Some(periodData))
 
     cisSessionService

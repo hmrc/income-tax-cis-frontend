@@ -115,6 +115,18 @@ labourPayPage.error.wrongFormat.individual = Enter the amount you were paid for 
 labourPayPage.error.overMaximum.agent = The amount your client was paid for labour must be less than £100,000,000,000
 labourPayPage.error.overMaximum.individual = The amount you were paid for labour must be less than £100,000,000,000
 
+#################       Deduction Amount Page       #######################################
+deductionAmountPage.title = How much was taken by this contractor in CIS deductions?
+deductionAmountPage.heading.contractorName = How much was taken by {0} in CIS deductions?
+deductionAmountPage.p1.agent = Tell us the amount on your client’s {0} CIS statement.
+deductionAmountPage.p1.individual = Tell us the amount on your {0} CIS statement.
+deductionAmountPage.p1.replay = If {0} was not taken in CIS deductions, tell us the correct amount.
+deductionAmountPage.p2.replay.agent = You can find this on your client’s {0} CIS statement.
+deductionAmountPage.p2.replay.individual = You can find this on your {0} CIS statement.
+deductionAmountPage.error.noEntry = Enter the CIS deduction amount
+deductionAmountPage.error.wrongFormat = Enter the CIS deduction in the correct format
+deductionAmountPage.error.overMaximum = The CIS deduction must be less than £100,000,000,000
+
 #################       Contractor Details messages        ########################################
 
 contractor-details.name = Contractor name

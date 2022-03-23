@@ -28,4 +28,10 @@ class FormsProvider {
     wrongFormatKey = s"labourPayPage.error.wrongFormat.${if (isAgent) "agent" else "individual"}",
     exceedsMaxAmountKey = s"labourPayPage.error.overMaximum.${if (isAgent) "agent" else "individual"}"
   )
+
+  def deductionAmountForm(): Form[BigDecimal] = AmountForm.amountForm(
+    emptyFieldKey = s"deductionAmountPage.error.noEntry",
+    wrongFormatKey = s"deductionAmountPage.error.wrongFormat",
+    exceedsMaxAmountKey = s"deductionAmountPage.error.overMaximum"
+  )
 }

@@ -20,19 +20,19 @@ import models.mongo.CisUserData
 import models.{ServiceError, User}
 import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
-import services.LabourPayService
+import services.DeductionAmountService
 
 import scala.concurrent.Future
 
-trait MockLabourPayService extends MockFactory {
+trait MockDeductionAmountService extends MockFactory {
 
-  protected val mockLabourPayService: LabourPayService = mock[LabourPayService]
+  protected val mockDeductionAmountService: DeductionAmountService = mock[DeductionAmountService]
 
-  def mockSaveLabourPay(user: User,
-                        cisUserData: CisUserData,
-                        amount: BigDecimal,
-                        result: Either[ServiceError, Unit]): CallHandler3[User, CisUserData, BigDecimal, Future[Either[ServiceError, Unit]]] = {
-    (mockLabourPayService.saveLabourPay(_: User, _: CisUserData, _: BigDecimal))
+  def mockSaveDeductionAmount(user: User,
+                              cisUserData: CisUserData,
+                              amount: BigDecimal,
+                              result: Either[ServiceError, Unit]): CallHandler3[User, CisUserData, BigDecimal, Future[Either[ServiceError, Unit]]] = {
+    (mockDeductionAmountService.saveDeductionAmount(_: User, _: CisUserData, _: BigDecimal))
       .expects(user, cisUserData, amount)
       .returning(Future.successful(result))
   }

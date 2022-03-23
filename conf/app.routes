@@ -39,6 +39,12 @@ GET        /:taxYear/labour-pay                                                 
 POST       /:taxYear/labour-pay                                                     controllers.LabourPayController.submit(taxYear: Int, month: String, contractor: String)
 
 
+###########################     Deduction Amount pages           ########################
+
+GET        /:taxYear/deduction-amount                                               controllers.DeductionAmountController.show(taxYear: Int, month: String, contractor: String)
+POST       /:taxYear/deduction-amount                                               controllers.DeductionAmountController.submit(taxYear: Int, month: String, contractor: String)
+
+
 ###########################     Error pages     ####################################
 
 GET        /error/you-need-to-sign-up                                               controllers.errors.IndividualAuthErrorController.show

@@ -17,24 +17,35 @@
 package support.mocks
 
 import actions.ActionsProvider
-import config.MockAppConfig
+import models.UserSessionDataRequest
+import org.scalamock.handlers.CallHandler2
 import org.scalamock.scalatest.MockFactory
-import utils.InYearUtil
+import play.api.mvc._
+import support.builders.models.UserBuilder.aUser
+import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
 trait MockActionsProvider extends MockFactory
   with MockAuthorisedAction
   with MockCISSessionService
   with MockErrorHandler {
 
-  private val mockAppConfig = new MockAppConfig().config()
+  protected val mockActionsProvider: ActionsProvider = mock[ActionsProvider]
 
-  protected val mockActionsProvider = new ActionsProvider(
-    mockAuthorisedAction,
-    mockCISSessionService,
-    mockErrorHandler,
-    new InYearUtil,
-    mockAppConfig
-  )
+  def mockNotInYearWithSessionData(taxYear: Int,
+                                   employerRef: String): CallHandler2[Int, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+    val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+
+      override def invokeBlock[A](request: Request[A], block: UserSessionDataRequest[A] => Future[Result]): Future[Result] =
+        block(UserSessionDataRequest(aCisUserData.copy(employerRef = employerRef), aUser, request))
+
+      override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
+    }
+
+    (mockActionsProvider.notInYearWithSessionData(_: Int, _: String))
+      .expects(taxYear, employerRef)
+      .returns(value = actionBuilder)
+  }
 }

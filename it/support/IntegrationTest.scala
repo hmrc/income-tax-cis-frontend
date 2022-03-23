@@ -128,6 +128,7 @@ trait IntegrationTest extends AnyWordSpec
   override def beforeAll(): Unit = {
     super.beforeAll()
     startWiremock()
+    dropCISDB()
   }
 
   override def afterAll(): Unit = {

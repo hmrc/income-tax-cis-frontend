@@ -17,6 +17,7 @@
 package actions
 
 import config.{AppConfig, ErrorHandler}
+import controllers.routes.DeductionPeriodController
 import models.{AuthorisationRequest, UserSessionDataRequest}
 import play.api.mvc.Results.Redirect
 import play.api.mvc._
@@ -73,12 +74,11 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
       override protected def executionContext: ExecutionContext = ec
 
       override protected def refine[A](input: AuthorisationRequest[A]): Future[Either[Result, UserSessionDataRequest[A]]] = {
-        val employerRef = decode(contractor)
-
-        cisSessionService.getSessionData(taxYear, employerRef, input.user).map {
+        cisSessionService.getSessionData(taxYear, decode(contractor), input.user).map {
           case Left(_) => Left(errorHandler.internalServerError()(input))
           case Right(None) => Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-          case Right(Some(cisUserData)) => Right(UserSessionDataRequest(cisUserData, input.user, input.request))
+          case Right(Some(cisUserData)) if !cisUserData.hasPeriodData => Left(Redirect(DeductionPeriodController.show(taxYear, contractor)))
+          case Right(Some(cisUserData)) if cisUserData.hasPeriodData => Right(UserSessionDataRequest(cisUserData, input.user, input.request))
         }
       }
     }

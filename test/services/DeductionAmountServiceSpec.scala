@@ -25,29 +25,29 @@ import support.{TaxYearHelper, UnitTest}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class LabourPayServiceSpec extends UnitTest
+class DeductionAmountServiceSpec extends UnitTest
   with MockCISSessionService
   with TaxYearHelper {
 
-  private val underTest = new LabourPayService(mockCISSessionService)
+  private val underTest = new DeductionAmountService(mockCISSessionService)
 
-  ".saveLabourPay" should {
+  ".saveDeductionAmount" should {
     "return DataNotUpdatedError when cisSessionService.createOrUpdateCISUserData returns error" in {
-      val periodData: CYAPeriodData = aCYAPeriodData.copy(grossAmountPaid = Some(123))
+      val periodData: CYAPeriodData = aCYAPeriodData.copy(deductionAmount = Some(123))
       val updatedCYA = aCisUserData.cis.copy(periodData = Some(periodData))
 
       mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(aCisUserData))
 
-      await(underTest.saveLabourPay(aUser, aCisUserData, amount = 123)) shouldBe Left(DataNotUpdatedError)
+      await(underTest.saveDeductionAmount(aUser, aCisUserData, amount = 123)) shouldBe Left(DataNotUpdatedError)
     }
 
-    "persist cisUserData when CISSessionService.getSessionData returns CisUserData and PeriodData exists" in {
-      val periodData: CYAPeriodData = aCYAPeriodData.copy(grossAmountPaid = Some(123))
+    "persist cisUserData" in {
+      val periodData: CYAPeriodData = aCYAPeriodData.copy(deductionAmount = Some(123))
       val updatedCYA = aCisUserData.cis.copy(periodData = Some(periodData))
 
       mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Right(aCisUserData))
 
-      await(underTest.saveLabourPay(aUser, aCisUserData, amount = 123)) shouldBe Right(())
+      await(underTest.saveDeductionAmount(aUser, aCisUserData, amount = 123)) shouldBe Right(())
     }
   }
 }

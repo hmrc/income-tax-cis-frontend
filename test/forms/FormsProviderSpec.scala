@@ -98,4 +98,37 @@ class FormsProviderSpec extends UnitTest {
       }
     }
   }
+
+  ".deductionAmountForm" should {
+    "return a form that maps data when data is correct" in {
+      val anyBoolean = true
+      val formData = Map(AmountForm.amount -> amount)
+
+      underTest.deductionAmountForm().bind(formData).errors shouldBe Seq.empty
+    }
+
+    "return a form with error when key is wrong" in {
+      underTest.deductionAmountForm().bind(wrongKeyData).errors shouldBe
+        Seq(FormError(AmountForm.amount, Seq("deductionAmountPage.error.noEntry"), Seq()))
+    }
+
+    "return a form with error when data is empty" in {
+      underTest.deductionAmountForm().bind(Map.empty[String, String]).errors shouldBe
+        Seq(FormError(AmountForm.amount, Seq("deductionAmountPage.error.noEntry"), Seq()))
+    }
+
+    "return a form with error when data is wrongFormat" in {
+      val formData = Map(AmountForm.amount -> "123.45.6")
+
+      underTest.deductionAmountForm().bind(formData).errors shouldBe
+        Seq(FormError(AmountForm.amount, Seq("deductionAmountPage.error.wrongFormat"), Seq()))
+    }
+
+    "return a form with error when data is overMaximum" in {
+      val formData = Map(AmountForm.amount -> "100,000,000,000")
+
+      underTest.deductionAmountForm().bind(formData).errors shouldBe
+        Seq(FormError(AmountForm.amount, Seq("deductionAmountPage.error.overMaximum"), Seq()))
+    }
+  }
 }
