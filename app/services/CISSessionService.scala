@@ -75,7 +75,7 @@ class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
         prior.getCISDeductionsFor(employerRef) match {
           case Some(deductions) =>
 
-            val submissionId: Option[String] = deductions.findSubmissionId
+            val submissionId: Option[String] = deductions.submissionId
             val cya = deductions.toCYA
 
             createOrUpdateCISUserData(user, taxYear, employerRef, submissionId, true, cya).map {

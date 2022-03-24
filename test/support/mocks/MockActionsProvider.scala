@@ -17,8 +17,8 @@
 package support.mocks
 
 import actions.ActionsProvider
-import models.UserSessionDataRequest
-import org.scalamock.handlers.CallHandler2
+import models.{AuthorisationRequest, IncomeTaxUserData, UserPriorDataRequest, UserSessionDataRequest}
+import org.scalamock.handlers.{CallHandler1, CallHandler2, CallHandler3}
 import org.scalamock.scalatest.MockFactory
 import play.api.mvc._
 import support.builders.models.UserBuilder.aUser
@@ -32,6 +32,26 @@ trait MockActionsProvider extends MockFactory
   with MockErrorHandler {
 
   protected val mockActionsProvider: ActionsProvider = mock[ActionsProvider]
+
+  private def userPriorDataRequestActionBuilder(incomeTaxUserData: IncomeTaxUserData): ActionBuilder[UserPriorDataRequest, AnyContent] =
+    new ActionBuilder[UserPriorDataRequest, AnyContent] {
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+
+      override def invokeBlock[A](request: Request[A], block: UserPriorDataRequest[A] => Future[Result]): Future[Result] =
+        block(UserPriorDataRequest(incomeTaxUserData, aUser, request))
+
+      override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
+    }
+
+  private def authorisationRequestActionBuilder: ActionBuilder[AuthorisationRequest, AnyContent] =
+    new ActionBuilder[AuthorisationRequest, AnyContent] {
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+
+      override def invokeBlock[A](request: Request[A], block: AuthorisationRequest[A] => Future[Result]): Future[Result] =
+        block(AuthorisationRequest(aUser, request))
+
+      override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
+    }
 
   def mockNotInYearWithSessionData(taxYear: Int,
                                    employerRef: String): CallHandler2[Int, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
@@ -47,5 +67,37 @@ trait MockActionsProvider extends MockFactory
     (mockActionsProvider.notInYearWithSessionData(_: Int, _: String))
       .expects(taxYear, employerRef)
       .returns(value = actionBuilder)
+  }
+
+  def mockPriorDataWithInYearCisDeductions(taxYear: Int,
+                                           result: IncomeTaxUserData): CallHandler1[Int, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
+    (mockActionsProvider.priorDataWithInYearCisDeductions(_: Int))
+      .expects(taxYear)
+      .returns(value = userPriorDataRequestActionBuilder(result))
+  }
+
+  def mockInYearWithPreviousDataFor(taxYear: Int,
+                                    month: String,
+                                    contractor: String,
+                                    result: IncomeTaxUserData
+                                   ): CallHandler3[Int, String, String, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
+    (mockActionsProvider.inYearWithPreviousDataFor(_: Int, _: String, _: String))
+      .expects(taxYear, month, contractor)
+      .returns(value = userPriorDataRequestActionBuilder(result))
+  }
+
+  def mockInYearWithPreviousDataFor(taxYear: Int,
+                                    contractor: String,
+                                    result: IncomeTaxUserData
+                                   ): CallHandler2[Int, String, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
+    (mockActionsProvider.inYearWithPreviousDataFor(_: Int,  _: String))
+      .expects(taxYear, contractor)
+      .returns(value = userPriorDataRequestActionBuilder(result))
+  }
+
+  def mockNotInYear(taxYear: Int): CallHandler1[Int, ActionBuilder[AuthorisationRequest, AnyContent]] = {
+    (mockActionsProvider.notInYear(_: Int))
+      .expects(taxYear)
+      .returns(value = authorisationRequestActionBuilder)
   }
 }

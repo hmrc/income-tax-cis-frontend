@@ -44,7 +44,7 @@ class DeductionAmountControllerSpec extends ControllerUnitTest
 
   ".show" should {
     "return successful response" in {
-      mockNotInYearWithSessionData(taxYearEOY, "some-ref")
+      mockNotInYearWithSessionData(taxYearEOY, employerRef = "some-ref")
 
       val result = underTest.show(taxYearEOY, month = "may", contractor = "some-ref").apply(fakeIndividualRequest)
 

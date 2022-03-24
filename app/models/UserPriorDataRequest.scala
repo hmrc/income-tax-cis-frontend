@@ -16,19 +16,9 @@
 
 package models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.mvc.{Request, WrappedRequest}
 
-case class AllCISDeductions(customerCISDeductions: Option[CISSource],
-                            contractorCISDeductions: Option[CISSource]) {
-
-  val inYearCisDeductions: Seq[CisDeductions] = contractorCISDeductions
-    .map(_.cisDeductions)
-    .getOrElse(Seq.empty)
-
-  def inYearCisDeductionsWith(employerRef: String): Option[CisDeductions] =
-    inYearCisDeductions.find(_.employerRef == employerRef)
-}
-
-object AllCISDeductions {
-  implicit val format: OFormat[AllCISDeductions] = Json.format[AllCISDeductions]
-}
+case class UserPriorDataRequest[T](incomeTaxUserData: IncomeTaxUserData,
+                                   user: User,
+                                   request: Request[T]
+                                  ) extends WrappedRequest[T](request)

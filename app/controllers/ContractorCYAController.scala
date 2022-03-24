@@ -16,33 +16,33 @@
 
 package controllers
 
-import actions.AuthorisedAction
-import config.{AppConfig, ErrorHandler}
-import models.HttpParserError
+import actions.ActionsProvider
+import config.AppConfig
+import models.pages.ContractorCYAPage.mapToInYearPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.ContractorCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
-import utils.UrlUtils.decode
+import utils.{SessionHelper, UrlUtils}
 import views.html.ContractorCYAView
 
 import java.time.Month
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class ContractorCYAController @Inject()(authAction: AuthorisedAction,
-                                        pageView: ContractorCYAView,
-                                        contractorCYAService: ContractorCYAService,
-                                        errorHandler: ErrorHandler)
+class ContractorCYAController @Inject()(actionsProvider: ActionsProvider,
+                                        pageView: ContractorCYAView)
                                        (implicit mcc: MessagesControllerComponents, ec: ExecutionContext, appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
-  def show(taxYear: Int, month: String, contractor: String): Action[AnyContent] = authAction.async { implicit request =>
-    contractorCYAService.pageModelFor(taxYear, Month.valueOf(month.toUpperCase), decode(contractor), request.user).map {
-      case Left(HttpParserError(status)) => errorHandler.handleError(status)
-      case Left(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-      case Right(pageModel) => Ok(pageView(pageModel))
-    }
+  def show(taxYear: Int,
+           month: String,
+           contractor: String): Action[AnyContent] = actionsProvider.inYearWithPreviousDataFor(taxYear, month, contractor) { implicit request =>
+    val pageModel = mapToInYearPage(
+      taxYear,
+      request.incomeTaxUserData.inYearCisDeductionsWith(UrlUtils.decode(contractor)).get,
+      Month.valueOf(month.toUpperCase)
+    )
+
+    Ok(pageView(pageModel))
   }
 }

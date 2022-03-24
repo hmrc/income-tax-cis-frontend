@@ -16,31 +16,40 @@
 
 package controllers
 
-import actions.AuthorisedAction
-import config.{AppConfig, ErrorHandler}
-import models.HttpParserError
+import actions.ActionsProvider
+import config.AppConfig
+import models.UserPriorDataRequest
+import models.pages.DeductionsSummaryPage
+import models.pages.DeductionsSummaryPage.mapToInYearPage
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.DeductionsSummaryService
+import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
+import utils.{InYearUtil, SessionHelper}
 import views.html.DeductionsSummaryView
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class DeductionsSummaryController @Inject()(authAction: AuthorisedAction,
-                                            pageView: DeductionsSummaryView,
-                                            deductionsSummaryService: DeductionsSummaryService,
-                                            errorHandler: ErrorHandler)
+class DeductionsSummaryController @Inject()(actionsProvider: ActionsProvider,
+                                            inYearUtil: InYearUtil,
+                                            pageView: DeductionsSummaryView)
                                            (implicit val cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
-  def show(taxYear: Int): Action[AnyContent] = authAction.async { implicit request =>
-    deductionsSummaryService.pageModelFor(taxYear, request.user).map {
-      case Left(HttpParserError(status)) => errorHandler.handleError(status)
-      case Left(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-      case Right(pageModel) => Ok(pageView(pageModel))
+  private def getAction(taxYear: Int): ActionBuilder[UserPriorDataRequest, AnyContent] = {
+    if (!inYearUtil.inYear(taxYear)) {
+      actionsProvider.authAction.andThen(actionsProvider.incomeTaxUserDataAction(taxYear))
+    } else {
+      actionsProvider.priorDataWithInYearCisDeductions(taxYear)
+    }
+  }
+
+  def show(taxYear: Int): Action[AnyContent] = getAction(taxYear) { implicit request =>
+    if (!inYearUtil.inYear(taxYear)) {
+      val pageModel = DeductionsSummaryPage(taxYear = taxYear, isInYear = false, deductions = Seq.empty)
+      Ok(pageView(pageModel))
+    } else {
+      Ok(pageView(mapToInYearPage(taxYear, request.incomeTaxUserData)))
     }
   }
 }

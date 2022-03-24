@@ -17,32 +17,49 @@
 package actions
 
 import config.{AppConfig, ErrorHandler}
-import controllers.routes.DeductionPeriodController
-import models.{AuthorisationRequest, UserSessionDataRequest}
+import models._
 import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import services.CISSessionService
-import utils.InYearUtil
-import utils.UrlUtils.decode
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendHeaderCarrierProvider
+import utils.{InYearUtil, UrlUtils}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ActionsProvider @Inject()(authAction: AuthorisedAction,
+class ActionsProvider @Inject()(val authAction: AuthorisedAction,
                                 cisSessionService: CISSessionService,
                                 errorHandler: ErrorHandler,
                                 inYearUtil: InYearUtil,
                                 appConfig: AppConfig
-                               )(implicit ec: ExecutionContext) {
+                               )(implicit ec: ExecutionContext) extends FrontendHeaderCarrierProvider {
 
   def inYear(taxYear: Int): ActionBuilder[AuthorisationRequest, AnyContent] = authAction.andThen(inYearActionBuilder(taxYear))
 
   def notInYear(taxYear: Int): ActionBuilder[AuthorisationRequest, AnyContent] = authAction.andThen(notInYearActionBuilder(taxYear))
 
+  def inYearWithPreviousDataFor(taxYear: Int, month: String, contractor: String): ActionBuilder[UserPriorDataRequest, AnyContent] =
+    authAction
+      .andThen(inYearActionBuilder(taxYear))
+      .andThen(incomeTaxUserDataAction(taxYear))
+      .andThen(new HasInYearDeductionsForEmployerRefAndMonthActionFilter(taxYear, UrlUtils.decode(contractor), month, errorHandler, appConfig))
+
+  def inYearWithPreviousDataFor(taxYear: Int, contractor: String): ActionBuilder[UserPriorDataRequest, AnyContent] =
+    authAction
+      .andThen(inYearActionBuilder(taxYear))
+      .andThen(incomeTaxUserDataAction(taxYear))
+      .andThen(new HasInYearPeriodDataWithEmployerRefActionFilter(taxYear, UrlUtils.decode(contractor), appConfig))
+
+  def priorDataWithInYearCisDeductions(taxYear: Int): ActionBuilder[UserPriorDataRequest, AnyContent] =
+    authAction
+      .andThen(inYearActionBuilder(taxYear))
+      .andThen(incomeTaxUserDataAction(taxYear))
+      .andThen(new HasInYearCisDeductionsActionFilter(taxYear, appConfig))
+
   def notInYearWithSessionData(taxYear: Int, contractor: String): ActionBuilder[UserSessionDataRequest, AnyContent] =
     authAction
       .andThen(notInYearActionBuilder(taxYear))
-      .andThen(cisUserDataAction(taxYear, contractor))
+      .andThen(new CisUserDataActionRefiner(taxYear, UrlUtils.decode(contractor), cisSessionService, errorHandler, appConfig))
 
   private def notInYearActionBuilder(taxYear: Int): ActionFilter[AuthorisationRequest] = new ActionFilter[AuthorisationRequest] {
     override protected def executionContext: ExecutionContext = ec
@@ -68,19 +85,16 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
     }
   }
 
-  private def cisUserDataAction(taxYear: Int, contractor: String)
-                               (implicit ec: ExecutionContext): ActionRefiner[AuthorisationRequest, UserSessionDataRequest] = {
-    new ActionRefiner[AuthorisationRequest, UserSessionDataRequest] {
+  // TODO: (Hristo) Make private once DeductionsSummaryController is refactored to deal with in year and eoy
+  def incomeTaxUserDataAction(taxYear: Int): ActionRefiner[AuthorisationRequest, UserPriorDataRequest] =
+    new ActionRefiner[AuthorisationRequest, UserPriorDataRequest] {
       override protected def executionContext: ExecutionContext = ec
 
-      override protected def refine[A](input: AuthorisationRequest[A]): Future[Either[Result, UserSessionDataRequest[A]]] = {
-        cisSessionService.getSessionData(taxYear, decode(contractor), input.user).map {
-          case Left(_) => Left(errorHandler.internalServerError()(input))
-          case Right(None) => Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-          case Right(Some(cisUserData)) if !cisUserData.hasPeriodData => Left(Redirect(DeductionPeriodController.show(taxYear, contractor)))
-          case Right(Some(cisUserData)) if cisUserData.hasPeriodData => Right(UserSessionDataRequest(cisUserData, input.user, input.request))
+      override protected def refine[A](input: AuthorisationRequest[A]): Future[Either[Result, UserPriorDataRequest[A]]] = {
+        cisSessionService.getPriorData(input.user, taxYear)(hc(input.request)).map {
+          case Left(error) => Left(errorHandler.handleError(error.status)(input.request))
+          case Right(incomeTaxUserData) => Right(UserPriorDataRequest(incomeTaxUserData, input.user, input.request))
         }
       }
     }
-  }
 }

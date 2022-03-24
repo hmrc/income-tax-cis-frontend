@@ -32,17 +32,13 @@
   button: Button
 )
 
-@(pageModel: ContractorCYAPage)(implicit request: AuthorisationRequest[_], messages: Messages, appConfig: AppConfig)
+@(pageModel: ContractorCYAPage)(implicit request: UserPriorDataRequest[_], messages: Messages, appConfig: AppConfig)
 
 @titleText = @{messages(s"contractorCYAPage.title.${if(request.user.isAgent) "agent" else "individual"}")}
 
 @layout(pageTitle = titleText, taxYear = Some(pageModel.taxYear), isAgent = request.user.isAgent) {
 
     @heading(titleText, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
-
-@if(!pageModel.isInYear){
-    <h1>Note: Page not yet implemented</h1>
-} else {
 
     <p class="govuk-body">@messages(s"cis.deductionsInfo.p1.${if(request.user.isAgent) "agent" else "individual"}")</p>
 
@@ -72,8 +68,6 @@
     }
 
     @button(alternativeText = "contractorCYAPage.buttonText", attributes = Map("id" -> "return-to-contractor-button-id"), href = Some(ContractorSummaryController.show(pageModel.taxYear, encode(pageModel.employerRef)).url))
-}
-
 }
 
 @{
