@@ -19,7 +19,7 @@ package repositories
 import com.mongodb.client.model.ReturnDocument
 import com.mongodb.client.model.Updates.set
 import config.AppConfig
-import models.{AuthorisationRequest, User}
+import models.User
 import models.mongo._
 import org.joda.time.{DateTime, DateTimeZone}
 import org.mongodb.scala.MongoException
@@ -33,10 +33,12 @@ import uk.gov.hmrc.play.http.logging.Mdc
 import utils.PagerDutyHelper.PagerDutyKeys.{FAILED_TO_CREATE_UPDATE_CIS_DATA, FAILED_TO_ClEAR_CIS_DATA, FAILED_TO_FIND_CIS_DATA}
 import utils.PagerDutyHelper.{PagerDutyKeys, pagerDutyLog}
 import utils.SecureGCMCipher
-import javax.inject.Inject
+
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
+@Singleton
 class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppConfig)
                                          (implicit secureGCMCipher: SecureGCMCipher, ec: ExecutionContext) extends PlayMongoRepository[EncryptedCisUserData](
   mongoComponent = mongo,
