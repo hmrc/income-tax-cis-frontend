@@ -44,63 +44,36 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
     mockContractorDetailsService, mockErrorHandler, ec, appConfig)
 
   ".show" should {
-    "redirect to UnauthorisedUserErrorController when authentication fails" in {
-      mockFailToAuthenticate()
-
-      await(underTest.show(taxYear = taxYearEOY, None)(fakeIndividualRequest)) shouldBe
-        Redirect(UnauthorisedUserErrorController.show())
-    }
-
-    "redirect when in year" in {
-      mockAuthAsIndividual(Some(aUser.nino))
-      await(underTest.show(taxYear = taxYear, None)(fakeIndividualRequest)) shouldBe
-        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-    }
-
     "redirect when service returns left" in {
-      mockAuthAsIndividual(Some(aUser.nino))
+      mockNotInYear(taxYearEOY)
       mockCheckAccessContractorDetailsPage(taxYearEOY, aUser, Future(Left(CisUserIsPriorSubmission)))
       mockInternalError(InternalServerError)
       await(underTest.show(taxYear = taxYearEOY, Some("ERN"))(fakeIndividualRequest)) shouldBe InternalServerError
-
     }
 
     "Show view when service returns Right(None)" in {
-      mockAuthAsIndividual(Some(aUser.nino))
+      mockNotInYear(taxYearEOY)
       mockCheckAccessContractorDetailsPage(taxYearEOY, aUser, Future(Right(None)))
       await(underTest.show(taxYear = taxYearEOY, Some("ERN")).apply(fakeIndividualRequest)).header.status shouldBe Ok.header.status
     }
 
     "Show view when service returns Right(Some)" in {
-      mockAuthAsIndividual(Some(aUser.nino))
+      mockNotInYear(taxYearEOY)
       mockCheckAccessContractorDetailsPage(taxYearEOY, aUser, Future(Right(Some(aCisUserData))))
       await(underTest.show(taxYear = taxYearEOY, Some("ERN")).apply(fakeIndividualRequest)).header.status shouldBe Ok.header.status
     }
   }
 
   ".submit" should {
-    "redirect to UnauthorisedUserErrorController when authentication fails" in {
-      mockFailToAuthenticate()
-
-      await(underTest.submit(taxYear = taxYearEOY, contractor = None)(fakeIndividualRequest)) shouldBe
-        Redirect(UnauthorisedUserErrorController.show())
-    }
-
-    "redirect when in year" in {
-      mockAuthAsIndividual(Some(aUser.nino))
-      await(underTest.submit(taxYear = taxYear, contractor = None)(fakeIndividualRequest)) shouldBe
-        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-    }
-
     "return bad request when form is broken" in {
-      mockAuthAsIndividual(Some(aUser.nino))
+      mockNotInYear(taxYearEOY)
       await(underTest.submit(taxYear = taxYearEOY, contractor = None)(fakeIndividualRequest.withFormUrlEncodedBody("contractorName"-> "ABC Steelworks"))).header.status shouldBe
         BAD_REQUEST
     }
 
     "return ok when service returns left" in {
       val error = DataNotFoundError
-      mockAuthAsIndividual(Some(aUser.nino))
+      mockNotInYear(taxYearEOY)
       mockCreateOrUpdateContractorDetails(ContractorDetailsViewModel("ABC Steelworks", "123/AB12345"), taxYearEOY, aUser, Future(Left(error)))
       mockInternalError(InternalServerError)
       await(underTest.submit(taxYear = taxYearEOY, contractor = None)
@@ -109,7 +82,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
     }
 
     "return SEE_OTHER when service returns right" in {
-      mockAuthAsIndividual(Some(aUser.nino))
+      mockNotInYear(taxYearEOY)
       mockCreateOrUpdateContractorDetails(ContractorDetailsViewModel("ABC Steelworks", "123/AB12345"), taxYearEOY, aUser, Future(Right()))
 
       val result = await(underTest.submit(taxYear = taxYearEOY, contractor = None)(fakeIndividualRequest.withFormUrlEncodedBody("contractorName"-> "ABC Steelworks",  "employerReferenceNumber" -> "123/AB12345")))

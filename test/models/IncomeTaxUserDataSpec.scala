@@ -55,6 +55,32 @@ class IncomeTaxUserDataSpec extends UnitTest {
     }
   }
 
+  ".inYearCisDeductionsWith(empRef, month)" should {
+    "return in year CisDeductions with given reference and month if exists" in {
+      val mayPeriodData = aPeriodData.copy(deductionPeriod = Month.MAY)
+      val julyPeriodData = aPeriodData.copy(deductionPeriod = Month.JULY)
+      val cisDeductions1 = aCisDeductions.copy(contractorName = Some("contractor-1"))
+      val cisDeductions2 = aCisDeductions.copy(contractorName = Some("contractor-2"), employerRef = "ref-2", periodData = Seq(mayPeriodData, julyPeriodData))
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions1, cisDeductions2))))
+
+      val underTest = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
+
+      underTest.inYearCisDeductionsWith(employerRef = "ref-2", month = Month.JULY) shouldBe Some(cisDeductions2)
+    }
+
+    "return None when in year CisDeductions with given reference and month does not exist" in {
+      val mayPeriodData = aPeriodData.copy(deductionPeriod = Month.MAY)
+      val julyPeriodData = aPeriodData.copy(deductionPeriod = Month.JULY)
+      val cisDeductions1 = aCisDeductions.copy(contractorName = Some("contractor-1"), employerRef = "ref-1", periodData = Seq(julyPeriodData))
+      val cisDeductions2 = aCisDeductions.copy(contractorName = Some("contractor-2"), employerRef = "ref-2", periodData = Seq(mayPeriodData))
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions1, cisDeductions2))))
+
+      val underTest = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
+
+      underTest.inYearCisDeductionsWith(employerRef = "ref-2", month = Month.JULY) shouldBe None
+    }
+  }
+
   ".hasInYearCisDeductionsWith(...)" should {
     "return true when CisDeductions with employerRef exists" in {
       val cisDeductions = aCisDeductions.copy(employerRef = "some-ref")
@@ -69,44 +95,6 @@ class IncomeTaxUserDataSpec extends UnitTest {
       val underTest = anIncomeTaxUserData
 
       underTest.hasInYearCisDeductionsWith(employerRef = "unknown-ref") shouldBe false
-    }
-  }
-
-  ".inYearPeriodDataFor(...)" should {
-    "return in year PeriodData for given employer and month" in {
-      val periodData = aPeriodData.copy(deductionPeriod = Month.JUNE)
-      val cisDeductions1 = aCisDeductions.copy(contractorName = Some("contractor-1"))
-      val cisDeductions2 = aCisDeductions.copy(contractorName = Some("contractor-2"), employerRef = "ref-2", periodData = Seq(periodData))
-      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions1, cisDeductions2))))
-
-      val underTest = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
-
-      underTest.inYearPeriodDataFor(employerRef = "ref-2", Month.JUNE) shouldBe Some(periodData)
-    }
-
-    "return empty in year PeriodData for given employer and month if it does not exist" in {
-      val underTest = anIncomeTaxUserData
-
-      underTest.inYearPeriodDataFor(employerRef = "unknown-reference", Month.JUNE) shouldBe None
-    }
-  }
-
-  ".hasInYearPeriodDataFor" should {
-    "return true when in year PeriodData for given employer and month exists" in {
-      val periodData = aPeriodData.copy(deductionPeriod = Month.JUNE)
-      val cisDeductions1 = aCisDeductions.copy(contractorName = Some("contractor-1"))
-      val cisDeductions2 = aCisDeductions.copy(contractorName = Some("contractor-2"), employerRef = "ref-2", periodData = Seq(periodData))
-      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions1, cisDeductions2))))
-
-      val underTest = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
-
-      underTest.hasInYearPeriodDataFor(employerRef = "ref-2", Month.JUNE) shouldBe true
-    }
-
-    "return false when in year PeriodData for given employer and month does not exist" in {
-      val underTest = anIncomeTaxUserData
-
-      underTest.hasInYearPeriodDataFor(employerRef = "unknown-reference", Month.JUNE) shouldBe false
     }
   }
 

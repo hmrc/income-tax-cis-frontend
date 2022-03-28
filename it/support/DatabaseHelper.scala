@@ -18,6 +18,7 @@ package support
 
 import models.User
 import models.mongo.CisUserData
+import org.mongodb.scala.Document
 import repositories.CisUserDataRepositoryImpl
 
 trait DatabaseHelper {
@@ -26,7 +27,7 @@ trait DatabaseHelper {
   lazy val cisDatabase: CisUserDataRepositoryImpl = app.injector.instanceOf[CisUserDataRepositoryImpl]
 
   def dropCISDB(): Unit = {
-    await(cisDatabase.collection.drop().toFutureOption())
+    await(cisDatabase.collection.deleteMany(filter = Document()).toFuture())
     await(cisDatabase.ensureIndexes)
   }
 

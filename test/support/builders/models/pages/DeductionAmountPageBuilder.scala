@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package utils
+package support.builders.models.pages
 
-import akka.util.ByteString.UTF_8
+import forms.FormsProvider
+import models.pages.DeductionAmountPage
+import support.TaxYearHelper
 
-import java.net.{URLDecoder, URLEncoder}
+import java.time.Month
 
+object DeductionAmountPageBuilder extends TaxYearHelper {
 
-object UrlUtils {
-
-  def decode(value: String): String = URLDecoder.decode(value, UTF_8)
-
-  def encode(value: String): String = URLEncoder.encode(value, UTF_8)
+  val aDeductionAmountPage: DeductionAmountPage = DeductionAmountPage(
+    taxYear = taxYearEOY,
+    month = Month.MAY,
+    contractorName = Some("default-contractor"),
+    employerRef = "default-employer-ref",
+    form = new FormsProvider().deductionAmountForm(),
+    originalAmount = None
+  )
 }

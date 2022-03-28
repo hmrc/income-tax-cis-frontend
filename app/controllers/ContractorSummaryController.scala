@@ -16,40 +16,31 @@
 
 package controllers
 
-import actions.AuthorisedAction
-import config.{AppConfig, ErrorHandler}
-import models.HttpParserError
+import actions.ActionsProvider
+import config.AppConfig
+import models.pages.ContractorSummaryPage.mapToInYearPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.ContractorSummaryService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import utils.SessionHelper
 import utils.UrlUtils._
-import utils.{InYearUtil, SessionHelper}
 import views.html.ContractorSummaryView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
-class ContractorSummaryController @Inject()(authorisedAction: AuthorisedAction,
-                                            val contractorSummaryService: ContractorSummaryService,
-                                            errorHandler: ErrorHandler,
-                                            inYearAction: InYearUtil,
-                                            view: ContractorSummaryView)
+class ContractorSummaryController @Inject()(actionsProvider: ActionsProvider,
+                                            pageView: ContractorSummaryView)
                                            (implicit mcc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
-  def show(taxYear: Int, contractor: String): Action[AnyContent] = authorisedAction.async { implicit request =>
-    val employerRef: String = decode(contractor)
+  def show(taxYear: Int,
+           contractor: String): Action[AnyContent] = actionsProvider.inYearWithPreviousDataFor(taxYear, contractor) { implicit request =>
+    val pageModel = mapToInYearPage(
+      taxYear,
+      request.incomeTaxUserData.inYearCisDeductionsWith(decode(contractor)).get
+    )
 
-    if (inYearAction.inYear(taxYear)) {
-      contractorSummaryService.pageModelFor(taxYear, request.user, employerRef).map {
-        case Left(HttpParserError(status)) => errorHandler.handleError(status)
-        case Left(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-        case Right(pageModel) => Ok(view(pageModel))
-      }
-    } else {
-      Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-    }
+    Ok(pageView(pageModel))
   }
-
 }

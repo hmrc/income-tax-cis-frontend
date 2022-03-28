@@ -16,17 +16,17 @@
 
 package views
 
-import models.AuthorisationRequest
+import controllers.routes.ContractorSummaryController
+import models.UserPriorDataRequest
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import support.ViewUnitTest
 import support.builders.models.pages.ContractorCYAPageBuilder.aContractorCYAPage
+import utils.UrlUtils.encode
 import utils.ViewUtils.translatedMonthAndTaxYear
 import views.html.ContractorCYAView
-import utils.UrlUtils.encode
-import controllers.routes.ContractorSummaryController
 
 class ContractorCYAViewSpec extends ViewUnitTest {
 
@@ -131,7 +131,7 @@ class ContractorCYAViewSpec extends ViewUnitTest {
     s"language is ${welshTest(userScenario.isWelsh)} and request is from an ${agentTest(userScenario.isAgent)}" should {
       "render in year version of Check your CIS deductions page" which {
         "full model" which {
-          implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(userScenario.isAgent)
+          implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
           implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
           implicit val document: Document = Jsoup.parse(underTest(aContractorCYAPage).body)
@@ -161,7 +161,7 @@ class ContractorCYAViewSpec extends ViewUnitTest {
         }
 
         "without contractor name and None for other optional fields" which {
-          implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(userScenario.isAgent)
+          implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
           implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
           val pageModel = aContractorCYAPage.copy(

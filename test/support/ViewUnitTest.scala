@@ -17,11 +17,12 @@
 package support
 
 import config.{AppConfig, MockAppConfig}
-import models.{AuthorisationRequest, UserSessionDataRequest}
+import models.{AuthorisationRequest, UserPriorDataRequest, UserSessionDataRequest}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.mvc.AnyContent
 import play.api.test.{FakeRequest, Injecting}
+import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.ViewHelper
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
@@ -55,5 +56,12 @@ trait ViewUnitTest extends UnitTest
       UserSessionDataRequest(aCisUserData, agentUserRequest.user, agentUserRequest.request)
     } else {
       UserSessionDataRequest(aCisUserData, individualUserRequest.user, individualUserRequest.request)
+    }
+
+  protected def getUserPriorDataRequest(isAgent: Boolean): UserPriorDataRequest[AnyContent] =
+    if (isAgent) {
+      UserPriorDataRequest(anIncomeTaxUserData, agentUserRequest.user, agentUserRequest.request)
+    } else {
+      UserPriorDataRequest(anIncomeTaxUserData, individualUserRequest.user, individualUserRequest.request)
     }
 }

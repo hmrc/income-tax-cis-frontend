@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package utils
+package models
 
-import akka.util.ByteString.UTF_8
+import play.api.mvc.{Request, WrappedRequest}
 
-import java.net.{URLDecoder, URLEncoder}
-
-
-object UrlUtils {
-
-  def decode(value: String): String = URLDecoder.decode(value, UTF_8)
-
-  def encode(value: String): String = URLEncoder.encode(value, UTF_8)
-}
+case class UserPriorDataRequest[T](incomeTaxUserData: IncomeTaxUserData,
+                                   user: User,
+                                   request: Request[T]
+                                  ) extends WrappedRequest[T](request)

@@ -32,7 +32,7 @@
     button: Button
 )
 
-@(pageModel: DeductionsSummaryPage)(implicit request: AuthorisationRequest[_], messages: Messages, appConfig: AppConfig)
+@(pageModel: DeductionsSummaryPage)(implicit request: UserPriorDataRequest[_], messages: Messages, appConfig: AppConfig)
 
 @title = @{messages("deductionsSummary.title")}
 

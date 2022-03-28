@@ -33,7 +33,7 @@
     link: Link,
     button: Button
 )
-@(pageModel: ContractorSummaryPage)(implicit request: AuthorisationRequest[_], messages: Messages, appConfig: AppConfig)
+@(pageModel: ContractorSummaryPage)(implicit request: UserPriorDataRequest[_], messages: Messages, appConfig: AppConfig)
 
 @titleText = @{ messages("contractorSummary.title") }
 

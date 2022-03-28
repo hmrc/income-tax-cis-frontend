@@ -17,7 +17,6 @@
 package controllers
 
 import akka.util.ByteString.UTF_8
-import controllers.routes.DeductionAmountController
 import forms.AmountForm
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
@@ -33,8 +32,10 @@ import utils.ViewHelpers
 
 import java.net.URLEncoder.encode
 
-class LabourPayControllerISpec extends IntegrationTest
+class DeductionAmountControllerISpec extends IntegrationTest
   with ViewHelpers with BeforeAndAfterEach {
+
+  override val userScenarios: Seq[UserScenario[_, _]] = Seq.empty
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
@@ -43,10 +44,8 @@ class LabourPayControllerISpec extends IntegrationTest
 
   private def url(taxYear: Int, month: String, employerRef: String): String = {
     val contractor = encode(employerRef, UTF_8)
-    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/labour-pay?month=$month&contractor=$contractor"
+    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/deduction-amount?month=$month&contractor=$contractor"
   }
-
-  override val userScenarios: Seq[UserScenario[_, _]] = Seq.empty
 
   ".show" should {
     "redirect to income tax submission overview when in year" in {
@@ -87,7 +86,7 @@ class LabourPayControllerISpec extends IntegrationTest
       result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
     }
 
-    "persist labour amount and redirect to next page" in {
+    "persist deduction amount and redirect to next page" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aCisUserData.nino, taxYearEOY)
@@ -97,8 +96,8 @@ class LabourPayControllerISpec extends IntegrationTest
       }
 
       result.status shouldBe SEE_OTHER
-      result.headers("Location").head shouldBe DeductionAmountController.show(taxYearEOY, aPeriodData.deductionPeriod.toString, aCisDeductions.employerRef).url
-      findCyaData(taxYearEOY, aCisDeductions.employerRef, aUser).get.cis.periodData.get.grossAmountPaid shouldBe Some(123.23)
+      result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
+      findCyaData(taxYearEOY, aCisDeductions.employerRef, aUser).get.cis.periodData.get.deductionAmount shouldBe Some(123.23)
     }
   }
 }

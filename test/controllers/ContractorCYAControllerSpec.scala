@@ -16,61 +16,34 @@
 
 package controllers
 
-import controllers.errors.routes.UnauthorisedUserErrorController
-import models.{EmployerRefNotFoundError, HttpParserError}
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
-import play.api.mvc.Results.{InternalServerError, Redirect}
+import play.api.http.Status.OK
 import play.api.test.Helpers.{contentType, status}
 import support.ControllerUnitTest
-import support.builders.models.UserBuilder.aUser
-import support.builders.models.pages.ContractorCYAPageBuilder.aContractorCYAPage
-import support.mocks.{MockAuthorisedAction, MockContractorCYAService, MockErrorHandler}
+import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
+import support.builders.models.CISSourceBuilder.aCISSource
+import support.builders.models.CisDeductionsBuilder.aCisDeductions
+import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
+import support.builders.models.PeriodDataBuilder.aPeriodData
+import support.mocks.MockActionsProvider
 import views.html.ContractorCYAView
 
 import java.time.Month
 
 class ContractorCYAControllerSpec extends ControllerUnitTest
-  with MockAuthorisedAction
-  with MockContractorCYAService
-  with MockErrorHandler {
+  with MockActionsProvider {
 
   private val pageView = inject[ContractorCYAView]
 
-  private val underTest = new ContractorCYAController(
-    mockAuthorisedAction,
-    pageView,
-    mockContractorCYAService,
-    mockErrorHandler
-  )
+  private val underTest = new ContractorCYAController(mockActionsProvider, pageView)
 
   ".show" should {
-    "redirect to UnauthorisedUserErrorController when authentication fails" in {
-      mockFailToAuthenticate()
-
-      await(underTest.show(taxYear = taxYearEOY, Month.MAY.toString, contractor = "some-ref")(fakeIndividualRequest)) shouldBe
-        Redirect(UnauthorisedUserErrorController.show())
-    }
-
-    "return INTERNAL_SERVER_ERROR when contractorCYAService returns HttpParserError" in {
-      mockAuthAsIndividual(Some(aUser.nino))
-      mockPageModelFor(taxYear, Month.MAY, refNumber = "some-ref", aUser, Left(HttpParserError(500)))
-      mockHandleError(INTERNAL_SERVER_ERROR, InternalServerError)
-
-      await(underTest.show(taxYear, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest)) shouldBe InternalServerError
-    }
-
-    "redirect to Income Tax Submission Overview when contractorCYAService returns error different than HttpParserError" in {
-      mockAuthAsIndividual(Some(aUser.nino))
-      mockPageModelFor(taxYear, Month.MAY, refNumber = "some-ref", aUser, result = Left(EmployerRefNotFoundError))
-
-      await(underTest.show(taxYear, Month.MAY.toString, "some-ref").apply(fakeIndividualRequest)) shouldBe Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-    }
-
     "return successful response" in {
-      mockAuthAsIndividual(Some(aUser.nino))
-      mockPageModelFor(taxYear, Month.MAY, refNumber = "12345", aUser, result = Right(aContractorCYAPage))
+      val cisDeductions = aCisDeductions.copy(employerRef = "12345", periodData = Seq(aPeriodData.copy(deductionPeriod = Month.MAY)))
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions))))
 
-      val result = underTest.show(taxYear, Month.MAY.toString, contractor = "12345").apply(fakeIndividualRequest)
+      mockInYearWithPreviousDataFor(taxYear, month = "may", contractor = "12345", anIncomeTaxUserData.copy(cis = Some(allCISDeductions)))
+
+      val result = underTest.show(taxYear, Month.MAY.toString.toLowerCase, contractor = "12345").apply(fakeIndividualRequest)
 
       status(result) shouldBe OK
       contentType(result) shouldBe Some("text/html")

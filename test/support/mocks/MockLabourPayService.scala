@@ -16,8 +16,9 @@
 
 package support.mocks
 
+import models.mongo.CisUserData
 import models.{ServiceError, User}
-import org.scalamock.handlers.CallHandler4
+import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
 import services.LabourPayService
 
@@ -27,13 +28,12 @@ trait MockLabourPayService extends MockFactory {
 
   protected val mockLabourPayService: LabourPayService = mock[LabourPayService]
 
-  def mockSaveLabourPay(taxYear: Int,
-                        employerRef: String,
-                        user: User,
+  def mockSaveLabourPay(user: User,
+                        cisUserData: CisUserData,
                         amount: BigDecimal,
-                        result: Either[ServiceError, Unit]): CallHandler4[Int, String, User, BigDecimal, Future[Either[ServiceError, Unit]]] = {
-    (mockLabourPayService.saveLabourPay(_: Int, _: String, _: User, _: BigDecimal))
-      .expects(taxYear, employerRef, user, amount)
+                        result: Either[ServiceError, Unit]): CallHandler3[User, CisUserData, BigDecimal, Future[Either[ServiceError, Unit]]] = {
+    (mockLabourPayService.saveLabourPay(_: User, _: CisUserData, _: BigDecimal))
+      .expects(user, cisUserData, amount)
       .returning(Future.successful(result))
   }
 }

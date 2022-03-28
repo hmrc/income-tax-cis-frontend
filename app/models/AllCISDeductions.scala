@@ -21,9 +21,12 @@ import play.api.libs.json.{Json, OFormat}
 case class AllCISDeductions(customerCISDeductions: Option[CISSource],
                             contractorCISDeductions: Option[CISSource]) {
 
-  def inYearCisDeductions: Seq[CisDeductions] = contractorCISDeductions
+  val inYearCisDeductions: Seq[CisDeductions] = contractorCISDeductions
     .map(_.cisDeductions)
     .getOrElse(Seq.empty)
+
+  def inYearCisDeductionsWith(employerRef: String): Option[CisDeductions] =
+    inYearCisDeductions.find(_.employerRef == employerRef)
 }
 
 object AllCISDeductions {

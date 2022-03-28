@@ -16,57 +16,25 @@
 
 package controllers
 
-import controllers.errors.routes.UnauthorisedUserErrorController
-import models.{EmptyPriorCisDataError, HttpParserError}
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
-import play.api.mvc.Results.{InternalServerError, Redirect}
+import play.api.http.Status.OK
 import play.api.test.Helpers.{contentType, status}
 import support.ControllerUnitTest
-import support.builders.models.UserBuilder.aUser
-import support.builders.models.pages.DeductionsSummaryPageBuilder.aDeductionsSummaryPage
-import support.mocks.{MockAuthorisedAction, MockDeductionsSummaryService, MockErrorHandler}
+import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
+import support.mocks.{MockActionsProvider, MockErrorHandler}
+import utils.InYearUtil
 import views.html.DeductionsSummaryView
 
 class DeductionsSummaryControllerSpec extends ControllerUnitTest
-  with MockAuthorisedAction
-  with MockDeductionsSummaryService
+  with MockActionsProvider
   with MockErrorHandler {
 
   private val pageView = inject[DeductionsSummaryView]
 
-  private val underTest = new DeductionsSummaryController(
-    mockAuthorisedAction,
-    pageView,
-    mockDeductionsSummaryService,
-    mockErrorHandler
-  )
+  private val underTest = new DeductionsSummaryController(mockActionsProvider, new InYearUtil(), pageView)
 
   ".show" should {
-    "redirect to UnauthorisedUserErrorController when authentication fails" in {
-      mockFailToAuthenticate()
-
-      await(underTest.show(taxYear = taxYearEOY)(fakeIndividualRequest)) shouldBe
-        Redirect(UnauthorisedUserErrorController.show())
-    }
-
-    "return INTERNAL_SERVER_ERROR when deductionsSummaryService returns HttpParserError" in {
-      mockAuthAsIndividual(Some(aUser.nino))
-      mockPageModelFor(taxYear, aUser, Left(HttpParserError(500)))
-      mockHandleError(INTERNAL_SERVER_ERROR, InternalServerError)
-
-      await(underTest.show(taxYear).apply(fakeIndividualRequest)) shouldBe InternalServerError
-    }
-
-    "redirect to Income Tax Submission Overview when deductionsSummaryService returns error different than HttpParserError" in {
-      mockAuthAsIndividual(Some(aUser.nino))
-      mockPageModelFor(taxYear, aUser, Left(EmptyPriorCisDataError))
-
-      await(underTest.show(taxYear).apply(fakeIndividualRequest)) shouldBe Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-    }
-
-    "return successful response" in {
-      mockAuthAsIndividual(Some(aUser.nino))
-      mockPageModelFor(taxYear, aUser, Right(aDeductionsSummaryPage))
+    "return successful response when in year" in {
+      mockPriorDataWithInYearCisDeductions(taxYear, anIncomeTaxUserData)
 
       val result = underTest.show(taxYear).apply(fakeIndividualRequest)
 

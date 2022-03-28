@@ -18,48 +18,43 @@ package controllers
 
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
-import controllers.routes.DeductionAmountController
 import forms.FormsProvider
 import models.mongo.DatabaseError
-import models.pages.LabourPayPage
+import models.pages.DeductionAmountPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.LabourPayService
+import services.DeductionAmountService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
-import views.html.LabourPayView
+import views.html.DeductionAmountView
 
 import java.time.Month
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class LabourPayController @Inject()(actionsProvider: ActionsProvider,
-                                    formsProvider: FormsProvider,
-                                    pageView: LabourPayView,
-                                    labourPayService: LabourPayService,
-                                    errorHandler: ErrorHandler)
-                                   (implicit val cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
+class DeductionAmountController @Inject()(actionsProvider: ActionsProvider,
+                                          formsProvider: FormsProvider,
+                                          pageView: DeductionAmountView,
+                                          deductionAmountService: DeductionAmountService,
+                                          errorHandler: ErrorHandler)
+                                         (implicit val cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int,
            month: String,
            contractor: String): Action[AnyContent] = actionsProvider.notInYearWithSessionData(taxYear, contractor) { implicit request =>
-    val monthValue = Month.valueOf(month.toUpperCase)
-    val form = formsProvider.labourPayAmountForm(request.user.isAgent)
-
-    Ok(pageView(LabourPayPage(monthValue, request.cisUserData, form)))
+    Ok(pageView(DeductionAmountPage(Month.valueOf(month.toUpperCase), request.cisUserData, formsProvider.deductionAmountForm())))
   }
 
   def submit(taxYear: Int,
              month: String,
              contractor: String): Action[AnyContent] = actionsProvider.notInYearWithSessionData(taxYear, contractor).async { implicit request =>
-    val monthValue = Month.valueOf(month.toUpperCase)
-
-    formsProvider.labourPayAmountForm(request.user.isAgent).bindFromRequest().fold(
-      formWithErrors => Future.successful(BadRequest(pageView(LabourPayPage(monthValue, request.cisUserData, formWithErrors)))),
-      amount => labourPayService.saveLabourPay(request.user, request.cisUserData, amount).map {
+    formsProvider.deductionAmountForm().bindFromRequest().fold(
+      formWithErrors => Future.successful(BadRequest(pageView(DeductionAmountPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
+      amount => deductionAmountService.saveDeductionAmount(request.user, request.cisUserData, amount).map {
         case Left(_: DatabaseError) => errorHandler.internalServerError()
-        case Right(_) => Redirect(DeductionAmountController.show(taxYear, month, contractor))
+        // TODO: The following should be updated to redirect to the next page
+        case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       }
     )
   }

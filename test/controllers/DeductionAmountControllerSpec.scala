@@ -16,7 +16,6 @@
 
 package controllers
 
-import controllers.routes.DeductionAmountController
 import forms.FormsProvider
 import models.mongo.DataNotFoundError
 import org.jsoup.Jsoup
@@ -26,26 +25,26 @@ import play.api.test.Helpers.{contentAsString, contentType, status}
 import support.ControllerUnitTest
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.mocks.{MockActionsProvider, MockLabourPayService}
-import views.html.LabourPayView
+import support.mocks.{MockActionsProvider, MockDeductionAmountService}
+import views.html.DeductionAmountView
 
 import java.time.Month
 
-class LabourPayControllerSpec extends ControllerUnitTest
+class DeductionAmountControllerSpec extends ControllerUnitTest
   with MockActionsProvider
-  with MockLabourPayService {
+  with MockDeductionAmountService {
 
-  private val underTest = new LabourPayController(
+  private val underTest = new DeductionAmountController(
     mockActionsProvider,
     new FormsProvider(),
-    inject[LabourPayView],
-    mockLabourPayService,
+    inject[DeductionAmountView],
+    mockDeductionAmountService,
     mockErrorHandler
   )
 
   ".show" should {
     "return successful response" in {
-      mockNotInYearWithSessionData(taxYearEOY, "some-ref")
+      mockNotInYearWithSessionData(taxYearEOY, employerRef = "some-ref")
 
       val result = underTest.show(taxYearEOY, month = "may", contractor = "some-ref").apply(fakeIndividualRequest)
 
@@ -68,20 +67,20 @@ class LabourPayControllerSpec extends ControllerUnitTest
 
     "handle internal server error when save operation fails with database error" in {
       mockNotInYearWithSessionData(taxYearEOY, aCisUserData.employerRef)
-      mockSaveLabourPay(aUser, aCisUserData, amount = 123, result = Left(DataNotFoundError))
+      mockSaveDeductionAmount(aUser, aCisUserData, amount = 123, result = Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
-      val result = underTest.submit(taxYearEOY, Month.MAY.toString, aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody("amount" -> "123"))
+      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody("amount" -> "123"))
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
-    "redirect to Deductions amount page on successful submission" in {
-      mockNotInYearWithSessionData(taxYearEOY, aCisUserData.employerRef)
-      mockSaveLabourPay(aUser, aCisUserData, amount = 123, result = Right(()))
+    "redirect to Income Tax Submission Overview Page on successful submission" in {
+      mockNotInYearWithSessionData(taxYearEOY, employerRef = aCisUserData.employerRef)
+      mockSaveDeductionAmount(aUser, aCisUserData, amount = 123, result = Right(()))
 
-      await(underTest.submit(taxYearEOY, Month.MAY.toString, aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody("amount" -> "123"))) shouldBe
-        Redirect(DeductionAmountController.show(taxYearEOY, Month.MAY.toString, aCisUserData.employerRef))
+      await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody("amount" -> "123"))) shouldBe
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY))
     }
   }
 }

@@ -18,7 +18,7 @@ package controllers
 
 import akka.util.ByteString.UTF_8
 import play.api.http.HeaderNames
-import play.api.http.Status.{OK, SEE_OTHER}
+import play.api.http.Status.OK
 import play.api.libs.ws.WSResponse
 import support.IntegrationTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
@@ -38,26 +38,14 @@ class ContractorSummaryControllerISpec extends IntegrationTest with ViewHelpers 
   }
 
   ".show" should {
-
     "render the contractor summary page for in year" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYear)
-        urlGet(fullUrl(url(taxYear, aCisDeductions.employerRef)), headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+        urlGet(fullUrl(url(taxYear, employerRef = aCisDeductions.employerRef)), headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
       }
 
       result.status shouldBe OK
-    }
-
-    "redirect to the overview page when the tax year is end of year" in {
-      lazy val result: WSResponse = {
-        authoriseAgentOrIndividual(isAgent = false)
-        userDataStub(anIncomeTaxUserData, aUser.nino, taxYear - 1)
-        urlGet(fullUrl(url(taxYear - 1, aCisDeductions.employerRef)), follow = false, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear - 1)))
-      }
-
-      result.status shouldBe SEE_OTHER
-      result.header(HeaderNames.LOCATION).contains(appConfig.incomeTaxSubmissionOverviewUrl(taxYear - 1)) shouldBe true
     }
   }
 }

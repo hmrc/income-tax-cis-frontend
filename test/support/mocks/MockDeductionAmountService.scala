@@ -16,25 +16,24 @@
 
 package support.mocks
 
-import models.pages.DeductionsSummaryPage
+import models.mongo.CisUserData
 import models.{ServiceError, User}
 import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
-import services.DeductionsSummaryService
-import uk.gov.hmrc.http.HeaderCarrier
+import services.DeductionAmountService
 
 import scala.concurrent.Future
 
-trait MockDeductionsSummaryService extends MockFactory {
+trait MockDeductionAmountService extends MockFactory {
 
-  protected val mockDeductionsSummaryService: DeductionsSummaryService = mock[DeductionsSummaryService]
+  protected val mockDeductionAmountService: DeductionAmountService = mock[DeductionAmountService]
 
-  def mockPageModelFor(taxYear: Int,
-                       user: User,
-                       result: Either[ServiceError, DeductionsSummaryPage]
-                      ): CallHandler3[Int, User, HeaderCarrier, Future[Either[ServiceError, DeductionsSummaryPage]]] = {
-    (mockDeductionsSummaryService.pageModelFor(_: Int, _: User)(_: HeaderCarrier))
-      .expects(taxYear, user, *)
-      .returns(Future.successful(result))
+  def mockSaveDeductionAmount(user: User,
+                              cisUserData: CisUserData,
+                              amount: BigDecimal,
+                              result: Either[ServiceError, Unit]): CallHandler3[User, CisUserData, BigDecimal, Future[Either[ServiceError, Unit]]] = {
+    (mockDeductionAmountService.saveDeductionAmount(_: User, _: CisUserData, _: BigDecimal))
+      .expects(user, cisUserData, amount)
+      .returning(Future.successful(result))
   }
 }

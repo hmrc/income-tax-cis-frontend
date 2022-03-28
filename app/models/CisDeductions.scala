@@ -19,6 +19,8 @@ package models
 import models.mongo.{CYAPeriodData, CisCYAModel}
 import play.api.libs.json.{Json, OFormat}
 
+import java.time.Month
+
 case class CisDeductions(fromDate: String,
                          toDate: String,
                          contractorName: Option[String],
@@ -28,21 +30,21 @@ case class CisDeductions(fromDate: String,
                          totalGrossAmountPaid: Option[BigDecimal],
                          periodData: Seq[PeriodData]) {
 
-  def findSubmissionId: Option[String] = {
+  val submissionId: Option[String] =
     periodData.find(_.submissionId.isDefined).flatMap(_.submissionId)
-  }
+
+  def periodDataFor(month: Month): Option[PeriodData] =
+    periodData.find(_.deductionPeriod == month)
 
   def toCYA: CisCYAModel = {
-
-    val periods: Seq[CYAPeriodData] = periodData.map {
-      period =>
-        CYAPeriodData(
-          period.deductionPeriod,
-          grossAmountPaid = period.grossAmountPaid,
-          deductionAmount = period.deductionAmount,
-          costOfMaterialsQuestion = Some(period.costOfMaterials.isDefined),
-          costOfMaterials = period.costOfMaterials
-        )
+    val periods = periodData.map { period =>
+      CYAPeriodData(
+        period.deductionPeriod,
+        grossAmountPaid = period.grossAmountPaid,
+        deductionAmount = period.deductionAmount,
+        costOfMaterialsQuestion = Some(period.costOfMaterials.isDefined),
+        costOfMaterials = period.costOfMaterials
+      )
     }
 
     CisCYAModel(
@@ -51,7 +53,6 @@ case class CisDeductions(fromDate: String,
       priorPeriodData = periods
     )
   }
-
 }
 
 object CisDeductions {

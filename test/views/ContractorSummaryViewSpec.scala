@@ -16,7 +16,7 @@
 
 package views
 
-import models.AuthorisationRequest
+import models.{AuthorisationRequest, UserPriorDataRequest}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.i18n.Messages
@@ -140,7 +140,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
 
           val pageModel = aContractorSummaryPage.copy(taxYear, Some("XYZ Constructions"), employerRef, deductions)
 
-          implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(userScenario.isAgent)
+          implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
           implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
           implicit val document: Document = Jsoup.parse(page(pageModel).body)
@@ -171,7 +171,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
 
           val pageModel = aContractorSummaryPage.copy(taxYear, None, employerRef, deductions)
 
-          implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(userScenario.isAgent)
+          implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
           implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
           implicit val document: Document = Jsoup.parse(page(pageModel).body)
