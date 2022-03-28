@@ -73,7 +73,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       countFromOtherDatabase mustBe 0
       await(repoWithInvalidEncryption.collection.insertOne(userDataOne.encrypted).toFuture())
       countFromOtherDatabase mustBe 1
-      private val res = await(repoWithInvalidEncryption.find(userDataOne.taxYear,aCisUserData.employerRef,userOne.user))
+      private val res = await(repoWithInvalidEncryption.find(userDataOne.taxYear, userDataOne.employerRef ,userOne.user))
       res mustBe Left(EncryptionDecryptionError(
         "Key being used is not valid. It could be due to invalid encoding, wrong length or uninitialized for decrypt Invalid AES key length: 2 bytes"))
     }
@@ -92,7 +92,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       await(underTest.createOrUpdate(userDataOne)) mustBe Right(())
       count mustBe 1
 
-      await(underTest.clear(taxYear,userDataOne.employerRef, userOne.user)) mustBe true
+      await(underTest.clear(taxYear, userDataOne.employerRef, userOne.user)) mustBe true
       count mustBe 0
     }
   }
@@ -155,7 +155,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       await(underTest.createOrUpdate(data)) mustBe Right(())
       count mustBe 1
 
-      private val findResult = await(underTest.find(data.taxYear,userDataOne.employerRef, userOne.user))
+      private val findResult = await(underTest.find(data.taxYear, userDataOne.employerRef, userOne.user))
 
       findResult.right.get.map(_.copy(lastUpdated = data.lastUpdated)) mustBe Some(data)
       findResult.right.get.map(_.lastUpdated.isAfter(data.lastUpdated)) mustBe Some(true)
@@ -166,7 +166,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       count mustBe 1
 
       val findResult: Either[DatabaseError, Option[CisUserData]] = {
-        await(underTest.find(userDataFull.taxYear,userDataOne.employerRef, userOne.user))
+        await(underTest.find(userDataFull.taxYear, userDataOne.employerRef, userOne.user))
       }
 
       findResult mustBe Right(Some(userDataFull.copy(lastUpdated = findResult.right.get.get.lastUpdated)))
@@ -174,7 +174,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
 
     "return None when find operation succeeds but no data is found for the given inputs" in new EmptyDatabase {
       val taxYear = 2021
-      await(underTest.find(taxYear,userDataOne.employerRef, userOne.user)) mustBe Right(None)
+      await(underTest.find(taxYear, userDataOne.employerRef, userOne.user)) mustBe Right(None)
     }
   }
 

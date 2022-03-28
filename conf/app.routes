@@ -1,4 +1,4 @@
-###########################     Service pages               ########################
+#################       Service pages       ########################################
 
 ->         /hmrc-frontend                                                           hmrcfrontend.Routes
 
@@ -18,11 +18,14 @@ GET         /:taxYear/summary                                                   
 
 GET         /:taxYear/contractor                                                    controllers.ContractorSummaryController.show(taxYear: Int, contractor: String)
 
-
 ###########################     Check your CIS deductions pages     ########################
 
 GET        /:taxYear/check-construction-industry-scheme-deductions                  controllers.ContractorCYAController.show(taxYear: Int, month: String, contractor: String)
 
+#################       Cis details pages   ########################################
+
+GET       /:taxYear/contractor-details                                              controllers.ContractorDetailsController.show(taxYear: Int, contractor: Option[String])
+POST      /:taxYear/contractor-details                                              controllers.ContractorDetailsController.submit(taxYear: Int, contractor: Option[String])
 
 ###########################     CIS Deduction pages         ########################
 
