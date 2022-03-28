@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package models
+package models.pages
 
-trait ServiceError
+import play.api.libs.json.{Json, OFormat}
 
-case class HttpParserError(status: Int) extends ServiceError
-case object EmptyPriorCisDataError extends ServiceError
-case object EmptyInYearDeductionsError extends ServiceError
-case object EmployerRefNotFoundError extends ServiceError
-case object DeductionPeriodNotFoundError extends ServiceError
-case object NoCisUserDataError extends ServiceError
-case object NoCYAPeriodDataError extends ServiceError
-case object CisUserIsPriorSubmission extends ServiceError
+case class ContractorDetailsViewModel(contractorName: String, employerReferenceNumber: String)
+
+object ContractorDetailsViewModel {
+  implicit val formats: OFormat[ContractorDetailsViewModel] = Json.format[ContractorDetailsViewModel]
+}

@@ -16,13 +16,19 @@
 
 package models
 
-trait ServiceError
+import models.pages.ContractorDetailsViewModel
+import play.api.libs.json.Json
+import support.UnitTest
 
-case class HttpParserError(status: Int) extends ServiceError
-case object EmptyPriorCisDataError extends ServiceError
-case object EmptyInYearDeductionsError extends ServiceError
-case object EmployerRefNotFoundError extends ServiceError
-case object DeductionPeriodNotFoundError extends ServiceError
-case object NoCisUserDataError extends ServiceError
-case object NoCYAPeriodDataError extends ServiceError
-case object CisUserIsPriorSubmission extends ServiceError
+class ContractorDetailsViewModelSpec extends UnitTest{
+
+  "ContractorDetailsViewModel" should {
+    "write to json correctly when using implicit writes" in {
+      val result = Json.toJson(ContractorDetailsViewModel("ABC Steelworks", "123/AB12345"))
+      val aContractorDetailsViewModel = Json.obj("contractorName" -> "ABC Steelworks",
+        "employerReferenceNumber" -> "123/AB12345")
+
+      result shouldBe aContractorDetailsViewModel
+    }
+  }
+}

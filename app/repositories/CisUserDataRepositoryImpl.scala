@@ -19,7 +19,6 @@ package repositories
 import com.mongodb.client.model.ReturnDocument
 import com.mongodb.client.model.Updates.set
 import config.AppConfig
-import javax.inject.{Inject, Singleton}
 import models.User
 import models.mongo._
 import org.joda.time.{DateTime, DateTimeZone}
@@ -35,6 +34,7 @@ import utils.PagerDutyHelper.PagerDutyKeys.{FAILED_TO_CREATE_UPDATE_CIS_DATA, FA
 import utils.PagerDutyHelper.{PagerDutyKeys, pagerDutyLog}
 import utils.SecureGCMCipher
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
@@ -56,6 +56,7 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
         }
       }
   }
+
 
   def find(taxYear: Int, employerRef: String, user: User): Future[Either[DatabaseError, Option[CisUserData]]] = {
 
@@ -113,14 +114,13 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
     }
   }
 
-  def clear(taxYear: Int, employerRef: String, user: User): Future[Boolean] =
+  def clear(taxYear: Int, employerRef: String,  user: User): Future[Boolean] =
     collection.deleteOne(filter(user.sessionId, user.mtditid, user.nino, taxYear, employerRef))
       .toFutureOption()
       .recover(mongoRecover("Clear", FAILED_TO_ClEAR_CIS_DATA, user))
       .map(_.exists(_.wasAcknowledged()))
 
-  def mongoRecover[T](operation: String, pagerDutyKey: PagerDutyKeys.Value,
-                      user: User): PartialFunction[Throwable, Option[T]] = new PartialFunction[Throwable, Option[T]] {
+  def mongoRecover[T](operation: String, pagerDutyKey: PagerDutyKeys.Value, user: User): PartialFunction[Throwable, Option[T]] = new PartialFunction[Throwable, Option[T]] {
 
     override def isDefinedAt(x: Throwable): Boolean = x.isInstanceOf[MongoException]
 

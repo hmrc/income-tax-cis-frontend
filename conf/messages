@@ -115,6 +115,21 @@ labourPayPage.error.wrongFormat.individual = Enter the amount you were paid for 
 labourPayPage.error.overMaximum.agent = The amount your client was paid for labour must be less than £100,000,000,000
 labourPayPage.error.overMaximum.individual = The amount you were paid for labour must be less than £100,000,000,000
 
+################# Contractor Details messages   ########################################
+
+contractor-details.name = Contractor name
+contractor-details.name.hint = For example, ABC Steelworks.
+contractor-details.name.error.noEntry.individual = Enter your contractor name
+contractor-details.name.error.noEntry.agent = Enter your client’s contractor name
+contractor-details.name.error.notCharLimit = Contractor name must be 105 characters or fewer
+contractor-details.name.error.wrongFormat = Contractor name can only include letters a to z, numbers 0 to 9, and the symbols - , . & ; /
+contractor-details.employer-ref = Employer Reference Number (ERN)
+contractor-details.employer-ref.hint = For example, 123/AB12345.
+contractor-details.employer-ref.replay.individual = If your ERN is not {0}, tell us the correct reference.
+contractor-details.employer-ref.replay.agent = If your client’s ERN is not {0}, tell us the correct reference.
+contractor-details.employer-ref.error.noEntry = Enter the Employer Reference Number
+contractor-details.employer-ref.error.wrongFormat = Enter the Employer Reference Number in the correct format
+
 #################       Error messages        ########################################
 
 common.error.self-assessment.paragraph.1.1 = If the web address is correct or you selected a link or button, you can use
