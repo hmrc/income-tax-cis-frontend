@@ -30,6 +30,8 @@ import views.html.cis.DeductionPeriodView
 
 class DeductionPeriodViewSpec extends ViewUnitTest {
 
+  private val taxYearEOYStart: Int = taxYearEOY - 1
+
   object Selectors {
     val paragraphTextSelector = "#main-content > div > div > p.govuk-body"
     val buttonSelector = "#continue"
@@ -155,18 +157,18 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
       implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(contractorName = None),form(false)).body)
 
       h1Check("When did Contractor: 111/11111 make CIS deductions?")
-      textOnPageCheck("5 Mai 2020", Selectors.optionsSelector(1))
-      textOnPageCheck("5 Mehefin 2020", Selectors.optionsSelector(2))
-      textOnPageCheck("5 Gorffennaf 2020", Selectors.optionsSelector(3))
-      textOnPageCheck("5 Awst 2020", Selectors.optionsSelector(4))
-      textOnPageCheck("5 Medi 2020", Selectors.optionsSelector(5))
-      textOnPageCheck("5 Hydref 2020", Selectors.optionsSelector(6))
-      textOnPageCheck("5 Tachwedd 2020", Selectors.optionsSelector(7))
-      textOnPageCheck("5 Rhagfyr 2020", Selectors.optionsSelector(8))
-      textOnPageCheck("5 Ionawr 2021", Selectors.optionsSelector(9))
-      textOnPageCheck("5 Chwefror 2021", Selectors.optionsSelector(10))
-      textOnPageCheck("5 Mawrth 2021", Selectors.optionsSelector(11))
-      textOnPageCheck("5 Ebrill 2021", Selectors.optionsSelector(12))
+      textOnPageCheck(s"5 Mai $taxYearEOYStart", Selectors.optionsSelector(1))
+      textOnPageCheck(s"5 Mehefin $taxYearEOYStart", Selectors.optionsSelector(2))
+      textOnPageCheck(s"5 Gorffennaf $taxYearEOYStart", Selectors.optionsSelector(3))
+      textOnPageCheck(s"5 Awst $taxYearEOYStart", Selectors.optionsSelector(4))
+      textOnPageCheck(s"5 Medi $taxYearEOYStart", Selectors.optionsSelector(5))
+      textOnPageCheck(s"5 Hydref $taxYearEOYStart", Selectors.optionsSelector(6))
+      textOnPageCheck(s"5 Tachwedd $taxYearEOYStart", Selectors.optionsSelector(7))
+      textOnPageCheck(s"5 Rhagfyr $taxYearEOYStart", Selectors.optionsSelector(8))
+      textOnPageCheck(s"5 Ionawr $taxYearEOY", Selectors.optionsSelector(9))
+      textOnPageCheck(s"5 Chwefror $taxYearEOY", Selectors.optionsSelector(10))
+      textOnPageCheck(s"5 Mawrth $taxYearEOY", Selectors.optionsSelector(11))
+      textOnPageCheck(s"5 Ebrill $taxYearEOY", Selectors.optionsSelector(12))
     }
     "display the month options correctly in english" which {
       implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(false)
@@ -175,18 +177,18 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
       implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(contractorName=None),form(false)).body)
 
       h1Check("When did Contractor: 111/11111 make CIS deductions?")
-      textOnPageCheck("5 May 2020", Selectors.optionsSelector(1))
-      textOnPageCheck("5 June 2020", Selectors.optionsSelector(2))
-      textOnPageCheck("5 July 2020", Selectors.optionsSelector(3))
-      textOnPageCheck("5 August 2020", Selectors.optionsSelector(4))
-      textOnPageCheck("5 September 2020", Selectors.optionsSelector(5))
-      textOnPageCheck("5 October 2020", Selectors.optionsSelector(6))
-      textOnPageCheck("5 November 2020", Selectors.optionsSelector(7))
-      textOnPageCheck("5 December 2020", Selectors.optionsSelector(8))
-      textOnPageCheck("5 January 2021", Selectors.optionsSelector(9))
-      textOnPageCheck("5 February 2021", Selectors.optionsSelector(10))
-      textOnPageCheck("5 March 2021", Selectors.optionsSelector(11))
-      textOnPageCheck("5 April 2021", Selectors.optionsSelector(12))
+      textOnPageCheck(s"5 May $taxYearEOYStart", Selectors.optionsSelector(1))
+      textOnPageCheck(s"5 June $taxYearEOYStart", Selectors.optionsSelector(2))
+      textOnPageCheck(s"5 July $taxYearEOYStart", Selectors.optionsSelector(3))
+      textOnPageCheck(s"5 August $taxYearEOYStart", Selectors.optionsSelector(4))
+      textOnPageCheck(s"5 September $taxYearEOYStart", Selectors.optionsSelector(5))
+      textOnPageCheck(s"5 October $taxYearEOYStart", Selectors.optionsSelector(6))
+      textOnPageCheck(s"5 November $taxYearEOYStart", Selectors.optionsSelector(7))
+      textOnPageCheck(s"5 December $taxYearEOYStart", Selectors.optionsSelector(8))
+      textOnPageCheck(s"5 January $taxYearEOY", Selectors.optionsSelector(9))
+      textOnPageCheck(s"5 February $taxYearEOY", Selectors.optionsSelector(10))
+      textOnPageCheck(s"5 March $taxYearEOY", Selectors.optionsSelector(11))
+      textOnPageCheck(s"5 April $taxYearEOY", Selectors.optionsSelector(12))
     }
   }
 }

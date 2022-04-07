@@ -23,6 +23,7 @@ import common.SessionValues
 import config.AppConfig
 import helpers.{PlaySessionCookieBaker, WireMockHelper, WiremockStubHelpers}
 import models.IncomeTaxUserData
+import models.mongo.CisUserData
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -37,6 +38,7 @@ import play.api.{Application, Environment, Mode}
 import services.AuthService
 import support.builders.models.IncomeTaxUserDataBuilder
 import support.builders.models.UserBuilder.aUser
+import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
@@ -70,6 +72,7 @@ trait IntegrationTest extends AnyWordSpec
   def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
   def config: Map[String, String] = Map(
+    "defaultTaxYear" -> taxYear.toString,
     "auditing.enabled" -> "false",
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
     "microservice.services.income-tax-submission-frontend.url" -> s"http://$wiremockHost:$wiremockPort",
@@ -85,6 +88,7 @@ trait IntegrationTest extends AnyWordSpec
   )
 
   def configWithInvalidEncryptionKey: Map[String, String] = Map(
+    "defaultTaxYear" -> taxYear.toString,
     "auditing.enabled" -> "false",
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
     "microservice.services.income-tax-submission-frontend.url" -> s"http://$wiremockHost:$wiremockPort",
@@ -101,6 +105,7 @@ trait IntegrationTest extends AnyWordSpec
   )
 
   def externalConfig: Map[String, String] = Map(
+    "defaultTaxYear" -> taxYear.toString,
     "auditing.enabled" -> "false",
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
     "microservice.services.income-tax-submission.url" -> s"http://127.0.0.1:$wiremockPort",
