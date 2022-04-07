@@ -18,9 +18,10 @@ package config
 
 import org.scalamock.scalatest.MockFactory
 import play.api.mvc.RequestHeader
+import support.TaxYearHelper
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-class MockAppConfig extends MockFactory {
+class MockAppConfig extends MockFactory with TaxYearHelper {
 
   def config(encrypt: Boolean = true, _taxYearErrorFeature: Boolean = false): AppConfig = new AppConfig(mock[ServicesConfig]) {
     override lazy val signInUrl: String = "/signIn"
@@ -28,7 +29,7 @@ class MockAppConfig extends MockFactory {
     override lazy val incomeTaxSubmissionBEBaseUrl: String = s"http://localhost:11111"
     override lazy val nrsProxyBaseUrl: String = "http://localhost:11111"
 
-    override lazy val defaultTaxYear: Int = 2022
+    override lazy val defaultTaxYear: Int = taxYear
 
     override def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = "/overview"
 

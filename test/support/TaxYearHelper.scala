@@ -23,6 +23,6 @@ trait TaxYearHelper {
   private val month = DateTime.now().monthOfYear().get()
   private val dayOfMonth = DateTime.now().dayOfMonth().get()
 
-  protected val taxYear: Int = if (month >= 4 && dayOfMonth >= 5) DateTime.now().year().get() + 1 else DateTime.now().year().get()
+  protected val taxYear: Int = if (month >= 4 && dayOfMonth > 5) DateTime.now().year().get() + 1 else DateTime.now().year().get()
   protected val taxYearEOY: Int = taxYear - 1
 }
