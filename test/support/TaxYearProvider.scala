@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package support.builders.models.pages
+package support
 
-import models.pages.DeductionPeriodPage
 import utils.TaxYearUtils
 
-import java.time.Month
+trait TaxYearProvider {
 
-object DeductionPeriodPageBuilder {
-
-  val aDeductionPeriodPage: DeductionPeriodPage = DeductionPeriodPage(
-    taxYear = TaxYearUtils.taxYear,
-    contractorName = Some("Michele Lamy Paving Ltd"),
-    employerRef = "111/11111",
-    period = Some(Month.DECEMBER),
-    priorSubmittedPeriods = Seq(Month.APRIL)
-  )
+  protected val taxYear: Int = TaxYearUtils.taxYear
+  protected val taxYearEOY: Int = TaxYearUtils.taxYearEOY
 }

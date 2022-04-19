@@ -22,7 +22,7 @@ import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.MockCISSessionService
-import support.{TaxYearHelper, UnitTest}
+import support.{TaxYearProvider, UnitTest}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.Month
@@ -30,7 +30,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class DeductionPeriodServiceSpec extends UnitTest
   with MockCISSessionService
-  with TaxYearHelper {
+  with TaxYearProvider {
 
   implicit private val hc: HeaderCarrier = HeaderCarrier()
 

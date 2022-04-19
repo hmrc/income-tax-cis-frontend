@@ -17,14 +17,14 @@
 package support.builders.models.pages
 
 import models.pages.ContractorCYAPage
-import support.TaxYearHelper
+import utils.TaxYearUtils
 
 import java.time.Month
 
-object ContractorCYAPageBuilder extends TaxYearHelper {
+object ContractorCYAPageBuilder {
 
   val aContractorCYAPage: ContractorCYAPage = ContractorCYAPage(
-    taxYear = taxYear,
+    taxYear = TaxYearUtils.taxYear,
     isInYear = true,
     contractorName = Some("default-contractor-name"),
     employerRef = "default-employer-ref",

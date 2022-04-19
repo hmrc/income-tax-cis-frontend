@@ -55,7 +55,7 @@ trait IntegrationTest extends AnyWordSpec
   with WireMockHelper
   with WiremockStubHelpers
   with BeforeAndAfterAll
-  with TaxYearHelper
+  with TaxYearProvider
   with DatabaseHelper {
 
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global

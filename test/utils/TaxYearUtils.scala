@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package support
+package utils
 
 import org.joda.time.DateTime
 
-trait TaxYearHelper {
+object TaxYearUtils {
 
   private val month = DateTime.now().monthOfYear().get()
   private val dayOfMonth = DateTime.now().dayOfMonth().get()
 
-  protected val taxYear: Int = if (month >= 4 && dayOfMonth > 5) DateTime.now().year().get() + 1 else DateTime.now().year().get()
-  protected val taxYearEOY: Int = taxYear - 1
+  val taxYear: Int = if (month >= 4 && dayOfMonth > 5) DateTime.now().year().get() + 1 else DateTime.now().year().get()
+  val taxYearEOY: Int = taxYear - 1
 }

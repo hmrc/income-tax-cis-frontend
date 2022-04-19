@@ -19,11 +19,11 @@ package models.pages
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.pages.ContractorSummaryPageBuilder.aContractorSummaryPage
-import support.{TaxYearHelper, UnitTest}
+import support.{TaxYearProvider, UnitTest}
 
 import java.time.Month
 
-class ContractorSummaryPageSpec extends UnitTest with TaxYearHelper {
+class ContractorSummaryPageSpec extends UnitTest with TaxYearProvider {
 
   ".mapToInYearPage" should {
     "return a ContractorSummaryPage with a list of ordered months" in {

@@ -17,13 +17,13 @@
 package support.builders.models.pages
 
 import models.pages.ContractorSummaryPage
-import support.TaxYearHelper
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.PeriodDataBuilder.aPeriodData
+import utils.TaxYearUtils
 
-object ContractorSummaryPageBuilder extends TaxYearHelper {
+object ContractorSummaryPageBuilder {
   val aContractorSummaryPage: ContractorSummaryPage = ContractorSummaryPage(
-    taxYear = taxYear,
+    taxYear = TaxYearUtils.taxYear,
     contractorName = aCisDeductions.contractorName,
     employerRef = aCisDeductions.employerRef,
     deductionPeriods = Seq(aPeriodData.deductionPeriod)

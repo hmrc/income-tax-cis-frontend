@@ -18,14 +18,14 @@ package support.builders.models.pages
 
 import forms.FormsProvider
 import models.pages.LabourPayPage
-import support.TaxYearHelper
+import utils.TaxYearUtils
 
 import java.time.Month
 
-object LabourPayPageBuilder extends TaxYearHelper {
+object LabourPayPageBuilder {
 
   val aLabourPayPage: LabourPayPage = LabourPayPage(
-    taxYear = taxYearEOY,
+    taxYear = TaxYearUtils.taxYearEOY,
     month = Month.MAY,
     contractorName = Some("default-contractor"),
     employerRef = "default-employer-ref",

@@ -21,7 +21,7 @@ import models.mongo.{CisCYAModel, DataNotUpdatedError}
 import support.builders.models.UserBuilder._
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockCISSessionService, MockCISUserDataRepository}
-import support.{TaxYearHelper, UnitTest}
+import support.{TaxYearProvider, UnitTest}
 import utils.TestingClock
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -29,7 +29,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ContractorDetailsServiceSpec extends UnitTest
   with MockCISSessionService
   with MockCISUserDataRepository
-  with TaxYearHelper {
+  with TaxYearProvider {
 
   private val formData = new ContractorDetailsFormData(contractorName = "some-name", employerReferenceNumber = "some-ref")
 

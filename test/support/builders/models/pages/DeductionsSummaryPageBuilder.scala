@@ -17,13 +17,13 @@
 package support.builders.models.pages
 
 import models.pages.DeductionsSummaryPage
-import support.TaxYearHelper
 import support.builders.models.pages.elements.ContractorDeductionToDateBuilder.aContractorDeductionToDate
+import utils.TaxYearUtils
 
-object DeductionsSummaryPageBuilder extends TaxYearHelper {
+object DeductionsSummaryPageBuilder {
 
   val aDeductionsSummaryPage: DeductionsSummaryPage = DeductionsSummaryPage(
-    taxYear = taxYear,
+    taxYear = TaxYearUtils.taxYear,
     isInYear = true,
     deductions = Seq(
       aContractorDeductionToDate.copy(contractorName = Some("contractor-name-1"), employerRef = "ref-1", amount = Some(100.0)),
