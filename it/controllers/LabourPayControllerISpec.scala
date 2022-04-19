@@ -54,7 +54,7 @@ class LabourPayControllerISpec extends IntegrationTest
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYear)
         urlGet(fullUrl(url(taxYear, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
-          headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)), follow = false)
+          headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
       }
 
       result.status shouldBe SEE_OTHER
@@ -80,7 +80,7 @@ class LabourPayControllerISpec extends IntegrationTest
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYear)
         urlPost(fullUrl(url(taxYear, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
-          headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)), follow = false, body = Map(AmountForm.amount -> "123"))
+          headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)), body = Map(AmountForm.amount -> "123"))
       }
 
       result.status shouldBe SEE_OTHER
@@ -93,7 +93,7 @@ class LabourPayControllerISpec extends IntegrationTest
         userDataStub(anIncomeTaxUserData, aCisUserData.nino, taxYearEOY)
         insertCyaData(aCisUserData)
         urlPost(fullUrl(url(taxYearEOY, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
-          headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), follow = false, body = Map(AmountForm.amount -> "123.23"))
+          headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = Map(AmountForm.amount -> "123.23"))
       }
 
       result.status shouldBe SEE_OTHER

@@ -20,9 +20,3 @@ trait ServiceError
 
 case class HttpParserError(status: Int) extends ServiceError
 case object EmptyPriorCisDataError extends ServiceError
-case object EmptyInYearDeductionsError extends ServiceError
-case object EmployerRefNotFoundError extends ServiceError
-case object DeductionPeriodNotFoundError extends ServiceError
-case object NoCisUserDataError extends ServiceError
-case object NoCYAPeriodDataError extends ServiceError
-case object CisUserIsPriorSubmission extends ServiceError

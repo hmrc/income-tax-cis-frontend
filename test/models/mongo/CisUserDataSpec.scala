@@ -19,10 +19,11 @@ package models.mongo
 import org.joda.time.DateTime
 import org.scalamock.scalatest.MockFactory
 import support.UnitTest
+import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import utils.SecureGCMCipher
+import utils.{SecureGCMCipher, TestingClock}
 
 class CisUserDataSpec extends UnitTest
   with MockFactory {
@@ -64,6 +65,24 @@ class CisUserDataSpec extends UnitTest
         isPriorSubmission = underTest.isPriorSubmission,
         cis = encryptedCisCYAModel,
         lastUpdated = underTest.lastUpdated
+      )
+    }
+  }
+
+  "CisUserData.createFrom" should {
+    "create a CisUserData" in {
+      val anyYear = 2020
+
+      CisUserData.createFrom(aUser, taxYear = anyYear, employerRef = "any-ref", aCisCYAModel, TestingClock.now()) shouldBe new CisUserData(
+        sessionId = aUser.sessionId,
+        mtdItId = aUser.mtditid,
+        nino = aUser.nino,
+        taxYear = anyYear,
+        employerRef = "any-ref",
+        submissionId = None,
+        isPriorSubmission = false,
+        cis = aCisCYAModel,
+        lastUpdated = TestingClock.now()
       )
     }
   }

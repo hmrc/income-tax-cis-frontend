@@ -26,25 +26,27 @@ import scala.concurrent.Future
 
 trait MockCISUserDataRepository extends MockFactory {
 
-  protected val mockRepo: CisUserDataRepository = mock[CisUserDataRepository]
+  protected val mockCisUserDataRepository: CisUserDataRepository = mock[CisUserDataRepository]
 
-  def mockFindCYAData(taxYear: Int, employerRef: String, user:User,
+  def mockFindCYAData(taxYear: Int, employerRef: String, user: User,
                       result: Either[DatabaseError, Option[CisUserData]]): CallHandler3[Int, String,
     User, Future[Either[DatabaseError, Option[CisUserData]]]] = {
-    (mockRepo.find(_: Int,_: String, _:User))
+    (mockCisUserDataRepository.find(_: Int, _: String, _: User))
       .expects(taxYear, employerRef, user)
       .returning(Future.successful(result))
   }
+
   def mockCreateOrUpdateCYAData(data: CisUserData,
-                      result: Either[DatabaseError, Unit]): CallHandler1[CisUserData, Future[Either[DatabaseError, Unit]]] = {
-    (mockRepo.createOrUpdate(_: CisUserData))
+                                result: Either[DatabaseError, Unit]): CallHandler1[CisUserData, Future[Either[DatabaseError, Unit]]] = {
+    (mockCisUserDataRepository.createOrUpdate(_: CisUserData))
       .expects(data)
       .returning(Future.successful(result))
   }
+
   def mockClear(taxYear: Int, employerRef: String,
                 result: Boolean): CallHandler3[Int, String, User, Future[Boolean]] = {
-    (mockRepo.clear(_: Int, _: String, _: User))
-      .expects(taxYear,employerRef,*)
+    (mockCisUserDataRepository.clear(_: Int, _: String, _: User))
+      .expects(taxYear, employerRef, *)
       .returning(Future.successful(result))
   }
 }

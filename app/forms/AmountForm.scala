@@ -36,5 +36,4 @@ object AmountForm {
       args = emptyFieldArguments
     )
   )
-
 }

@@ -17,52 +17,34 @@
 package forms
 
 import forms.validation.StringConstraints.{validateChar, validateSize}
-import play.api.data.Form
-import play.api.data.Forms.mapping
 import forms.validation.mappings.MappingUtil.trimmedText
 import forms.validation.utils.ConstraintUtil.ConstraintUtil
-import models.pages.ContractorDetailsViewModel
+import models.forms.ContractorDetailsFormData
+import play.api.data.Form
+import play.api.data.Forms.mapping
 import play.api.data.validation.Constraint
 import play.api.data.validation.Constraints.nonEmpty
 
 
 object ContractorDetailsForm {
 
-  def contractorDetailsForm(
-                            isAgent: Boolean
-                           ): Form[ContractorDetailsViewModel] = {
+  private val nameCharLimit = 105
+  private val nameRegex = "^[A-Za-z0-9 \\-,.&';\\/]{1,105}$"
+  private val refRegex = "^[0-9]{3}\\/[^ ].{0,9}$"
 
-    val contractorName = "contractorName"
-    val employerReferenceNumber = "employerReferenceNumber"
-    val nameCharLimit = 105
-    val nameRegex = "^[A-Za-z0-9 \\-,.&';\\/]{1,105}$"
-    val refRegex = "^[0-9]{3}\\/[^ ].{0,9}$"
+  val contractorName = "contractorName"
+  val employerReferenceNumber = "employerReferenceNumber"
 
-    def nameNotEmpty(isAgent: Boolean): Constraint[String] =
-      nonEmpty(s"contractor-details.name.error.noEntry.${if(isAgent) "agent" else "individual"}")
-
-    val refNotEmpty: Constraint[String] =
-      nonEmpty(s"contractor-details.employer-ref.error.noEntry")
-
+  def contractorDetailsForm(isAgent: Boolean): Form[ContractorDetailsFormData] = {
+    val nameNotEmpty: Constraint[String] = nonEmpty(s"contractor-details.name.error.noEntry.${if (isAgent) "agent" else "individual"}")
+    val refNotEmpty: Constraint[String] = nonEmpty(s"contractor-details.employer-ref.error.noEntry")
     val nameNotCharLimit: Constraint[String] = validateSize(nameCharLimit)("contractor-details.name.error.notCharLimit")
+    val validateNameFormat: Constraint[String] = validateChar(nameRegex)(s"contractor-details.name.error.wrongFormat")
+    val validateRefFormat: Constraint[String] = validateChar(refRegex)(s"contractor-details.employer-ref.error.wrongFormat")
 
-    val validateNameFormat: Constraint[String] =
-      validateChar(nameRegex)(s"contractor-details.name.error.wrongFormat")
-
-    val validateRefFormat: Constraint[String] =
-      validateChar(refRegex)(s"contractor-details.employer-ref.error.wrongFormat")
-
-    Form(
-      mapping(
-        contractorName -> trimmedText.verifying(
-          nameNotEmpty(isAgent) andThen nameNotCharLimit andThen validateNameFormat
-        ),
-        employerReferenceNumber -> trimmedText.verifying(
-          refNotEmpty andThen validateRefFormat
-        )
-      )(ContractorDetailsViewModel.apply)(ContractorDetailsViewModel.unapply)
-    )
-
+    Form(mapping(
+      contractorName -> trimmedText.verifying(nameNotEmpty andThen nameNotCharLimit andThen validateNameFormat),
+      employerReferenceNumber -> trimmedText.verifying(refNotEmpty andThen validateRefFormat)
+    )(ContractorDetailsFormData.apply)(ContractorDetailsFormData.unapply))
   }
-
 }

@@ -17,50 +17,37 @@
 package services
 
 import com.google.inject.Inject
-import models.{CisUserIsPriorSubmission, ServiceError, User}
-import models.mongo.{CisCYAModel, CisUserData, DatabaseError}
-import models.pages.ContractorDetailsViewModel
+import models.forms.ContractorDetailsFormData
+import models.mongo.CisUserData.createFrom
+import models.mongo.{CisCYAModel, CisUserData, DataNotUpdatedError}
+import models.{ServiceError, User}
 import repositories.CisUserDataRepository
 import utils.Clock
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ContractorDetailsService @Inject()(cisUserDataRepository: CisUserDataRepository, clock: Clock){
+class ContractorDetailsService @Inject()(cisSessionService: CISSessionService,
+                                         cisUserDataRepository: CisUserDataRepository,
+                                         clock: Clock)
+                                        (implicit ec: ExecutionContext) {
 
-  def checkAccessContractorDetailsPage(taxYear: Int, user: User, employerRef: String)
-                                      (implicit executionContext: ExecutionContext): Future[Either[ServiceError, Option[CisUserData]]] = {
-    cisUserDataRepository.find(taxYear, employerRef, user).map {
-      case Left(error) => Left(error)
-      case Right(None) => Right(None)
-      case Right(Some(cisUserData)) => if (cisUserData.isPriorSubmission) Left(CisUserIsPriorSubmission) else Right(Some(cisUserData))
-    }
-  }
+  def saveContractorDetails(taxYear: Int,
+                            user: User,
+                            optCisUserData: Option[CisUserData],
+                            formData: ContractorDetailsFormData): Future[Either[ServiceError, Unit]] = {
 
-  def createOrUpdateContractorDetails(viewModel: ContractorDetailsViewModel, taxYear: Int, user: User, oldRef: Option[String])
-                             (implicit ec: ExecutionContext): Future[Either[DatabaseError, Unit]] = {
-    cisUserDataRepository.find(taxYear, oldRef.getOrElse(viewModel.employerReferenceNumber), user).flatMap {
-      case Left(error) => Future(Left(error))
-      case Right(None) => cisUserDataRepository.createOrUpdate(
-        CisUserData(
-          user.sessionId,
-          user.mtditid,
-          user.nino,
-          taxYear,
-          viewModel.employerReferenceNumber,
-          None,
-          isPriorSubmission = false,
-          CisCYAModel(Some(viewModel.contractorName), None),
-          clock.now()
-        )
-      )
-      case Right(Some(value)) =>
-        if(oldRef.isDefined && !oldRef.contains(viewModel.employerReferenceNumber)) {
-          cisUserDataRepository.clear(taxYear, oldRef.get, user)
-        }
-        cisUserDataRepository.createOrUpdate(
-        value.copy(employerRef = viewModel.employerReferenceNumber,
-          cis = value.cis.copy(contractorName = Some(viewModel.contractorName))
-        ))
-    }
+    optCisUserData.map(_.employerRef)
+      .foreach(employerRef => if (employerRef != formData.employerReferenceNumber) cisUserDataRepository.clear(taxYear, employerRef, user))
+
+    val cisUserData = optCisUserData.getOrElse(createFrom(user, taxYear, formData.employerReferenceNumber, cis = CisCYAModel(), lastUpdated = clock.now()))
+    val newCisCYAModel = cisUserData.cis.copy(contractorName = Some(formData.contractorName))
+    val employerRef = formData.employerReferenceNumber
+
+    cisSessionService
+      .createOrUpdateCISUserData(user, taxYear, employerRef, cisUserData.submissionId, cisUserData.isPriorSubmission, newCisCYAModel)
+      .map {
+        case Left(_) => Left(DataNotUpdatedError)
+        case Right(_) => Right(())
+      }
   }
 }

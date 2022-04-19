@@ -26,12 +26,12 @@ import utils.UrlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CisUserDataActionRefiner(taxYear: Int,
-                               employerRef: String,
-                               cisSessionService: CISSessionService,
-                               errorHandler: ErrorHandler,
-                               appConfig: AppConfig
-                              )(implicit ec: ExecutionContext) extends ActionRefiner[AuthorisationRequest, UserSessionDataRequest] {
+case class CisUserDataActionRefiner(taxYear: Int,
+                                    employerRef: String,
+                                    cisSessionService: CISSessionService,
+                                    errorHandler: ErrorHandler,
+                                    appConfig: AppConfig
+                                   )(implicit ec: ExecutionContext) extends ActionRefiner[AuthorisationRequest, UserSessionDataRequest] {
 
   override protected[actions] def executionContext: ExecutionContext = ec
 
@@ -43,4 +43,19 @@ class CisUserDataActionRefiner(taxYear: Int,
       case Right(Some(cisUserData)) if cisUserData.hasPeriodData => Right(UserSessionDataRequest(cisUserData, input.user, input.request))
     }
   }
+}
+
+object CisUserDataActionRefiner {
+
+  def apply(taxYear: Int,
+            contractor: String,
+            cisSessionService: CISSessionService,
+            errorHandler: ErrorHandler,
+            appConfig: AppConfig)(implicit ec: ExecutionContext): CisUserDataActionRefiner = new CisUserDataActionRefiner(
+    taxYear = taxYear,
+    employerRef = UrlUtils.decode(contractor),
+    cisSessionService = cisSessionService,
+    errorHandler = errorHandler,
+    appConfig = appConfig
+  )
 }

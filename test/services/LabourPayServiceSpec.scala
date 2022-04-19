@@ -36,7 +36,7 @@ class LabourPayServiceSpec extends UnitTest
       val periodData: CYAPeriodData = aCYAPeriodData.copy(grossAmountPaid = Some(123))
       val updatedCYA = aCisUserData.cis.copy(periodData = Some(periodData))
 
-      mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(aCisUserData))
+      mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(DataNotUpdatedError))
 
       await(underTest.saveLabourPay(aUser, aCisUserData, amount = 123)) shouldBe Left(DataNotUpdatedError)
     }

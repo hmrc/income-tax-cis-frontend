@@ -48,8 +48,7 @@ trait ViewHelpers { self: AnyWordSpec with Matchers with WireMockHelper =>
 
   val userScenarios: Seq[UserScenario[_, _]]
 
-  def urlGet(url: String, welsh: Boolean = false, follow: Boolean = true, headers: Seq[(String, String)] = Seq())(implicit wsClient: WSClient): WSResponse = {
-
+  def urlGet(url: String, welsh: Boolean = false, follow: Boolean = false, headers: Seq[(String, String)] = Seq())(implicit wsClient: WSClient): WSResponse = {
     val newHeaders = if(welsh) Seq(HeaderNames.ACCEPT_LANGUAGE -> "cy") ++ headers else headers
     await(wsClient.url(url).withFollowRedirects(follow).withHttpHeaders(newHeaders: _*).get())
   }
@@ -57,7 +56,7 @@ trait ViewHelpers { self: AnyWordSpec with Matchers with WireMockHelper =>
   def urlPost[T](url: String,
                  body: T,
                  welsh: Boolean = false,
-                 follow: Boolean = true,
+                 follow: Boolean = false,
                  headers: Seq[(String, String)] = Seq())
                 (implicit wsClient: WSClient, bodyWritable: BodyWritable[T]): WSResponse = {
 

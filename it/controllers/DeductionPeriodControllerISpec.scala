@@ -58,7 +58,7 @@ class DeductionPeriodControllerISpec extends IntegrationTest with ViewHelpers wi
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         insertCyaData(aCisUserData)
-        urlPost(fullUrl(url(taxYearEOY, employerRef)), body = Map("month" -> "january"), follow = false, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
+        urlPost(fullUrl(url(taxYearEOY, employerRef)), body = Map("month" -> "january"), headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
       }
 
       result.status shouldBe SEE_OTHER

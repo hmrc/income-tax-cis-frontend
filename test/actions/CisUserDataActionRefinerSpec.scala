@@ -83,4 +83,11 @@ class CisUserDataActionRefinerSpec extends UnitTest
       await(underTest.refine(anAuthorisationRequest)) shouldBe Right(UserSessionDataRequest(cisUserData, anAuthorisationRequest.user, anAuthorisationRequest.request))
     }
   }
+
+  ".apply" should {
+    "construct CisUserDataActionRefiner with decoded employerRef" in {
+      CisUserDataActionRefiner.apply(taxYear, UrlUtils.encode("123/1111"), mockCISSessionService, mockErrorHandler, appConfig)(executionContext) shouldBe
+        new CisUserDataActionRefiner(taxYear, "123/1111", mockCISSessionService, mockErrorHandler, appConfig)(executionContext)
+    }
+  }
 }

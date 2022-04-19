@@ -17,14 +17,14 @@
 package services
 
 import connectors.IncomeTaxUserDataConnector
-import javax.inject.Inject
-import models.mongo.{CisCYAModel, CisUserData, DataNotUpdatedError, DatabaseError}
 import models._
+import models.mongo.{CisCYAModel, CisUserData, DataNotUpdatedError, DatabaseError}
 import org.joda.time.DateTimeZone
 import repositories.CisUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.Clock
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
@@ -59,7 +59,7 @@ class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
     }
   }
 
-  def getPriorData(user: User, taxYear: Int)(implicit hc: HeaderCarrier): Future[Either[HttpParserError, IncomeTaxUserData]] ={
+  def getPriorData(user: User, taxYear: Int)(implicit hc: HeaderCarrier): Future[Either[HttpParserError, IncomeTaxUserData]] = {
     incomeTaxUserDataConnector.getUserData(user.nino, taxYear)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)).map {
       case Left(error) => Left(HttpParserError(error.status))
       case Right(incomeTaxUserData) => Right(incomeTaxUserData)
@@ -78,7 +78,7 @@ class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
             val submissionId: Option[String] = deductions.submissionId
             val cya = deductions.toCYA
 
-            createOrUpdateCISUserData(user, taxYear, employerRef, submissionId, true, cya).map {
+            createOrUpdateCISUserData(user, taxYear, employerRef, submissionId, isPriorSubmission = true, cya).map {
               case Left(_) => Left(DataNotUpdatedError)
               case Right(value) => Right(value)
             }

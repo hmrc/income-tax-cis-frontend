@@ -39,7 +39,7 @@ class CISSessionServiceSpec extends UnitTest
   implicit private val hc: HeaderCarrier = HeaderCarrier()
 
   private val underTest = new CISSessionService(
-    mockRepo,
+    mockCisUserDataRepository,
     mockIncomeTaxUserDataConnector,
     TestingClock
   )
