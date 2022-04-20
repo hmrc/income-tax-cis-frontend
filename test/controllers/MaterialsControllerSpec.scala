@@ -16,8 +16,7 @@
 
 package controllers
 
-import controllers.routes.MaterialsController
-import forms.{AmountForm, FormsProvider}
+import forms.{FormsProvider, YesNoForm}
 import models.mongo.DataNotFoundError
 import org.jsoup.Jsoup
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
@@ -26,20 +25,20 @@ import play.api.test.Helpers.{contentAsString, contentType, status}
 import support.ControllerUnitTest
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.mocks.{MockActionsProvider, MockDeductionAmountService}
-import views.html.DeductionAmountView
+import support.mocks.{MockActionsProvider, MockMaterialsService}
+import views.html.MaterialsView
 
 import java.time.Month
 
-class DeductionAmountControllerSpec extends ControllerUnitTest
+class MaterialsControllerSpec extends ControllerUnitTest
   with MockActionsProvider
-  with MockDeductionAmountService {
+  with MockMaterialsService {
 
-  private val underTest = new DeductionAmountController(
+  private val underTest = new MaterialsController(
     mockActionsProvider,
     new FormsProvider(),
-    inject[DeductionAmountView],
-    mockDeductionAmountService,
+    inject[MaterialsView],
+    mockMaterialsService,
     mockErrorHandler
   )
 
@@ -58,7 +57,7 @@ class DeductionAmountControllerSpec extends ControllerUnitTest
     "render page with error when validation of form fails" in {
       mockNotInYearWithSessionData(taxYearEOY, employerRef = "some-ref")
 
-      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "2.3.4"))
+      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> ""))
 
       status(result) shouldBe BAD_REQUEST
       contentType(result) shouldBe Some("text/html")
@@ -68,20 +67,20 @@ class DeductionAmountControllerSpec extends ControllerUnitTest
 
     "handle internal server error when save operation fails with database error" in {
       mockNotInYearWithSessionData(taxYearEOY, aCisUserData.employerRef)
-      mockSaveDeductionAmount(aUser, aCisUserData, amount = 123, result = Left(DataNotFoundError))
+      mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
-      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "123"))
+      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "true"))
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
     "redirect to Materials Question Page on successful submission" in {
       mockNotInYearWithSessionData(taxYearEOY, employerRef = aCisUserData.employerRef)
-      mockSaveDeductionAmount(aUser, aCisUserData, amount = 123, result = Right(()))
+      mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Right(()))
 
-      await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "123"))) shouldBe
-        Redirect(MaterialsController.show(taxYearEOY, Month.MAY.toString, aCisUserData.employerRef))
+      await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "true"))) shouldBe
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY))
     }
   }
 }

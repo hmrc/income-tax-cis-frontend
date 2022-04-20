@@ -35,11 +35,8 @@ object YesNoForm {
       }
     }
 
-    override def unbind(key: String, value: Boolean): Map[String, String] = {
-      Map(
-        key -> value.toString
-      )
-    }
+    override def unbind(key: String, value: Boolean): Map[String, String] =
+      Map(key -> value.toString)
   }
 
   def yesNoForm(missingInputError: String): Form[Boolean] = Form(

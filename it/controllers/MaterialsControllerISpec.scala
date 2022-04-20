@@ -17,8 +17,7 @@
 package controllers
 
 import akka.util.ByteString.UTF_8
-import controllers.routes.MaterialsController
-import forms.AmountForm
+import forms.YesNoForm
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
@@ -28,13 +27,16 @@ import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
+import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
+import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.ViewHelpers
 
 import java.net.URLEncoder.encode
 
-class DeductionAmountControllerISpec extends IntegrationTest
-  with ViewHelpers with BeforeAndAfterEach {
+class MaterialsControllerISpec extends IntegrationTest
+  with ViewHelpers
+  with BeforeAndAfterEach {
 
   override val userScenarios: Seq[UserScenario[_, _]] = Seq.empty
 
@@ -45,7 +47,7 @@ class DeductionAmountControllerISpec extends IntegrationTest
 
   private def url(taxYear: Int, month: String, employerRef: String): String = {
     val contractor = encode(employerRef, UTF_8)
-    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/deduction-amount?month=$month&contractor=$contractor"
+    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/materials?month=$month&contractor=$contractor"
   }
 
   ".show" should {
@@ -80,7 +82,7 @@ class DeductionAmountControllerISpec extends IntegrationTest
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYear)
         urlPost(fullUrl(url(taxYear, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
-          headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)), body = Map(AmountForm.amount -> "123"))
+          headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)), body = Map(YesNoForm.yesNo -> "true"))
       }
 
       result.status shouldBe SEE_OTHER
@@ -91,14 +93,16 @@ class DeductionAmountControllerISpec extends IntegrationTest
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aCisUserData.nino, taxYearEOY)
-        insertCyaData(aCisUserData)
+        val cyaPeriodData = aCYAPeriodData.copy(costOfMaterialsQuestion = None)
+        insertCyaData(aCisUserData.copy(cis = aCisCYAModel.copy(periodData = Some(cyaPeriodData))))
         urlPost(fullUrl(url(taxYearEOY, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
-          headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = Map(AmountForm.amount -> "123.23"))
+          headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = Map(YesNoForm.yesNo -> "true"))
       }
 
       result.status shouldBe SEE_OTHER
-      result.headers("Location").head shouldBe MaterialsController.show(taxYearEOY, aPeriodData.deductionPeriod.toString, aCisDeductions.employerRef).url
-      findCyaData(taxYearEOY, aCisDeductions.employerRef, aUser).get.cis.periodData.get.deductionAmount shouldBe Some(123.23)
+      result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
+      findCyaData(taxYearEOY, aCisDeductions.employerRef, aUser).get.cis.periodData.get.costOfMaterialsQuestion shouldBe Some(true)
     }
   }
+
 }
