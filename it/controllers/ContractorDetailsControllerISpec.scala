@@ -16,24 +16,46 @@
 
 package controllers
 
-import models.pages.ContractorDetailsViewModel
+import controllers.routes.DeductionPeriodController
+import forms.ContractorDetailsForm
+import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
 import support.IntegrationTest
+import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.ViewHelpers
 
-class ContractorDetailsControllerISpec extends IntegrationTest with ViewHelpers {
+class ContractorDetailsControllerISpec extends IntegrationTest
+  with ViewHelpers
+  with BeforeAndAfterEach {
 
   override val userScenarios: Seq[UserScenario[_, _]] = Seq.empty
 
-  private def url(taxYear: Int): String = s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/contractor-details"
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    dropCISDB()
+  }
+
+  private def url(taxYear: Int, optContractor: Option[String] = None): String =
+    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/contractor-details" + optContractor.map(contractor => s"?contractor=$contractor").getOrElse("")
 
   ".show" should {
-    "Render Contractor Details page" in {
+    "redirect to income tax submission overview when in year" in {
+      lazy val result: WSResponse = {
+        authoriseAgentOrIndividual(isAgent = false)
+        userDataStub(anIncomeTaxUserData, aUser.nino, taxYear)
+        urlGet(fullUrl(url(taxYear)), headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+      }
+
+      result.status shouldBe SEE_OTHER
+      result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+    }
+
+    "return OK when EOY and no contractor provided" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
@@ -42,19 +64,48 @@ class ContractorDetailsControllerISpec extends IntegrationTest with ViewHelpers 
 
       result.status shouldBe OK
     }
-  }
 
-  ".submit" should {
-    "Redirect to the same page" in {
-      lazy val body = Map("contractorName" -> "A company", "employerReferenceNumber" -> "123/AB123456")
+    "return OK when EOY and existing contractor provided" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
         insertCyaData(aCisUserData)
-        urlPost(fullUrl(url(taxYearEOY)), body = body, follow = false, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
+        urlGet(fullUrl(url(taxYearEOY, Some(aCisDeductions.employerRef))), headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
+      }
+
+      result.status shouldBe OK
+    }
+  }
+
+  ".submit" should {
+    "redirect to income tax submission overview when in year" in {
+      lazy val body = Map(ContractorDetailsForm.contractorName -> "some-name", ContractorDetailsForm.employerReferenceNumber -> "123/456787")
+      lazy val result: WSResponse = {
+        authoriseAgentOrIndividual(isAgent = false)
+        userDataStub(anIncomeTaxUserData, aUser.nino, taxYear)
+        insertCyaData(aCisUserData)
+        urlPost(fullUrl(url(taxYear)), body = body, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
       }
 
       result.status shouldBe SEE_OTHER
+      result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+    }
+
+    "Redirect to the same page" in {
+      lazy val body = Map(ContractorDetailsForm.contractorName -> "some-name", ContractorDetailsForm.employerReferenceNumber -> "123/55555")
+      lazy val result: WSResponse = {
+        authoriseAgentOrIndividual(isAgent = false)
+        userDataStub(anIncomeTaxUserData, aCisUserData.nino, taxYearEOY)
+        insertCyaData(aCisUserData)
+        urlPost(fullUrl(url(taxYearEOY)), body = body, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
+      }
+
+
+      result.status shouldBe SEE_OTHER
+      result.headers("Location").head shouldBe DeductionPeriodController.show(taxYearEOY, contractor = "123/55555").url
+      val persistedCisUserData = findCyaData(taxYearEOY, "123/55555", aUser).get
+      persistedCisUserData.employerRef shouldBe "123/55555"
+      persistedCisUserData.cis.contractorName shouldBe Some("some-name")
     }
   }
 }

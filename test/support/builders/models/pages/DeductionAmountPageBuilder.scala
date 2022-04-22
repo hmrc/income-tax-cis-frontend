@@ -18,14 +18,14 @@ package support.builders.models.pages
 
 import forms.FormsProvider
 import models.pages.DeductionAmountPage
-import support.TaxYearHelper
+import utils.TaxYearUtils
 
 import java.time.Month
 
-object DeductionAmountPageBuilder extends TaxYearHelper {
+object DeductionAmountPageBuilder {
 
   val aDeductionAmountPage: DeductionAmountPage = DeductionAmountPage(
-    taxYear = taxYearEOY,
+    taxYear = TaxYearUtils.taxYearEOY,
     month = Month.MAY,
     contractorName = Some("default-contractor"),
     employerRef = "default-employer-ref",

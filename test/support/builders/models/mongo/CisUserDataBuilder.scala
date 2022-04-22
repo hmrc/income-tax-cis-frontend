@@ -18,16 +18,16 @@ package support.builders.models.mongo
 
 import models.mongo.CisUserData
 import org.joda.time.{DateTime, DateTimeZone}
-import support.TaxYearHelper
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
+import utils.TaxYearUtils
 
-object CisUserDataBuilder extends TaxYearHelper {
+object CisUserDataBuilder {
 
   val aCisUserData: CisUserData = CisUserData(
     sessionId = "sessionId-eb3158c2-0aff-4ce8-8d1b-f2208ace52fe",
     mtdItId = "1234567890",
     nino = "AA123456A",
-    taxYear = taxYearEOY,
+    taxYear = TaxYearUtils.taxYearEOY,
     employerRef = "123/AB123456",
     submissionId = Some("submissionId"),
     isPriorSubmission = true,

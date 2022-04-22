@@ -25,29 +25,29 @@ import support.{TaxYearProvider, UnitTest}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class LabourPayServiceSpec extends UnitTest
+class MaterialsServiceSpec extends UnitTest
   with MockCISSessionService
   with TaxYearProvider {
 
-  private val underTest = new LabourPayService(mockCISSessionService)
+  private val underTest = new MaterialsService(mockCISSessionService)
 
-  ".saveLabourPay" should {
+  ".saveQuestion" should {
     "return DataNotUpdatedError when cisSessionService.createOrUpdateCISUserData returns error" in {
-      val periodData: CYAPeriodData = aCYAPeriodData.copy(grossAmountPaid = Some(123))
+      val periodData: CYAPeriodData = aCYAPeriodData.copy(costOfMaterialsQuestion = Some(true))
       val updatedCYA = aCisUserData.cis.copy(periodData = Some(periodData))
 
-      mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(DataNotUpdatedError))
+      mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(aCisUserData))
 
-      await(underTest.saveLabourPay(aUser, aCisUserData, amount = 123)) shouldBe Left(DataNotUpdatedError)
+      await(underTest.saveQuestion(aUser, aCisUserData, question = true)) shouldBe Left(DataNotUpdatedError)
     }
 
-    "persist cisUserData when CISSessionService.getSessionData returns CisUserData and PeriodData exists" in {
-      val periodData: CYAPeriodData = aCYAPeriodData.copy(grossAmountPaid = Some(123))
+    "persist cisUserData" in {
+      val periodData: CYAPeriodData = aCYAPeriodData.copy(costOfMaterialsQuestion = Some(true))
       val updatedCYA = aCisUserData.cis.copy(periodData = Some(periodData))
 
       mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Right(aCisUserData))
 
-      await(underTest.saveLabourPay(aUser, aCisUserData, amount = 123)) shouldBe Right(())
+      await(underTest.saveQuestion(aUser, aCisUserData, question = true)) shouldBe Right(())
     }
   }
 }

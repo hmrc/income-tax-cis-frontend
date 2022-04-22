@@ -45,6 +45,12 @@ GET        /:taxYear/deduction-amount                                           
 POST       /:taxYear/deduction-amount                                               controllers.DeductionAmountController.submit(taxYear: Int, month: String, contractor: String)
 
 
+###########################     Materials Question pages           ########################
+
+GET        /:taxYear/materials                                                      controllers.MaterialsController.show(taxYear: Int, month: String, contractor: String)
+POST       /:taxYear/materials                                                      controllers.MaterialsController.submit(taxYear: Int, month: String, contractor: String)
+
+
 ###########################     Error pages     ####################################
 
 GET        /error/you-need-to-sign-up                                               controllers.errors.IndividualAuthErrorController.show

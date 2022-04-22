@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-package models.pages
+package support.builders.models.pages
 
-import play.api.libs.json.{Json, OFormat}
+import forms.FormsProvider
+import models.pages.MaterialsPage
+import utils.TaxYearUtils
 
-case class ContractorDetailsViewModel(contractorName: String, employerReferenceNumber: String)
+import java.time.Month
 
-object ContractorDetailsViewModel {
-  implicit val formats: OFormat[ContractorDetailsViewModel] = Json.format[ContractorDetailsViewModel]
+object MaterialsPageBuilder {
+
+  val aMaterialsPage: MaterialsPage = MaterialsPage(
+    taxYear = TaxYearUtils.taxYearEOY,
+    month = Month.MAY,
+    contractorName = Some("default-contractor"),
+    employerRef = "default-employer-ref",
+    form = new FormsProvider().materialsYesNoForm(isAgent = false)
+  )
 }

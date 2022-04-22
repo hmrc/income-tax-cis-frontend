@@ -18,7 +18,7 @@ package views
 
 import forms.ContractorDetailsForm
 import models.AuthorisationRequest
-import models.pages.ContractorDetailsViewModel
+import models.forms.ContractorDetailsFormData
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.i18n.Messages
@@ -26,7 +26,7 @@ import play.api.mvc.AnyContent
 import support.ViewUnitTest
 import views.html.ContractorDetailsView
 
-class ContractorDetailsViewSpec extends ViewUnitTest{
+class ContractorDetailsViewSpec extends ViewUnitTest {
 
   object Selectors {
     val contractorNameFieldHead = "#main-content > div > div > form > div:nth-child(1) > label > div"
@@ -110,7 +110,6 @@ class ContractorDetailsViewSpec extends ViewUnitTest{
     UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY))
   )
 
-
   private lazy val underTest = inject[ContractorDetailsView]
 
   userScenarios.foreach { userScenario =>
@@ -119,7 +118,7 @@ class ContractorDetailsViewSpec extends ViewUnitTest{
         implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(userScenario.isAgent)
         implicit val messages: Messages = getMessages(userScenario.isWelsh)
         lazy val form = ContractorDetailsForm.contractorDetailsForm(userScenario.isAgent)
-        implicit val document: Document = Jsoup.parse(underTest(taxYearEOY, form).body)
+        implicit val document: Document = Jsoup.parse(underTest(taxYearEOY, form, userScenario.isAgent).body)
 
         welshToggleCheck(userScenario.isWelsh)
         titleCheck(userScenario.commonExpectedResults.expectedTitle)
@@ -127,7 +126,7 @@ class ContractorDetailsViewSpec extends ViewUnitTest{
         h1Check(userScenario.commonExpectedResults.expectedTitle)
         textOnPageCheck(userScenario.commonExpectedResults.contractorName, Selectors.contractorNameFieldHead)
         hintTextCheck(userScenario.commonExpectedResults.contractorNameHint, Selectors.contractorNameFieldHint)
-        inputFieldValueCheck("contractorName" , Selectors.contractorNameFieldBox, "")
+        inputFieldValueCheck("contractorName", Selectors.contractorNameFieldBox, "")
         textOnPageCheck(userScenario.commonExpectedResults.employerRef, Selectors.ERNFieldHead)
         hintTextCheck(userScenario.commonExpectedResults.employerRefHint, Selectors.ERNFieldHint)
         inputFieldValueCheck("employerReferenceNumber", Selectors.ERNFieldBox, "")
@@ -139,8 +138,8 @@ class ContractorDetailsViewSpec extends ViewUnitTest{
       "render end of year version of contractor details page with previous content" which {
         implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(userScenario.isAgent)
         implicit val messages: Messages = getMessages(userScenario.isWelsh)
-        lazy val form = ContractorDetailsForm.contractorDetailsForm(userScenario.isAgent).fill(ContractorDetailsViewModel("ABC Steelworks", "123/AB12345"))
-        implicit val document: Document = Jsoup.parse(underTest(taxYearEOY, form, Some("123/AB12345")).body)
+        lazy val form = ContractorDetailsForm.contractorDetailsForm(userScenario.isAgent).fill(ContractorDetailsFormData("ABC Steelworks", "123/AB12345"))
+        implicit val document: Document = Jsoup.parse(underTest(taxYearEOY, form, userScenario.isAgent, Some("123/AB12345")).body)
 
         welshToggleCheck(userScenario.isWelsh)
         titleCheck(userScenario.commonExpectedResults.expectedTitle)
@@ -149,13 +148,12 @@ class ContractorDetailsViewSpec extends ViewUnitTest{
         textOnPageCheck(userScenario.specificExpectedResults.get.replayText, Selectors.replayContentSelector)
         textOnPageCheck(userScenario.commonExpectedResults.contractorName, Selectors.contractorNameFieldHead)
         hintTextCheck(userScenario.commonExpectedResults.contractorNameHint, Selectors.contractorNameFieldHint)
-        inputFieldValueCheck("contractorName" , Selectors.contractorNameFieldBox, "ABC Steelworks")
+        inputFieldValueCheck("contractorName", Selectors.contractorNameFieldBox, "ABC Steelworks")
         textOnPageCheck(userScenario.commonExpectedResults.employerRef, Selectors.ERNFieldHead)
         hintTextCheck(userScenario.commonExpectedResults.employerRefHint, Selectors.ERNFieldHint)
         inputFieldValueCheck("employerReferenceNumber", Selectors.ERNFieldBox, "123/AB12345")
         formPostLinkCheck(controllers.routes.ContractorDetailsController.submit(taxYearEOY, Some("123/AB12345")).url, Selectors.formSelector)
         buttonCheck(userScenario.commonExpectedResults.buttonText, Selectors.buttonSelector)
-
       }
     }
   }

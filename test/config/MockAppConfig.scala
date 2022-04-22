@@ -18,10 +18,10 @@ package config
 
 import org.scalamock.scalatest.MockFactory
 import play.api.mvc.RequestHeader
-import support.TaxYearHelper
+import support.TaxYearProvider
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-class MockAppConfig extends MockFactory with TaxYearHelper {
+class MockAppConfig extends MockFactory with TaxYearProvider {
 
   def config(encrypt: Boolean = true, _taxYearErrorFeature: Boolean = false): AppConfig = new AppConfig(mock[ServicesConfig]) {
     override lazy val signInUrl: String = "/signIn"

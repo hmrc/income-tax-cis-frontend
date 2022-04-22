@@ -17,9 +17,8 @@
 package support.builders.models.pages.elements
 
 import models.pages.elements.ContractorDeductionToDate
-import support.TaxYearHelper
 
-object ContractorDeductionToDateBuilder extends TaxYearHelper {
+object ContractorDeductionToDateBuilder {
 
   val aContractorDeductionToDate: ContractorDeductionToDate = ContractorDeductionToDate(
     contractorName = Some("default-contractor-name"),

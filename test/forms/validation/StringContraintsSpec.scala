@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package forms.testUtils
+package forms.validation
 
-import forms.validation.StringConstraints
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.data.validation.{Constraints, Invalid, Valid}

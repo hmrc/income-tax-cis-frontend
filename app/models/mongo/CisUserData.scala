@@ -16,6 +16,7 @@
 
 package models.mongo
 
+import models.User
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
@@ -51,6 +52,24 @@ object CisUserData extends MongoJodaFormats {
   implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
 
   implicit val formats: Format[CisUserData] = Json.format[CisUserData]
+
+  def createFrom(user: User,
+                 taxYear: Int,
+                 employerRef: String,
+                 cis: CisCYAModel,
+                 lastUpdated: DateTime,
+                 submissionId: Option[String] = None,
+                 isPriorSubmission: Boolean = false): CisUserData = new CisUserData(
+    sessionId = user.sessionId,
+    mtdItId = user.mtditid,
+    nino = user.nino,
+    taxYear = taxYear,
+    employerRef = employerRef,
+    submissionId = submissionId,
+    isPriorSubmission = isPriorSubmission,
+    cis = cis,
+    lastUpdated = lastUpdated
+  )
 }
 
 case class EncryptedCisUserData(sessionId: String,

@@ -16,20 +16,19 @@
 
 package controllers
 
-import play.api.mvc.Results.{InternalServerError, Ok, Redirect}
-import controllers.errors.routes.UnauthorisedUserErrorController
-import models.CisUserIsPriorSubmission
-import models.mongo.{DataNotFoundError, DatabaseError}
-import models.pages.ContractorDetailsViewModel
-import play.api.http.Status.{BAD_REQUEST, SEE_OTHER}
+import controllers.routes.DeductionPeriodController
+import forms.ContractorDetailsForm
+import models.forms.ContractorDetailsFormData
+import models.mongo.DataNotFoundError
+import org.jsoup.Jsoup
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
+import play.api.mvc.Results.{InternalServerError, Redirect}
+import play.api.test.Helpers.{contentAsString, contentType, status}
 import support.ControllerUnitTest
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.mocks.{MockActionsProvider, MockAuthorisedAction, MockContractorDetailsService, MockErrorHandler}
-import utils.InYearUtil
+import support.mocks.{MockActionsProvider, MockContractorDetailsService, MockErrorHandler}
 import views.html.ContractorDetailsView
-
-import scala.concurrent.Future
 
 class ContractorDetailsControllerSpec extends ControllerUnitTest
   with MockActionsProvider
@@ -38,56 +37,91 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
 
   private val pageView = inject[ContractorDetailsView]
 
-  val inYearAction = new InYearUtil
-
-  private val underTest = new ContractorDetailsController()(cc, mockActionsProvider, pageView,
-    mockContractorDetailsService, mockErrorHandler, ec, appConfig)
+  private val underTest = new ContractorDetailsController(
+    mockActionsProvider,
+    pageView,
+    mockContractorDetailsService,
+    mockErrorHandler
+  )(cc, ec, appConfig)
 
   ".show" should {
-    "redirect when service returns left" in {
+    "return successful response when contractor not provided" in {
       mockNotInYear(taxYearEOY)
-      mockCheckAccessContractorDetailsPage(taxYearEOY, aUser, Future(Left(CisUserIsPriorSubmission)))
-      mockInternalError(InternalServerError)
-      await(underTest.show(taxYear = taxYearEOY, Some("ERN"))(fakeIndividualRequest)) shouldBe InternalServerError
+
+      val result = underTest.show(taxYearEOY, None).apply(fakeIndividualRequest)
+
+      status(result) shouldBe OK
+      contentType(result) shouldBe Some("text/html")
     }
 
-    "Show view when service returns Right(None)" in {
-      mockNotInYear(taxYearEOY)
-      mockCheckAccessContractorDetailsPage(taxYearEOY, aUser, Future(Right(None)))
-      await(underTest.show(taxYear = taxYearEOY, Some("ERN")).apply(fakeIndividualRequest)).header.status shouldBe Ok.header.status
-    }
+    "return successful response when contractor provided" in {
+      mockNotInYearWithSessionData(taxYearEOY, employerRef = "contractor-ref")
 
-    "Show view when service returns Right(Some)" in {
-      mockNotInYear(taxYearEOY)
-      mockCheckAccessContractorDetailsPage(taxYearEOY, aUser, Future(Right(Some(aCisUserData))))
-      await(underTest.show(taxYear = taxYearEOY, Some("ERN")).apply(fakeIndividualRequest)).header.status shouldBe Ok.header.status
+      val result = underTest.show(taxYearEOY, Some("contractor-ref")).apply(fakeIndividualRequest)
+
+      status(result) shouldBe OK
+      contentType(result) shouldBe Some("text/html")
     }
   }
 
   ".submit" should {
-    "return bad request when form is broken" in {
+    "return page with error when validation fails" in {
       mockNotInYear(taxYearEOY)
-      await(underTest.submit(taxYear = taxYearEOY, contractor = None)(fakeIndividualRequest.withFormUrlEncodedBody("contractorName"-> "ABC Steelworks"))).header.status shouldBe
-        BAD_REQUEST
+
+      val result = underTest.submit(taxYear = taxYearEOY, contractor = None)(fakeIndividualRequest.withFormUrlEncodedBody(ContractorDetailsForm.contractorName -> "some-name"))
+
+      status(result) shouldBe BAD_REQUEST
+      contentType(result) shouldBe Some("text/html")
+      val document = Jsoup.parse(contentAsString(result))
+      document.select("#error-summary-title").isEmpty shouldBe false
     }
 
-    "return ok when service returns left" in {
-      val error = DataNotFoundError
-      mockNotInYear(taxYearEOY)
-      mockCreateOrUpdateContractorDetails(ContractorDetailsViewModel("ABC Steelworks", "123/AB12345"), taxYearEOY, aUser, Future(Left(error)))
-      mockInternalError(InternalServerError)
-      await(underTest.submit(taxYear = taxYearEOY, contractor = None)
-      (fakeIndividualRequest.withFormUrlEncodedBody("contractorName"-> "ABC Steelworks",  "employerReferenceNumber" -> "123/AB12345"))) shouldBe InternalServerError
+    "handle internal server error when save operation fails with database error when" when {
+      "no contractor provided" in {
+        mockNotInYear(taxYearEOY)
+        mockSaveContractorDetails(taxYearEOY, aUser, None, ContractorDetailsFormData("some-name", "123/45678"), Left(DataNotFoundError))
+        mockInternalError(InternalServerError)
 
+        val result = underTest.submit(taxYearEOY, contractor = None).apply(fakeIndividualRequest.withFormUrlEncodedBody(
+          ContractorDetailsForm.contractorName -> "some-name",
+          ContractorDetailsForm.employerReferenceNumber -> "123/45678"
+        ))
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+      }
+
+      "contractor provided" in {
+        mockNotInYearWithSessionData(taxYearEOY, employerRef = "123/45678")
+        mockSaveContractorDetails(taxYearEOY, aUser, Some(aCisUserData.copy(employerRef = "123/45678")), ContractorDetailsFormData("some-name", "123/45678"), Left(DataNotFoundError))
+        mockInternalError(InternalServerError)
+
+        val result = underTest.submit(taxYearEOY, contractor = Some("123/45678")).apply(fakeIndividualRequest.withFormUrlEncodedBody(
+          ContractorDetailsForm.contractorName -> "some-name",
+          ContractorDetailsForm.employerReferenceNumber -> "123/45678"
+        ))
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+      }
     }
 
-    "return SEE_OTHER when service returns right" in {
-      mockNotInYear(taxYearEOY)
-      mockCreateOrUpdateContractorDetails(ContractorDetailsViewModel("ABC Steelworks", "123/AB12345"), taxYearEOY, aUser, Future(Right()))
+    "redirect to Deduction period on successful submission when" when {
+      "no contractor provided" in {
+        mockNotInYear(taxYearEOY)
+        mockSaveContractorDetails(taxYearEOY, aUser, None, ContractorDetailsFormData("some-name", "123/45678"), Right(()))
 
-      val result = await(underTest.submit(taxYear = taxYearEOY, contractor = None)(fakeIndividualRequest.withFormUrlEncodedBody("contractorName"-> "ABC Steelworks",  "employerReferenceNumber" -> "123/AB12345")))
-      result.header.status shouldBe SEE_OTHER
+        await(underTest.submit(taxYear = taxYearEOY, contractor = None)(fakeIndividualRequest.withFormUrlEncodedBody(
+          ContractorDetailsForm.contractorName -> "some-name", ContractorDetailsForm.employerReferenceNumber -> "123/45678"))) shouldBe
+          Redirect(DeductionPeriodController.show(taxYearEOY, "123/45678"))
+      }
+
+      "contractor provided" in {
+        mockNotInYearWithSessionData(taxYearEOY, employerRef = "123/45678")
+        mockSaveContractorDetails(taxYearEOY, aUser, Some(aCisUserData.copy(employerRef = "123/45678")), ContractorDetailsFormData("some-name", "123/45678"), Right(()))
+
+        await(underTest.submit(taxYear = taxYearEOY, contractor = Some("123/45678"))(fakeIndividualRequest.withFormUrlEncodedBody(
+          ContractorDetailsForm.contractorName -> "some-name", ContractorDetailsForm.employerReferenceNumber -> "123/45678"))) shouldBe
+          Redirect(DeductionPeriodController.show(taxYearEOY, "123/45678"))
+      }
     }
   }
-
 }

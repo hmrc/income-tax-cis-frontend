@@ -18,43 +18,43 @@ package controllers
 
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
-import controllers.routes.MaterialsController
 import forms.FormsProvider
 import models.mongo.DatabaseError
-import models.pages.DeductionAmountPage
+import models.pages.MaterialsPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.DeductionAmountService
+import services.MaterialsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
-import views.html.DeductionAmountView
+import views.html.MaterialsView
 
 import java.time.Month
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeductionAmountController @Inject()(actionsProvider: ActionsProvider,
-                                          formsProvider: FormsProvider,
-                                          pageView: DeductionAmountView,
-                                          deductionAmountService: DeductionAmountService,
-                                          errorHandler: ErrorHandler)
-                                         (implicit val cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
+class MaterialsController @Inject()(actionsProvider: ActionsProvider,
+                                    formsProvider: FormsProvider,
+                                    pageView: MaterialsView,
+                                    materialsService: MaterialsService,
+                                    errorHandler: ErrorHandler)
+                                   (implicit val cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int,
            month: String,
            contractor: String): Action[AnyContent] = actionsProvider.notInYearWithSessionData(taxYear, contractor) { implicit request =>
-    Ok(pageView(DeductionAmountPage(Month.valueOf(month.toUpperCase), request.cisUserData, formsProvider.deductionAmountForm())))
+    Ok(pageView(MaterialsPage(Month.valueOf(month.toUpperCase), request.cisUserData, formsProvider.materialsYesNoForm(request.user.isAgent))))
   }
 
   def submit(taxYear: Int,
              month: String,
              contractor: String): Action[AnyContent] = actionsProvider.notInYearWithSessionData(taxYear, contractor).async { implicit request =>
-    formsProvider.deductionAmountForm().bindFromRequest().fold(
-      formWithErrors => Future.successful(BadRequest(pageView(DeductionAmountPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
-      amount => deductionAmountService.saveDeductionAmount(request.user, request.cisUserData, amount).map {
+    formsProvider.materialsYesNoForm(request.user.isAgent).bindFromRequest().fold(
+      formWithErrors => Future.successful(BadRequest(pageView(MaterialsPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
+      yesNoValue => materialsService.saveQuestion(request.user, request.cisUserData, yesNoValue).map {
         case Left(_: DatabaseError) => errorHandler.internalServerError()
-        case Right(_) => Redirect(MaterialsController.show(taxYear, month, contractor))
+        // TODO: The following should be updated to redirect to the next page
+        case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
       }
     )
   }

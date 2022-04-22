@@ -59,7 +59,7 @@ class ActionsProvider @Inject()(val authAction: AuthorisedAction,
   def notInYearWithSessionData(taxYear: Int, contractor: String): ActionBuilder[UserSessionDataRequest, AnyContent] =
     authAction
       .andThen(notInYearActionBuilder(taxYear))
-      .andThen(new CisUserDataActionRefiner(taxYear, UrlUtils.decode(contractor), cisSessionService, errorHandler, appConfig))
+      .andThen(CisUserDataActionRefiner(taxYear, contractor, cisSessionService, errorHandler, appConfig))
 
   private def notInYearActionBuilder(taxYear: Int): ActionFilter[AuthorisationRequest] = new ActionFilter[AuthorisationRequest] {
     override protected def executionContext: ExecutionContext = ec

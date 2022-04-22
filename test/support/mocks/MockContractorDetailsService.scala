@@ -16,31 +16,26 @@
 
 package support.mocks
 
+import models.forms.ContractorDetailsFormData
 import models.mongo.{CisUserData, DatabaseError}
 import models.{ServiceError, User}
-import models.pages.ContractorDetailsViewModel
-import org.scalamock.handlers.{CallHandler4, CallHandler5}
+import org.scalamock.handlers.CallHandler4
 import org.scalamock.scalatest.MockFactory
 import services.ContractorDetailsService
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-trait MockContractorDetailsService extends MockFactory{
+trait MockContractorDetailsService extends MockFactory {
 
   protected val mockContractorDetailsService: ContractorDetailsService = mock[ContractorDetailsService]
 
-  def mockCheckAccessContractorDetailsPage(taxYear: Int, user: User, result: Future[Either[ServiceError, Option[CisUserData]]])
-                                          (implicit executionContext: ExecutionContext): CallHandler4[Int, User, String, ExecutionContext, Future[Either[ServiceError, Option[CisUserData]]]] = {
-    (mockContractorDetailsService.checkAccessContractorDetailsPage(_: Int, _: User, _: String)(_: ExecutionContext))
-      .expects(taxYear, user, *, executionContext)
-      .returns(result)
+  def mockSaveContractorDetails(taxYear: Int,
+                                user: User,
+                                optCisUserData: Option[CisUserData],
+                                formData: ContractorDetailsFormData,
+                                result: Either[DatabaseError, Unit]): CallHandler4[Int, User, Option[CisUserData], ContractorDetailsFormData, Future[Either[ServiceError, Unit]]] = {
+    (mockContractorDetailsService.saveContractorDetails _)
+      .expects(taxYear, user, optCisUserData, formData)
+      .returns(Future.successful(result))
   }
-
-  def mockCreateOrUpdateContractorDetails(model: ContractorDetailsViewModel, taxYear: Int, user: User, result: Future[Either[DatabaseError, Unit]])
-                                     (implicit executionContext: ExecutionContext): CallHandler5[ContractorDetailsViewModel, Int, User, Option[String], ExecutionContext, Future[Either[DatabaseError, Unit]]] = {
-    (mockContractorDetailsService.createOrUpdateContractorDetails(_: ContractorDetailsViewModel, _: Int, _: User, _: Option[String])(_: ExecutionContext))
-      .expects(model, taxYear, user, None, executionContext)
-      .returns(result)
-  }
-
 }

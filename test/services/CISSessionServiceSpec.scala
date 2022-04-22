@@ -25,7 +25,7 @@ import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockCISUserDataRepository, MockIncomeTaxUserDataConnector}
-import support.{TaxYearHelper, UnitTest}
+import support.{TaxYearProvider, UnitTest}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.TestingClock
 
@@ -34,12 +34,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class CISSessionServiceSpec extends UnitTest
   with MockIncomeTaxUserDataConnector
   with MockCISUserDataRepository
-  with TaxYearHelper {
+  with TaxYearProvider {
 
   implicit private val hc: HeaderCarrier = HeaderCarrier()
 
   private val underTest = new CISSessionService(
-    mockRepo,
+    mockCisUserDataRepository,
     mockIncomeTaxUserDataConnector,
     TestingClock
   )

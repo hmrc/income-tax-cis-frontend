@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package support.builders.models.pages
+package utils
 
-import models.pages.DeductionPeriodPage
-import utils.TaxYearUtils
+import org.joda.time.DateTime
 
-import java.time.Month
+object TaxYearUtils {
 
-object DeductionPeriodPageBuilder {
+  private val month = DateTime.now().monthOfYear().get()
+  private val dayOfMonth = DateTime.now().dayOfMonth().get()
 
-  val aDeductionPeriodPage: DeductionPeriodPage = DeductionPeriodPage(
-    taxYear = TaxYearUtils.taxYear,
-    contractorName = Some("Michele Lamy Paving Ltd"),
-    employerRef = "111/11111",
-    period = Some(Month.DECEMBER),
-    priorSubmittedPeriods = Seq(Month.APRIL)
-  )
+  val taxYear: Int = if (month >= 4 && dayOfMonth > 5) DateTime.now().year().get() + 1 else DateTime.now().year().get()
+  val taxYearEOY: Int = taxYear - 1
 }

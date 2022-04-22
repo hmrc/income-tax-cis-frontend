@@ -33,7 +33,7 @@ trait ViewUnitTest extends UnitTest
   with ViewHelper
   with GuiceOneAppPerSuite
   with Injecting
-  with TaxYearHelper {
+  with TaxYearProvider {
 
   private val fakeRequest = FakeRequest().withHeaders("X-Session-ID" -> aUser.sessionId)
 

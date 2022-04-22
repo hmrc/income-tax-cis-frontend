@@ -34,4 +34,8 @@ class FormsProvider {
     wrongFormatKey = s"deductionAmountPage.error.wrongFormat",
     exceedsMaxAmountKey = s"deductionAmountPage.error.overMaximum"
   )
+
+  def materialsYesNoForm(isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(
+    missingInputError = s"materialsPage.error.${if (isAgent) "agent" else "individual"}"
+  )
 }

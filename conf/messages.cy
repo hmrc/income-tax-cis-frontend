@@ -35,6 +35,7 @@ common.status.notStarted = Not started
 common.status.updated = Updated
 common.update = Update
 common.use = use
+common.warning = Warning
 common.yes = Yes
 common.contractor.employerRef = Contractor: {0}
 common.january = Ionawr
@@ -127,7 +128,7 @@ deductionAmountPage.error.noEntry = Enter the CIS deduction amount
 deductionAmountPage.error.wrongFormat = Enter the CIS deduction in the correct format
 deductionAmountPage.error.overMaximum = The CIS deduction must be less than £100,000,000,000
 
-#################       Contractor Details messages        ########################################
+################# Contractor Details messages   ########################################
 
 contractor-details.name = Contractor name
 contractor-details.name.hint = For example, ABC Steelworks.
@@ -141,6 +142,19 @@ contractor-details.employer-ref.replay.individual = If your ERN is not {0}, tell
 contractor-details.employer-ref.replay.agent = If your client’s ERN is not {0}, tell us the correct reference.
 contractor-details.employer-ref.error.noEntry = Enter the Employer Reference Number
 contractor-details.employer-ref.error.wrongFormat = Enter the Employer Reference Number in the correct format
+
+#################       Materials Page       #######################################
+materialsPage.title.agent = Did your client pay for materials for their contractor?
+materialsPage.title.individual = Did you pay for materials for your contractor?
+materialsPage.heading.contractorName.agent = Did your client pay for materials at {0}?
+materialsPage.heading.contractorName.individual = Did you pay for materials at {0}?
+materialsPage.paragraph.agent = Materials include things your client pays for as part of a construction project, for example:
+materialsPage.paragraph.individual = Materials include things you pay for as part of a construction project, for example:
+materialsPage.bullet.one = bricks, piping, timber, fixings
+materialsPage.bullet.two = renting or hiring equipment or scaffolding
+materialsPage.warning = This does not include work related expenses (fuel, hotels, tools, work clothes). You will need to use the ’Self Assessment: Self-employment’ form to tell us about these expenses.
+materialsPage.error.agent = Select yes if your client paid for materials
+materialsPage.error.individual = Select yes if you paid for materials
 
 #################       Error messages        ########################################
 

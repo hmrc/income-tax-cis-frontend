@@ -14,21 +14,12 @@
  * limitations under the License.
  */
 
-package models
+package models.forms
 
-import models.pages.ContractorDetailsViewModel
-import play.api.libs.json.Json
-import support.UnitTest
+import play.api.libs.json.{Json, OFormat}
 
-class ContractorDetailsViewModelSpec extends UnitTest{
+case class ContractorDetailsFormData(contractorName: String, employerReferenceNumber: String)
 
-  "ContractorDetailsViewModel" should {
-    "write to json correctly when using implicit writes" in {
-      val result = Json.toJson(ContractorDetailsViewModel("ABC Steelworks", "123/AB12345"))
-      val aContractorDetailsViewModel = Json.obj("contractorName" -> "ABC Steelworks",
-        "employerReferenceNumber" -> "123/AB12345")
-
-      result shouldBe aContractorDetailsViewModel
-    }
-  }
+object ContractorDetailsFormData {
+  implicit val formats: OFormat[ContractorDetailsFormData] = Json.format[ContractorDetailsFormData]
 }

@@ -21,13 +21,13 @@ import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.MockCISSessionService
-import support.{TaxYearHelper, UnitTest}
+import support.{TaxYearProvider, UnitTest}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class DeductionAmountServiceSpec extends UnitTest
   with MockCISSessionService
-  with TaxYearHelper {
+  with TaxYearProvider {
 
   private val underTest = new DeductionAmountService(mockCISSessionService)
 

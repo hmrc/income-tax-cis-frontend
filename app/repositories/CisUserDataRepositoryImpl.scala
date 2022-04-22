@@ -114,13 +114,15 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
     }
   }
 
-  def clear(taxYear: Int, employerRef: String,  user: User): Future[Boolean] =
+  def clear(taxYear: Int, employerRef: String, user: User): Future[Boolean] =
     collection.deleteOne(filter(user.sessionId, user.mtditid, user.nino, taxYear, employerRef))
       .toFutureOption()
       .recover(mongoRecover("Clear", FAILED_TO_ClEAR_CIS_DATA, user))
       .map(_.exists(_.wasAcknowledged()))
 
-  def mongoRecover[T](operation: String, pagerDutyKey: PagerDutyKeys.Value, user: User): PartialFunction[Throwable, Option[T]] = new PartialFunction[Throwable, Option[T]] {
+  def mongoRecover[T](operation: String,
+                      pagerDutyKey: PagerDutyKeys.Value,
+                      user: User): PartialFunction[Throwable, Option[T]] = new PartialFunction[Throwable, Option[T]] {
 
     override def isDefinedAt(x: Throwable): Boolean = x.isInstanceOf[MongoException]
 
