@@ -18,16 +18,14 @@ package controllers
 
 import actions.ActionsProvider
 import config.AppConfig
-import models.UserPriorDataRequest
-import models.pages.DeductionsSummaryPage
-import models.pages.DeductionsSummaryPage.mapToInYearPage
+import javax.inject.Inject
+import models.pages.DeductionsSummaryPage.{mapToEndOfYearPage, mapToInYearPage}
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, ActionBuilder, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.{InYearUtil, SessionHelper}
 import views.html.DeductionsSummaryView
 
-import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class DeductionsSummaryController @Inject()(actionsProvider: ActionsProvider,
@@ -36,20 +34,11 @@ class DeductionsSummaryController @Inject()(actionsProvider: ActionsProvider,
                                            (implicit val cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
-  private def getAction(taxYear: Int): ActionBuilder[UserPriorDataRequest, AnyContent] = {
-    if (!inYearUtil.inYear(taxYear)) {
-      actionsProvider.authAction.andThen(actionsProvider.incomeTaxUserDataAction(taxYear))
-    } else {
-      actionsProvider.priorDataWithInYearCisDeductions(taxYear)
-    }
-  }
-
-  def show(taxYear: Int): Action[AnyContent] = getAction(taxYear) { implicit request =>
-    if (!inYearUtil.inYear(taxYear)) {
-      val pageModel = DeductionsSummaryPage(taxYear = taxYear, isInYear = false, deductions = Seq.empty)
-      Ok(pageView(pageModel))
-    } else {
+  def show(taxYear: Int): Action[AnyContent] = actionsProvider.priorCisDeductionsData(taxYear) { implicit request =>
+    if (inYearUtil.inYear(taxYear)) {
       Ok(pageView(mapToInYearPage(taxYear, request.incomeTaxUserData)))
+    } else {
+      Ok(pageView(mapToEndOfYearPage(taxYear, request.incomeTaxUserData)))
     }
   }
 }

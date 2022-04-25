@@ -30,6 +30,28 @@ case class CisDeductions(fromDate: String,
                          totalGrossAmountPaid: Option[BigDecimal],
                          periodData: Seq[PeriodData]) {
 
+  private def isLaterInTaxYear(p: PeriodData): Boolean = p.deductionPeriod == Month.JANUARY ||
+    p.deductionPeriod == Month.FEBRUARY ||
+    p.deductionPeriod == Month.MARCH ||
+    p.deductionPeriod == Month.APRIL
+
+  def withSortedPeriodData: CisDeductions = {
+    val periodsEarlierInTaxYear = periodData.filterNot(isLaterInTaxYear).sortBy(_.deductionPeriod)
+    val periodsLaterInTaxYear = periodData.filter(isLaterInTaxYear).sortBy(_.deductionPeriod)
+
+    this.copy(
+      periodData = periodsEarlierInTaxYear ++ periodsLaterInTaxYear
+    )
+  }
+
+  def recalculateFigures: CisDeductions = {
+    this.copy(
+      totalDeductionAmount = Some(periodData.flatMap(_.deductionAmount).sum),
+      totalCostOfMaterials = if(periodData.flatMap(_.costOfMaterials).sum > BigDecimal(0)) Some(periodData.flatMap(_.costOfMaterials).sum) else None,
+      totalGrossAmountPaid = Some(periodData.flatMap(_.grossAmountPaid).sum)
+    )
+  }
+
   val submissionId: Option[String] =
     periodData.find(_.submissionId.isDefined).flatMap(_.submissionId)
 

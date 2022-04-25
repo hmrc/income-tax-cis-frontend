@@ -43,7 +43,7 @@ class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
   def show(taxYear: Int, contractor: Option[String]): Action[AnyContent] = contractor match {
     case None => actionsProvider.notInYear(taxYear)(implicit request =>
       Ok(contractorDetailsView(taxYear, contractorDetailsForm(request.user.isAgent), request.user.isAgent)))
-    case Some(contractorRef) => actionsProvider.notInYearWithSessionData(taxYear, contractorRef) { implicit request =>
+    case Some(contractorRef) => actionsProvider.endOfYearWithSessionData(taxYear, contractorRef) { implicit request =>
       val fillModel = ContractorDetailsFormData(request.cisUserData.cis.contractorName.getOrElse(""), request.cisUserData.employerRef)
       val form = contractorDetailsForm(request.user.isAgent).fill(fillModel)
       Ok(contractorDetailsView(taxYear, form, request.user.isAgent, Some(request.cisUserData.employerRef)))
@@ -52,7 +52,7 @@ class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
 
   def submit(taxYear: Int, contractor: Option[String]): Action[AnyContent] = contractor match {
     case None => actionsProvider.notInYear(taxYear).async { implicit request => handleSubmitRequest(taxYear, request.user) }
-    case Some(contractorRef) => actionsProvider.notInYearWithSessionData(taxYear, contractorRef).async { implicit request =>
+    case Some(contractorRef) => actionsProvider.endOfYearWithSessionData(taxYear, contractorRef).async { implicit request =>
       handleSubmitRequest(taxYear, request.user, Some(request.cisUserData))
     }
   }

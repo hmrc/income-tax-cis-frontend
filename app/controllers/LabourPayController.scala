@@ -43,7 +43,7 @@ class LabourPayController @Inject()(actionsProvider: ActionsProvider,
 
   def show(taxYear: Int,
            month: String,
-           contractor: String): Action[AnyContent] = actionsProvider.notInYearWithSessionData(taxYear, contractor) { implicit request =>
+           contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor) { implicit request =>
     val monthValue = Month.valueOf(month.toUpperCase)
     val form = formsProvider.labourPayAmountForm(request.user.isAgent)
 
@@ -52,7 +52,7 @@ class LabourPayController @Inject()(actionsProvider: ActionsProvider,
 
   def submit(taxYear: Int,
              month: String,
-             contractor: String): Action[AnyContent] = actionsProvider.notInYearWithSessionData(taxYear, contractor).async { implicit request =>
+             contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor).async { implicit request =>
     val monthValue = Month.valueOf(month.toUpperCase)
 
     formsProvider.labourPayAmountForm(request.user.isAgent).bindFromRequest().fold(

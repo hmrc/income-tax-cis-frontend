@@ -90,7 +90,7 @@ class CISSessionServiceSpec extends UnitTest
   ".getPriorAndMakeCYA" should {
     "return data" in {
       mockGetUserData(aUser.nino, taxYearEOY, Right(anIncomeTaxUserData))
-      val cya = anIncomeTaxUserData.getCISDeductionsFor(aCisDeductions.employerRef).get.toCYA
+      val cya = anIncomeTaxUserData.getEOYCISDeductionsFor(aCisDeductions.employerRef).get.toCYA
       mockCreateOrUpdateCYAData(aCisUserData.copy(cis = cya, lastUpdated = TestingClock.now()), Right(()))
 
       await(underTest.getPriorAndMakeCYA(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Right(aCisUserData.copy(cis = cya, lastUpdated = TestingClock.now()))
@@ -102,7 +102,7 @@ class CISSessionServiceSpec extends UnitTest
     }
     "handle when saving the data fails" in {
       mockGetUserData(aUser.nino, taxYearEOY, Right(anIncomeTaxUserData))
-      val cya = anIncomeTaxUserData.getCISDeductionsFor(aCisDeductions.employerRef).get.toCYA
+      val cya = anIncomeTaxUserData.getEOYCISDeductionsFor(aCisDeductions.employerRef).get.toCYA
       mockCreateOrUpdateCYAData(aCisUserData.copy(cis = cya, lastUpdated = TestingClock.now()), Left(DataNotUpdatedError))
 
       await(underTest.getPriorAndMakeCYA(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Left(DataNotUpdatedError)

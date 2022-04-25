@@ -47,18 +47,18 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
           """{
             |  "cis": {
             |    "customerCISDeductions": {
-            |      "totalDeductionAmount": 900,
-            |      "totalCostOfMaterials": 800,
-            |      "totalGrossAmountPaid": 700,
+            |      "totalDeductionAmount": 100.00,
+            |      "totalCostOfMaterials": 50.00,
+            |      "totalGrossAmountPaid": 450.00,
             |      "cisDeductions": [
             |        {
             |          "fromDate": "2020-04-06",
             |          "toDate": "2021-04-05",
             |          "contractorName": "ABC SteelWorks",
             |          "employerRef": "123/AB123456",
-            |          "totalDeductionAmount": 300,
-            |          "totalCostOfMaterials": 400,
-            |          "totalGrossAmountPaid": 200,
+            |          "totalDeductionAmount": 100.00,
+            |          "totalCostOfMaterials": 50.00,
+            |          "totalGrossAmountPaid": 450.00,
             |          "periodData": [
             |            {
             |              "deductionFromDate": "2020-04-06",
@@ -75,18 +75,18 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
             |      ]
             |    },
             |    "contractorCISDeductions": {
-            |      "totalDeductionAmount": 900,
-            |      "totalCostOfMaterials": 800,
-            |      "totalGrossAmountPaid": 700,
+            |      "totalDeductionAmount": 100,
+            |      "totalCostOfMaterials": 50,
+            |      "totalGrossAmountPaid": 450,
             |      "cisDeductions": [
             |        {
             |          "fromDate": "2020-04-06",
             |          "toDate": "2021-04-05",
             |          "contractorName": "ABC SteelWorks",
             |          "employerRef": "123/AB123456",
-            |          "totalDeductionAmount": 300,
-            |          "totalCostOfMaterials": 400,
-            |          "totalGrossAmountPaid": 200,
+            |          "totalDeductionAmount": 100,
+            |          "totalCostOfMaterials": 50,
+            |          "totalGrossAmountPaid": 450,
             |          "periodData": [
             |            {
             |              "deductionFromDate": "2020-04-06",

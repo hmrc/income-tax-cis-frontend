@@ -51,21 +51,22 @@ class ActionsProviderSpec extends ControllerUnitTest
     mockAppConfig
   )
 
-  ".priorDataWithInYearCisDeductions" should {
+  ".priorCisDeductionsData" should {
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()
 
-      val underTest = actionsProvider.priorDataWithInYearCisDeductions(taxYear)(block = anyBlock)
+      val underTest = actionsProvider.priorCisDeductionsData(taxYear)(block = anyBlock)
 
       await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show())
     }
 
-    "redirect to Income Tax Submission Overview when not in year" in {
+    "get prior data when not in year" in {
       mockAuthAsIndividual(Some(aUser.nino))
+      mockGetPriorData(taxYearEOY, aUser, Right(IncomeTaxUserData(cis = Some(anAllCISDeductions))))
 
-      val underTest = actionsProvider.priorDataWithInYearCisDeductions(taxYearEOY)(block = anyBlock)
+      val underTest = actionsProvider.priorCisDeductionsData(taxYearEOY)(block = anyBlock)
 
-      await(underTest(fakeIndividualRequest)) shouldBe Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY))
+      status(underTest(fakeIndividualRequest)) shouldBe OK
     }
 
     "handle internal server error when getPriorData result in error" in {
@@ -73,7 +74,7 @@ class ActionsProviderSpec extends ControllerUnitTest
       mockGetPriorData(taxYear, aUser, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
       mockHandleError(INTERNAL_SERVER_ERROR, InternalServerError)
 
-      val underTest = actionsProvider.priorDataWithInYearCisDeductions(taxYear)(block = anyBlock)
+      val underTest = actionsProvider.priorCisDeductionsData(taxYear)(block = anyBlock)
 
       await(underTest(fakeIndividualRequest)) shouldBe InternalServerError
     }
@@ -82,7 +83,7 @@ class ActionsProviderSpec extends ControllerUnitTest
       mockAuthAsIndividual(Some(aUser.nino))
       mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(anAllCISDeductions))))
 
-      val underTest = actionsProvider.priorDataWithInYearCisDeductions(taxYear)(block = anyBlock)
+      val underTest = actionsProvider.priorCisDeductionsData(taxYear)(block = anyBlock)
 
       status(underTest(fakeIndividualRequest)) shouldBe OK
     }
@@ -232,11 +233,11 @@ class ActionsProviderSpec extends ControllerUnitTest
     }
   }
 
-  ".notInYearWithSessionData" should {
+  ".endOfYearWithSessionData" should {
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()
 
-      val underTest = actionsProvider.notInYearWithSessionData(taxYearEOY, contractor = "any-contractor")(block = anyBlock)
+      val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, contractor = "any-contractor")(block = anyBlock)
 
       await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show())
     }
@@ -244,7 +245,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     "redirect to Income Tax Submission Overview when in year" in {
       mockAuthAsIndividual(Some(aUser.nino))
 
-      val underTest = actionsProvider.notInYearWithSessionData(taxYear, contractor = "any-contractor")(block = anyBlock)
+      val underTest = actionsProvider.endOfYearWithSessionData(taxYear, contractor = "any-contractor")(block = anyBlock)
 
       await(underTest(fakeIndividualRequest)) shouldBe Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     }
@@ -253,7 +254,7 @@ class ActionsProviderSpec extends ControllerUnitTest
       mockAuthAsIndividual(Some(aUser.nino))
       mockGetSessionData(taxYearEOY, aUser, employerRef = "some/ref", result = Right(Some(aCisUserData)))
 
-      val underTest = actionsProvider.notInYearWithSessionData(taxYearEOY, contractor = UrlUtils.encode(value = "some/ref"))(block = anyBlock)
+      val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, contractor = UrlUtils.encode(value = "some/ref"))(block = anyBlock)
 
       status(underTest(fakeIndividualRequest)) shouldBe OK
     }
