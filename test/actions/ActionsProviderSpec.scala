@@ -233,7 +233,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     }
   }
 
-  ".endOfYearWithSessionData" should {
+  ".endOfYearWithSessionData(taxYear, contractor)" should {
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()
 
@@ -255,6 +255,42 @@ class ActionsProviderSpec extends ControllerUnitTest
       mockGetSessionData(taxYearEOY, aUser, employerRef = "some/ref", result = Right(Some(aCisUserData)))
 
       val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, contractor = UrlUtils.encode(value = "some/ref"))(block = anyBlock)
+
+      status(underTest(fakeIndividualRequest)) shouldBe OK
+    }
+  }
+
+  ".endOfYearWithSessionData(taxYear, month, contractor)" should {
+    "redirect to UnauthorisedUserErrorController when authentication fails" in {
+      mockFailToAuthenticate()
+
+      val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, month = "May", contractor = "any-contractor")(block = anyBlock)
+
+      await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show())
+    }
+
+    "redirect to Error page when month is wrong" in {
+      mockAuthAsIndividual(Some(aUser.nino))
+      mockInternalError(InternalServerError)
+
+      val underTest = actionsProvider.endOfYearWithSessionData(taxYear, month = "wrong-month", contractor = "any-contractor")(block = anyBlock)
+
+      await(underTest(fakeIndividualRequest)) shouldBe InternalServerError
+    }
+
+    "redirect to Income Tax Submission Overview when in year" in {
+      mockAuthAsIndividual(Some(aUser.nino))
+
+      val underTest = actionsProvider.endOfYearWithSessionData(taxYear, month = "May", contractor = "any-contractor")(block = anyBlock)
+
+      await(underTest(fakeIndividualRequest)) shouldBe Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    }
+
+    "return successful response" in {
+      mockAuthAsIndividual(Some(aUser.nino))
+      mockGetSessionData(taxYearEOY, aUser, employerRef = "some/ref", result = Right(Some(aCisUserData)))
+
+      val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, month = "May", contractor = UrlUtils.encode(value = "some/ref"))(block = anyBlock)
 
       status(underTest(fakeIndividualRequest)) shouldBe OK
     }

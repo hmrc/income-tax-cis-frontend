@@ -71,6 +71,40 @@ trait MockActionsProvider extends MockFactory
       .returns(value = actionBuilder)
   }
 
+  def mockEndOfYearWithSessionData(taxYear: Int,
+                                   month: String,
+                                   employerRef: String): CallHandler3[Int, String, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+    val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+
+      override def invokeBlock[A](request: Request[A], block: UserSessionDataRequest[A] => Future[Result]): Future[Result] =
+        block(UserSessionDataRequest(aCisUserData.copy(employerRef = employerRef), aUser, request))
+
+      override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
+    }
+
+    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String, _: String))
+      .expects(taxYear, month, employerRef)
+      .returns(value = actionBuilder)
+  }
+
+  def mockEndOfYearWithSessionData(taxYear: Int,
+                                   month: String,
+                                   cisUserData: CisUserData): CallHandler3[Int, String, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+    val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+
+      override def invokeBlock[A](request: Request[A], block: UserSessionDataRequest[A] => Future[Result]): Future[Result] =
+        block(UserSessionDataRequest(cisUserData, aUser, request))
+
+      override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
+    }
+
+    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String, _: String))
+      .expects(taxYear, month, cisUserData.employerRef)
+      .returns(value = actionBuilder)
+  }
+
   def mockPriorCisDeductionsData(taxYear: Int,
                                  result: IncomeTaxUserData): CallHandler1[Int, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
     (mockActionsProvider.priorCisDeductionsData(_: Int))

@@ -43,7 +43,7 @@ class MaterialsAmountController @Inject()(actionsProvider: ActionsProvider,
 
   def show(taxYear: Int,
            month: String,
-           contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor) { implicit request =>
+           contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, month, contractor) { implicit request =>
     if (!hasCostOfMaterials(request)) {
       Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     } else {
@@ -54,7 +54,7 @@ class MaterialsAmountController @Inject()(actionsProvider: ActionsProvider,
 
   def submit(taxYear: Int,
              month: String,
-             contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor).async { implicit request =>
+             contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, month, contractor).async { implicit request =>
     if (!hasCostOfMaterials(request)) {
       Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     } else {

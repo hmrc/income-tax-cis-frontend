@@ -44,13 +44,13 @@ class DeductionAmountController @Inject()(actionsProvider: ActionsProvider,
 
   def show(taxYear: Int,
            month: String,
-           contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor) { implicit request =>
+           contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, month, contractor) { implicit request =>
     Ok(pageView(DeductionAmountPage(Month.valueOf(month.toUpperCase), request.cisUserData, formsProvider.deductionAmountForm())))
   }
 
   def submit(taxYear: Int,
              month: String,
-             contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor).async { implicit request =>
+             contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, month, contractor).async { implicit request =>
     formsProvider.deductionAmountForm().bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(pageView(DeductionAmountPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
       amount => deductionAmountService.saveAmount(request.user, request.cisUserData, amount).map {
