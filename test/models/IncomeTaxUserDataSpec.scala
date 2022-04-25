@@ -157,7 +157,7 @@ class IncomeTaxUserDataSpec extends UnitTest {
 
       val underTest = anIncomeTaxUserData
 
-      underTest.getCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
+      underTest.getEOYCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
     }
     "extract the latest cisDeductions when no customer data" in {
 
@@ -167,7 +167,7 @@ class IncomeTaxUserDataSpec extends UnitTest {
         ))
       )
 
-      underTest.getCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
+      underTest.getEOYCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
     }
     "extract the latest cisDeductions when contractor data is latest" in {
 
@@ -177,15 +177,18 @@ class IncomeTaxUserDataSpec extends UnitTest {
           contractorCISDeductions = Some(aCISSource.copy(
             cisDeductions = Seq(
               aCisDeductions.copy(
-                periodData = Seq(aPeriodData, aPeriodData.copy(submissionDate = "2021-05-11T16:38:57.489Z"))
+                periodData = Seq(aPeriodData, aPeriodData.copy(deductionPeriod = Month.DECEMBER,submissionDate = "2021-05-11T16:38:57.489Z"))
               )
             )
           ))
         ))
       )
 
-      underTest.getCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions.copy(
-        periodData = Seq(aPeriodData, aPeriodData.copy(submissionDate = "2021-05-11T16:38:57.489Z"))
+      underTest.getEOYCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions.copy(
+        totalDeductionAmount = Some(200.00),
+        totalCostOfMaterials = Some(100.00),
+        totalGrossAmountPaid = Some(900.00),
+        periodData = Seq(aPeriodData, aPeriodData.copy(deductionPeriod = Month.DECEMBER, submissionDate = "2021-05-11T16:38:57.489Z"))
       ))
     }
     "extract the latest cisDeductions when no contractor data" in {
@@ -196,7 +199,7 @@ class IncomeTaxUserDataSpec extends UnitTest {
         ))
       )
 
-      underTest.getCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
+      underTest.getEOYCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
     }
   }
 

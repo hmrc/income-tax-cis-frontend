@@ -32,7 +32,9 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
 
   object Selectors {
 
-    val paragraphTextSelector = "#main-content > div > div > p.govuk-body"
+    val paragraphTextSelector = "#main-content > div > div > p:nth-child(2)"
+    val addContractorSelector = "#add-contractor"
+
     val insetTextSelector = "#main-content > div > div > div.govuk-inset-text"
     val tableCaption = ".govuk-table__caption"
     val tableHeadContractor = ".govuk-table__head > tr:nth-child(1) > th:nth-child(1)"
@@ -51,6 +53,8 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
     val expectedTableCaption: String
     val expectedTableHeadContractor: String
     val expectedTableHeadDeductionsToDate: String
+    val expectedAddContractorLink: String
+    val expectedAddAnotherContractorLink: String
     val expectedTableRowEmployerRef: String => String
     val expectedButtonText: String
   }
@@ -69,6 +73,8 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
     override val expectedTableHeadDeductionsToDate: String = "CIS deductions to date"
     override val expectedTableRowEmployerRef: String => String = (employerRef: String) => s"Contractor: $employerRef"
     override val expectedButtonText: String = "Return to overview"
+    val expectedAddContractorLink: String = "Add a contractor"
+    val expectedAddAnotherContractorLink: String = "Add another contractor"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
@@ -80,6 +86,8 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
     override val expectedTableHeadDeductionsToDate: String = "CIS deductions to date"
     override val expectedTableRowEmployerRef: String => String = (employerRef: String) => s"Contractor: $employerRef"
     override val expectedButtonText: String = "Return to overview"
+    val expectedAddContractorLink: String = "Add a contractor"
+    val expectedAddAnotherContractorLink: String = "Add another contractor"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -145,6 +153,46 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
         linkCheck(text = "Contractor-3", Selectors.contractorEmployerRef(rowId = 3),
           href = ContractorSummaryController.show(taxYear, contractor = encode("ref-3")).url, additionalTestText = "first column")
         textOnPageCheck(text = "", selector = Selectors.contractorDeductions(rowId = 3), additionalTestText = "second column")
+        buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector, Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }
+
+      "render end of year version of deduction summary page" which {
+        implicit val authRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
+        implicit val messages: Messages = getMessages(userScenario.isWelsh)
+
+        implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(isInYear = false)).body)
+
+        welshToggleCheck(userScenario.isWelsh)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
+        h1Check(userScenario.commonExpectedResults.expectedH1)
+        textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1, Selectors.paragraphTextSelector)
+        textOnPageCheck(userScenario.commonExpectedResults.expectedTableCaption, Selectors.tableCaption)
+        textOnPageCheck(userScenario.commonExpectedResults.expectedTableHeadContractor, Selectors.tableHeadContractor)
+        textOnPageCheck(userScenario.commonExpectedResults.expectedTableHeadDeductionsToDate, Selectors.tableHeadDeductionsToDate)
+        linkCheck(userScenario.commonExpectedResults.expectedAddAnotherContractorLink,Selectors.addContractorSelector,controllers.routes.ContractorDetailsController.show(taxYear,None).url)
+        linkCheck(text = "Contractor-1", selector = Selectors.contractorEmployerRef(rowId = 1),
+          href = ContractorSummaryController.show(taxYear, contractor = encode("ref-1")).url, additionalTestText = "first column")
+        textOnPageCheck(text = "£123.23", selector = Selectors.contractorDeductions(rowId = 1), additionalTestText = "second column")
+        linkCheck(userScenario.commonExpectedResults.expectedTableRowEmployerRef("ref-2"), Selectors.contractorEmployerRef(rowId = 2),
+          href = ContractorSummaryController.show(taxYear, contractor = encode("ref-2")).url, additionalTestText = "first column")
+        textOnPageCheck(text = "£123.24", selector = Selectors.contractorDeductions(rowId = 2), additionalTestText = "second column")
+        linkCheck(text = "Contractor-3", Selectors.contractorEmployerRef(rowId = 3),
+          href = ContractorSummaryController.show(taxYear, contractor = encode("ref-3")).url, additionalTestText = "first column")
+        textOnPageCheck(text = "", selector = Selectors.contractorDeductions(rowId = 3), additionalTestText = "second column")
+        buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector, Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }
+      "render end of year version of deduction summary page when no cis deductions" which {
+        implicit val authRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
+        implicit val messages: Messages = getMessages(userScenario.isWelsh)
+
+        implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(isInYear = false, deductions = Seq.empty)).body)
+
+        welshToggleCheck(userScenario.isWelsh)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
+        h1Check(userScenario.commonExpectedResults.expectedH1)
+        linkCheck(userScenario.commonExpectedResults.expectedAddContractorLink,Selectors.addContractorSelector,controllers.routes.ContractorDetailsController.show(taxYear,None).url)
         buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector, Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       }
     }

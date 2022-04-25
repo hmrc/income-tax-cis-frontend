@@ -48,5 +48,22 @@ class DeductionsSummaryPageSpec extends UnitTest {
         ContractorDeductionToDate(aCisDeductions2.contractorName, aCisDeductions2.employerRef, aCisDeductions2.totalDeductionAmount)
       ))
     }
+
+    "map to page with end of year deductions" in {
+      val aCisDeductions1 = aCisDeductions.copy(contractorName = Some("contractor-1"), employerRef = "12345")
+      val aCisDeductions2 = aCisDeductions.copy(contractorName = Some("contractor-2"), employerRef = "54321")
+      val allCISDeductions = AllCISDeductions(
+        customerCISDeductions = Some(aCISSource),
+        contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(aCisDeductions1, aCisDeductions2)))
+      )
+
+      val data = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
+
+      DeductionsSummaryPage.mapToEndOfYearPage(anyTaxYear, data) shouldBe DeductionsSummaryPage(anyTaxYear, isInYear = false, Seq(
+        ContractorDeductionToDate(aCisDeductions.contractorName, aCisDeductions.employerRef, aCisDeductions.totalDeductionAmount),
+        ContractorDeductionToDate(aCisDeductions1.contractorName, aCisDeductions1.employerRef, aCisDeductions1.totalDeductionAmount),
+        ContractorDeductionToDate(aCisDeductions2.contractorName, aCisDeductions2.employerRef, aCisDeductions2.totalDeductionAmount)
+      ))
+    }
   }
 }

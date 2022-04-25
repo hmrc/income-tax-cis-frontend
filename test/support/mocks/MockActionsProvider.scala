@@ -64,14 +64,14 @@ trait MockActionsProvider extends MockFactory
       override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
     }
 
-    (mockActionsProvider.notInYearWithSessionData(_: Int, _: String))
+    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String))
       .expects(taxYear, employerRef)
       .returns(value = actionBuilder)
   }
 
-  def mockPriorDataWithInYearCisDeductions(taxYear: Int,
-                                           result: IncomeTaxUserData): CallHandler1[Int, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
-    (mockActionsProvider.priorDataWithInYearCisDeductions(_: Int))
+  def mockPriorCisDeductionsData(taxYear: Int,
+                                 result: IncomeTaxUserData): CallHandler1[Int, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
+    (mockActionsProvider.priorCisDeductionsData(_: Int))
       .expects(taxYear)
       .returns(value = userPriorDataRequestActionBuilder(result))
   }

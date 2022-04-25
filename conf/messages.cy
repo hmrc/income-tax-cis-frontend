@@ -71,6 +71,8 @@ deductionPeriod.error.agent = You cannot select a date your client already has i
 #################       Deductions Summary Page    #######################################
 
 deductionsSummary.title = CIS deductions
+deductionsSummary.addAnother = Add another contractor
+deductionsSummary.addContractor = Add a contractor
 deductionsSummary.table.caption = Contractors and CIS deductions to date
 deductionsSummary.table.head.contractor = Contractor
 deductionsSummary.table.head.deductionsToDate = CIS deductions to date

@@ -42,13 +42,13 @@ class MaterialsController @Inject()(actionsProvider: ActionsProvider,
 
   def show(taxYear: Int,
            month: String,
-           contractor: String): Action[AnyContent] = actionsProvider.notInYearWithSessionData(taxYear, contractor) { implicit request =>
+           contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor) { implicit request =>
     Ok(pageView(MaterialsPage(Month.valueOf(month.toUpperCase), request.cisUserData, formsProvider.materialsYesNoForm(request.user.isAgent))))
   }
 
   def submit(taxYear: Int,
              month: String,
-             contractor: String): Action[AnyContent] = actionsProvider.notInYearWithSessionData(taxYear, contractor).async { implicit request =>
+             contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor).async { implicit request =>
     formsProvider.materialsYesNoForm(request.user.isAgent).bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(pageView(MaterialsPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
       yesNoValue => materialsService.saveQuestion(request.user, request.cisUserData, yesNoValue).map {

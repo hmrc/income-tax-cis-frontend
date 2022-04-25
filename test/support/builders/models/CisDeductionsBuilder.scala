@@ -27,9 +27,9 @@ object CisDeductionsBuilder {
     toDate = "2021-04-05",
     contractorName = Some("ABC SteelWorks"),
     employerRef = "123/AB123456",
-    totalDeductionAmount = Some(300.00),
-    totalCostOfMaterials = Some(400.00),
-    totalGrossAmountPaid = Some(200.00),
+    totalDeductionAmount = Some(100.00),
+    totalCostOfMaterials = Some(50.00),
+    totalGrossAmountPaid = Some(450.00),
     periodData = Seq(aPeriodData)
   )
 

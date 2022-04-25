@@ -31,11 +31,21 @@ class DeductionsSummaryControllerISpec extends IntegrationTest with ViewHelpers 
   private def url(taxYear: Int): String = s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/summary"
 
   ".show" should {
-    "Render Deductions Summary page" in {
+    "Render in year Deductions Summary page" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYear)
         urlGet(fullUrl(url(taxYear)), headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+      }
+
+      result.status shouldBe OK
+    }
+
+    "Render end of year Deductions Summary page" in {
+      lazy val result: WSResponse = {
+        authoriseAgentOrIndividual(isAgent = false)
+        userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
+        urlGet(fullUrl(url(taxYearEOY)), headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
       }
 
       result.status shouldBe OK

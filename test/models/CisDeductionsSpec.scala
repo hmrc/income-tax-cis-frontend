@@ -24,6 +24,42 @@ import java.time.Month
 
 class CisDeductionsSpec extends UnitTest {
 
+  ".recalculateFigures" should {
+    "recalculate the amounts when the data is updated" in {
+      val underTest = aCisDeductions.copy(periodData = Seq(
+        aPeriodData.copy(deductionAmount = Some(3445.53),
+          costOfMaterials = Some(435.55),
+          grossAmountPaid = Some(33.33)
+        ),
+        aPeriodData.copy(deductionPeriod = Month.DECEMBER,
+          deductionAmount = Some(100.00),
+          costOfMaterials = Some(100.00),
+          grossAmountPaid = Some(100.00)
+        )
+      ))
+
+      underTest.recalculateFigures shouldBe underTest.copy(
+        totalCostOfMaterials = Some(535.55),
+        totalDeductionAmount = Some(3545.53),
+        totalGrossAmountPaid = Some(133.33)
+      )
+    }
+    "recalculate the amounts when cost of materials is empty" in {
+      val underTest = aCisDeductions.copy(periodData = Seq(
+        aPeriodData.copy(deductionAmount = Some(3445.53),
+          costOfMaterials = None,
+          grossAmountPaid = Some(33.33)
+        )
+      ))
+
+      underTest.recalculateFigures shouldBe underTest.copy(
+        totalCostOfMaterials = None,
+        totalDeductionAmount = Some(3445.53),
+        totalGrossAmountPaid = Some(33.33)
+      )
+    }
+  }
+
   ".submissionId" should {
     "return submission id if any PeriodData contains one" in {
       val underTest = aCisDeductions.copy(periodData = Seq(

@@ -34,9 +34,17 @@ class DeductionsSummaryControllerSpec extends ControllerUnitTest
 
   ".show" should {
     "return successful response when in year" in {
-      mockPriorDataWithInYearCisDeductions(taxYear, anIncomeTaxUserData)
+      mockPriorCisDeductionsData(taxYear, anIncomeTaxUserData)
 
       val result = underTest.show(taxYear).apply(fakeIndividualRequest)
+
+      status(result) shouldBe OK
+      contentType(result) shouldBe Some("text/html")
+    }
+    "return successful response when end of the year" in {
+      mockPriorCisDeductionsData(taxYearEOY, anIncomeTaxUserData)
+
+      val result = underTest.show(taxYearEOY).apply(fakeIndividualRequest)
 
       status(result) shouldBe OK
       contentType(result) shouldBe Some("text/html")
