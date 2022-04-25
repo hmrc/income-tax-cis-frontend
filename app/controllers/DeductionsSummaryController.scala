@@ -31,7 +31,7 @@ import scala.concurrent.ExecutionContext
 class DeductionsSummaryController @Inject()(actionsProvider: ActionsProvider,
                                             inYearUtil: InYearUtil,
                                             pageView: DeductionsSummaryView)
-                                           (implicit val cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
+                                           (implicit cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int): Action[AnyContent] = actionsProvider.priorCisDeductionsData(taxYear) { implicit request =>

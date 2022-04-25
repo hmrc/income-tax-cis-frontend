@@ -17,6 +17,7 @@
 package support.mocks
 
 import actions.ActionsProvider
+import models.mongo.CisUserData
 import models.{AuthorisationRequest, IncomeTaxUserData, UserPriorDataRequest, UserSessionDataRequest}
 import org.scalamock.handlers.{CallHandler1, CallHandler2, CallHandler3}
 import org.scalamock.scalatest.MockFactory
@@ -69,6 +70,22 @@ trait MockActionsProvider extends MockFactory
       .returns(value = actionBuilder)
   }
 
+  def mockNotInYearWithSessionData(taxYear: Int,
+                                   cisUserData: CisUserData): CallHandler2[Int, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+    val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+
+      override def invokeBlock[A](request: Request[A], block: UserSessionDataRequest[A] => Future[Result]): Future[Result] =
+        block(UserSessionDataRequest(cisUserData, aUser, request))
+
+      override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
+    }
+
+    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String))
+      .expects(taxYear, cisUserData.employerRef)
+      .returns(value = actionBuilder)
+  }
+
   def mockPriorCisDeductionsData(taxYear: Int,
                                  result: IncomeTaxUserData): CallHandler1[Int, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
     (mockActionsProvider.priorCisDeductionsData(_: Int))
@@ -90,7 +107,7 @@ trait MockActionsProvider extends MockFactory
                                     contractor: String,
                                     result: IncomeTaxUserData
                                    ): CallHandler2[Int, String, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
-    (mockActionsProvider.inYearWithPreviousDataFor(_: Int,  _: String))
+    (mockActionsProvider.inYearWithPreviousDataFor(_: Int, _: String))
       .expects(taxYear, contractor)
       .returns(value = userPriorDataRequestActionBuilder(result))
   }

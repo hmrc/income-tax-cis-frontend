@@ -28,11 +28,11 @@ trait MockDeductionAmountService extends MockFactory {
 
   protected val mockDeductionAmountService: DeductionAmountService = mock[DeductionAmountService]
 
-  def mockSaveDeductionAmount(user: User,
-                              cisUserData: CisUserData,
-                              amount: BigDecimal,
-                              result: Either[ServiceError, Unit]): CallHandler3[User, CisUserData, BigDecimal, Future[Either[ServiceError, Unit]]] = {
-    (mockDeductionAmountService.saveDeductionAmount(_: User, _: CisUserData, _: BigDecimal))
+  def mockSaveAmount(user: User,
+                     cisUserData: CisUserData,
+                     amount: BigDecimal,
+                     result: Either[ServiceError, Unit]): CallHandler3[User, CisUserData, BigDecimal, Future[Either[ServiceError, Unit]]] = {
+    (mockDeductionAmountService.saveAmount(_: User, _: CisUserData, _: BigDecimal))
       .expects(user, cisUserData, amount)
       .returning(Future.successful(result))
   }

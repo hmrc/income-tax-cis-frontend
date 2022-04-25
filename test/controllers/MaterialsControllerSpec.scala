@@ -16,6 +16,7 @@
 
 package controllers
 
+import controllers.routes.MaterialsAmountController
 import forms.{FormsProvider, YesNoForm}
 import models.mongo.DataNotFoundError
 import org.jsoup.Jsoup
@@ -75,11 +76,19 @@ class MaterialsControllerSpec extends ControllerUnitTest
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
-    "redirect to Materials Question Page on successful submission" in {
+    "redirect to Materials amount page when Yes submitted successfully" in {
       mockNotInYearWithSessionData(taxYearEOY, employerRef = aCisUserData.employerRef)
       mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Right(()))
 
       await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "true"))) shouldBe
+        Redirect(MaterialsAmountController.show(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef))
+    }
+
+    "redirect to Income Tax Submission Overview when No submitted successfully" in {
+      mockNotInYearWithSessionData(taxYearEOY, employerRef = aCisUserData.employerRef)
+      mockSaveQuestion(aUser, aCisUserData, questionValue = false, result = Right(()))
+
+      await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "false"))) shouldBe
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY))
     }
   }

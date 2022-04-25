@@ -16,7 +16,7 @@
 
 package controllers
 
-import akka.util.ByteString.UTF_8
+import controllers.routes.MaterialsAmountController
 import forms.YesNoForm
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
@@ -32,8 +32,6 @@ import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.ViewHelpers
 
-import java.net.URLEncoder.encode
-
 class MaterialsControllerISpec extends IntegrationTest
   with ViewHelpers
   with BeforeAndAfterEach {
@@ -46,8 +44,7 @@ class MaterialsControllerISpec extends IntegrationTest
   }
 
   private def url(taxYear: Int, month: String, employerRef: String): String = {
-    val contractor = encode(employerRef, UTF_8)
-    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/materials?month=$month&contractor=$contractor"
+    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/materials?month=$month&contractor=$employerRef"
   }
 
   ".show" should {
@@ -89,7 +86,7 @@ class MaterialsControllerISpec extends IntegrationTest
       result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
     }
 
-    "persist deduction amount and redirect to next page" in {
+    "persist deduction amount and redirect to next page when Yes" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aCisUserData.nino, taxYearEOY)
@@ -100,9 +97,8 @@ class MaterialsControllerISpec extends IntegrationTest
       }
 
       result.status shouldBe SEE_OTHER
-      result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
+      result.headers("Location").head shouldBe MaterialsAmountController.show(taxYearEOY, aPeriodData.deductionPeriod.toString, aCisDeductions.employerRef).url
       findCyaData(taxYearEOY, aCisDeductions.employerRef, aUser).get.cis.periodData.get.costOfMaterialsQuestion shouldBe Some(true)
     }
   }
-
 }

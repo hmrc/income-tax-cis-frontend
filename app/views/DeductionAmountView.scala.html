@@ -47,7 +47,7 @@
     }
 }
 
-@layout(pageTitle = title, taxYear = Some(pageModel.taxYear), isAgent = false, hasErrors = pageModel.form.hasErrors) {
+@layout(pageTitle = title, taxYear = Some(pageModel.taxYear), isAgent = request.user.isAgent, hasErrors = pageModel.form.hasErrors) {
 
     @errorSummary(pageModel.form.errors)
 
