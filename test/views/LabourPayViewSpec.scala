@@ -30,7 +30,6 @@ import views.html.LabourPayView
 class LabourPayViewSpec extends ViewUnitTest {
 
   object Selectors {
-
     val continueButtonFormSelector = "#main-content > div > div > form"
     val hintTextSelector: String = "#amount-hint"
     val poundPrefixSelector: String = ".govuk-input__prefix"

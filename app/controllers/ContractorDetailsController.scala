@@ -23,7 +23,8 @@ import controllers.routes.DeductionPeriodController
 import forms.ContractorDetailsForm.contractorDetailsForm
 import models.User
 import models.forms.ContractorDetailsFormData
-import models.mongo.{CisUserData, DatabaseError}
+import models.mongo.CisUserData
+import models.pages.ContractorDetailsPage
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.ContractorDetailsService
@@ -42,11 +43,11 @@ class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
 
   def show(taxYear: Int, contractor: Option[String]): Action[AnyContent] = contractor match {
     case None => actionsProvider.notInYear(taxYear)(implicit request =>
-      Ok(contractorDetailsView(taxYear, contractorDetailsForm(request.user.isAgent), request.user.isAgent)))
+      Ok(contractorDetailsView(ContractorDetailsPage(taxYear, request.user.isAgent, contractorDetailsForm(request.user.isAgent), None))))
     case Some(contractorRef) => actionsProvider.endOfYearWithSessionData(taxYear, contractorRef) { implicit request =>
       val formData = ContractorDetailsFormData(request.cisUserData.cis.contractorName.getOrElse(""), request.cisUserData.employerRef)
       val form = contractorDetailsForm(request.user.isAgent).fill(formData)
-      Ok(contractorDetailsView(taxYear, form, request.user.isAgent, Some(request.cisUserData.employerRef)))
+      Ok(contractorDetailsView(ContractorDetailsPage(taxYear, request.user.isAgent, form, Some(request.cisUserData.employerRef))))
     }
   }
 
@@ -61,9 +62,10 @@ class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
                           user: User,
                           optCisUserData: Option[CisUserData] = None)(implicit request: Request[_]): Future[Result] = {
     contractorDetailsForm(user.isAgent).bindFromRequest().fold(
-      formWithErrors => Future(BadRequest(contractorDetailsView(taxYear, formWithErrors, user.isAgent, optCisUserData.map(_.employerRef)))),
+      formWithErrors =>
+        Future(BadRequest(contractorDetailsView(ContractorDetailsPage(taxYear, user.isAgent, formWithErrors, optCisUserData.map(_.employerRef))))),
       formData => contractorDetailsService.saveContractorDetails(taxYear, user, optCisUserData, formData).map {
-        case Left(_: DatabaseError) => errorHandler.internalServerError()
+        case Left(_) => errorHandler.internalServerError()
         case Right(_) => Redirect(DeductionPeriodController.show(taxYear, optCisUserData.map(_.employerRef).getOrElse(formData.employerReferenceNumber)))
       }
     )

@@ -55,19 +55,18 @@ trait MockActionsProvider extends MockFactory
     }
 
   def mockEndOfYearWithSessionData(taxYear: Int,
-                                   employerRef: String,
-                                   data: CisUserData = aCisUserData): CallHandler2[Int, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+                                   cisUserData: CisUserData): CallHandler2[Int, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
     val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
       override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
 
       override def invokeBlock[A](request: Request[A], block: UserSessionDataRequest[A] => Future[Result]): Future[Result] =
-        block(UserSessionDataRequest(data.copy(employerRef = employerRef), aUser, request))
+        block(UserSessionDataRequest(cisUserData, aUser, request))
 
       override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
     }
 
     (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String))
-      .expects(taxYear, employerRef)
+      .expects(taxYear, cisUserData.employerRef)
       .returns(value = actionBuilder)
   }
 
