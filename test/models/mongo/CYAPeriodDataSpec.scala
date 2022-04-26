@@ -16,14 +16,14 @@
 
 package models.mongo
 
+import java.time.Month
+
 import org.scalamock.scalatest.MockFactory
 import play.api.libs.json.{JsObject, Json}
 import support.UnitTest
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import utils.TypeCaster.Converter
 import utils.{EncryptedValue, SecureGCMCipher}
-
-import java.time.Month
 
 class CYAPeriodDataSpec extends UnitTest
   with MockFactory {

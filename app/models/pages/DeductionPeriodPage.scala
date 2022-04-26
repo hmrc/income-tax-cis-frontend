@@ -22,4 +22,7 @@ case class DeductionPeriodPage(contractorName: Option[String],
                                employerRef: String,
                                taxYear: Int,
                                period: Option[Month] = None,
-                               priorSubmittedPeriods: Seq[Month] = Seq.empty)
+                               priorSubmittedPeriods: Seq[Month] = Seq.empty){
+
+  lazy val noPeriodsToSubmitFor: Boolean = priorSubmittedPeriods.length == Month.values().length
+}

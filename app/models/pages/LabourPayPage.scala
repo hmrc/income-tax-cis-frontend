@@ -16,10 +16,10 @@
 
 package models.pages
 
+import java.time.Month
+
 import models.mongo.CisUserData
 import play.api.data.Form
-
-import java.time.Month
 
 case class LabourPayPage(taxYear: Int,
                          month: Month,

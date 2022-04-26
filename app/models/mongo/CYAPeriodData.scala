@@ -16,6 +16,8 @@
 
 package models.mongo
 
+import java.time.Month
+
 import org.joda.time.DateTime
 import play.api.libs.json._
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
@@ -24,8 +26,6 @@ import utils.DecryptorInstances.{bigDecimalDecryptor, booleanDecryptor, monthDec
 import utils.EncryptableSyntax.EncryptableOps
 import utils.EncryptorInstances.{bigDecimalEncryptor, booleanEncryptor, monthEncryptor}
 import utils.{EncryptedValue, SecureGCMCipher}
-
-import java.time.Month
 
 case class CYAPeriodData(deductionPeriod: Month,
                          grossAmountPaid: Option[BigDecimal] = None,

@@ -29,7 +29,7 @@
       errorSummary: ErrorSummary,
       govukSelect : GovukSelect)
 
-@(pageModel: DeductionPeriodPage, form: Form[DeductionPeriod])(implicit request: AuthorisationRequest[_], messages: Messages, appConfig: AppConfig)
+@(pageModel: DeductionPeriodPage, form: Form[DeductionPeriod])(implicit request: UserSessionDataRequest[_], messages: Messages, appConfig: AppConfig)
 
 @hasFormErrors = @{form.hasErrors}
 

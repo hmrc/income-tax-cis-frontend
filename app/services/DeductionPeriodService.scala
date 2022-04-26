@@ -16,25 +16,15 @@
 
 package services
 
+import java.time.Month
+
+import javax.inject.Inject
 import models.mongo._
-import models.pages.DeductionPeriodPage
 import models.{ServiceError, User}
 
-import java.time.Month
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeductionPeriodService @Inject()(cisSessionService: CISSessionService)(implicit val ec: ExecutionContext) {
-
-  def pageModelFor(taxYear: Int, employerRef: String, user: User): Future[Either[DatabaseError, Option[DeductionPeriodPage]]] = {
-    cisSessionService.getSessionData(taxYear, employerRef, user).map {
-      case Left(error) => Left(error)
-      case Right(None) => Right(None)
-      case Right(Some(cya)) => Right(Some(DeductionPeriodPage(
-        cya.cis.contractorName, cya.employerRef, taxYear, cya.cis.periodData.map(_.deductionPeriod), cya.cis.priorPeriodData.map(_.deductionPeriod)
-      )))
-    }
-  }
 
   def submitDeductionPeriod(taxYear: Int, employerRef: String, user: User, deductionPeriod: Month): Future[Either[ServiceError, CisUserData]] = {
     cisSessionService.getSessionData(taxYear, employerRef, user).flatMap {

@@ -16,10 +16,10 @@
 
 package models
 
+import java.time.Month
+
 import models.mongo.{CYAPeriodData, CisCYAModel}
 import play.api.libs.json.{Json, OFormat}
-
-import java.time.Month
 
 case class CisDeductions(fromDate: String,
                          toDate: String,

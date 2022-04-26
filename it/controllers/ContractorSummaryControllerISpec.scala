@@ -16,6 +16,8 @@
 
 package controllers
 
+import java.net.URLEncoder.encode
+
 import akka.util.ByteString.UTF_8
 import play.api.http.HeaderNames
 import play.api.http.Status.OK
@@ -25,8 +27,6 @@ import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
 import utils.ViewHelpers
-
-import java.net.URLEncoder.encode
 
 class ContractorSummaryControllerISpec extends IntegrationTest with ViewHelpers {
 

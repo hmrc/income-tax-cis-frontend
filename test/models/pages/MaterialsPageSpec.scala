@@ -16,13 +16,13 @@
 
 package models.pages
 
+import java.time.Month
+
 import forms.{FormsProvider, YesNoForm}
 import support.UnitTest
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-
-import java.time.Month
 
 class MaterialsPageSpec extends UnitTest {
 

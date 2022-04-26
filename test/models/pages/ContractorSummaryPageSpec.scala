@@ -16,12 +16,12 @@
 
 package models.pages
 
+import java.time.Month
+
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.pages.ContractorSummaryPageBuilder.aContractorSummaryPage
 import support.{TaxYearProvider, UnitTest}
-
-import java.time.Month
 
 class ContractorSummaryPageSpec extends UnitTest with TaxYearProvider {
 

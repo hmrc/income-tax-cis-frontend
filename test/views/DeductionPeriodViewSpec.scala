@@ -17,7 +17,7 @@
 package views
 
 import forms.DeductionPeriodFormProvider
-import models.AuthorisationRequest
+import models.UserSessionDataRequest
 import models.forms.DeductionPeriod
 import models.pages.DeductionPeriodPage
 import org.jsoup.Jsoup
@@ -115,7 +115,7 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
   userScenarios.foreach { userScenario =>
     s"language is ${welshTest(userScenario.isWelsh)} and request is from an ${agentTest(userScenario.isAgent)}" should {
       "render the deduction period page when at the end of the year" which {
-        implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(userScenario.isAgent)
+        implicit val authRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
         implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
         implicit val document: Document = Jsoup.parse(underTest(pageModel,form(userScenario.isAgent)).body)
@@ -130,7 +130,7 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
       }
 
       "render the deduction period page with the correct error when at the end of the year" which {
-        implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(userScenario.isAgent)
+        implicit val authRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
         implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
         def formError(isAgent: Boolean): FormError = FormError("month", formProvider.error(isAgent))
@@ -151,7 +151,7 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
 
   "the view" should {
     "display the month options correctly in welsh" which {
-      implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(false)
+      implicit val authRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(false)
       implicit val messages: Messages = getMessages(true)
 
       implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(contractorName = None),form(false)).body)
@@ -171,7 +171,7 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
       textOnPageCheck(s"5 Ebrill $taxYearEOY", Selectors.optionsSelector(12))
     }
     "display the month options correctly in english" which {
-      implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(false)
+      implicit val authRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(false)
       implicit val messages: Messages = getMessages(false)
 
       implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(contractorName=None),form(false)).body)

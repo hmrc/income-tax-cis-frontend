@@ -16,6 +16,8 @@
 
 package controllers
 
+import java.time.Month
+
 import play.api.http.Status.OK
 import play.api.test.Helpers.{contentType, status}
 import support.ControllerUnitTest
@@ -26,8 +28,6 @@ import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.mocks.MockActionsProvider
 import views.html.ContractorCYAView
-
-import java.time.Month
 
 class ContractorCYAControllerSpec extends ControllerUnitTest
   with MockActionsProvider {

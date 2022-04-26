@@ -46,21 +46,21 @@ class MaterialsAmountControllerSpec extends ControllerUnitTest
   ".show" should {
     "redirect to income tax submission overview when costOfMaterialsQuestion is None" in {
       val periodData = aCYAPeriodData.copy(costOfMaterialsQuestion = None)
-      mockNotInYearWithSessionData(taxYear = taxYearEOY, aCisUserData.copy(employerRef = "some-ref", cis = aCisCYAModel.copy(periodData = Some(periodData))))
+      mockEndOfYearWithSessionData(taxYear = taxYearEOY, "some-ref", aCisUserData.copy(employerRef = "some-ref", cis = aCisCYAModel.copy(periodData = Some(periodData))))
 
       await(underTest.show(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest)) shouldBe Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY))
     }
 
     "redirect to income tax submission overview when costOfMaterialsQuestion is false" in {
       val periodData = aCYAPeriodData.copy(costOfMaterialsQuestion = Some(false))
-      mockNotInYearWithSessionData(taxYear = taxYearEOY, aCisUserData.copy(employerRef = "some-ref", cis = aCisCYAModel.copy(periodData = Some(periodData))))
+      mockEndOfYearWithSessionData(taxYear = taxYearEOY, "some-ref", aCisUserData.copy(employerRef = "some-ref", cis = aCisCYAModel.copy(periodData = Some(periodData))))
 
       await(underTest.show(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest)) shouldBe Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY))
     }
 
     "return a successful response when costOfMaterialsQuestion is true" in {
       val periodData = aCYAPeriodData.copy(costOfMaterialsQuestion = Some(true))
-      mockNotInYearWithSessionData(taxYear = taxYearEOY, aCisUserData.copy(employerRef = "some-ref", cis = aCisCYAModel.copy(periodData = Some(periodData))))
+      mockEndOfYearWithSessionData(taxYear = taxYearEOY, "some-ref", aCisUserData.copy(employerRef = "some-ref", cis = aCisCYAModel.copy(periodData = Some(periodData))))
 
       val result = underTest.show(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest)
 
@@ -72,7 +72,7 @@ class MaterialsAmountControllerSpec extends ControllerUnitTest
   ".submit" should {
     "redirect to income tax submission overview when costOfMaterialsQuestion is None" in {
       val periodData = aCYAPeriodData.copy(costOfMaterialsQuestion = None)
-      mockNotInYearWithSessionData(taxYear = taxYearEOY, aCisUserData.copy(employerRef = "some-ref", cis = aCisCYAModel.copy(periodData = Some(periodData))))
+      mockEndOfYearWithSessionData(taxYear = taxYearEOY, "some-ref", aCisUserData.copy(employerRef = "some-ref", cis = aCisCYAModel.copy(periodData = Some(periodData))))
 
       val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "2.3.4"))
 
@@ -81,7 +81,7 @@ class MaterialsAmountControllerSpec extends ControllerUnitTest
 
     "redirect to income tax submission overview when costOfMaterialsQuestion is false" in {
       val periodData = aCYAPeriodData.copy(costOfMaterialsQuestion = Some(false))
-      mockNotInYearWithSessionData(taxYear = taxYearEOY, aCisUserData.copy(employerRef = "some-ref", cis = aCisCYAModel.copy(periodData = Some(periodData))))
+      mockEndOfYearWithSessionData(taxYear = taxYearEOY, "some-ref", aCisUserData.copy(employerRef = "some-ref", cis = aCisCYAModel.copy(periodData = Some(periodData))))
 
       val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "2.3.4"))
 
@@ -89,7 +89,7 @@ class MaterialsAmountControllerSpec extends ControllerUnitTest
     }
 
     "render page with error when validation of form fails" in {
-      mockNotInYearWithSessionData(taxYearEOY, employerRef = "some-ref")
+      mockEndOfYearWithSessionData(taxYearEOY, employerRef = "some-ref")
 
       val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "2.3.4"))
 
@@ -100,7 +100,7 @@ class MaterialsAmountControllerSpec extends ControllerUnitTest
     }
 
     "handle internal server error when save operation fails with database error" in {
-      mockNotInYearWithSessionData(taxYearEOY, aCisUserData.employerRef)
+      mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.employerRef)
       mockSaveAmount(aUser, aCisUserData, amount = 123, result = Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
@@ -110,7 +110,7 @@ class MaterialsAmountControllerSpec extends ControllerUnitTest
     }
 
     "redirect to Income Tax Submission Overview page on successful submission" in {
-      mockNotInYearWithSessionData(taxYearEOY, employerRef = aCisUserData.employerRef)
+      mockEndOfYearWithSessionData(taxYearEOY, employerRef = aCisUserData.employerRef)
       mockSaveAmount(aUser, aCisUserData, amount = 123, result = Right(()))
 
       await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "123"))) shouldBe

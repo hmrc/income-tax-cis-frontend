@@ -16,12 +16,12 @@
 
 package models
 
+import java.time.Month
+
 import play.api.libs.json.{JsObject, Json}
 import support.UnitTest
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import utils.{LogCapturing, PagerDutyHelper}
-
-import java.time.Month
 
 class PeriodDataSpec extends UnitTest with LogCapturing {
 

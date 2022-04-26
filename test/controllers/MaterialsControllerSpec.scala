@@ -16,6 +16,7 @@
 
 package controllers
 
+import java.time.Month
 import controllers.routes.MaterialsAmountController
 import forms.{FormsProvider, YesNoForm}
 import models.mongo.DataNotFoundError
@@ -28,8 +29,6 @@ import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockActionsProvider, MockMaterialsService}
 import views.html.MaterialsView
-
-import java.time.Month
 
 class MaterialsControllerSpec extends ControllerUnitTest
   with MockActionsProvider
@@ -45,7 +44,7 @@ class MaterialsControllerSpec extends ControllerUnitTest
 
   ".show" should {
     "return successful response" in {
-      mockNotInYearWithSessionData(taxYearEOY, employerRef = "some-ref")
+      mockEndOfYearWithSessionData(taxYearEOY, employerRef = "some-ref")
 
       val result = underTest.show(taxYearEOY, month = "may", contractor = "some-ref").apply(fakeIndividualRequest)
 
@@ -56,7 +55,7 @@ class MaterialsControllerSpec extends ControllerUnitTest
 
   ".submit" should {
     "render page with error when validation of form fails" in {
-      mockNotInYearWithSessionData(taxYearEOY, employerRef = "some-ref")
+      mockEndOfYearWithSessionData(taxYearEOY, employerRef = "some-ref")
 
       val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> ""))
 
@@ -67,7 +66,7 @@ class MaterialsControllerSpec extends ControllerUnitTest
     }
 
     "handle internal server error when save operation fails with database error" in {
-      mockNotInYearWithSessionData(taxYearEOY, aCisUserData.employerRef)
+      mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.employerRef)
       mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
@@ -77,7 +76,7 @@ class MaterialsControllerSpec extends ControllerUnitTest
     }
 
     "redirect to Materials amount page when Yes submitted successfully" in {
-      mockNotInYearWithSessionData(taxYearEOY, employerRef = aCisUserData.employerRef)
+      mockEndOfYearWithSessionData(taxYearEOY, employerRef = aCisUserData.employerRef)
       mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Right(()))
 
       await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "true"))) shouldBe
@@ -85,7 +84,7 @@ class MaterialsControllerSpec extends ControllerUnitTest
     }
 
     "redirect to Income Tax Submission Overview when No submitted successfully" in {
-      mockNotInYearWithSessionData(taxYearEOY, employerRef = aCisUserData.employerRef)
+      mockEndOfYearWithSessionData(taxYearEOY, employerRef = aCisUserData.employerRef)
       mockSaveQuestion(aUser, aCisUserData, questionValue = false, result = Right(()))
 
       await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "false"))) shouldBe

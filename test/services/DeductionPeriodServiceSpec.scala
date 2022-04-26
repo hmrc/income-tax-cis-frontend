@@ -16,8 +16,9 @@
 
 package services
 
+import java.time.Month
+
 import models.mongo.{CYAPeriodData, DataNotFoundError, DataNotUpdatedError}
-import models.pages.DeductionPeriodPage
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
@@ -25,7 +26,6 @@ import support.mocks.MockCISSessionService
 import support.{TaxYearProvider, UnitTest}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import java.time.Month
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class DeductionPeriodServiceSpec extends UnitTest
@@ -37,33 +37,6 @@ class DeductionPeriodServiceSpec extends UnitTest
   private val underTest = new DeductionPeriodService(
     mockCISSessionService
   )
-
-  ".pageModelFor" should {
-
-    "return error when fails to get data" in {
-      mockGetSessionData(taxYearEOY, aUser, aCisDeductions.employerRef, Left(DataNotFoundError))
-
-      await(underTest.pageModelFor(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Left(DataNotFoundError)
-    }
-
-    "return none when no data" in {
-      mockGetSessionData(taxYearEOY, aUser, aCisDeductions.employerRef, Right(None))
-
-      await(underTest.pageModelFor(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Right(None)
-    }
-
-    "return data when user has cya data" in {
-      mockGetSessionData(taxYearEOY, aUser, aCisDeductions.employerRef, Right(Some(aCisUserData)))
-
-      await(underTest.pageModelFor(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Right(Some(DeductionPeriodPage(
-        taxYear = taxYearEOY,
-        contractorName = Some("ABC Steelworks"),
-        employerRef = "123/AB123456",
-        period = Some(Month.MAY),
-        priorSubmittedPeriods = Seq(Month.NOVEMBER)
-      )))
-    }
-  }
 
   ".submitDeductionPeriod" should {
     "submit and save the data" in {

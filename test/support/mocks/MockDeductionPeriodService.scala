@@ -31,15 +31,6 @@ trait MockDeductionPeriodService extends MockFactory {
 
   protected val mockDeductionPeriodService: DeductionPeriodService = mock[DeductionPeriodService]
 
-  def mockPageModelFor(taxYear: Int,
-                       employerRef: String,
-                       user: User,
-                       result: Either[DatabaseError, Option[DeductionPeriodPage]]
-                      ): CallHandler3[Int, String, User, Future[Either[DatabaseError, Option[DeductionPeriodPage]]]] = {
-    (mockDeductionPeriodService.pageModelFor(_: Int, _: String, _: User))
-      .expects(taxYear, employerRef, user)
-      .returns(Future.successful(result))
-  }
   def mockSubmitMonth(taxYear: Int,
                        employerRef: String,
                        user: User,

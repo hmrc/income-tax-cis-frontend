@@ -16,130 +16,78 @@
 
 package controllers
 
-import actions.{AuthorisedAction, TaxYearAction}
+import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
 import controllers.routes.LabourPayController
 import forms.DeductionPeriodFormProvider
+import javax.inject.Inject
+import models.UserSessionDataRequest
 import models.forms.DeductionPeriod
 import models.pages.DeductionPeriodPage
-import models.{AuthorisationRequest, EmptyPriorCisDataError, HttpParserError}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{CISSessionService, DeductionPeriodService}
+import services.DeductionPeriodService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.UrlUtils.{decode, encode}
-import utils.{InYearUtil, SessionHelper}
+import utils.SessionHelper
+import utils.UrlUtils.encode
 import views.html.cis.DeductionPeriodView
 
-import java.time.Month
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeductionPeriodController @Inject()(authorisedAction: AuthorisedAction,
+class DeductionPeriodController @Inject()(actionsProvider: ActionsProvider,
                                           view: DeductionPeriodView,
-                                          inYearAction: InYearUtil,
                                           deductionPeriodService: DeductionPeriodService,
                                           errorHandler: ErrorHandler,
                                           formProvider: DeductionPeriodFormProvider,
-                                          cisSessionService: CISSessionService,
                                           implicit val mcc: MessagesControllerComponents,
                                           implicit val ec: ExecutionContext,
                                           implicit val appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
 
-  def show(taxYear: Int, contractor: String): Action[AnyContent] = (authorisedAction andThen TaxYearAction.taxYearAction(taxYear)).async { implicit request =>
+  def show(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor) { implicit request =>
 
-    val employerRef = decode(contractor)
-    val inYear: Boolean = inYearAction.inYear(taxYear)
+    val cya = request.cisUserData
+    val pageModel = DeductionPeriodPage(cya.cis.contractorName, cya.employerRef, taxYear,
+      cya.cis.periodData.map(_.deductionPeriod), cya.cis.priorPeriodData.map(_.deductionPeriod))
 
-    if (inYear) {
-      Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+    if (pageModel.noPeriodsToSubmitFor) {
+      noAvailableDeductionPeriodsLog()
+      Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
     } else {
-      getPriorAndMakeCYA(taxYear, employerRef).flatMap { //
-        case Left(result) => Future.successful(result) // TODO Remove once able to hit this page from CYA / Contractor details page (only needs pageModelFor)
-        case Right(_) => //
-
-          deductionPeriodService.pageModelFor(taxYear, employerRef, request.user).map {
-            case Left(_) => defaultErrorPage
-            case Right(None) => noCYALog()
-              Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-
-            case Right(Some(pageModel)) =>
-              //NO NEW PERIODS CAN BE ADDED -> REDIRECT
-              if (pageModel.priorSubmittedPeriods.length == Month.values().length) {
-                noAvailableDeductionPeriodsLog()
-                Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-              } else {
-                Ok(view(pageModel, formProvider.deductionPeriodForm(request.user.isAgent, pageModel.priorSubmittedPeriods)))
-              }
-          }
-      }
+      Ok(view(pageModel, formProvider.deductionPeriodForm(request.user.isAgent, pageModel.priorSubmittedPeriods)))
     }
   }
 
-  /// TODO REMOVE TEMPORARY MAKE CYA FROM PRIOR - We will have CYA before this page either from CYA or following on from the name & employer ref page ///
-  private def getPriorAndMakeCYA(taxYear: Int, employerRef: String)(implicit request: AuthorisationRequest[_]): Future[Either[Result, Unit]] = {
-    deductionPeriodService.pageModelFor(taxYear, employerRef, request.user).flatMap {
-      case Right(Some(_)) => Future.successful(Right(()))
-      case _ =>
-        cisSessionService.getPriorAndMakeCYA(taxYear, employerRef, request.user).map {
-          case Left(HttpParserError(status)) => Left(errorHandler.handleError(status))
-          case Left(EmptyPriorCisDataError) =>
-            logger.info("[DeductionPeriodController][show] User has no prior data redirecting to overview page.")
-            Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-          case Left(_) => Left(defaultErrorPage)
-          case Right(_) => Right(())
-        }
-    }
-  }
+  def submit(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor).async { implicit request =>
 
-  def submit(taxYear: Int, contractor: String): Action[AnyContent] = authorisedAction.async { implicit request =>
+    val cya = request.cisUserData
+    val pageModel = DeductionPeriodPage(cya.cis.contractorName, cya.employerRef, taxYear,
+      cya.cis.periodData.map(_.deductionPeriod), cya.cis.priorPeriodData.map(_.deductionPeriod))
 
-    lazy val method = "submit"
-    val employerRef = decode(contractor)
-    val inYear: Boolean = inYearAction.inYear(taxYear)
-
-    if (inYear) {
+    if (pageModel.noPeriodsToSubmitFor) {
+      noAvailableDeductionPeriodsLog("submit")
       Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     } else {
-      deductionPeriodService.pageModelFor(taxYear, employerRef, request.user).flatMap {
-        case Left(_) => Future.successful(defaultErrorPage)
-        case Right(None) => noCYALog(method)
-          Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-
-        case Right(Some(pageModel)) =>
-          //NO NEW PERIODS CAN BE ADDED -> REDIRECT
-          if (pageModel.priorSubmittedPeriods.length == Month.values().length) {
-            noAvailableDeductionPeriodsLog(method)
-            Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-          } else {
-            val form = formProvider.deductionPeriodForm(request.user.isAgent, pageModel.priorSubmittedPeriods)
-            handleForm(taxYear, employerRef, form, pageModel)
-          }
-      }
+      val form = formProvider.deductionPeriodForm(request.user.isAgent, pageModel.priorSubmittedPeriods)
+      handleForm(taxYear, contractor, form, pageModel)
     }
   }
 
   private def handleForm(taxYear: Int, employerRef: String, form: Form[DeductionPeriod], pageModel: DeductionPeriodPage)
-                        (implicit request: AuthorisationRequest[_]): Future[Result] = {
+                        (implicit request: UserSessionDataRequest[_]): Future[Result] = {
     form.bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(view(pageModel, formWithErrors))),
       deductionPeriod =>
 
         deductionPeriodService.submitDeductionPeriod(taxYear, employerRef, request.user, deductionPeriod.month).map {
-          case Left(_) => defaultErrorPage
+          case Left(_) => errorHandler.internalServerError
           case Right(_) =>
             Redirect(LabourPayController.show(taxYear, deductionPeriod.month.toString, encode(employerRef)))
         }
     )
   }
 
-  private def defaultErrorPage(implicit request: AuthorisationRequest[_]): Result = errorHandler.internalServerError
-
   private def noAvailableDeductionPeriodsLog(method: String = "show"): Unit = logger.info(
     s"[DeductionPeriodController][$method] User has no more deduction periods to submit for. Redirecting.")
-
-  private def noCYALog(method: String = "show"): Unit = logger.info(
-    s"[DeductionPeriodController][$method] User has no CYA data redirecting to overview page.")
 }

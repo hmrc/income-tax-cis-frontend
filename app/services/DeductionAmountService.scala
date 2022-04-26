@@ -16,10 +16,10 @@
 
 package services
 
+import javax.inject.Inject
 import models._
 import models.mongo.{CYAPeriodData, CisUserData, DataNotUpdatedError}
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeductionAmountService @Inject()(cisSessionService: CISSessionService)

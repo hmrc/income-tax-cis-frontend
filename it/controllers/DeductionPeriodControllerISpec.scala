@@ -16,6 +16,9 @@
 
 package controllers
 
+import java.net.URLEncoder
+import java.time.Month
+
 import controllers.routes.LabourPayController
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
@@ -26,9 +29,6 @@ import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.{DatabaseHelper, IntegrationTest}
 import utils.UrlUtils.encode
 import utils.ViewHelpers
-
-import java.net.URLEncoder
-import java.time.Month
 
 class DeductionPeriodControllerISpec extends IntegrationTest with ViewHelpers with DatabaseHelper {
 
