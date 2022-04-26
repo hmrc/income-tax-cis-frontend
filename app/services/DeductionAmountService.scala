@@ -25,9 +25,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class DeductionAmountService @Inject()(cisSessionService: CISSessionService)
                                       (implicit ec: ExecutionContext) {
 
-  def saveDeductionAmount(user: User,
-                          cisUserData: CisUserData,
-                          amount: BigDecimal): Future[Either[ServiceError, Unit]] = {
+  def saveAmount(user: User,
+                 cisUserData: CisUserData,
+                 amount: BigDecimal): Future[Either[ServiceError, Unit]] = {
     val periodData: CYAPeriodData = cisUserData.cis.periodData.map(_.copy(deductionAmount = Some(amount))).get
     val updatedCYA = cisUserData.cis.copy(periodData = Some(periodData))
 

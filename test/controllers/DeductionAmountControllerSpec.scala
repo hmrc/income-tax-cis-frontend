@@ -68,7 +68,7 @@ class DeductionAmountControllerSpec extends ControllerUnitTest
 
     "handle internal server error when save operation fails with database error" in {
       mockNotInYearWithSessionData(taxYearEOY, aCisUserData.employerRef)
-      mockSaveDeductionAmount(aUser, aCisUserData, amount = 123, result = Left(DataNotFoundError))
+      mockSaveAmount(aUser, aCisUserData, amount = 123, result = Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
       val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "123"))
@@ -78,7 +78,7 @@ class DeductionAmountControllerSpec extends ControllerUnitTest
 
     "redirect to Materials Question Page on successful submission" in {
       mockNotInYearWithSessionData(taxYearEOY, employerRef = aCisUserData.employerRef)
-      mockSaveDeductionAmount(aUser, aCisUserData, amount = 123, result = Right(()))
+      mockSaveAmount(aUser, aCisUserData, amount = 123, result = Right(()))
 
       await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "123"))) shouldBe
         Redirect(MaterialsController.show(taxYearEOY, Month.MAY.toString, aCisUserData.employerRef))

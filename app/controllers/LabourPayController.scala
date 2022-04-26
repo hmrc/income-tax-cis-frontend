@@ -38,7 +38,7 @@ class LabourPayController @Inject()(actionsProvider: ActionsProvider,
                                     pageView: LabourPayView,
                                     labourPayService: LabourPayService,
                                     errorHandler: ErrorHandler)
-                                   (implicit val cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
+                                   (implicit cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int,

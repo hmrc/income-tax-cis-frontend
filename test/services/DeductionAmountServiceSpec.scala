@@ -31,14 +31,14 @@ class DeductionAmountServiceSpec extends UnitTest
 
   private val underTest = new DeductionAmountService(mockCISSessionService)
 
-  ".saveDeductionAmount" should {
+  ".saveAmount" should {
     "return DataNotUpdatedError when cisSessionService.createOrUpdateCISUserData returns error" in {
       val periodData: CYAPeriodData = aCYAPeriodData.copy(deductionAmount = Some(123))
       val updatedCYA = aCisUserData.cis.copy(periodData = Some(periodData))
 
       mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(aCisUserData))
 
-      await(underTest.saveDeductionAmount(aUser, aCisUserData, amount = 123)) shouldBe Left(DataNotUpdatedError)
+      await(underTest.saveAmount(aUser, aCisUserData, amount = 123)) shouldBe Left(DataNotUpdatedError)
     }
 
     "persist cisUserData" in {
@@ -47,7 +47,7 @@ class DeductionAmountServiceSpec extends UnitTest
 
       mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Right(aCisUserData))
 
-      await(underTest.saveDeductionAmount(aUser, aCisUserData, amount = 123)) shouldBe Right(())
+      await(underTest.saveAmount(aUser, aCisUserData, amount = 123)) shouldBe Right(())
     }
   }
 }

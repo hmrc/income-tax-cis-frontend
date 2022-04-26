@@ -16,8 +16,6 @@
 
 package controllers
 
-import akka.util.ByteString.UTF_8
-import controllers.routes.MaterialsController
 import forms.AmountForm
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
@@ -31,9 +29,7 @@ import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.ViewHelpers
 
-import java.net.URLEncoder.encode
-
-class DeductionAmountControllerISpec extends IntegrationTest
+class MaterialsAmountControllerISpec extends IntegrationTest
   with ViewHelpers
   with BeforeAndAfterEach {
 
@@ -45,12 +41,11 @@ class DeductionAmountControllerISpec extends IntegrationTest
   }
 
   private def url(taxYear: Int, month: String, employerRef: String): String = {
-    val contractor = encode(employerRef, UTF_8)
-    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/deduction-amount?month=$month&contractor=$contractor"
+    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/materials-amount?month=$month&contractor=$employerRef"
   }
 
   ".show" should {
-    "redirect to income tax submission overview when in year" in {
+    "redirect to the overview page when taxYear is in year" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYear)
@@ -62,7 +57,7 @@ class DeductionAmountControllerISpec extends IntegrationTest
       result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
     }
 
-    "return OK when EOY" in {
+    "return OK when taxYear is EOY" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
@@ -88,7 +83,7 @@ class DeductionAmountControllerISpec extends IntegrationTest
       result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
     }
 
-    "persist deduction amount and redirect to next page" in {
+    "persist materials amount and redirect to next page" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aCisUserData.nino, taxYearEOY)
@@ -98,8 +93,8 @@ class DeductionAmountControllerISpec extends IntegrationTest
       }
 
       result.status shouldBe SEE_OTHER
-      result.headers("Location").head shouldBe MaterialsController.show(taxYearEOY, aPeriodData.deductionPeriod.toString, aCisDeductions.employerRef).url
-      findCyaData(taxYearEOY, aCisDeductions.employerRef, aUser).get.cis.periodData.get.deductionAmount shouldBe Some(123.23)
+      result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
+      findCyaData(taxYearEOY, aCisDeductions.employerRef, aUser).get.cis.periodData.get.costOfMaterials shouldBe Some(123.23)
     }
   }
 }

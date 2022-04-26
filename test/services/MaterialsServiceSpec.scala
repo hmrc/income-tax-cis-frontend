@@ -41,13 +41,42 @@ class MaterialsServiceSpec extends UnitTest
       await(underTest.saveQuestion(aUser, aCisUserData, question = true)) shouldBe Left(DataNotUpdatedError)
     }
 
-    "persist cisUserData" in {
+    "persist cisUserData when question is Yes" in {
       val periodData: CYAPeriodData = aCYAPeriodData.copy(costOfMaterialsQuestion = Some(true))
       val updatedCYA = aCisUserData.cis.copy(periodData = Some(periodData))
 
       mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Right(aCisUserData))
 
       await(underTest.saveQuestion(aUser, aCisUserData, question = true)) shouldBe Right(())
+    }
+
+    "persist cisUserData when question is No" in {
+      val periodData: CYAPeriodData = aCYAPeriodData.copy(costOfMaterialsQuestion = Some(false), costOfMaterials = None)
+      val updatedCYA = aCisUserData.cis.copy(periodData = Some(periodData))
+
+      mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Right(aCisUserData))
+
+      await(underTest.saveQuestion(aUser, aCisUserData, question = false)) shouldBe Right(())
+    }
+  }
+
+  ".saveAmount" should {
+    "return DataNotUpdatedError when cisSessionService.createOrUpdateCISUserData returns error" in {
+      val periodData: CYAPeriodData = aCYAPeriodData.copy(costOfMaterials = Some(123))
+      val updatedCYA = aCisUserData.cis.copy(periodData = Some(periodData))
+
+      mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(aCisUserData))
+
+      await(underTest.saveAmount(aUser, aCisUserData, amount = 123)) shouldBe Left(DataNotUpdatedError)
+    }
+
+    "persist cisUserData when" in {
+      val periodData: CYAPeriodData = aCYAPeriodData.copy(costOfMaterials = Some(123))
+      val updatedCYA = aCisUserData.cis.copy(periodData = Some(periodData))
+
+      mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Right(aCisUserData))
+
+      await(underTest.saveAmount(aUser, aCisUserData, amount = 123)) shouldBe Right(())
     }
   }
 }

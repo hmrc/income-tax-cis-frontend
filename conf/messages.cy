@@ -130,7 +130,7 @@ deductionAmountPage.error.noEntry = Enter the CIS deduction amount
 deductionAmountPage.error.wrongFormat = Enter the CIS deduction in the correct format
 deductionAmountPage.error.overMaximum = The CIS deduction must be less than £100,000,000,000
 
-################# Contractor Details messages   ########################################
+#################       Contractor Details messages        ########################################
 
 contractor-details.name = Contractor name
 contractor-details.name.hint = For example, ABC Steelworks.
@@ -157,6 +157,27 @@ materialsPage.bullet.two = renting or hiring equipment or scaffolding
 materialsPage.warning = This does not include work related expenses (fuel, hotels, tools, work clothes). You will need to use the ‘Self Assessment: Self-employment’ form to tell us about these expenses.
 materialsPage.error.agent = Select yes if your client paid for materials
 materialsPage.error.individual = Select yes if you paid for materials
+
+#################   Materials Amount Page   ############################
+
+materialsAmountPage.title.individual = How much did you pay for building materials for your contractor?
+materialsAmountPage.title.agent = How much did your client pay for building materials for the contractor?
+materialsAmountPage.heading.individual = How much did you pay for building materials at {0}?
+materialsAmountPage.heading.agent = How much did your client pay for building materials at {0}?
+materialsAmountPage.replayContent.p1.individual = If you did not pay {0} for materials, tell us the correct amount.
+materialsAmountPage.replayContent.p1.agent = If your client did not pay {0} for materials, tell us the correct amount.
+materialsAmountPage.replayContent.p2.individual = You can find this on your 5 {0} CIS statement.
+materialsAmountPage.replayContent.p2.agent = You can find this on their 5 {0} CIS statement.
+materialsAmountPage.p1.individual = Tell us the amount on your 5 {0} CIS statement.
+materialsAmountPage.p1.agent = Tell us the amount on your client’s 5 {0} CIS statement.
+materialsAmountPage.vatParagraph.individual = Only include VAT if you are not VAT registered.
+materialsAmountPage.vatParagraph.agent = Only include VAT if your client is not VAT registered.
+materialsAmountPage.error.noEntry.individual = Enter the amount you paid for materials
+materialsAmountPage.error.noEntry.agent = Enter the amount your client paid for materials
+materialsAmountPage.error.incorrectFormat.individual = Enter the amount you paid for materials in the correct format
+materialsAmountPage.error.incorrectFormat.agent = Enter the amount your client paid for materials in the correct format
+materialsAmountPage.error.overMaximum.individual = The amount you paid for materials must be less than £100,000,000,000
+materialsAmountPage.error.overMaximum.agent = The amount your client paid for materials must be less than £100,000,000,000
 
 #################       Error messages        ########################################
 

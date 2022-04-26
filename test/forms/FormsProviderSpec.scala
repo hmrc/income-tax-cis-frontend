@@ -23,16 +23,18 @@ class FormsProviderSpec extends UnitTest {
 
   private val anyBoolean = true
   private val amount: String = 123.0.toString
+  private val correctBooleanData = Map(YesNoForm.yesNo -> anyBoolean.toString)
+  private val correctAmountData = Map(AmountForm.amount -> amount)
+  private val overMaximumAmount: Map[String, String] = Map(AmountForm.amount -> "100,000,000,000")
   private val wrongKeyData = Map("wrongKey" -> amount)
+  private val wrongAmountFormat: Map[String, String] = Map(AmountForm.amount -> "123.45.6")
   private val emptyData: Map[String, String] = Map.empty
 
   private val underTest = new FormsProvider()
 
   ".labourPayAmountForm" should {
     "return a form that maps data when data is correct" in {
-      val correctData = Map(AmountForm.amount -> amount)
-
-      underTest.labourPayAmountForm(isAgent = anyBoolean).bind(correctData).errors shouldBe Seq.empty
+      underTest.labourPayAmountForm(isAgent = anyBoolean).bind(correctAmountData).errors shouldBe Seq.empty
     }
 
     "return a form that contains agent error" which {
@@ -49,17 +51,13 @@ class FormsProviderSpec extends UnitTest {
       }
 
       "when isAgent is true and data is wrongFormat" in {
-        val wrongFormat: Map[String, String] = Map(AmountForm.amount -> "123.45.6")
-
-        underTest.labourPayAmountForm(isAgent = true).bind(wrongFormat).errors shouldBe Seq(
+        underTest.labourPayAmountForm(isAgent = true).bind(wrongAmountFormat).errors shouldBe Seq(
           FormError(AmountForm.amount, Seq("labourPayPage.error.wrongFormat.agent"), Seq())
         )
       }
 
       "when isAgent is true and data is overMaximum" in {
-        val overMaximum: Map[String, String] = Map(AmountForm.amount -> "100,000,000,000")
-
-        underTest.labourPayAmountForm(isAgent = true).bind(overMaximum).errors shouldBe Seq(
+        underTest.labourPayAmountForm(isAgent = true).bind(overMaximumAmount).errors shouldBe Seq(
           FormError(AmountForm.amount, Seq("labourPayPage.error.overMaximum.agent"), Seq())
         )
       }
@@ -79,17 +77,13 @@ class FormsProviderSpec extends UnitTest {
       }
 
       "when isAgent is false and data is wrongFormat" in {
-        val wrongFormat: Map[String, String] = Map(AmountForm.amount -> "123.45.6")
-
-        underTest.labourPayAmountForm(isAgent = false).bind(wrongFormat).errors shouldBe Seq(
+        underTest.labourPayAmountForm(isAgent = false).bind(wrongAmountFormat).errors shouldBe Seq(
           FormError(AmountForm.amount, Seq("labourPayPage.error.wrongFormat.individual"), Seq())
         )
       }
 
       "when isAgent is false and data is overMaximum" in {
-        val overMaximum: Map[String, String] = Map(AmountForm.amount -> "100,000,000,000")
-
-        underTest.labourPayAmountForm(isAgent = false).bind(overMaximum).errors shouldBe Seq(
+        underTest.labourPayAmountForm(isAgent = false).bind(overMaximumAmount).errors shouldBe Seq(
           FormError(AmountForm.amount, Seq("labourPayPage.error.overMaximum.individual"), Seq())
         )
       }
@@ -98,9 +92,7 @@ class FormsProviderSpec extends UnitTest {
 
   ".deductionAmountForm" should {
     "return a form that maps data when data is correct" in {
-      val formData = Map(AmountForm.amount -> amount)
-
-      underTest.deductionAmountForm().bind(formData).errors shouldBe Seq.empty
+      underTest.deductionAmountForm().bind(correctAmountData).errors shouldBe Seq.empty
     }
 
     "return a form with error when key is wrong" in {
@@ -114,25 +106,19 @@ class FormsProviderSpec extends UnitTest {
     }
 
     "return a form with error when data is wrongFormat" in {
-      val formData = Map(AmountForm.amount -> "123.45.6")
-
-      underTest.deductionAmountForm().bind(formData).errors shouldBe
+      underTest.deductionAmountForm().bind(wrongAmountFormat).errors shouldBe
         Seq(FormError(AmountForm.amount, Seq("deductionAmountPage.error.wrongFormat"), Seq()))
     }
 
     "return a form with error when data is overMaximum" in {
-      val formData = Map(AmountForm.amount -> "100,000,000,000")
-
-      underTest.deductionAmountForm().bind(formData).errors shouldBe
+      underTest.deductionAmountForm().bind(overMaximumAmount).errors shouldBe
         Seq(FormError(AmountForm.amount, Seq("deductionAmountPage.error.overMaximum"), Seq()))
     }
   }
 
   ".materialsYesNoForm" should {
     "return a form that maps data when data is correct" in {
-      val correctData = Map(YesNoForm.yesNo -> anyBoolean.toString)
-
-      underTest.materialsYesNoForm(isAgent = anyBoolean).bind(correctData).errors shouldBe Seq.empty
+      underTest.materialsYesNoForm(isAgent = anyBoolean).bind(correctBooleanData).errors shouldBe Seq.empty
     }
 
     "return a form that contains agent error" which {
@@ -159,6 +145,48 @@ class FormsProviderSpec extends UnitTest {
       "when isAgent is false and data is empty" in {
         underTest.materialsYesNoForm(isAgent = false).bind(emptyData).errors shouldBe Seq(
           FormError("value", Seq("materialsPage.error.individual"), Seq())
+        )
+      }
+    }
+  }
+
+  ".materialsAmountForm" should {
+    "return a form errors for individuals" when {
+      "an empty form is submitted" in {
+        underTest.materialsAmountForm(isAgent = false).bind(emptyData).errors shouldBe Seq(
+          FormError(AmountForm.amount, Seq("materialsAmountPage.error.noEntry.individual"), Seq())
+        )
+      }
+
+      "the data is in the wrong format" in {
+        underTest.materialsAmountForm(isAgent = false).bind(wrongAmountFormat).errors shouldBe Seq(
+          FormError(AmountForm.amount, Seq("materialsAmountPage.error.incorrectFormat.individual"), Seq())
+        )
+      }
+
+      "the data is over the maximum amount" in {
+        underTest.materialsAmountForm(isAgent = false).bind(overMaximumAmount).errors shouldBe Seq(
+          FormError(AmountForm.amount, Seq("materialsAmountPage.error.overMaximum.individual"), Seq())
+        )
+      }
+    }
+
+    "return a form errors for agents" when {
+      "an empty form is submitted" in {
+        underTest.materialsAmountForm(isAgent = true).bind(emptyData).errors shouldBe Seq(
+          FormError(AmountForm.amount, Seq("materialsAmountPage.error.noEntry.agent"), Seq())
+        )
+      }
+
+      "the data is in the wrong format" in {
+        underTest.materialsAmountForm(isAgent = true).bind(wrongAmountFormat).errors shouldBe Seq(
+          FormError(AmountForm.amount, Seq("materialsAmountPage.error.incorrectFormat.agent"), Seq())
+        )
+      }
+
+      "the data is over the maximum amount" in {
+        underTest.materialsAmountForm(isAgent = true).bind(overMaximumAmount).errors shouldBe Seq(
+          FormError(AmountForm.amount, Seq("materialsAmountPage.error.overMaximum.agent"), Seq())
         )
       }
     }

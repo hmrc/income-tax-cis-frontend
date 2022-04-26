@@ -38,7 +38,7 @@ class DeductionAmountController @Inject()(actionsProvider: ActionsProvider,
                                           pageView: DeductionAmountView,
                                           deductionAmountService: DeductionAmountService,
                                           errorHandler: ErrorHandler)
-                                         (implicit val cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
+                                         (implicit cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int,
@@ -52,7 +52,7 @@ class DeductionAmountController @Inject()(actionsProvider: ActionsProvider,
              contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor).async { implicit request =>
     formsProvider.deductionAmountForm().bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(pageView(DeductionAmountPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
-      amount => deductionAmountService.saveDeductionAmount(request.user, request.cisUserData, amount).map {
+      amount => deductionAmountService.saveAmount(request.user, request.cisUserData, amount).map {
         case Left(_: DatabaseError) => errorHandler.internalServerError()
         case Right(_) => Redirect(MaterialsController.show(taxYear, month, contractor))
       }

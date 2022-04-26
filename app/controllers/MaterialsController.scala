@@ -18,6 +18,7 @@ package controllers
 
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
+import controllers.routes.MaterialsAmountController
 import forms.FormsProvider
 import models.mongo.DatabaseError
 import models.pages.MaterialsPage
@@ -37,7 +38,7 @@ class MaterialsController @Inject()(actionsProvider: ActionsProvider,
                                     pageView: MaterialsView,
                                     materialsService: MaterialsService,
                                     errorHandler: ErrorHandler)
-                                   (implicit val cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
+                                   (implicit cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int,
@@ -53,8 +54,12 @@ class MaterialsController @Inject()(actionsProvider: ActionsProvider,
       formWithErrors => Future.successful(BadRequest(pageView(MaterialsPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
       yesNoValue => materialsService.saveQuestion(request.user, request.cisUserData, yesNoValue).map {
         case Left(_: DatabaseError) => errorHandler.internalServerError()
-        // TODO: The following should be updated to redirect to the next page
-        case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+        case Right(_) => if (yesNoValue) {
+          Redirect(MaterialsAmountController.show(taxYear, month, contractor))
+        } else {
+          // TODO: The following should be updated to redirect to Check your CIS Deductions page
+          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+        }
       }
     )
   }

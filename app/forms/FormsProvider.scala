@@ -38,4 +38,10 @@ class FormsProvider {
   def materialsYesNoForm(isAgent: Boolean): Form[Boolean] = YesNoForm.yesNoForm(
     missingInputError = s"materialsPage.error.${if (isAgent) "agent" else "individual"}"
   )
+
+  def materialsAmountForm(isAgent: Boolean): Form[BigDecimal] = AmountForm.amountForm(
+    emptyFieldKey = s"materialsAmountPage.error.noEntry.${if (isAgent) "agent" else "individual"}",
+    wrongFormatKey = s"materialsAmountPage.error.incorrectFormat.${if (isAgent) "agent" else "individual"}",
+    exceedsMaxAmountKey = s"materialsAmountPage.error.overMaximum.${if (isAgent) "agent" else "individual"}"
+  )
 }
