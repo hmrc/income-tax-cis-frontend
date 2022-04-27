@@ -55,7 +55,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
     }
 
     "return successful response when contractor provided" in {
-      mockNotInYearWithSessionData(taxYearEOY, employerRef = "contractor-ref")
+      mockEndOfYearWithSessionData(taxYearEOY, employerRef = "contractor-ref")
 
       val result = underTest.show(taxYearEOY, Some("contractor-ref")).apply(fakeIndividualRequest)
 
@@ -91,7 +91,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
       }
 
       "contractor provided" in {
-        mockNotInYearWithSessionData(taxYearEOY, employerRef = "123/45678")
+        mockEndOfYearWithSessionData(taxYearEOY, employerRef = "123/45678")
         mockSaveContractorDetails(taxYearEOY, aUser, Some(aCisUserData.copy(employerRef = "123/45678")), ContractorDetailsFormData("some-name", "123/45678"), Left(DataNotFoundError))
         mockInternalError(InternalServerError)
 
@@ -115,7 +115,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
       }
 
       "contractor provided" in {
-        mockNotInYearWithSessionData(taxYearEOY, employerRef = "123/45678")
+        mockEndOfYearWithSessionData(taxYearEOY, employerRef = "123/45678")
         mockSaveContractorDetails(taxYearEOY, aUser, Some(aCisUserData.copy(employerRef = "123/45678")), ContractorDetailsFormData("some-name", "123/45678"), Right(()))
 
         await(underTest.submit(taxYear = taxYearEOY, contractor = Some("123/45678"))(fakeIndividualRequest.withFormUrlEncodedBody(

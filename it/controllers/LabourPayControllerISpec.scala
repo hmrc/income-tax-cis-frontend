@@ -16,6 +16,8 @@
 
 package controllers
 
+import java.net.URLEncoder.encode
+
 import akka.util.ByteString.UTF_8
 import controllers.routes.DeductionAmountController
 import forms.AmountForm
@@ -30,8 +32,6 @@ import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.ViewHelpers
-
-import java.net.URLEncoder.encode
 
 class LabourPayControllerISpec extends IntegrationTest
   with ViewHelpers with BeforeAndAfterEach {

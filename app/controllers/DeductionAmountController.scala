@@ -16,10 +16,13 @@
 
 package controllers
 
+import java.time.Month
+
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
 import controllers.routes.MaterialsController
 import forms.FormsProvider
+import javax.inject.Inject
 import models.mongo.DatabaseError
 import models.pages.DeductionAmountPage
 import play.api.i18n.I18nSupport
@@ -29,8 +32,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.DeductionAmountView
 
-import java.time.Month
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeductionAmountController @Inject()(actionsProvider: ActionsProvider,

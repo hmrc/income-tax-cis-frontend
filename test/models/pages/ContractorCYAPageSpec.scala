@@ -16,12 +16,12 @@
 
 package models.pages
 
+import java.time.Month
+
 import support.UnitTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.pages.ContractorCYAPageBuilder.aContractorCYAPage
-
-import java.time.Month
 
 class ContractorCYAPageSpec extends UnitTest {
 

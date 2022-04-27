@@ -16,9 +16,9 @@
 
 package models.pages
 
-import models.CisDeductions
-
 import java.time.Month
+
+import models.CisDeductions
 
 case class ContractorCYAPage(taxYear: Int,
                              isInYear: Boolean,

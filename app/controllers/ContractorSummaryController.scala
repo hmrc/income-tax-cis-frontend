@@ -18,6 +18,7 @@ package controllers
 
 import actions.ActionsProvider
 import config.AppConfig
+import javax.inject.Inject
 import models.pages.ContractorSummaryPage.mapToInYearPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -26,7 +27,6 @@ import utils.SessionHelper
 import utils.UrlUtils._
 import views.html.ContractorSummaryView
 
-import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class ContractorSummaryController @Inject()(actionsProvider: ActionsProvider,

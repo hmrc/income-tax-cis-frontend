@@ -54,35 +54,20 @@ trait MockActionsProvider extends MockFactory
       override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
     }
 
-  def mockNotInYearWithSessionData(taxYear: Int,
-                                   employerRef: String): CallHandler2[Int, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+  def mockEndOfYearWithSessionData(taxYear: Int,
+                                   employerRef: String,
+                                   data: CisUserData = aCisUserData): CallHandler2[Int, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
     val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
       override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
 
       override def invokeBlock[A](request: Request[A], block: UserSessionDataRequest[A] => Future[Result]): Future[Result] =
-        block(UserSessionDataRequest(aCisUserData.copy(employerRef = employerRef), aUser, request))
+        block(UserSessionDataRequest(data.copy(employerRef = employerRef), aUser, request))
 
       override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
     }
 
     (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String))
       .expects(taxYear, employerRef)
-      .returns(value = actionBuilder)
-  }
-
-  def mockNotInYearWithSessionData(taxYear: Int,
-                                   cisUserData: CisUserData): CallHandler2[Int, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
-    val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
-      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
-
-      override def invokeBlock[A](request: Request[A], block: UserSessionDataRequest[A] => Future[Result]): Future[Result] =
-        block(UserSessionDataRequest(cisUserData, aUser, request))
-
-      override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
-    }
-
-    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String))
-      .expects(taxYear, cisUserData.employerRef)
       .returns(value = actionBuilder)
   }
 
