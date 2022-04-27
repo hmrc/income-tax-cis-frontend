@@ -14,69 +14,63 @@
  * limitations under the License.
  *@
 
+@import models.pages.ContractorDetailsPage
 @import views.html.templates.Layout
 @import views.html.templates.helpers.Button
-@import views.html.templates.helpers.InputText
-@import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.ErrorSummary
-@import utils.ViewUtils.summaryListRow
-@import models.forms.ContractorDetailsFormData
+@import views.html.templates.helpers.Heading
+@import views.html.templates.helpers.InputText
 
 @this(
     layout: Layout,
-    formWithCSRF: FormWithCSRF,
-    govukSummaryList: GovukSummaryList,
-    govukInsetText: GovukInsetText,
-    inputText: InputText,
-    button: Button,
     heading: Heading,
-    govUkButton: GovukButton,
-    errorSummary: ErrorSummary
+    errorSummary: ErrorSummary,
+    formWithCsrf: FormWithCSRF,
+    inputText: InputText,
+    button: Button
 )
 
-@(taxYear: Int, form: Form[ContractorDetailsFormData], isAgent: Boolean, previousErn: Option[String] = None)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(pageModel: ContractorDetailsPage)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@headingForUse = @{messages("contractorCYAPage.lineItem.contractorDetails")}
+@titleForUse = @{messages("contractorCYAPage.lineItem.contractorDetails")}
 
-@contentHtml = {
-    @heading(headingForUse, Some(messages("cis.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-2")
-}
+@headingText = @{titleForUse}
 
-@optionalReplayContent = {
-    <p>@messages(s"contractor-details.employer-ref.replay.${if(isAgent) "agent" else "individual"}", previousErn.get)</p>
-}
+@layout(pageTitle = titleForUse, taxYear = Some(pageModel.taxYear), isAgent = pageModel.isAgent, hasErrors = pageModel.form.hasErrors) {
 
-@layout(pageTitle = headingForUse, taxYear = Some(taxYear), isAgent = false, hasErrors = form.hasErrors) {
+    @errorSummary(pageModel.form.errors)
 
-    @errorSummary(form.errors)
+    @heading(headingText, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
 
-    @contentHtml
+    @if(pageModel.isReplay) {
+        <p class="govuk-body">@messages(s"contractor-details.employer-ref.replay.${if(pageModel.isAgent) "agent" else "individual"}", pageModel.originalEmployerRef.get)</p>
+    }
 
-    @formWithCSRF(action = controllers.routes.ContractorDetailsController.submit(taxYear, previousErn)) {
+    @formWithCsrf(action = controllers.routes.ContractorDetailsController.submit(pageModel.taxYear, pageModel.originalEmployerRef)) {
         @inputText(
-            form,
+            pageModel.form,
             id = "contractorName",
             name = "contractorName",
-            heading = messages("contractor-details.name"),
-            isPageHeading = false,
-            hint = Some(Html(messages("contractor-details.name.hint"))),
-            content = None,
-            classes = Some("govuk-input--width-20"),
-            headingClasses = "govuk-!-margin-bottom-2"
+            label = messages("contractor-details.name"),
+            labelHidden = false,
+            hint = Some(messages("contractor-details.name.hint")),
+            classes = Some("govuk-input--width-20")
         )
 
         @inputText(
-            form,
+            pageModel.form,
             id = "employerReferenceNumber",
             name = "employerReferenceNumber",
-            heading = messages("contractor-details.employer-ref"),
-            isPageHeading = false,
-            hint = Some(Html(messages("contractor-details.employer-ref.hint"))),
-            content = if(previousErn.isDefined) Some(optionalReplayContent) else None,
-            classes = Some("govuk-input--width-20"),
-            headingClasses = "govuk-!-margin-bottom-2"
+            label = messages("contractor-details.employer-ref"),
+            labelHidden = false,
+            hint = Some(messages("contractor-details.employer-ref.hint")),
+            classes = Some("govuk-input--width-20")
         )
 
         @button()
     }
+}
+
+@{
+// $COVERAGE-OFF$
 }

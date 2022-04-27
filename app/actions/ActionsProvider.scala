@@ -74,6 +74,12 @@ class ActionsProvider @Inject()(val authAction: AuthorisedAction,
       .andThen(endOfYearActionBuilder(taxYear))
       .andThen(CisUserDataActionRefiner(taxYear, contractor, cisSessionService, errorHandler, appConfig))
 
+  def endOfYearWithSessionData(taxYear: Int, month: String, contractor: String): ActionBuilder[UserSessionDataRequest, AnyContent] =
+    authAction
+      .andThen(MonthActionFilter(month, errorHandler))
+      .andThen(endOfYearActionBuilder(taxYear))
+      .andThen(CisUserDataActionRefiner(taxYear, contractor, cisSessionService, errorHandler, appConfig))
+
   private def endOfYearActionBuilder(taxYear: Int): ActionFilter[AuthorisationRequest] = new ActionFilter[AuthorisationRequest] {
     override protected def executionContext: ExecutionContext = ec
 

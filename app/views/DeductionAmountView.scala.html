@@ -16,52 +16,49 @@
 
 @import controllers.routes.DeductionAmountController
 @import models.pages.DeductionAmountPage
-@import views.html.templates.helpers.InputText
-@import views.html.templates.helpers.Heading
+@import views.html.templates.Layout
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.ErrorSummary
-@import views.html.templates.Layout
+@import views.html.templates.helpers.Heading
+@import views.html.templates.helpers.InputText
 @import utils.ViewUtils._
 
 @this(
     layout: Layout,
-    formWithCsrf: FormWithCSRF,
-    errorSummary: ErrorSummary,
-    inputText: InputText,
     heading: Heading,
+    errorSummary: ErrorSummary,
+    formWithCsrf: FormWithCSRF,
+    inputText: InputText,
     button: Button
 )
 
 @(pageModel: DeductionAmountPage)(implicit request: UserSessionDataRequest[_], messages: Messages, appConfig: AppConfig)
 
-@title = @{messages("deductionAmountPage.title")}
+@pageTitleText = @{messages("deductionAmountPage.title")}
 
-@heading = @{ pageModel.contractorName.map(messages("deductionAmountPage.heading.contractorName", _)).getOrElse(messages("deductionAmountPage.title"))}
+@headingText = @{pageModel.contractorName.map(messages("deductionAmountPage.heading.contractorName", _)).getOrElse(messages("deductionAmountPage.title"))}
 
-@contentHtml = {
-    @if(pageModel.isReplay){
+@layout(pageTitle = pageTitleText, taxYear = Some(pageModel.taxYear), isAgent = request.user.isAgent, hasErrors = pageModel.form.hasErrors) {
+
+    @errorSummary(pageModel.form.errors)
+
+    @heading(headingText, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
+
+    @if(pageModel.isReplay) {
         <p class="govuk-body">@messages(s"deductionAmountPage.p1.replay", bigDecimalCurrency(pageModel.originalAmount.get.toString))</p>
         <p class="govuk-body">@messages(s"deductionAmountPage.p2.replay.${if(request.user.isAgent) "agent" else "individual"}", "5 " + translatedMonthAndTaxYear(pageModel.month, pageModel.taxYear))</p>
     } else {
         <p class="govuk-body">@messages(s"deductionAmountPage.p1.${if(request.user.isAgent) "agent" else "individual"}", "5 " + translatedMonthAndTaxYear(pageModel.month, pageModel.taxYear))</p>
     }
-}
-
-@layout(pageTitle = title, taxYear = Some(pageModel.taxYear), isAgent = request.user.isAgent, hasErrors = pageModel.form.hasErrors) {
-
-    @errorSummary(pageModel.form.errors)
 
     @formWithCsrf(DeductionAmountController.submit(pageModel.taxYear, pageModel.month.toString.toLowerCase, pageModel.employerRef)) {
         @inputText(
             pageModel.form,
             id = "amount",
             name = "amount",
-            heading = heading,
-            headingClasses = "govuk-!-margin-bottom-2",
-            subheading = Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)),
-            content = Some(contentHtml),
-            hint = Some(Html(messages("common.currency.hint"))),
-            isPageHeading = false,
+            label = headingText,
+            labelHidden = true,
+            hint = Some(messages("common.currency.hint")),
             currency = true
         )
 

@@ -26,13 +26,13 @@ import play.api.test.Helpers.{contentType, redirectLocation, status}
 import support.ControllerUnitTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.UserBuilder.aUser
+import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockActionsProvider, MockCISSessionService, MockDeductionPeriodService, MockErrorHandler}
 import utils.UrlUtils.encode
 import views.html.cis.DeductionPeriodView
-import java.time.Month
 
-import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
+import java.time.Month
 
 class DeductionPeriodControllerSpec extends ControllerUnitTest
   with MockActionsProvider
@@ -57,15 +57,17 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
 
   ".show" should {
     "return successful response" in {
-      mockEndOfYearWithSessionData(taxYearEOY, aCisDeductions.employerRef, aCisUserData)
+      mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef))
 
       val result = underTest.show(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString))
 
       status(result) shouldBe OK
       contentType(result) shouldBe Some("text/html")
     }
+
     "return redirect when no months to submit for" in {
-      mockEndOfYearWithSessionData(taxYearEOY, aCisDeductions.employerRef, aCisUserData.copy(cis = aCisCYAModel.copy(priorPeriodData = Month.values().map(CYAPeriodData(_)))))
+      val cisCYAModel = aCisCYAModel.copy(priorPeriodData = Month.values().map(CYAPeriodData(_)))
+      mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef, cis = cisCYAModel))
 
       val result = underTest.show(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString))
 
@@ -76,7 +78,7 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
 
   ".submit" should {
     "submit the month period" in {
-      mockEndOfYearWithSessionData(taxYearEOY, aCisDeductions.employerRef, aCisUserData)
+      mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef))
       mockSubmitMonth(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JUNE, Right(aCisUserData))
 
       val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest
@@ -85,8 +87,10 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
       status(result) shouldBe SEE_OTHER
       redirectLocation(result).get shouldBe LabourPayController.show(taxYearEOY, Month.JUNE.toString, encode(aCisDeductions.employerRef)).url
     }
+
     "redirect when no months can be added" in {
-      mockEndOfYearWithSessionData(taxYearEOY, aCisDeductions.employerRef, aCisUserData.copy(cis = aCisCYAModel.copy(priorPeriodData = Month.values().map(CYAPeriodData(_)))))
+      val cisCYAModel = aCisCYAModel.copy(priorPeriodData = Month.values().map(CYAPeriodData(_)))
+      mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef, cis = cisCYAModel))
 
       val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest
         .withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june"))
@@ -94,8 +98,9 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
       status(result) shouldBe SEE_OTHER
       redirectLocation(result).get shouldBe "/overview"
     }
+
     "handle submit failure" in {
-      mockEndOfYearWithSessionData(taxYearEOY, aCisDeductions.employerRef, aCisUserData)
+      mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef))
       mockSubmitMonth(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JUNE, Left(DataNotUpdatedError))
       mockInternalError(InternalServerError)
 
@@ -104,8 +109,9 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
+
     "return bad request when the month period is invalid" in {
-      mockEndOfYearWithSessionData(taxYearEOY, aCisDeductions.employerRef, aCisUserData)
+      mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef))
 
       val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest
         .withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "november"))

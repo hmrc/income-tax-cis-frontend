@@ -44,20 +44,16 @@ class LabourPayController @Inject()(actionsProvider: ActionsProvider,
 
   def show(taxYear: Int,
            month: String,
-           contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor) { implicit request =>
-    val monthValue = Month.valueOf(month.toUpperCase)
+           contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, month, contractor) { implicit request =>
     val form = formsProvider.labourPayAmountForm(request.user.isAgent)
-
-    Ok(pageView(LabourPayPage(monthValue, request.cisUserData, form)))
+    Ok(pageView(LabourPayPage(Month.valueOf(month.toUpperCase), request.cisUserData, form)))
   }
 
   def submit(taxYear: Int,
              month: String,
-             contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor).async { implicit request =>
-    val monthValue = Month.valueOf(month.toUpperCase)
-
+             contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, month, contractor).async { implicit request =>
     formsProvider.labourPayAmountForm(request.user.isAgent).bindFromRequest().fold(
-      formWithErrors => Future.successful(BadRequest(pageView(LabourPayPage(monthValue, request.cisUserData, formWithErrors)))),
+      formWithErrors => Future.successful(BadRequest(pageView(LabourPayPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
       amount => labourPayService.saveLabourPay(request.user, request.cisUserData, amount).map {
         case Left(_: DatabaseError) => errorHandler.internalServerError()
         case Right(_) => Redirect(DeductionAmountController.show(taxYear, month, contractor))

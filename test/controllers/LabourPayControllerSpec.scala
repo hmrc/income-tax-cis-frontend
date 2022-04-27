@@ -16,8 +16,6 @@
 
 package controllers
 
-import java.time.Month
-
 import controllers.routes.DeductionAmountController
 import forms.FormsProvider
 import models.mongo.DataNotFoundError
@@ -30,6 +28,8 @@ import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockActionsProvider, MockLabourPayService}
 import views.html.LabourPayView
+
+import java.time.Month
 
 class LabourPayControllerSpec extends ControllerUnitTest
   with MockActionsProvider
@@ -45,7 +45,7 @@ class LabourPayControllerSpec extends ControllerUnitTest
 
   ".show" should {
     "return successful response" in {
-      mockEndOfYearWithSessionData(taxYearEOY, "some-ref")
+      mockEndOfYearWithSessionData(taxYearEOY, month = "may", employerRef = "some-ref")
 
       val result = underTest.show(taxYearEOY, month = "may", contractor = "some-ref").apply(fakeIndividualRequest)
 
@@ -56,7 +56,7 @@ class LabourPayControllerSpec extends ControllerUnitTest
 
   ".submit" should {
     "render page with error when validation of form fails" in {
-      mockEndOfYearWithSessionData(taxYearEOY, employerRef = "some-ref")
+      mockEndOfYearWithSessionData(taxYearEOY, month = Month.MAY.toString, employerRef = "some-ref")
 
       val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody("amount" -> "2.3.4"))
 
@@ -67,7 +67,7 @@ class LabourPayControllerSpec extends ControllerUnitTest
     }
 
     "handle internal server error when save operation fails with database error" in {
-      mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.employerRef)
+      mockEndOfYearWithSessionData(taxYearEOY, month = Month.MAY.toString, aCisUserData.employerRef)
       mockSaveLabourPay(aUser, aCisUserData, amount = 123, result = Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
@@ -77,7 +77,7 @@ class LabourPayControllerSpec extends ControllerUnitTest
     }
 
     "redirect to Deductions amount page on successful submission" in {
-      mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.employerRef)
+      mockEndOfYearWithSessionData(taxYearEOY, month = Month.MAY.toString, aCisUserData.employerRef)
       mockSaveLabourPay(aUser, aCisUserData, amount = 123, result = Right(()))
 
       await(underTest.submit(taxYearEOY, Month.MAY.toString, aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody("amount" -> "123"))) shouldBe
