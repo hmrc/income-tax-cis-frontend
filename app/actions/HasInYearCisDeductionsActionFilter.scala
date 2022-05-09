@@ -23,7 +23,7 @@ import play.api.mvc.{ActionFilter, Result}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class HasInYearCisDeductionsActionFilter(taxYear: Int, appConfig: AppConfig)
+case class HasInYearCisDeductionsActionFilter(taxYear: Int, appConfig: AppConfig)
                                         (implicit ec: ExecutionContext) extends ActionFilter[UserPriorDataRequest] {
 
   override protected[actions] def executionContext: ExecutionContext = ec

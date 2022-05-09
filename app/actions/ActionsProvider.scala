@@ -42,13 +42,13 @@ class ActionsProvider @Inject()(val authAction: AuthorisedAction,
     authAction
       .andThen(inYearActionBuilder(taxYear))
       .andThen(incomeTaxUserDataAction(taxYear))
-      .andThen(new HasInYearDeductionsForEmployerRefAndMonthActionFilter(taxYear, UrlUtils.decode(contractor), month, errorHandler, appConfig))
+      .andThen(HasInYearDeductionsForEmployerRefAndMonthActionFilter(taxYear, UrlUtils.decode(contractor), month, errorHandler, appConfig))
 
   def inYearWithPreviousDataFor(taxYear: Int, contractor: String): ActionBuilder[UserPriorDataRequest, AnyContent] =
     authAction
       .andThen(inYearActionBuilder(taxYear))
       .andThen(incomeTaxUserDataAction(taxYear))
-      .andThen(new HasInYearPeriodDataWithEmployerRefActionFilter(taxYear, UrlUtils.decode(contractor), appConfig))
+      .andThen(HasInYearPeriodDataWithEmployerRefActionFilter(taxYear, UrlUtils.decode(contractor), appConfig))
 
   def priorCisDeductionsData(taxYear: Int): ActionBuilder[UserPriorDataRequest, AnyContent] = {
     if (inYearUtil.inYear(taxYear)) {
@@ -62,7 +62,7 @@ class ActionsProvider @Inject()(val authAction: AuthorisedAction,
     authAction
       .andThen(inYearActionBuilder(taxYear))
       .andThen(incomeTaxUserDataAction(taxYear))
-      .andThen(new HasInYearCisDeductionsActionFilter(taxYear, appConfig))
+      .andThen(HasInYearCisDeductionsActionFilter(taxYear, appConfig))
 
   private def priorDataWithEndOfYearCisDeductions(taxYear: Int): ActionBuilder[UserPriorDataRequest, AnyContent] =
     authAction

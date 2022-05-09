@@ -23,7 +23,7 @@ import play.api.mvc.{ActionFilter, Result}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class HasInYearPeriodDataWithEmployerRefActionFilter(taxYear: Int,
+case class HasInYearPeriodDataWithEmployerRefActionFilter(taxYear: Int,
                                                      employerRef: String,
                                                      appConfig: AppConfig
                                                     )(implicit ec: ExecutionContext) extends ActionFilter[UserPriorDataRequest] {
