@@ -16,14 +16,10 @@
 
 package controllers
 
-import java.time.Month
-
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
 import controllers.routes.MaterialsController
 import forms.FormsProvider
-import javax.inject.Inject
-import models.mongo.DatabaseError
 import models.pages.DeductionAmountPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -32,6 +28,8 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.DeductionAmountView
 
+import java.time.Month
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeductionAmountController @Inject()(actionsProvider: ActionsProvider,
@@ -54,7 +52,7 @@ class DeductionAmountController @Inject()(actionsProvider: ActionsProvider,
     formsProvider.deductionAmountForm().bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(pageView(DeductionAmountPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
       amount => deductionAmountService.saveAmount(request.user, request.cisUserData, amount).map {
-        case Left(_: DatabaseError) => errorHandler.internalServerError()
+        case Left(_) => errorHandler.internalServerError()
         case Right(_) => Redirect(MaterialsController.show(taxYear, month, contractor))
       }
     )

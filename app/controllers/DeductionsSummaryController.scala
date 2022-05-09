@@ -18,7 +18,6 @@ package controllers
 
 import actions.ActionsProvider
 import config.AppConfig
-import javax.inject.Inject
 import models.pages.DeductionsSummaryPage.{mapToEndOfYearPage, mapToInYearPage}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -26,12 +25,12 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.{InYearUtil, SessionHelper}
 import views.html.DeductionsSummaryView
 
-import scala.concurrent.ExecutionContext
+import javax.inject.Inject
 
 class DeductionsSummaryController @Inject()(actionsProvider: ActionsProvider,
                                             inYearUtil: InYearUtil,
                                             pageView: DeductionsSummaryView)
-                                           (implicit cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
+                                           (implicit cc: MessagesControllerComponents, appConfig: AppConfig)
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int): Action[AnyContent] = actionsProvider.priorCisDeductionsData(taxYear) { implicit request =>

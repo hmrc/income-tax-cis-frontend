@@ -81,7 +81,7 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
             encryptedCisUserData.decrypted
           }
         }.toEither match {
-          case Left(exception: Exception) => handleEncryptionDecryptionException(exception, start)
+          case Left(t: Throwable) => handleEncryptionDecryptionException(t.asInstanceOf[Exception], start)
           case Right(decryptedData) => Right(decryptedData)
         }
     }
@@ -94,9 +94,8 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
       implicit val textAndKey: TextAndKey = TextAndKey(cisUserData.mtdItId, appConfig.encryptionKey)
       cisUserData.encrypted
     }.toEither match {
-      case Left(exception: Exception) => Future.successful(handleEncryptionDecryptionException(exception, start))
+      case Left(t: Throwable) => Future.successful(handleEncryptionDecryptionException(t.asInstanceOf[Exception], start))
       case Right(encryptedData) =>
-
         val queryFilter = filter(encryptedData.sessionId, encryptedData.mtdItId, encryptedData.nino, encryptedData.taxYear, encryptedData.employerRef)
         val replacement = encryptedData
         val options = FindOneAndReplaceOptions().upsert(true).returnDocument(ReturnDocument.AFTER)

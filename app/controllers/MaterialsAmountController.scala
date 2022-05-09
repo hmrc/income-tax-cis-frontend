@@ -20,7 +20,6 @@ import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
 import forms.FormsProvider
 import models.UserSessionDataRequest
-import models.mongo.DatabaseError
 import models.pages.MaterialsAmountPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -61,7 +60,7 @@ class MaterialsAmountController @Inject()(actionsProvider: ActionsProvider,
       formsProvider.materialsAmountForm(request.user.isAgent).bindFromRequest().fold(
         formWithErrors => Future.successful(BadRequest(pageView(MaterialsAmountPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
         amount => materialsService.saveAmount(request.user, request.cisUserData, amount).map {
-          case Left(_: DatabaseError) => errorHandler.internalServerError()
+          case Left(_) => errorHandler.internalServerError()
           // TODO: Redirect to next page
           case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
         }

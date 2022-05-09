@@ -16,14 +16,10 @@
 
 package controllers
 
-import java.time.Month
-
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
 import controllers.routes.DeductionAmountController
 import forms.FormsProvider
-import javax.inject.Inject
-import models.mongo.DatabaseError
 import models.pages.LabourPayPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -32,6 +28,8 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.LabourPayView
 
+import java.time.Month
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class LabourPayController @Inject()(actionsProvider: ActionsProvider,
@@ -55,7 +53,7 @@ class LabourPayController @Inject()(actionsProvider: ActionsProvider,
     formsProvider.labourPayAmountForm(request.user.isAgent).bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(pageView(LabourPayPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
       amount => labourPayService.saveLabourPay(request.user, request.cisUserData, amount).map {
-        case Left(_: DatabaseError) => errorHandler.internalServerError()
+        case Left(_) => errorHandler.internalServerError()
         case Right(_) => Redirect(DeductionAmountController.show(taxYear, month, contractor))
       }
     )
