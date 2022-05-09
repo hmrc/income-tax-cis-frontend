@@ -16,11 +16,8 @@
 
 package controllers
 
-import java.time.Month
-
 import actions.ActionsProvider
 import config.AppConfig
-import javax.inject.Inject
 import models.pages.ContractorCYAPage.mapToInYearPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -28,11 +25,12 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.{SessionHelper, UrlUtils}
 import views.html.ContractorCYAView
 
-import scala.concurrent.ExecutionContext
+import java.time.Month
+import javax.inject.Inject
 
 class ContractorCYAController @Inject()(actionsProvider: ActionsProvider,
                                         pageView: ContractorCYAView)
-                                       (implicit mcc: MessagesControllerComponents, ec: ExecutionContext, appConfig: AppConfig)
+                                       (implicit mcc: MessagesControllerComponents, appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int,

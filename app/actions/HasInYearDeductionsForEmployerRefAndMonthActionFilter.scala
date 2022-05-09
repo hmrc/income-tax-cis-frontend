@@ -25,12 +25,12 @@ import java.time.Month
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class HasInYearDeductionsForEmployerRefAndMonthActionFilter(taxYear: Int,
-                                                            employerRef: String,
-                                                            monthValue: String,
-                                                            errorHandler: ErrorHandler,
-                                                            appConfig: AppConfig)
-                                                           (implicit ec: ExecutionContext) extends ActionFilter[UserPriorDataRequest] {
+case class HasInYearDeductionsForEmployerRefAndMonthActionFilter(taxYear: Int,
+                                                                 employerRef: String,
+                                                                 monthValue: String,
+                                                                 errorHandler: ErrorHandler,
+                                                                 appConfig: AppConfig)
+                                                                (implicit ec: ExecutionContext) extends ActionFilter[UserPriorDataRequest] {
 
   override protected[actions] def executionContext: ExecutionContext = ec
 

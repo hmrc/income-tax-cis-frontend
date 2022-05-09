@@ -17,11 +17,11 @@
 package controllers
 
 import config.AppConfig
-import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
+import javax.inject.Inject
 
 class SignOutController @Inject()(val mcc: MessagesControllerComponents,
                                   appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
@@ -29,5 +29,4 @@ class SignOutController @Inject()(val mcc: MessagesControllerComponents,
   def signOut(isAgent: Boolean): Action[AnyContent] = Action { _ =>
     Redirect(appConfig.signOutUrl, Map("continue" -> Seq(appConfig.feedbackSurveyUrl(isAgent))))
   }
-
 }

@@ -16,14 +16,10 @@
 
 package controllers
 
-import java.time.Month
-
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
 import controllers.routes.MaterialsAmountController
 import forms.FormsProvider
-import javax.inject.Inject
-import models.mongo.DatabaseError
 import models.pages.MaterialsPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -32,6 +28,8 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.MaterialsView
 
+import java.time.Month
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class MaterialsController @Inject()(actionsProvider: ActionsProvider,
@@ -54,7 +52,7 @@ class MaterialsController @Inject()(actionsProvider: ActionsProvider,
     formsProvider.materialsYesNoForm(request.user.isAgent).bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(pageView(MaterialsPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
       yesNoValue => materialsService.saveQuestion(request.user, request.cisUserData, yesNoValue).map {
-        case Left(_: DatabaseError) => errorHandler.internalServerError()
+        case Left(_) => errorHandler.internalServerError()
         case Right(_) => if (yesNoValue) {
           Redirect(MaterialsAmountController.show(taxYear, month, contractor))
         } else {

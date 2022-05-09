@@ -18,7 +18,6 @@ package controllers
 
 import actions.ActionsProvider
 import config.AppConfig
-import javax.inject.Inject
 import models.pages.ContractorSummaryPage.mapToInYearPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -27,11 +26,11 @@ import utils.SessionHelper
 import utils.UrlUtils._
 import views.html.ContractorSummaryView
 
-import scala.concurrent.ExecutionContext
+import javax.inject.Inject
 
 class ContractorSummaryController @Inject()(actionsProvider: ActionsProvider,
                                             pageView: ContractorSummaryView)
-                                           (implicit mcc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
+                                           (implicit mcc: MessagesControllerComponents, appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int,

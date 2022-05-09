@@ -16,8 +16,8 @@
 
 package models.pages
 
+import forms.FormsProvider.MaterialsAmountForm
 import models.mongo.CisUserData
-import play.api.data.Form
 
 import java.time.Month
 
@@ -25,7 +25,7 @@ case class MaterialsAmountPage(taxYear: Int,
                                month: Month,
                                contractorName: Option[String],
                                employerRef: String,
-                               form: Form[BigDecimal],
+                               form: MaterialsAmountForm,
                                originalAmount: Option[BigDecimal]
                               ) {
   val contractor: String = contractorName.getOrElse(employerRef)
@@ -36,7 +36,7 @@ object MaterialsAmountPage {
 
   def apply(month: Month,
             cisUserData: CisUserData,
-            form: Form[BigDecimal]): MaterialsAmountPage = {
+            form: MaterialsAmountForm): MaterialsAmountPage = {
     val optAmount = cisUserData.cis.periodData.flatMap(_.costOfMaterials)
 
     MaterialsAmountPage(

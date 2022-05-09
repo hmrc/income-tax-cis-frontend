@@ -16,16 +16,16 @@
 
 package models.pages
 
-import java.time.Month
-
+import forms.FormsProvider.DeductionAmountForm
 import models.mongo.CisUserData
-import play.api.data.Form
+
+import java.time.Month
 
 case class DeductionAmountPage(taxYear: Int,
                                month: Month,
                                contractorName: Option[String],
                                employerRef: String,
-                               form: Form[BigDecimal],
+                               form: DeductionAmountForm,
                                originalAmount: Option[BigDecimal]) {
 
   val isReplay: Boolean = originalAmount.isDefined
@@ -35,7 +35,7 @@ object DeductionAmountPage {
 
   def apply(month: Month,
             cisUserData: CisUserData,
-            form: Form[BigDecimal]): DeductionAmountPage = {
+            form: DeductionAmountForm): DeductionAmountPage = {
     val optAmount: Option[BigDecimal] = cisUserData.cis.periodData.flatMap(_.deductionAmount)
 
     DeductionAmountPage(
