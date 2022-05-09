@@ -16,16 +16,16 @@
 
 package models.pages
 
-import java.time.Month
-
+import forms.FormsProvider.LabourPayAmountForm
 import models.mongo.CisUserData
-import play.api.data.Form
+
+import java.time.Month
 
 case class LabourPayPage(taxYear: Int,
                          month: Month,
                          contractorName: Option[String],
                          employerRef: String,
-                         form: Form[BigDecimal],
+                         form: LabourPayAmountForm,
                          originalGrossAmount: Option[BigDecimal]) {
 
   val contractor: String = contractorName.getOrElse(employerRef)
@@ -36,7 +36,7 @@ object LabourPayPage {
 
   def apply(month: Month,
             cisUserData: CisUserData,
-            form: Form[BigDecimal]): LabourPayPage = {
+            form: LabourPayAmountForm): LabourPayPage = {
     val optGrossAmount: Option[BigDecimal] = cisUserData.cis.periodData.flatMap(_.grossAmountPaid)
 
     LabourPayPage(

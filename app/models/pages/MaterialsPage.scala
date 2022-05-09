@@ -16,23 +16,22 @@
 
 package models.pages
 
-import java.time.Month
-
+import forms.FormsProvider.MaterialsYesNoForm
 import models.mongo.CisUserData
-import play.api.data.Form
+
+import java.time.Month
 
 case class MaterialsPage(taxYear: Int,
                          month: Month,
                          contractorName: Option[String],
                          employerRef: String,
-                         form: Form[Boolean]) {
-}
+                         form: MaterialsYesNoForm)
 
 object MaterialsPage {
 
   def apply(month: Month,
             cisUserData: CisUserData,
-            form: Form[Boolean]): MaterialsPage = {
+            form: MaterialsYesNoForm): MaterialsPage = {
     val optQuestionValue: Option[Boolean] = cisUserData.cis.periodData.flatMap(_.costOfMaterialsQuestion)
 
     MaterialsPage(
