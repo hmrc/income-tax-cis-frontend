@@ -27,7 +27,7 @@ case class AllCISDeductions(customerCISDeductions: Option[CISSource],
     val _contractorCISDeductions: Seq[CisDeductions] = contractorCISDeductions.map(_.cisDeductions).getOrElse(Seq.empty)
     val _customerCISDeductions: Seq[CisDeductions] = customerCISDeductions.map(_.cisDeductions).getOrElse(Seq.empty)
 
-    makeCISDeductionsListFromCustomerAndContractor(_contractorCISDeductions,_customerCISDeductions).map(_.recalculateFigures)
+    makeCISDeductionsListFromCustomerAndContractor(_contractorCISDeductions, _customerCISDeductions).map(_.recalculateFigures)
   }
 
   private def makeCISDeductionsListFromCustomerAndContractor(contractorCISDeductions: Seq[CisDeductions],
@@ -83,7 +83,7 @@ case class AllCISDeductions(customerCISDeductions: Option[CISSource],
         latestPeriodData(deductionPeriod, _contractorDeductionPeriods, _customerDeductionPeriods)
       }
 
-      foundContractorCISDeductions.copy(periodData =latestCombinedPeriods ++ nonDuplicatePeriods).withSortedPeriodData
+      foundContractorCISDeductions.copy(periodData = latestCombinedPeriods ++ nonDuplicatePeriods).withSortedPeriodData
     }
   }
 
@@ -110,6 +110,9 @@ case class AllCISDeductions(customerCISDeductions: Option[CISSource],
 
   def inYearCisDeductionsWith(employerRef: String): Option[CisDeductions] =
     inYearCisDeductions.find(_.employerRef == employerRef)
+
+  def eoyCisDeductionsWith(employerRef: String): Option[CisDeductions] =
+    endOfYearCisDeductions.find(_.employerRef == employerRef)
 }
 
 object AllCISDeductions {

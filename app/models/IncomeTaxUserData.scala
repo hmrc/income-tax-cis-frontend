@@ -16,20 +16,23 @@
 
 package models
 
-import java.time.Month
-
 import play.api.Logging
 import play.api.libs.json.{Json, OFormat}
 
+import java.time.Month
+
 case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) extends Logging {
 
-  val hasInYearCisDeductions: Boolean = cis.exists(_.inYearCisDeductions.nonEmpty)
+  lazy val hasInYearCisDeductions: Boolean = cis.exists(_.inYearCisDeductions.nonEmpty)
 
   def inYearCisDeductionsWith(employerRef: String): Option[CisDeductions] =
     cis.flatMap(_.inYearCisDeductionsWith(employerRef))
 
   def hasInYearCisDeductionsWith(employerRef: String): Boolean =
     inYearCisDeductionsWith(employerRef).nonEmpty
+
+  def hasEOYCisDeductionsWith(employerRef: String): Boolean =
+    eoyYearCisDeductionsWith(employerRef).nonEmpty
 
   def inYearCisDeductionsWith(employerRef: String, month: Month): Option[CisDeductions] =
     inYearCisDeductionsWith(employerRef).find(_.periodDataFor(month).nonEmpty)
@@ -49,6 +52,9 @@ case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) extends Loggi
   def getEOYCISDeductionsFor(employerRef: String): Option[CisDeductions] = {
     cis.map(_.endOfYearCisDeductions).getOrElse(Seq.empty).find(_.employerRef == employerRef)
   }
+
+  private def eoyYearCisDeductionsWith(employerRef: String): Option[CisDeductions] =
+    cis.flatMap(_.eoyCisDeductionsWith(employerRef))
 }
 
 object IncomeTaxUserData {

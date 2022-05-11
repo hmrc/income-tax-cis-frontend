@@ -30,17 +30,17 @@ import support.mocks.MockErrorHandler
 import java.time.Month
 import scala.concurrent.ExecutionContext
 
-class HasInYearDeductionsForEmployerRefAndMonthActionFilterSpec extends UnitTest
+class HasInYearDeductionsForEmployerRefAndMonthFilterActionSpec extends UnitTest
   with MockErrorHandler {
 
-  private val taxYear = 2022
+  private val anyTaxYear = 2022
   private val employerRef = "some-employer-ref"
   private val monthValue = "may"
   private val appConfig = new MockAppConfig().config()
   private val executionContext = ExecutionContext.global
 
-  private val underTest = new HasInYearDeductionsForEmployerRefAndMonthActionFilter(
-    taxYear = taxYear,
+  private val underTest = HasInYearDeductionsForEmployerRefAndMonthFilterAction(
+    taxYear = anyTaxYear,
     employerRef = employerRef,
     monthValue = monthValue,
     errorHandler = mockErrorHandler,
@@ -55,8 +55,8 @@ class HasInYearDeductionsForEmployerRefAndMonthActionFilterSpec extends UnitTest
 
   ".filter" should {
     "return a redirect to " in {
-      val underTest = new HasInYearDeductionsForEmployerRefAndMonthActionFilter(
-        taxYear = taxYear,
+      val underTest = new HasInYearDeductionsForEmployerRefAndMonthFilterAction(
+        taxYear = anyTaxYear,
         employerRef = employerRef,
         monthValue = "wrong-month-value",
         errorHandler = mockErrorHandler,
@@ -73,7 +73,7 @@ class HasInYearDeductionsForEmployerRefAndMonthActionFilterSpec extends UnitTest
       val cisSource = aCISSource.copy(cisDeductions = Seq(aCisDeductions.copy(employerRef = employerRef, periodData = Seq(periodData))))
       val incomeTaxUserData = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = Some(cisSource))))
 
-      await(underTest.filter(aUserPriorDataRequest.copy(incomeTaxUserData = incomeTaxUserData))) shouldBe Some(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      await(underTest.filter(aUserPriorDataRequest.copy(incomeTaxUserData = incomeTaxUserData))) shouldBe Some(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(anyTaxYear)))
     }
 
     "return None when CIS data has in year CisDeductions" in {

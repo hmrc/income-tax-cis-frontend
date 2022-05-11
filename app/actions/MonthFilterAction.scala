@@ -16,23 +16,24 @@
 
 package actions
 
-import config.AppConfig
-import models.UserPriorDataRequest
-import play.api.mvc.Results.Redirect
+import config.ErrorHandler
+import models.AuthorisationRequest
 import play.api.mvc.{ActionFilter, Result}
 
+import java.time.Month
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
 
-case class HasInYearCisDeductionsActionFilter(taxYear: Int, appConfig: AppConfig)
-                                        (implicit ec: ExecutionContext) extends ActionFilter[UserPriorDataRequest] {
+case class MonthFilterAction(monthValue: String,
+                             errorHandler: ErrorHandler)
+                            (implicit ec: ExecutionContext) extends ActionFilter[AuthorisationRequest] {
 
   override protected[actions] def executionContext: ExecutionContext = ec
 
-  override protected[actions] def filter[A](input: UserPriorDataRequest[A]): Future[Option[Result]] = Future.successful {
-    if (!input.incomeTaxUserData.hasInYearCisDeductions) {
-      Some(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-    } else {
-      None
+  override protected[actions] def filter[A](input: AuthorisationRequest[A]): Future[Option[Result]] = Future.successful {
+    Try(Month.valueOf(monthValue.toUpperCase)) match {
+      case Failure(_) => Some(errorHandler.internalServerError()(input))
+      case Success(_) => None
     }
   }
 }

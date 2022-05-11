@@ -16,14 +16,14 @@
 
 package models
 
-import java.time.Month
-
 import support.UnitTest
 import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 import support.builders.models.CISSourceBuilder.aCISSource
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.PeriodDataBuilder.aPeriodData
+
+import java.time.Month
 
 class IncomeTaxUserDataSpec extends UnitTest {
 
@@ -95,6 +95,23 @@ class IncomeTaxUserDataSpec extends UnitTest {
       val underTest = anIncomeTaxUserData
 
       underTest.hasInYearCisDeductionsWith(employerRef = "unknown-ref") shouldBe false
+    }
+  }
+
+  ".hasEOYCisDeductionsWith(...)" should {
+    "return true when CisDeductions with employerRef exists" in {
+      val cisDeductions = aCisDeductions.copy(employerRef = "some-ref")
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = None, customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions))))
+
+      val underTest = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
+
+      underTest.hasEOYCisDeductionsWith(employerRef = "some-ref") shouldBe true
+    }
+
+    "return false when CisDeductions with employerRef exists" in {
+      val underTest = anIncomeTaxUserData
+
+      underTest.hasEOYCisDeductionsWith(employerRef = "unknown-ref") shouldBe false
     }
   }
 
@@ -177,7 +194,7 @@ class IncomeTaxUserDataSpec extends UnitTest {
           contractorCISDeductions = Some(aCISSource.copy(
             cisDeductions = Seq(
               aCisDeductions.copy(
-                periodData = Seq(aPeriodData, aPeriodData.copy(deductionPeriod = Month.DECEMBER,submissionDate = "2021-05-11T16:38:57.489Z"))
+                periodData = Seq(aPeriodData, aPeriodData.copy(deductionPeriod = Month.DECEMBER, submissionDate = "2021-05-11T16:38:57.489Z"))
               )
             )
           ))

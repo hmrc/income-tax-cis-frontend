@@ -26,7 +26,7 @@ import utils.UrlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class CisUserDataActionRefiner(taxYear: Int,
+case class CisUserDataRefinerAction(taxYear: Int,
                                     employerRef: String,
                                     cisSessionService: CISSessionService,
                                     errorHandler: ErrorHandler,
@@ -45,13 +45,13 @@ case class CisUserDataActionRefiner(taxYear: Int,
   }
 }
 
-object CisUserDataActionRefiner {
+object CisUserDataRefinerAction {
 
   def apply(taxYear: Int,
             contractor: String,
             cisSessionService: CISSessionService,
             errorHandler: ErrorHandler,
-            appConfig: AppConfig)(implicit ec: ExecutionContext): CisUserDataActionRefiner = new CisUserDataActionRefiner(
+            appConfig: AppConfig)(implicit ec: ExecutionContext): CisUserDataRefinerAction = new CisUserDataRefinerAction(
     taxYear = taxYear,
     employerRef = UrlUtils.decode(contractor),
     cisSessionService = cisSessionService,

@@ -27,15 +27,15 @@ import support.builders.models.UserPriorDataRequestBuilder.aUserPriorDataRequest
 
 import scala.concurrent.ExecutionContext
 
-class HasInYearPeriodDataWithEmployerRefActionFilterSpec extends UnitTest {
+class HasEOYDataWithEmployerRefFilterActionSpec extends UnitTest {
 
-  private val taxYear = 2022
+  private val anyTaxYear = 2022
   private val employerRef = "some-employer-ref"
   private val appConfig = new MockAppConfig().config()
   private val executionContext = ExecutionContext.global
 
-  private val underTest = new HasInYearPeriodDataWithEmployerRefActionFilter(
-    taxYear = taxYear,
+  private val underTest = HasEOYDataWithEmployerRefFilterAction(
+    taxYear = anyTaxYear,
     employerRef = employerRef,
     appConfig = appConfig
   )(executionContext)
@@ -47,17 +47,17 @@ class HasInYearPeriodDataWithEmployerRefActionFilterSpec extends UnitTest {
   }
 
   ".refine" should {
-    "return a redirect to Income Tax Submission Overview when CIS data has no in year Period data with given employerRef" in {
+    "return a redirect to Income Tax Submission Overview when CIS data has no eoy Period data with given employerRef" in {
       val deductions = aCisDeductions.copy(employerRef = "unknown-ref")
-      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = None, customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
       val incomeTaxUserData = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
 
-      await(underTest.filter(aUserPriorDataRequest.copy(incomeTaxUserData = incomeTaxUserData))) shouldBe Some(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      await(underTest.filter(aUserPriorDataRequest.copy(incomeTaxUserData = incomeTaxUserData))) shouldBe Some(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(anyTaxYear)))
     }
 
     "return None when CIS data contains CisDeductions with given employerRef" in {
       val deductions = aCisDeductions.copy(employerRef = employerRef)
-      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = None, customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
       val incomeTaxUserData = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
 
       await(underTest.filter(aUserPriorDataRequest.copy(incomeTaxUserData = incomeTaxUserData))) shouldBe None

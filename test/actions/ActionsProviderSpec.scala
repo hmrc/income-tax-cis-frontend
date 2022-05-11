@@ -181,6 +181,50 @@ class ActionsProviderSpec extends ControllerUnitTest
     }
   }
 
+  ".userPriorDataFor(taxYear, contractor)" should {
+    "redirect to UnauthorisedUserErrorController when authentication fails" in {
+      mockFailToAuthenticate()
+
+      val underTest = actionsProvider.userPriorDataFor(taxYearEOY, contractor = UrlUtils.encode("any-contractor"))(block = anyBlock)
+
+      await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show())
+    }
+
+    "handle internal server error when getPriorData result in error" in {
+      mockAuthAsIndividual(Some(aUser.nino))
+      mockGetPriorData(taxYear, aUser, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
+      mockHandleError(INTERNAL_SERVER_ERROR, InternalServerError)
+
+      val underTest = actionsProvider.userPriorDataFor(taxYear, contractor = "some-ref")(block = anyBlock)
+
+      await(underTest(fakeIndividualRequest)) shouldBe InternalServerError
+    }
+
+    "return successful response when in year" in {
+      val deductions = aCisDeductions.copy(employerRef = "some-ref")
+      val allCISDeductions = anAllCISDeductions.copy(customerCISDeductions = None, contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
+
+      mockAuthAsIndividual(Some(aUser.nino))
+      mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(allCISDeductions))))
+
+      val underTest = actionsProvider.userPriorDataFor(taxYear, contractor = "some-ref")(block = anyBlock)
+
+      status(underTest(fakeIndividualRequest)) shouldBe OK
+    }
+
+    "return successful response when end of year" in {
+      val deductions = aCisDeductions.copy(employerRef = "some-ref")
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = None, customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
+
+      mockAuthAsIndividual(Some(aUser.nino))
+      mockGetPriorData(taxYearEOY, aUser, Right(IncomeTaxUserData(cis = Some(allCISDeductions))))
+
+      val underTest = actionsProvider.userPriorDataFor(taxYearEOY, contractor = "some-ref")(block = anyBlock)
+
+      status(underTest(fakeIndividualRequest)) shouldBe OK
+    }
+  }
+
   ".inYearWithPreviousDataFor(taxYear, month, contractor)" should {
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()

@@ -27,14 +27,18 @@ import support.builders.models.UserPriorDataRequestBuilder.aUserPriorDataRequest
 
 import scala.concurrent.ExecutionContext
 
-class HasInYearCisDeductionsActionFilterSpec extends UnitTest {
+class HasInYearPeriodDataWithEmployerRefFilterActionSpec extends UnitTest {
 
   private val taxYear = 2022
   private val employerRef = "some-employer-ref"
   private val appConfig = new MockAppConfig().config()
   private val executionContext = ExecutionContext.global
 
-  private val underTest = new HasInYearCisDeductionsActionFilter(taxYear = taxYear, appConfig = appConfig)(executionContext)
+  private val underTest = HasInYearPeriodDataWithEmployerRefFilterAction(
+    taxYear = taxYear,
+    employerRef = employerRef,
+    appConfig = appConfig
+  )(executionContext)
 
   ".executionContext" should {
     "return the given execution context" in {
@@ -42,14 +46,16 @@ class HasInYearCisDeductionsActionFilterSpec extends UnitTest {
     }
   }
 
-  ".filter" should {
-    "return a redirect to Income Tax Submission Overview when CIS data has no in year CisDeductions" in {
-      val incomeTaxUserData = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = None)))
+  ".refine" should {
+    "return a redirect to Income Tax Submission Overview when CIS data has no in year Period data with given employerRef" in {
+      val deductions = aCisDeductions.copy(employerRef = "unknown-ref")
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
+      val incomeTaxUserData = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
 
       await(underTest.filter(aUserPriorDataRequest.copy(incomeTaxUserData = incomeTaxUserData))) shouldBe Some(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }
 
-    "return None when CIS data has in year CisDeductions" in {
+    "return None when CIS data contains CisDeductions with given employerRef" in {
       val deductions = aCisDeductions.copy(employerRef = employerRef)
       val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
       val incomeTaxUserData = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))

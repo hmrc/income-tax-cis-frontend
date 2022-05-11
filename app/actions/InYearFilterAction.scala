@@ -16,24 +16,26 @@
 
 package actions
 
-import config.ErrorHandler
+import config.AppConfig
 import models.AuthorisationRequest
+import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
+import utils.InYearUtil
 
-import java.time.Month
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success, Try}
 
-case class MonthActionFilter(monthValue: String,
-                             errorHandler: ErrorHandler)
-                            (implicit ec: ExecutionContext) extends ActionFilter[AuthorisationRequest] {
+case class InYearFilterAction(taxYear: Int,
+                              inYearUtil: InYearUtil,
+                              appConfig: AppConfig)
+                             (implicit ec: ExecutionContext) extends ActionFilter[AuthorisationRequest] {
 
   override protected[actions] def executionContext: ExecutionContext = ec
 
-  override protected[actions] def filter[A](input: AuthorisationRequest[A]): Future[Option[Result]] = Future.successful {
-    Try(Month.valueOf(monthValue.toUpperCase)) match {
-      case Failure(_) => Some(errorHandler.internalServerError()(input))
-      case Success(_) => None
+  override protected[actions] def filter[A](request: AuthorisationRequest[A]): Future[Option[Result]] = Future.successful {
+    if (!inYearUtil.inYear(taxYear)) {
+      Some(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+    } else {
+      None
     }
   }
 }
