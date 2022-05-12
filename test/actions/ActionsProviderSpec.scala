@@ -31,7 +31,7 @@ import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockAuthorisedAction, MockCISSessionService, MockErrorHandler}
-import utils.{InYearUtil, UrlUtils}
+import utils.InYearUtil
 
 import java.time.Month
 
@@ -145,7 +145,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()
 
-      val underTest = actionsProvider.inYearWithPreviousDataFor(taxYearEOY, contractor = UrlUtils.encode("any-contractor"))(block = anyBlock)
+      val underTest = actionsProvider.inYearWithPreviousDataFor(taxYearEOY, contractor = "any-contractor")(block = anyBlock)
 
       await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show())
     }
@@ -153,7 +153,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     "redirect to Income Tax Submission Overview when not in year" in {
       mockAuthAsIndividual(Some(aUser.nino))
 
-      val underTest = actionsProvider.inYearWithPreviousDataFor(taxYearEOY, UrlUtils.encode(value = "any-contractor"))(block = anyBlock)
+      val underTest = actionsProvider.inYearWithPreviousDataFor(taxYearEOY, contractor = "any-contractor")(block = anyBlock)
 
       await(underTest(fakeIndividualRequest)) shouldBe Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY))
     }
@@ -185,7 +185,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()
 
-      val underTest = actionsProvider.userPriorDataFor(taxYearEOY, contractor = UrlUtils.encode("any-contractor"))(block = anyBlock)
+      val underTest = actionsProvider.userPriorDataFor(taxYearEOY, contractor = "any-contractor")(block = anyBlock)
 
       await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show())
     }
@@ -229,7 +229,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()
 
-      val underTest = actionsProvider.inYearWithPreviousDataFor(taxYearEOY, month = "may", contractor = UrlUtils.encode("any-contractor"))(block = anyBlock)
+      val underTest = actionsProvider.inYearWithPreviousDataFor(taxYearEOY, month = "may", contractor = "any-contractor")(block = anyBlock)
 
       await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show())
     }
@@ -237,7 +237,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     "redirect to Income Tax Submission Overview when not in year" in {
       mockAuthAsIndividual(Some(aUser.nino))
 
-      val underTest = actionsProvider.inYearWithPreviousDataFor(taxYearEOY, month = "may", UrlUtils.encode(value = "any-contractor"))(block = anyBlock)
+      val underTest = actionsProvider.inYearWithPreviousDataFor(taxYearEOY, month = "may", contractor = "any-contractor")(block = anyBlock)
 
       await(underTest(fakeIndividualRequest)) shouldBe Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY))
     }
@@ -298,7 +298,7 @@ class ActionsProviderSpec extends ControllerUnitTest
       mockAuthAsIndividual(Some(aUser.nino))
       mockGetSessionData(taxYearEOY, aUser, employerRef = "some/ref", result = Right(Some(aCisUserData)))
 
-      val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, contractor = UrlUtils.encode(value = "some/ref"))(block = anyBlock)
+      val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, contractor = "some/ref")(block = anyBlock)
 
       status(underTest(fakeIndividualRequest)) shouldBe OK
     }
@@ -334,7 +334,7 @@ class ActionsProviderSpec extends ControllerUnitTest
       mockAuthAsIndividual(Some(aUser.nino))
       mockGetSessionData(taxYearEOY, aUser, employerRef = "some/ref", result = Right(Some(aCisUserData)))
 
-      val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, month = "May", contractor = UrlUtils.encode(value = "some/ref"))(block = anyBlock)
+      val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, month = "May", contractor = "some/ref")(block = anyBlock)
 
       status(underTest(fakeIndividualRequest)) shouldBe OK
     }

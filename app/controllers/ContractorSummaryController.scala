@@ -23,7 +23,6 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
-import utils.UrlUtils._
 import views.html.ContractorSummaryView
 
 import javax.inject.Inject
@@ -37,7 +36,7 @@ class ContractorSummaryController @Inject()(actionsProvider: ActionsProvider,
            contractor: String): Action[AnyContent] = actionsProvider.inYearWithPreviousDataFor(taxYear, contractor) { implicit request =>
     val pageModel = mapToInYearPage(
       taxYear,
-      request.incomeTaxUserData.inYearCisDeductionsWith(decode(contractor)).get
+      request.incomeTaxUserData.inYearCisDeductionsWith(contractor).get
     )
 
     Ok(pageView(pageModel))

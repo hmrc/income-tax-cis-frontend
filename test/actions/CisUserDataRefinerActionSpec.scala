@@ -26,7 +26,6 @@ import support.builders.models.AuthorisationRequestBuilder.anAuthorisationReques
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockCISSessionService, MockErrorHandler}
-import utils.UrlUtils
 
 import scala.concurrent.ExecutionContext
 
@@ -72,7 +71,7 @@ class CisUserDataRefinerActionSpec extends UnitTest
 
       mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(Some(cisUserDataWithoutPeriodData)))
 
-      await(underTest.refine(anAuthorisationRequest)) shouldBe Left(Redirect(DeductionPeriodController.show(taxYear, UrlUtils.encode(employerRef))))
+      await(underTest.refine(anAuthorisationRequest)) shouldBe Left(Redirect(DeductionPeriodController.show(taxYear, employerRef)))
     }
 
     "return UserSessionDataRequest when period data exists" in {
@@ -86,8 +85,8 @@ class CisUserDataRefinerActionSpec extends UnitTest
 
   ".apply" should {
     "construct CisUserDataActionRefiner with decoded employerRef" in {
-      CisUserDataRefinerAction.apply(taxYear, UrlUtils.encode("123/1111"), mockCISSessionService, mockErrorHandler, appConfig)(executionContext) shouldBe
-        new CisUserDataRefinerAction(taxYear, "123/1111", mockCISSessionService, mockErrorHandler, appConfig)(executionContext)
+      CisUserDataRefinerAction.apply(taxYear, "123/1111", mockCISSessionService, mockErrorHandler, appConfig)(executionContext) shouldBe
+        new CisUserDataRefinerAction(taxYear, employerRef = "123/1111", cisSessionService = mockCISSessionService, errorHandler = mockErrorHandler, appConfig = appConfig)(executionContext)
     }
   }
 }

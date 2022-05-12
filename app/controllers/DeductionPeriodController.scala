@@ -20,7 +20,6 @@ import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
 import controllers.routes.LabourPayController
 import forms.DeductionPeriodFormProvider
-import javax.inject.Inject
 import models.UserSessionDataRequest
 import models.forms.DeductionPeriod
 import models.pages.DeductionPeriodPage
@@ -31,22 +30,20 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.DeductionPeriodService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
-import utils.UrlUtils.encode
 import views.html.cis.DeductionPeriodView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeductionPeriodController @Inject()(actionsProvider: ActionsProvider,
                                           view: DeductionPeriodView,
                                           deductionPeriodService: DeductionPeriodService,
                                           errorHandler: ErrorHandler,
-                                          formProvider: DeductionPeriodFormProvider,
-                                          implicit val mcc: MessagesControllerComponents,
-                                          implicit val ec: ExecutionContext,
-                                          implicit val appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
+                                          formProvider: DeductionPeriodFormProvider)
+                                         (implicit mcc: MessagesControllerComponents, ec: ExecutionContext, appConfig: AppConfig)
+  extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
 
   def show(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor) { implicit request =>
-
     val cya = request.cisUserData
     val pageModel = DeductionPeriodPage(cya.cis.contractorName, cya.employerRef, taxYear,
       cya.cis.periodData.map(_.deductionPeriod), cya.cis.priorPeriodData.map(_.deductionPeriod))
@@ -60,7 +57,6 @@ class DeductionPeriodController @Inject()(actionsProvider: ActionsProvider,
   }
 
   def submit(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(taxYear, contractor).async { implicit request =>
-
     val cya = request.cisUserData
     val pageModel = DeductionPeriodPage(cya.cis.contractorName, cya.employerRef, taxYear,
       cya.cis.periodData.map(_.deductionPeriod), cya.cis.priorPeriodData.map(_.deductionPeriod))
@@ -78,13 +74,10 @@ class DeductionPeriodController @Inject()(actionsProvider: ActionsProvider,
                         (implicit request: UserSessionDataRequest[_]): Future[Result] = {
     form.bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(view(pageModel, formWithErrors))),
-      deductionPeriod =>
-
-        deductionPeriodService.submitDeductionPeriod(taxYear, employerRef, request.user, deductionPeriod.month).map {
-          case Left(_) => errorHandler.internalServerError
-          case Right(_) =>
-            Redirect(LabourPayController.show(taxYear, deductionPeriod.month.toString, encode(employerRef)))
-        }
+      deductionPeriod => deductionPeriodService.submitDeductionPeriod(taxYear, employerRef, request.user, deductionPeriod.month).map {
+        case Left(_) => errorHandler.internalServerError
+        case Right(_) => Redirect(LabourPayController.show(taxYear, deductionPeriod.month.toString, employerRef))
+      }
     )
   }
 

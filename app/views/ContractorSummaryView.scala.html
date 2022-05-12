@@ -23,7 +23,6 @@
 @import views.html.templates.helpers.Link
 @import controllers.routes.ContractorCYAController
 @import controllers.routes.DeductionsSummaryController
-@import utils.UrlUtils.encode
 
 @this(
     layout: Layout,
@@ -51,7 +50,7 @@
 
     @{
         def mapToSummaryListRow(deductionPeriod: Month): SummaryListRow = {
-            val htmlLink = link(ContractorCYAController.show(pageModel.taxYear, deductionPeriod.toString.toLowerCase, encode(pageModel.employerRef)).url, "contractorSummary.view", hiddenText = Some(messages("contractorSummary.hiddenText", translatedMonthAndTaxYear(deductionPeriod, pageModel.taxYear))))
+            val htmlLink = link(ContractorCYAController.show(pageModel.taxYear, deductionPeriod.toString.toLowerCase, pageModel.employerRef).url, "contractorSummary.view", hiddenText = Some(messages("contractorSummary.hiddenText", translatedMonthAndTaxYear(deductionPeriod, pageModel.taxYear))))
             summaryListRow(
                 key = HtmlContent(messages("contractorSummary.lineItem", translatedMonthAndTaxYear(deductionPeriod, pageModel.taxYear))),
                 value = HtmlContent(htmlLink),

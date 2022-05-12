@@ -22,7 +22,7 @@ import models.pages.ContractorCYAPage.mapToInYearPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.{SessionHelper, UrlUtils}
+import utils.SessionHelper
 import views.html.ContractorCYAView
 
 import java.time.Month
@@ -38,7 +38,7 @@ class ContractorCYAController @Inject()(actionsProvider: ActionsProvider,
            contractor: String): Action[AnyContent] = actionsProvider.inYearWithPreviousDataFor(taxYear, month, contractor) { implicit request =>
     val pageModel = mapToInYearPage(
       taxYear,
-      request.incomeTaxUserData.inYearCisDeductionsWith(UrlUtils.decode(contractor)).get,
+      request.incomeTaxUserData.inYearCisDeductionsWith(contractor).get,
       Month.valueOf(month.toUpperCase)
     )
 

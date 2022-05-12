@@ -16,7 +16,8 @@
 
 package views
 
-import models.{AuthorisationRequest, UserPriorDataRequest}
+import controllers.routes.{ContractorCYAController, DeductionsSummaryController}
+import models.UserPriorDataRequest
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.i18n.Messages
@@ -24,9 +25,6 @@ import play.api.mvc.AnyContent
 import support.ViewUnitTest
 import support.builders.models.pages.ContractorSummaryPageBuilder.aContractorSummaryPage
 import views.html.ContractorSummaryView
-import utils.UrlUtils.encode
-import controllers.routes.ContractorCYAController
-import controllers.routes.DeductionsSummaryController
 
 import java.time.Month
 
@@ -154,21 +152,19 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
           textOnPageCheck(userScenario.commonExpectedResults.taxMonthLineItem, Selectors.summaryListKeySelector(1))
           textOnPageCheck(userScenario.commonExpectedResults.viewText, Selectors.summaryListValueSelector(1), additionalTestText = "(first row)")
           linkCheck(userScenario.commonExpectedResults.viewText + "" + userScenario.commonExpectedResults.hiddenText, Selectors.linkSelectorForSummaryListValue(1),
-            ContractorCYAController.show(taxYear, Month.MAY.toString.toLowerCase, encode(employerRef)).url, additionalTestText = "(first row)")
+            ContractorCYAController.show(taxYear, Month.MAY.toString.toLowerCase, employerRef).url, additionalTestText = "(first row)")
           textOnPageCheck(userScenario.commonExpectedResults.taxMonthLineItem2, Selectors.summaryListKeySelector(2))
           textOnPageCheck(userScenario.commonExpectedResults.viewText, Selectors.summaryListValueSelector(2), additionalTestText = "(second row)")
           linkCheck(userScenario.commonExpectedResults.viewText + "" + userScenario.commonExpectedResults.hiddenText2, Selectors.linkSelectorForSummaryListValue(2),
-            ContractorCYAController.show(taxYear, Month.FEBRUARY.toString.toLowerCase, encode(employerRef)).url, additionalTestText = "(second row)")
+            ContractorCYAController.show(taxYear, Month.FEBRUARY.toString.toLowerCase, employerRef).url, additionalTestText = "(second row)")
           textOnPageCheck(userScenario.commonExpectedResults.taxMonthLineItem3, Selectors.summaryListKeySelector(3))
           textOnPageCheck(userScenario.commonExpectedResults.viewText, Selectors.summaryListValueSelector(3), additionalTestText = "(third row)")
           linkCheck(userScenario.commonExpectedResults.viewText + "" + userScenario.commonExpectedResults.hiddenText3, Selectors.linkSelectorForSummaryListValue(3),
-            ContractorCYAController.show(taxYear, Month.APRIL.toString.toLowerCase, encode(employerRef)).url, additionalTestText = "(third row)")
+            ContractorCYAController.show(taxYear, Month.APRIL.toString.toLowerCase, employerRef).url, additionalTestText = "(third row)")
           buttonCheck(userScenario.commonExpectedResults.buttonText, Selectors.buttonSelector, Some(DeductionsSummaryController.show(taxYear).url))
-
         }
 
         "render the in year contractor summary page with an alternative heading when there's no contractor name" which {
-
           val pageModel = aContractorSummaryPage.copy(taxYear, None, employerRef, deductions)
 
           implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)

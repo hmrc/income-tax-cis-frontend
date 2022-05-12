@@ -20,7 +20,7 @@ import config.{AppConfig, ErrorHandler}
 import models._
 import play.api.mvc._
 import services.CISSessionService
-import utils.{InYearUtil, UrlUtils}
+import utils.InYearUtil
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -40,13 +40,13 @@ class ActionsProvider @Inject()(val authAction: AuthorisedAction,
     authAction
       .andThen(InYearFilterAction(taxYear, inYearUtil, appConfig))
       .andThen(UserPriorDataRefinerAction(taxYear, cisSessionService, errorHandler))
-      .andThen(HasInYearDeductionsForEmployerRefAndMonthFilterAction(taxYear, UrlUtils.decode(contractor), month, errorHandler, appConfig))
+      .andThen(HasInYearDeductionsForEmployerRefAndMonthFilterAction(taxYear, contractor, month, errorHandler, appConfig))
 
   def inYearWithPreviousDataFor(taxYear: Int, contractor: String): ActionBuilder[UserPriorDataRequest, AnyContent] =
     authAction
       .andThen(InYearFilterAction(taxYear, inYearUtil, appConfig))
       .andThen(UserPriorDataRefinerAction(taxYear, cisSessionService, errorHandler))
-      .andThen(HasInYearPeriodDataWithEmployerRefFilterAction(taxYear, UrlUtils.decode(contractor), appConfig))
+      .andThen(HasInYearPeriodDataWithEmployerRefFilterAction(taxYear, contractor, appConfig))
 
   def priorCisDeductionsData(taxYear: Int): ActionBuilder[UserPriorDataRequest, AnyContent] = {
     if (inYearUtil.inYear(taxYear)) {
@@ -64,9 +64,9 @@ class ActionsProvider @Inject()(val authAction: AuthorisedAction,
 
   private def getHasPeriodDataFilterActionFor(taxYear: Int, contractor: String): ActionFilter[UserPriorDataRequest] = {
     if (inYearUtil.inYear(taxYear)) {
-      HasInYearPeriodDataWithEmployerRefFilterAction(taxYear, UrlUtils.decode(contractor), appConfig)
+      HasInYearPeriodDataWithEmployerRefFilterAction(taxYear, contractor, appConfig)
     } else {
-      HasEOYDataWithEmployerRefFilterAction(taxYear, UrlUtils.decode(contractor), appConfig)
+      HasEOYDataWithEmployerRefFilterAction(taxYear, contractor, appConfig)
     }
   }
 
