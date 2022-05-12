@@ -16,6 +16,7 @@
 
 package forms
 
+import filters.InputFilters
 import forms.validation.StringConstraints.{validateChar, validateSize}
 import forms.validation.mappings.MappingUtil.trimmedText
 import forms.validation.utils.ConstraintUtil.ConstraintUtil
@@ -25,8 +26,7 @@ import play.api.data.Forms.mapping
 import play.api.data.validation.Constraint
 import play.api.data.validation.Constraints.nonEmpty
 
-
-object ContractorDetailsForm {
+object ContractorDetailsForm extends InputFilters {
 
   private val nameCharLimit = 105
   private val nameRegex = "^[A-Za-z0-9 \\-,.&';\\/]{1,105}$"
@@ -42,9 +42,16 @@ object ContractorDetailsForm {
     val validateNameFormat: Constraint[String] = validateChar(nameRegex)(s"contractor-details.name.error.wrongFormat")
     val validateRefFormat: Constraint[String] = validateChar(refRegex)(s"contractor-details.employer-ref.error.wrongFormat")
 
-    Form(mapping(
+    Form(
+      mapping(
       contractorName -> trimmedText.verifying(nameNotEmpty andThen nameNotCharLimit andThen validateNameFormat),
       employerReferenceNumber -> trimmedText.verifying(refNotEmpty andThen validateRefFormat)
-    )(ContractorDetailsFormData.apply)(ContractorDetailsFormData.unapply))
+    )(ContractorDetailsFormData.apply)(ContractorDetailsFormData.unapply).transform[ContractorDetailsFormData](
+      details => details.copy(
+        contractorName = filter(details.contractorName),
+        employerReferenceNumber = filter(details.employerReferenceNumber)
+      ), x => x
+    )
+    )
   }
 }
