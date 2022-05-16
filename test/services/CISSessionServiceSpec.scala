@@ -74,7 +74,6 @@ class CISSessionServiceSpec extends UnitTest
   }
 
   ".getPriorData" should {
-
     "return error when fails to get data" in {
       mockGetUserData(aUser.nino, taxYearEOY, Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError)))
 
@@ -90,23 +89,26 @@ class CISSessionServiceSpec extends UnitTest
   ".getPriorAndMakeCYA" should {
     "return data" in {
       mockGetUserData(aUser.nino, taxYearEOY, Right(anIncomeTaxUserData))
-      val cya = anIncomeTaxUserData.getEOYCISDeductionsFor(aCisDeductions.employerRef).get.toCYA
+      val cya = anIncomeTaxUserData.eoyCisDeductionsWith(aCisDeductions.employerRef).get.toCYA
       mockCreateOrUpdateCYAData(aCisUserData.copy(cis = cya, lastUpdated = TestingClock.now()), Right(()))
 
       await(underTest.getPriorAndMakeCYA(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Right(aCisUserData.copy(cis = cya, lastUpdated = TestingClock.now()))
     }
+
     "handle when no data for the employer ref" in {
       mockGetUserData(aUser.nino, taxYearEOY, Right(anIncomeTaxUserData.copy(cis = None)))
 
       await(underTest.getPriorAndMakeCYA(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Left(EmptyPriorCisDataError)
     }
+
     "handle when saving the data fails" in {
       mockGetUserData(aUser.nino, taxYearEOY, Right(anIncomeTaxUserData))
-      val cya = anIncomeTaxUserData.getEOYCISDeductionsFor(aCisDeductions.employerRef).get.toCYA
+      val cya = anIncomeTaxUserData.eoyCisDeductionsWith(aCisDeductions.employerRef).get.toCYA
       mockCreateOrUpdateCYAData(aCisUserData.copy(cis = cya, lastUpdated = TestingClock.now()), Left(DataNotUpdatedError))
 
       await(underTest.getPriorAndMakeCYA(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Left(DataNotUpdatedError)
     }
+
     "handle error from getting data" in {
       mockGetUserData(aUser.nino, taxYearEOY, Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError)))
 

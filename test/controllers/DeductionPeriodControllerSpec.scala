@@ -29,7 +29,6 @@ import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockActionsProvider, MockCISSessionService, MockDeductionPeriodService, MockErrorHandler}
-import utils.UrlUtils.encode
 import views.html.cis.DeductionPeriodView
 
 import java.time.Month
@@ -41,7 +40,6 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
   with MockErrorHandler {
 
   private val form = new DeductionPeriodFormProvider()
-
   private val pageView = inject[DeductionPeriodView]
 
   private val underTest = new DeductionPeriodController(
@@ -49,11 +47,8 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
     pageView,
     mockDeductionPeriodService,
     mockErrorHandler,
-    form,
-    cc,
-    ec,
-    appConfig
-  )
+    form
+  )(cc, ec, appConfig)
 
   ".show" should {
     "return successful response" in {
@@ -85,7 +80,7 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
         .withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june"))
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result).get shouldBe LabourPayController.show(taxYearEOY, Month.JUNE.toString, encode(aCisDeductions.employerRef)).url
+      redirectLocation(result).get shouldBe LabourPayController.show(taxYearEOY, Month.JUNE.toString, aCisDeductions.employerRef).url
     }
 
     "redirect when no months can be added" in {

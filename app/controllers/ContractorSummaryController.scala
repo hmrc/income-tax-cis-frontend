@@ -18,28 +18,22 @@ package controllers
 
 import actions.ActionsProvider
 import config.AppConfig
-import models.pages.ContractorSummaryPage.mapToInYearPage
+import models.pages.ContractorSummaryPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
-import utils.UrlUtils._
+import utils.{InYearUtil, SessionHelper}
 import views.html.ContractorSummaryView
 
 import javax.inject.Inject
 
 class ContractorSummaryController @Inject()(actionsProvider: ActionsProvider,
-                                            pageView: ContractorSummaryView)
+                                            pageView: ContractorSummaryView,
+                                            inYearUtil: InYearUtil)
                                            (implicit mcc: MessagesControllerComponents, appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
-  def show(taxYear: Int,
-           contractor: String): Action[AnyContent] = actionsProvider.inYearWithPreviousDataFor(taxYear, contractor) { implicit request =>
-    val pageModel = mapToInYearPage(
-      taxYear,
-      request.incomeTaxUserData.inYearCisDeductionsWith(decode(contractor)).get
-    )
-
-    Ok(pageView(pageModel))
+  def show(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.userPriorDataFor(taxYear, contractor) { implicit request =>
+    Ok(pageView(ContractorSummaryPage(taxYear, inYearUtil.inYear(taxYear), contractor, request.incomeTaxUserData)))
   }
 }

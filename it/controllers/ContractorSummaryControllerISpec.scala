@@ -16,8 +16,6 @@
 
 package controllers
 
-import java.net.URLEncoder.encode
-
 import akka.util.ByteString.UTF_8
 import play.api.http.HeaderNames
 import play.api.http.Status.OK
@@ -27,6 +25,8 @@ import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
 import utils.ViewHelpers
+
+import java.net.URLEncoder.encode
 
 class ContractorSummaryControllerISpec extends IntegrationTest with ViewHelpers {
 
@@ -43,6 +43,16 @@ class ContractorSummaryControllerISpec extends IntegrationTest with ViewHelpers 
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYear)
         urlGet(fullUrl(url(taxYear, employerRef = aCisDeductions.employerRef)), headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
+      }
+
+      result.status shouldBe OK
+    }
+
+    "render the contractor summary page for end of year" in {
+      lazy val result: WSResponse = {
+        authoriseAgentOrIndividual(isAgent = false)
+        userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
+        urlGet(fullUrl(url(taxYearEOY, employerRef = aCisDeductions.employerRef)), headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
       }
 
       result.status shouldBe OK

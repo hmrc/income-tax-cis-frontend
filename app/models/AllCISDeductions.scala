@@ -27,12 +27,24 @@ case class AllCISDeductions(customerCISDeductions: Option[CISSource],
     val _contractorCISDeductions: Seq[CisDeductions] = contractorCISDeductions.map(_.cisDeductions).getOrElse(Seq.empty)
     val _customerCISDeductions: Seq[CisDeductions] = customerCISDeductions.map(_.cisDeductions).getOrElse(Seq.empty)
 
-    makeCISDeductionsListFromCustomerAndContractor(_contractorCISDeductions,_customerCISDeductions).map(_.recalculateFigures)
+    makeCISDeductionsListFromCustomerAndContractor(_contractorCISDeductions, _customerCISDeductions).map(_.recalculateFigures)
   }
+
+  lazy val inYearCisDeductions: Seq[CisDeductions] = contractorCISDeductions
+    .map(_.cisDeductions)
+    .getOrElse(Seq.empty)
+
+  def inYearCisDeductionsWith(employerRef: String): Option[CisDeductions] =
+    inYearCisDeductions.find(_.employerRef == employerRef)
+
+  def eoyCisDeductionsWith(employerRef: String): Option[CisDeductions] =
+    endOfYearCisDeductions.find(_.employerRef == employerRef)
+
+  def customerCisDeductionsWith(employerRef: String): Option[CisDeductions] =
+    customerCISDeductions.flatMap(_.cisDeductionsWith(employerRef))
 
   private def makeCISDeductionsListFromCustomerAndContractor(contractorCISDeductions: Seq[CisDeductions],
                                                              customerCISDeductions: Seq[CisDeductions]): Seq[CisDeductions] = {
-
     val contractorEmployers = contractorCISDeductions.map(_.employerRef)
     val customerEmployers = customerCISDeductions.map(_.employerRef)
     val employersInBoth = contractorEmployers.filter(contractorEmployer => customerEmployers.contains(contractorEmployer))
@@ -83,14 +95,13 @@ case class AllCISDeductions(customerCISDeductions: Option[CISSource],
         latestPeriodData(deductionPeriod, _contractorDeductionPeriods, _customerDeductionPeriods)
       }
 
-      foundContractorCISDeductions.copy(periodData =latestCombinedPeriods ++ nonDuplicatePeriods).withSortedPeriodData
+      foundContractorCISDeductions.copy(periodData = latestCombinedPeriods ++ nonDuplicatePeriods).withSortedPeriodData
     }
   }
 
   private def latestPeriodData(periodData: PeriodData,
                                contractorSubmissions: Seq[PeriodData],
                                customerSubmissions: Seq[PeriodData]): PeriodData = {
-
     val contractorPeriod: PeriodData = contractorSubmissions.find(_.deductionPeriod == periodData.deductionPeriod).get
     val customerPeriod: PeriodData = customerSubmissions.find(_.deductionPeriod == periodData.deductionPeriod).get
     val latestContractorSubmissionDate = parseDate(contractorPeriod.submissionDate)
@@ -103,13 +114,6 @@ case class AllCISDeductions(customerCISDeductions: Option[CISSource],
       case _ => customerPeriod
     }
   }
-
-  val inYearCisDeductions: Seq[CisDeductions] = contractorCISDeductions
-    .map(_.cisDeductions)
-    .getOrElse(Seq.empty)
-
-  def inYearCisDeductionsWith(employerRef: String): Option[CisDeductions] =
-    inYearCisDeductions.find(_.employerRef == employerRef)
 }
 
 object AllCISDeductions {

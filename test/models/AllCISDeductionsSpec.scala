@@ -16,13 +16,13 @@
 
 package models
 
-import java.time.Month
-
 import support.UnitTest
 import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 import support.builders.models.CISSourceBuilder.aCISSource
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.PeriodDataBuilder.aPeriodData
+
+import java.time.Month
 
 class AllCISDeductionsSpec extends UnitTest {
 
@@ -30,17 +30,19 @@ class AllCISDeductionsSpec extends UnitTest {
     "return customer data" in {
       val underTest = AllCISDeductions(
         customerCISDeductions = Some(aCISSource),
-        contractorCISDeductions =None)
+        contractorCISDeductions = None)
 
       underTest.endOfYearCisDeductions shouldBe Seq(aCisDeductions)
     }
+
     "return contractor data" in {
       val underTest = AllCISDeductions(
         customerCISDeductions = None,
-        contractorCISDeductions =  Some(aCISSource))
+        contractorCISDeductions = Some(aCISSource))
 
       underTest.endOfYearCisDeductions shouldBe Seq(aCisDeductions)
     }
+
     "return no data" in {
       val underTest = AllCISDeductions(
         customerCISDeductions = None,
@@ -48,6 +50,7 @@ class AllCISDeductionsSpec extends UnitTest {
 
       underTest.endOfYearCisDeductions shouldBe Seq()
     }
+
     "return a full list that contains both contractor and customer data" in {
       val underTest = AllCISDeductions(
         customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(
@@ -79,6 +82,7 @@ class AllCISDeductionsSpec extends UnitTest {
         )
       )
     }
+
     "return a full list that contains both contractor and customer periods" in {
       val underTest = AllCISDeductions(
         customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(
@@ -104,6 +108,7 @@ class AllCISDeductionsSpec extends UnitTest {
         )
       )
     }
+
     "return a full list that contains both contractor and customer data when customer data is the latest" in {
       val underTest = AllCISDeductions(
         customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(
@@ -116,9 +121,9 @@ class AllCISDeductionsSpec extends UnitTest {
           aCisDeductions.copy(employerRef = "111", contractorName = Some("All Builders"), periodData = Seq(aPeriodData.copy(deductionPeriod = Month.DECEMBER))),
           aCisDeductions.copy(employerRef = "222", contractorName = Some("Builders R Us"), periodData = Seq(
             aPeriodData.copy(costOfMaterials = Some(9600.50)
-          ))
-        )))
-      ))
+            ))
+          )))
+        ))
 
       underTest.endOfYearCisDeductions shouldBe Seq(
         aCisDeductions.copy(employerRef = "111", contractorName = Some("All Builders"), periodData = Seq(
@@ -137,6 +142,7 @@ class AllCISDeductionsSpec extends UnitTest {
         )
       )
     }
+
     "return a full list that contains both contractor and customer data when no data overlaps and should be sorted by name" in {
       val underTest = AllCISDeductions(
         customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(
@@ -160,6 +166,7 @@ class AllCISDeductionsSpec extends UnitTest {
         aCisDeductions.copy(employerRef = "333", contractorName = Some("Varnish Finish"), periodData = Seq(aPeriodData.copy(deductionPeriod = Month.DECEMBER)))
       )
     }
+
     "return a full list that contains both contractor and customer data when no month data overlaps and should be sorted by month" in {
       val underTest = AllCISDeductions(
         customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(
@@ -226,6 +233,51 @@ class AllCISDeductionsSpec extends UnitTest {
       )
 
       underTest.inYearCisDeductionsWith(employerRef = "unknown-ref") shouldBe None
+    }
+  }
+
+  ".eoyCisDeductionsWith(empRef)" should {
+    "return CisDeductions with given employer reference when exists" in {
+      val aCisDeductions1 = aCisDeductions.copy(contractorName = Some("contractor-1"), employerRef = "ref-1")
+      val aCisDeductions2 = aCisDeductions.copy(contractorName = Some("contractor-2"), employerRef = "ref-2")
+      val underTest = AllCISDeductions(
+        customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(aCisDeductions1, aCisDeductions2))),
+        contractorCISDeductions = None
+      )
+
+      underTest.eoyCisDeductionsWith(employerRef = "ref-2") shouldBe Some(aCisDeductions2)
+    }
+
+    "return none when no CiwDeductions for a reference exists" in {
+      val aCisDeductions1 = aCisDeductions.copy(contractorName = Some("contractor-1"), employerRef = "ref-1")
+      val aCisDeductions2 = aCisDeductions.copy(contractorName = Some("contractor-2"), employerRef = "ref-2")
+      val underTest = anAllCISDeductions.copy(
+        customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(aCisDeductions1, aCisDeductions2))),
+        contractorCISDeductions = Some(aCISSource)
+      )
+
+      underTest.eoyCisDeductionsWith(employerRef = "unknown-ref") shouldBe None
+    }
+  }
+
+  ".customerCisDeductionsWith(employerRef)" should {
+    "return customer cis deductions with give employerRef when exists" in {
+      val deductions = aCisDeductions.copy(employerRef = "known-employer-ref")
+      val underTest = anAllCISDeductions.copy(customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
+
+      underTest.customerCisDeductionsWith(employerRef = "known-employer-ref") shouldBe Some(deductions)
+    }
+
+    "return None when customerCISDeductions is None" in {
+      val underTest = anAllCISDeductions.copy(customerCISDeductions = None)
+
+      underTest.customerCisDeductionsWith(employerRef = "any-ref") shouldBe None
+    }
+
+    "return None when customerCISDeductions with given employerRef do not exist" in {
+      val underTest = anAllCISDeductions
+
+      underTest.customerCisDeductionsWith(employerRef = "unknown-ref") shouldBe None
     }
   }
 }

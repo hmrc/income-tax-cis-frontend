@@ -19,8 +19,9 @@ package utils
 import play.api.Logger
 
 import java.time.{LocalDateTime, ZoneId}
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 
+@Singleton
 class InYearUtil @Inject()() {
 
   lazy val logger: Logger = Logger.apply(this.getClass)

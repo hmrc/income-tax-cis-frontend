@@ -26,11 +26,10 @@ import support.builders.models.AuthorisationRequestBuilder.anAuthorisationReques
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockCISSessionService, MockErrorHandler}
-import utils.UrlUtils
 
 import scala.concurrent.ExecutionContext
 
-class CisUserDataActionRefinerSpec extends UnitTest
+class CisUserDataRefinerActionSpec extends UnitTest
   with MockCISSessionService
   with MockErrorHandler {
 
@@ -39,7 +38,7 @@ class CisUserDataActionRefinerSpec extends UnitTest
   private val appConfig = new MockAppConfig().config()
   private val executionContext = ExecutionContext.global
 
-  private val underTest = new CisUserDataActionRefiner(
+  private val underTest = new CisUserDataRefinerAction(
     taxYear = taxYear,
     employerRef = employerRef,
     cisSessionService = mockCISSessionService,
@@ -72,7 +71,7 @@ class CisUserDataActionRefinerSpec extends UnitTest
 
       mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(Some(cisUserDataWithoutPeriodData)))
 
-      await(underTest.refine(anAuthorisationRequest)) shouldBe Left(Redirect(DeductionPeriodController.show(taxYear, UrlUtils.encode(employerRef))))
+      await(underTest.refine(anAuthorisationRequest)) shouldBe Left(Redirect(DeductionPeriodController.show(taxYear, employerRef)))
     }
 
     "return UserSessionDataRequest when period data exists" in {
@@ -86,8 +85,8 @@ class CisUserDataActionRefinerSpec extends UnitTest
 
   ".apply" should {
     "construct CisUserDataActionRefiner with decoded employerRef" in {
-      CisUserDataActionRefiner.apply(taxYear, UrlUtils.encode("123/1111"), mockCISSessionService, mockErrorHandler, appConfig)(executionContext) shouldBe
-        new CisUserDataActionRefiner(taxYear, "123/1111", mockCISSessionService, mockErrorHandler, appConfig)(executionContext)
+      CisUserDataRefinerAction.apply(taxYear, "123/1111", mockCISSessionService, mockErrorHandler, appConfig)(executionContext) shouldBe
+        new CisUserDataRefinerAction(taxYear, employerRef = "123/1111", cisSessionService = mockCISSessionService, errorHandler = mockErrorHandler, appConfig = appConfig)(executionContext)
     }
   }
 }

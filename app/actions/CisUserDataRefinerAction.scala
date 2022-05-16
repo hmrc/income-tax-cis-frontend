@@ -22,11 +22,10 @@ import models.{AuthorisationRequest, UserSessionDataRequest}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
 import services.CISSessionService
-import utils.UrlUtils
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class CisUserDataActionRefiner(taxYear: Int,
+case class CisUserDataRefinerAction(taxYear: Int,
                                     employerRef: String,
                                     cisSessionService: CISSessionService,
                                     errorHandler: ErrorHandler,
@@ -39,21 +38,21 @@ case class CisUserDataActionRefiner(taxYear: Int,
     cisSessionService.getSessionData(taxYear, employerRef, input.user).map {
       case Left(_) => Left(errorHandler.internalServerError()(input))
       case Right(None) => Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-      case Right(Some(cisUserData)) if !cisUserData.hasPeriodData => Left(Redirect(DeductionPeriodController.show(taxYear, UrlUtils.encode(employerRef))))
+      case Right(Some(cisUserData)) if !cisUserData.hasPeriodData => Left(Redirect(DeductionPeriodController.show(taxYear, employerRef)))
       case Right(Some(cisUserData)) if cisUserData.hasPeriodData => Right(UserSessionDataRequest(cisUserData, input.user, input.request))
     }
   }
 }
 
-object CisUserDataActionRefiner {
+object CisUserDataRefinerAction {
 
   def apply(taxYear: Int,
-            contractor: String,
+            employerRef: String,
             cisSessionService: CISSessionService,
             errorHandler: ErrorHandler,
-            appConfig: AppConfig)(implicit ec: ExecutionContext): CisUserDataActionRefiner = new CisUserDataActionRefiner(
+            appConfig: AppConfig)(implicit ec: ExecutionContext): CisUserDataRefinerAction = new CisUserDataRefinerAction(
     taxYear = taxYear,
-    employerRef = UrlUtils.decode(contractor),
+    employerRef = employerRef,
     cisSessionService = cisSessionService,
     errorHandler = errorHandler,
     appConfig = appConfig

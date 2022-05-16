@@ -16,38 +16,38 @@
 
 package actions
 
-import play.api.mvc.Results.InternalServerError
-import support.UnitTest
+import config.MockAppConfig
+import play.api.mvc.Results.Redirect
 import support.builders.models.AuthorisationRequestBuilder.anAuthorisationRequest
-import support.mocks.MockErrorHandler
+import support.{TaxYearProvider, UnitTest}
+import utils.InYearUtil
 
 import scala.concurrent.ExecutionContext
 
-class MonthActionFilterSpec extends UnitTest
-  with MockErrorHandler {
+class InYearFilterActionSpec extends UnitTest
+  with TaxYearProvider {
 
-  private val monthValue = "MaY"
-
+  private val inYearUtil = new InYearUtil()
+  private val appConfig = new MockAppConfig().config()
   private val executionContext = ExecutionContext.global
 
   ".executionContext" should {
     "return the given execution context" in {
-      val underTest = new MonthActionFilter(monthValue = monthValue, errorHandler = mockErrorHandler)(executionContext)
+      val underTest = InYearFilterAction(taxYear = taxYear, inYearUtil = inYearUtil, appConfig = appConfig)(executionContext)
 
       underTest.executionContext shouldBe executionContext
     }
   }
 
   ".filter" should {
-    "return a redirect to errorHandler.internalServerError if Month not a valid value" in {
-      val underTest = new MonthActionFilter(monthValue = "wrong-month-value", errorHandler = mockErrorHandler)(executionContext)
-      mockInternalError(InternalServerError)
+    "return a redirect to Income Tax Submission Overview when taxYear is end of year" in {
+      val underTest = InYearFilterAction(taxYear = taxYearEOY, inYearUtil = inYearUtil, appConfig = appConfig)(executionContext)
 
-      await(underTest.filter(anAuthorisationRequest)) shouldBe Some(InternalServerError)
+      await(underTest.filter(anAuthorisationRequest)) shouldBe Some(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }
 
-    "return None when month is a correct value" in {
-      val underTest = new MonthActionFilter(monthValue = monthValue, errorHandler = mockErrorHandler)(executionContext)
+    "return None when taxYear is in year" in {
+      val underTest = InYearFilterAction(taxYear = taxYear, inYearUtil = inYearUtil, appConfig = appConfig)(executionContext)
 
       await(underTest.filter(anAuthorisationRequest)) shouldBe None
     }

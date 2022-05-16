@@ -24,7 +24,7 @@ import java.time.Month
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-case class MonthActionFilter(monthValue: String,
+case class MonthFilterAction(monthValue: String,
                              errorHandler: ErrorHandler)
                             (implicit ec: ExecutionContext) extends ActionFilter[AuthorisationRequest] {
 

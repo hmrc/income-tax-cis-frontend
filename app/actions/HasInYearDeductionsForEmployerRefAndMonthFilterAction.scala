@@ -25,7 +25,7 @@ import java.time.Month
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-case class HasInYearDeductionsForEmployerRefAndMonthActionFilter(taxYear: Int,
+case class HasInYearDeductionsForEmployerRefAndMonthFilterAction(taxYear: Int,
                                                                  employerRef: String,
                                                                  monthValue: String,
                                                                  errorHandler: ErrorHandler,

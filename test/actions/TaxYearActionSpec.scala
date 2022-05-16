@@ -23,7 +23,7 @@ import org.scalamock.scalatest.MockFactory
 import play.api.http.Status.SEE_OTHER
 import play.api.i18n.MessagesApi
 import play.api.mvc.{AnyContent, AnyContentAsEmpty, ControllerComponents, Result}
-import play.api.test.Helpers.{await, defaultAwaitTimeout, status}
+import play.api.test.Helpers.status
 import play.api.test.{FakeRequest, Helpers}
 import support.UnitTest
 import support.builders.models.UserBuilder.aUser
@@ -45,8 +45,8 @@ class TaxYearActionSpec extends UnitTest
 
   private def taxYearAction(taxYear: Int, reset: Boolean = true): TaxYearAction = new TaxYearAction(taxYear, reset)
 
-  private def redirectUrl(awaitable: Future[Result]): String = {
-    await(awaitable).header.headers.getOrElse("Location", "/")
+  private def redirectUrl(future: Future[Result]): String = {
+    await(future).header.headers.getOrElse("Location", "/")
   }
 
   "TaxYearAction.refine" should {
@@ -135,7 +135,7 @@ class TaxYearActionSpec extends UnitTest
         }
 
         "has the overview redirect url" in {
-          redirectUrl(result.map(_.left.get)) shouldBe controllers.errors.routes.TaxYearErrorController.show.url
+          redirectUrl(result.map(_.left.get)) shouldBe controllers.errors.routes.TaxYearErrorController.show().url
         }
       }
     }

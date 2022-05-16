@@ -22,11 +22,13 @@ import support.builders.models.PeriodDataBuilder.aPeriodData
 import utils.TaxYearUtils
 
 object ContractorSummaryPageBuilder {
+
   val aContractorSummaryPage: ContractorSummaryPage = ContractorSummaryPage(
     taxYear = TaxYearUtils.taxYear,
+    isInYear = true,
     contractorName = aCisDeductions.contractorName,
     employerRef = aCisDeductions.employerRef,
-    deductionPeriods = Seq(aPeriodData.deductionPeriod)
+    deductionPeriods = Seq(aPeriodData.deductionPeriod),
+    customerDeductionPeriods = Seq.empty
   )
-
 }

@@ -16,7 +16,6 @@
 
 package views
 
-import forms.ContractorDetailsForm
 import forms.ContractorDetailsForm._
 import models.AuthorisationRequest
 import models.forms.ContractorDetailsFormData

@@ -34,6 +34,7 @@ common.status.cannotUpdate = Cannot update
 common.status.notStarted = Not started
 common.status.updated = Updated
 common.update = Update
+common.view = View
 common.use = use
 common.warning = Warning
 common.yes = Yes
@@ -80,10 +81,12 @@ deductionsSummary.table.head.deductionsToDate = CIS deductions to date
 #################       Contractor Summary Page       #######################################
 
 contractorSummary.title = Contractor CIS deductions
+contractorSummary.insetText.eoy = You can make changes but you cannot remove information we have entered for you. If you have any questions about this, you can call the
+contractorSummary.insetText.eoy.link = CIS helpline
 contractorSummary.lineItem = Tax month end 5 {0}
-contractorSummary.hiddenText = View tax month end 5 {0}
+contractorSummary.lineItem.hiddenText = {0} tax month end 5 {1}
+contractorSummary.addAnother.link = Add another CIS deduction
 contractorSummary.buttonText = Return to CIS summary
-contractorSummary.view = View
 
 #################       Contractor CYA Page       #######################################
 

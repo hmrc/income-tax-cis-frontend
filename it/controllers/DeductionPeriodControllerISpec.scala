@@ -16,9 +16,6 @@
 
 package controllers
 
-import java.net.URLEncoder
-import java.time.Month
-
 import controllers.routes.LabourPayController
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
@@ -27,14 +24,15 @@ import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.{DatabaseHelper, IntegrationTest}
-import utils.UrlUtils.encode
 import utils.ViewHelpers
+
+import java.net.URLEncoder
+import java.time.Month
 
 class DeductionPeriodControllerISpec extends IntegrationTest with ViewHelpers with DatabaseHelper {
 
   override val userScenarios: Seq[UserScenario[_, _]] = Seq.empty
-
-  val employerRef: String = aCisDeductions.employerRef
+  private val employerRef: String = aCisDeductions.employerRef
 
   private def url(taxYear: Int, employerRef: String): String = {
     s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/when-deductions-made?contractor=${URLEncoder.encode(employerRef, "UTF8")}"
@@ -62,7 +60,7 @@ class DeductionPeriodControllerISpec extends IntegrationTest with ViewHelpers wi
       }
 
       result.status shouldBe SEE_OTHER
-      result.header(name = "location").get shouldBe LabourPayController.show(taxYearEOY, Month.JANUARY.toString, encode(aCisDeductions.employerRef)).url
+      result.header(name = "location").get shouldBe LabourPayController.show(taxYearEOY, Month.JANUARY.toString, aCisDeductions.employerRef).url
       findCyaData(taxYearEOY, employerRef, aUser).get.cis.periodData.get.deductionPeriod shouldBe Month.JANUARY
     }
   }
