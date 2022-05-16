@@ -31,7 +31,7 @@ case class HasEOYDataWithEmployerRefFilterAction(taxYear: Int,
   override protected[actions] def executionContext: ExecutionContext = ec
 
   override protected[actions] def filter[A](input: UserPriorDataRequest[A]): Future[Option[Result]] = Future.successful {
-    if (!input.incomeTaxUserData.hasEOYCisDeductionsWith(employerRef)) {
+    if (!input.incomeTaxUserData.hasEoyCisDeductionsWith(employerRef)) {
       Some(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     } else {
       None

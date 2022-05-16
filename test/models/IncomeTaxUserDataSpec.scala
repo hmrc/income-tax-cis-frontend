@@ -105,13 +105,13 @@ class IncomeTaxUserDataSpec extends UnitTest {
 
       val underTest = anIncomeTaxUserData.copy(cis = Some(allCISDeductions))
 
-      underTest.hasEOYCisDeductionsWith(employerRef = "some-ref") shouldBe true
+      underTest.hasEoyCisDeductionsWith(employerRef = "some-ref") shouldBe true
     }
 
     "return false when CisDeductions with employerRef exists" in {
       val underTest = anIncomeTaxUserData
 
-      underTest.hasEOYCisDeductionsWith(employerRef = "unknown-ref") shouldBe false
+      underTest.hasEoyCisDeductionsWith(employerRef = "unknown-ref") shouldBe false
     }
   }
 
@@ -169,25 +169,24 @@ class IncomeTaxUserDataSpec extends UnitTest {
     }
   }
 
-  ".getCISDeductionsFor" should {
+  ".eoyCisDeductionsWith" should {
     "extract the latest cisDeductions" in {
-
       val underTest = anIncomeTaxUserData
 
-      underTest.getEOYCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
+      underTest.eoyCisDeductionsWith(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
     }
-    "extract the latest cisDeductions when no customer data" in {
 
+    "extract the latest cisDeductions when no customer data" in {
       val underTest = anIncomeTaxUserData.copy(
         cis = Some(anAllCISDeductions.copy(
           customerCISDeductions = None
         ))
       )
 
-      underTest.getEOYCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
+      underTest.eoyCisDeductionsWith(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
     }
-    "extract the latest cisDeductions when contractor data is latest" in {
 
+    "extract the latest cisDeductions when contractor data is latest" in {
       val underTest = anIncomeTaxUserData.copy(
         cis = Some(anAllCISDeductions.copy(
           customerCISDeductions = Some(aCISSource),
@@ -201,23 +200,55 @@ class IncomeTaxUserDataSpec extends UnitTest {
         ))
       )
 
-      underTest.getEOYCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions.copy(
+      underTest.eoyCisDeductionsWith(aCisDeductions.employerRef) shouldBe Some(aCisDeductions.copy(
         totalDeductionAmount = Some(200.00),
         totalCostOfMaterials = Some(100.00),
         totalGrossAmountPaid = Some(900.00),
         periodData = Seq(aPeriodData, aPeriodData.copy(deductionPeriod = Month.DECEMBER, submissionDate = "2021-05-11T16:38:57.489Z"))
       ))
     }
-    "extract the latest cisDeductions when no contractor data" in {
 
+    "extract the latest cisDeductions when no contractor data" in {
       val underTest = anIncomeTaxUserData.copy(
         cis = Some(anAllCISDeductions.copy(
           customerCISDeductions = None
         ))
       )
 
-      underTest.getEOYCISDeductionsFor(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
+      underTest.eoyCisDeductionsWith(aCisDeductions.employerRef) shouldBe Some(aCisDeductions)
     }
   }
 
+  ".customerCisDeductionsWith(employerRef)" should {
+    "return customer deductions when exist for given employerRef" in {
+      val deductions: CisDeductions = aCisDeductions.copy(employerRef = "some-employer-ref")
+      val underTest = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))))
+
+      underTest.customerCisDeductionsWith(employerRef = "some-employer-ref") shouldBe Some(deductions)
+    }
+
+    "return None when cis is None" in {
+      val underTest = anIncomeTaxUserData.copy(cis = None)
+
+      underTest.customerCisDeductionsWith(employerRef = "any-ref") shouldBe None
+    }
+
+    "return None when customerCisDeductions is None" in {
+      val underTest = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(customerCISDeductions = None)))
+
+      underTest.customerCisDeductionsWith(employerRef = "any-ref") shouldBe None
+    }
+
+    "return None when customerCisDeductions has empty deductions list" in {
+      val underTest = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq.empty)))))
+
+      underTest.customerCisDeductionsWith(employerRef = "any-ref") shouldBe None
+    }
+
+    "return None when customer deductions for given employerRef do not exist" in {
+      val underTest = anIncomeTaxUserData
+
+      underTest.customerCisDeductionsWith(employerRef = "unknown-employer-ref") shouldBe None
+    }
+  }
 }

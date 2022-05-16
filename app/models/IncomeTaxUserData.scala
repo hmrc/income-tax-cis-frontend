@@ -28,14 +28,11 @@ case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) extends Loggi
   def inYearCisDeductionsWith(employerRef: String): Option[CisDeductions] =
     cis.flatMap(_.inYearCisDeductionsWith(employerRef))
 
-  def hasInYearCisDeductionsWith(employerRef: String): Boolean =
-    inYearCisDeductionsWith(employerRef).nonEmpty
-
-  def hasEOYCisDeductionsWith(employerRef: String): Boolean =
-    eoyYearCisDeductionsWith(employerRef).nonEmpty
-
   def inYearCisDeductionsWith(employerRef: String, month: Month): Option[CisDeductions] =
     inYearCisDeductionsWith(employerRef).find(_.periodDataFor(month).nonEmpty)
+
+  def hasInYearCisDeductionsWith(employerRef: String): Boolean =
+    inYearCisDeductionsWith(employerRef).nonEmpty
 
   def hasInYearCisDeductionsWith(employerRef: String, month: Month): Boolean =
     inYearCisDeductionsWith(employerRef, month).nonEmpty
@@ -49,12 +46,14 @@ case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) extends Loggi
     inYearPeriodDataWith(employerRef).nonEmpty
   }
 
-  def getEOYCISDeductionsFor(employerRef: String): Option[CisDeductions] = {
-    cis.map(_.endOfYearCisDeductions).getOrElse(Seq.empty).find(_.employerRef == employerRef)
-  }
-
-  private def eoyYearCisDeductionsWith(employerRef: String): Option[CisDeductions] =
+  def eoyCisDeductionsWith(employerRef: String): Option[CisDeductions] =
     cis.flatMap(_.eoyCisDeductionsWith(employerRef))
+
+  def hasEoyCisDeductionsWith(employerRef: String): Boolean =
+    eoyCisDeductionsWith(employerRef).nonEmpty
+
+  def customerCisDeductionsWith(employerRef: String): Option[CisDeductions] =
+    cis.flatMap(_.customerCisDeductionsWith(employerRef))
 }
 
 object IncomeTaxUserData {

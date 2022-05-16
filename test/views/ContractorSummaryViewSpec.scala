@@ -27,102 +27,115 @@ import support.builders.models.pages.ContractorSummaryPageBuilder.aContractorSum
 import views.html.ContractorSummaryView
 
 import java.time.Month
+import java.time.Month.{APRIL, FEBRUARY, MAY}
 
 class ContractorSummaryViewSpec extends ViewUnitTest {
 
-  private val page: ContractorSummaryView = inject[ContractorSummaryView]
-
   private val employerRef: String = "111/22333"
-  private val deductions: Seq[Month] = Seq(Month.MAY, Month.FEBRUARY, Month.APRIL)
+  private val page: ContractorSummaryView = inject[ContractorSummaryView]
+  private val deductions: Seq[Month] = Seq(MAY, FEBRUARY, APRIL)
 
   object Selectors {
-    val paragraphTextSelector = "#main-content > div > div > p"
+
+    val paragraphTextSelector = "#main-content > div > div > p.govuk-body"
     val insetTextSelector = "#main-content > div > div > div.govuk-inset-text"
+    val cisHelpLineLink = "#cis-helpline-link"
+    val addAnotherLink = "#add-another-link"
     val buttonSelector = "#return-to-summary-button-id"
 
     def summaryListKeySelector(i: Int): String = s"#main-content > div > div > dl > div:nth-child($i) > dt"
 
-    def summaryListValueSelector(i: Int): String = s"#main-content > div > div > dl > div:nth-child($i) > dd > a > span:nth-child(1)"
+    def summaryListValueSelector(row: Int, cell: Int): String = s"div.govuk-summary-list__row:nth-child($row) > dd:nth-child($cell) > a:nth-child(1) > span:nth-child(1)"
 
-    def linkSelectorForSummaryListValue(i: Int): String = s"#main-content > div > div > dl > div:nth-child($i) > dd > a"
+    def summaryListLinksSelector(row: Int, cell: Int): String = s"div.govuk-summary-list__row:nth-child($row) > dd:nth-child($cell) > a:nth-child(1)"
   }
 
   trait CommonExpectedResults {
     val expectedTitle: String
     val expectedHeading: String
-    val expectedCaption: String
-
-    def expectedAlternativeHeading(employerRef: String): String
-
-    val taxMonthLineItem: String
-    val taxMonthLineItem2: String
-    val taxMonthLineItem3: String
-    val hiddenText: String
-    val hiddenText2: String
+    val expectedAlternativeHeading: String => String
+    val expectedCaption: Int => String
+    val expectedEOYInsetText: String
+    val expectedCIsHelplineLinkText: String
+    val taxMonthLineItem: Int => String
+    val taxMonthLineItem2: Int => String
+    val taxMonthLineItem3: Int => String
+    val hiddenText: (String, Int) => String
+    val hiddenText2: (String, Int) => String
     val hiddenText3: String
     val viewText: String
+    val changeText: String
+    val removeText: String
+    val expectedAddAnotherLinkText: String
     val buttonText: String
   }
 
   trait SpecificExpectedResults {
     val expectedParagraphText: String
-    val expectedInsetText: String
+    val expectedInYearInsetText: String
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
     override val expectedTitle: String = "Contractor CIS deductions"
     override val expectedHeading: String = "XYZ Constructions"
-    override val expectedCaption: String = s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
-
-    override def expectedAlternativeHeading(employerRef: String): String = s"Contractor: $employerRef"
-
-    override val taxMonthLineItem: String = s"Tax month end 5 May ${taxYear - 1}"
-    override val taxMonthLineItem2: String = s"Tax month end 5 February $taxYear"
-    override val taxMonthLineItem3: String = s"Tax month end 5 April $taxYear"
-    override val hiddenText: String = s"View tax month end 5 May ${taxYear - 1}"
-    override val hiddenText2: String = s"View tax month end 5 February $taxYear"
+    override val expectedAlternativeHeading: String => String = (employerRef: String) => s"Contractor: $employerRef"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
+    override val expectedEOYInsetText: String = "You can make changes but you cannot remove information we have entered for you. " +
+      "If you have any questions about this, you can call the CIS helpline (opens in new tab)."
+    override val expectedCIsHelplineLinkText: String = "CIS helpline (opens in new tab)"
+    override val taxMonthLineItem: Int => String = (taxYear: Int) => s"Tax month end 5 May ${taxYear - 1}"
+    override val taxMonthLineItem2: Int => String = (taxYear: Int) => s"Tax month end 5 February $taxYear"
+    override val taxMonthLineItem3: Int => String = (taxYear: Int) => s"Tax month end 5 April $taxYear"
+    override val hiddenText: (String, Int) => String = (operation: String, taxYear: Int) => s"$operation tax month end 5 May ${taxYear - 1}"
+    override val hiddenText2: (String, Int) => String = (operation: String, taxYear: Int) => s"$operation tax month end 5 February $taxYear"
     override val hiddenText3: String = s"View tax month end 5 April $taxYear"
     override val viewText: String = "View"
+    override val changeText: String = "Change"
+    override val removeText: String = "Remove"
+    override val expectedAddAnotherLinkText: String = "Add another CIS deduction"
     override val buttonText: String = "Return to CIS summary"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
     override val expectedTitle: String = "Contractor CIS deductions"
     override val expectedHeading: String = "XYZ Constructions"
-    override val expectedCaption: String = s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
-
-    override def expectedAlternativeHeading(employerRef: String): String = s"Contractor: $employerRef"
-
-    override val taxMonthLineItem: String = s"Tax month end 5 Mai ${taxYear - 1}"
-    override val taxMonthLineItem2: String = s"Tax month end 5 Chwefror $taxYear"
-    override val taxMonthLineItem3: String = s"Tax month end 5 Ebrill $taxYear"
-    override val hiddenText: String = s"View tax month end 5 Mai ${taxYear - 1}"
-    override val hiddenText2: String = s"View tax month end 5 Chwefror $taxYear"
+    override val expectedAlternativeHeading: String => String = (employerRef: String) => s"Contractor: $employerRef"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
+    override val expectedEOYInsetText: String = "You can make changes but you cannot remove information we have entered for you. " +
+      "If you have any questions about this, you can call the CIS helpline (opens in new tab)."
+    override val expectedCIsHelplineLinkText: String = "CIS helpline (opens in new tab)"
+    override val taxMonthLineItem: Int => String = (taxYear: Int) => s"Tax month end 5 Mai ${taxYear - 1}"
+    override val taxMonthLineItem2: Int => String = (taxYear: Int) => s"Tax month end 5 Chwefror $taxYear"
+    override val taxMonthLineItem3: Int => String = (taxYear: Int) => s"Tax month end 5 Ebrill $taxYear"
+    override val hiddenText: (String, Int) => String = (operation: String, taxYear: Int) => s"$operation tax month end 5 Mai ${taxYear - 1}"
+    override val hiddenText2: (String, Int) => String = (operation: String, taxYear: Int) => s"$operation tax month end 5 Chwefror $taxYear"
     override val hiddenText3: String = s"View tax month end 5 Ebrill $taxYear"
     override val viewText: String = "View"
+    override val changeText: String = "Change"
+    override val removeText: String = "Remove"
+    override val expectedAddAnotherLinkText: String = "Add another CIS deduction"
     override val buttonText: String = "Return to CIS summary"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
     override val expectedParagraphText: String = "Your CIS deductions are based on the information we already hold about you."
-    override val expectedInsetText: String = s"You cannot update your CIS information until 6 April $taxYear."
+    override val expectedInYearInsetText: String = s"You cannot update your CIS information until 6 April $taxYear."
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     override val expectedParagraphText: String = "Your CIS deductions are based on the information we already hold about you."
-    override val expectedInsetText: String = s"You cannot update your CIS information until 6 April $taxYear."
+    override val expectedInYearInsetText: String = s"You cannot update your CIS information until 6 April $taxYear."
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     override val expectedParagraphText: String = "Your client’s CIS deductions are based on the information we already hold about them."
-    override val expectedInsetText: String = s"You cannot update your client’s CIS information until 6 April $taxYear."
+    override val expectedInYearInsetText: String = s"You cannot update your client’s CIS information until 6 April $taxYear."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     override val expectedParagraphText: String = "Your client’s CIS deductions are based on the information we already hold about them."
-    override val expectedInsetText: String = s"You cannot update your client’s CIS information until 6 April $taxYear."
+    override val expectedInYearInsetText: String = s"You cannot update your client’s CIS information until 6 April $taxYear."
   }
-
 
   override protected val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = Seq(
     UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
@@ -135,8 +148,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
     userScenarios.foreach { userScenario =>
       s"language is ${welshTest(userScenario.isWelsh)} and request is from an ${agentTest(userScenario.isAgent)}" should {
         "render the in year contractor summary page with multiple deduction periods" which {
-
-          val pageModel = aContractorSummaryPage.copy(taxYear, Some("XYZ Constructions"), employerRef, deductions)
+          val pageModel = aContractorSummaryPage.copy(taxYear = taxYear, contractorName = Some("XYZ Constructions"), employerRef = employerRef, deductionPeriods = deductions)
 
           implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
           implicit val messages: Messages = getMessages(userScenario.isWelsh)
@@ -145,27 +157,62 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
 
           welshToggleCheck(userScenario.isWelsh)
           titleCheck(userScenario.commonExpectedResults.expectedTitle)
-          captionCheck(userScenario.commonExpectedResults.expectedCaption)
+          captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
           h1Check(userScenario.commonExpectedResults.expectedHeading)
           textOnPageCheck(userScenario.specificExpectedResults.get.expectedParagraphText, Selectors.paragraphTextSelector)
-          textOnPageCheck(userScenario.specificExpectedResults.get.expectedInsetText, Selectors.insetTextSelector)
-          textOnPageCheck(userScenario.commonExpectedResults.taxMonthLineItem, Selectors.summaryListKeySelector(1))
-          textOnPageCheck(userScenario.commonExpectedResults.viewText, Selectors.summaryListValueSelector(1), additionalTestText = "(first row)")
-          linkCheck(userScenario.commonExpectedResults.viewText + "" + userScenario.commonExpectedResults.hiddenText, Selectors.linkSelectorForSummaryListValue(1),
-            ContractorCYAController.show(taxYear, Month.MAY.toString.toLowerCase, employerRef).url, additionalTestText = "(first row)")
-          textOnPageCheck(userScenario.commonExpectedResults.taxMonthLineItem2, Selectors.summaryListKeySelector(2))
-          textOnPageCheck(userScenario.commonExpectedResults.viewText, Selectors.summaryListValueSelector(2), additionalTestText = "(second row)")
-          linkCheck(userScenario.commonExpectedResults.viewText + "" + userScenario.commonExpectedResults.hiddenText2, Selectors.linkSelectorForSummaryListValue(2),
-            ContractorCYAController.show(taxYear, Month.FEBRUARY.toString.toLowerCase, employerRef).url, additionalTestText = "(second row)")
-          textOnPageCheck(userScenario.commonExpectedResults.taxMonthLineItem3, Selectors.summaryListKeySelector(3))
-          textOnPageCheck(userScenario.commonExpectedResults.viewText, Selectors.summaryListValueSelector(3), additionalTestText = "(third row)")
-          linkCheck(userScenario.commonExpectedResults.viewText + "" + userScenario.commonExpectedResults.hiddenText3, Selectors.linkSelectorForSummaryListValue(3),
-            ContractorCYAController.show(taxYear, Month.APRIL.toString.toLowerCase, employerRef).url, additionalTestText = "(third row)")
+          textOnPageCheck(userScenario.specificExpectedResults.get.expectedInYearInsetText, Selectors.insetTextSelector)
+          textOnPageCheck(userScenario.commonExpectedResults.taxMonthLineItem(taxYear), Selectors.summaryListKeySelector(1))
+          textOnPageCheck(userScenario.commonExpectedResults.viewText, Selectors.summaryListValueSelector(row = 1, cell = 2), additionalTestText = "(first row)")
+          linkCheck(userScenario.commonExpectedResults.viewText + "" +
+            userScenario.commonExpectedResults.hiddenText(userScenario.commonExpectedResults.viewText, taxYear), Selectors.summaryListLinksSelector(row = 1, cell = 2),
+            ContractorCYAController.show(taxYear, MAY.toString.toLowerCase, employerRef).url, additionalTestText = "(first row)")
+          textOnPageCheck(userScenario.commonExpectedResults.taxMonthLineItem2(taxYear), Selectors.summaryListKeySelector(2))
+          textOnPageCheck(userScenario.commonExpectedResults.viewText, Selectors.summaryListValueSelector(row = 2, cell = 2), additionalTestText = "(second row)")
+          linkCheck(userScenario.commonExpectedResults.viewText + "" +
+            userScenario.commonExpectedResults.hiddenText2(userScenario.commonExpectedResults.viewText, taxYear), Selectors.summaryListLinksSelector(row = 2, cell = 2),
+            ContractorCYAController.show(taxYear, FEBRUARY.toString.toLowerCase, employerRef).url, additionalTestText = "(second row)")
+          textOnPageCheck(userScenario.commonExpectedResults.taxMonthLineItem3(taxYear), Selectors.summaryListKeySelector(3))
+          textOnPageCheck(userScenario.commonExpectedResults.viewText, Selectors.summaryListValueSelector(row = 3, cell = 2), additionalTestText = "(third row)")
+          linkCheck(userScenario.commonExpectedResults.viewText + "" + userScenario.commonExpectedResults.hiddenText3, Selectors.summaryListLinksSelector(row = 3, cell = 2),
+            ContractorCYAController.show(taxYear, APRIL.toString.toLowerCase, employerRef).url, additionalTestText = "(third row)")
+          elementNotOnPageCheck(Selectors.addAnotherLink)
           buttonCheck(userScenario.commonExpectedResults.buttonText, Selectors.buttonSelector, Some(DeductionsSummaryController.show(taxYear).url))
         }
 
+        "render end of year contractor summary page with multiple deduction periods" which {
+          implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
+          implicit val messages: Messages = getMessages(userScenario.isWelsh)
+
+          val pageModel = aContractorSummaryPage.copy(taxYear = taxYearEOY, isInYear = false, contractorName = Some("XYZ Constructions"),
+            employerRef = employerRef, deductionPeriods = deductions, customerDeductionPeriods = Seq(MAY))
+          implicit val document: Document = Jsoup.parse(page(pageModel).body)
+
+          welshToggleCheck(userScenario.isWelsh)
+          titleCheck(userScenario.commonExpectedResults.expectedTitle)
+          captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
+          h1Check(userScenario.commonExpectedResults.expectedHeading)
+          textOnPageCheck(userScenario.commonExpectedResults.expectedEOYInsetText, Selectors.insetTextSelector)
+          linkCheck(userScenario.commonExpectedResults.expectedCIsHelplineLinkText, Selectors.cisHelpLineLink,
+            href = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/construction-industry-scheme")
+          textOnPageCheck(userScenario.commonExpectedResults.taxMonthLineItem(taxYearEOY), Selectors.summaryListKeySelector(1))
+          textOnPageCheck(userScenario.commonExpectedResults.changeText, Selectors.summaryListValueSelector(row = 1, cell = 2), additionalTestText = "(first row)")
+          linkCheck(userScenario.commonExpectedResults.changeText + "" +
+            userScenario.commonExpectedResults.hiddenText(userScenario.commonExpectedResults.changeText, taxYearEOY), Selectors.summaryListLinksSelector(row = 1, cell = 2),
+            ContractorCYAController.show(taxYearEOY, MAY.toString.toLowerCase, employerRef).url, additionalTestText = "(first row)")
+          textOnPageCheck(userScenario.commonExpectedResults.removeText, Selectors.summaryListValueSelector(row = 1, cell = 3), additionalTestText = "(first row)")
+          linkCheck(userScenario.commonExpectedResults.removeText + " " +
+            userScenario.commonExpectedResults.hiddenText(userScenario.commonExpectedResults.removeText, taxYearEOY), Selectors.summaryListLinksSelector(row = 1, cell = 3),
+            ContractorCYAController.show(taxYearEOY, MAY.toString.toLowerCase, employerRef).url, additionalTestText = "(first row)")
+          textOnPageCheck(userScenario.commonExpectedResults.changeText, Selectors.summaryListValueSelector(row = 2, cell = 2), additionalTestText = "(second row)")
+          linkCheck(userScenario.commonExpectedResults.changeText + "" +
+            userScenario.commonExpectedResults.hiddenText2(userScenario.commonExpectedResults.changeText, taxYearEOY), Selectors.summaryListLinksSelector(row = 2, cell = 2),
+            ContractorCYAController.show(taxYearEOY, FEBRUARY.toString.toLowerCase, employerRef).url, additionalTestText = "(second row)")
+          elementNotOnPageCheck(Selectors.summaryListValueSelector(row = 2, cell = 3))
+          linkCheck(userScenario.commonExpectedResults.expectedAddAnotherLinkText, Selectors.addAnotherLink, href = controllers.routes.ContractorDetailsController.show(taxYearEOY, None).url)
+        }
+
         "render the in year contractor summary page with an alternative heading when there's no contractor name" which {
-          val pageModel = aContractorSummaryPage.copy(taxYear, None, employerRef, deductions)
+          val pageModel = aContractorSummaryPage.copy(taxYear = taxYear, contractorName = None, employerRef = employerRef, deductionPeriods = deductions)
 
           implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
           implicit val messages: Messages = getMessages(userScenario.isWelsh)
@@ -174,10 +221,9 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
 
           welshToggleCheck(userScenario.isWelsh)
           titleCheck(userScenario.commonExpectedResults.expectedTitle)
-          captionCheck(userScenario.commonExpectedResults.expectedCaption)
+          captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
           h1Check(userScenario.commonExpectedResults.expectedAlternativeHeading(employerRef))
           buttonCheck(userScenario.commonExpectedResults.buttonText, Selectors.buttonSelector, Some(DeductionsSummaryController.show(taxYear).url))
-
         }
       }
     }

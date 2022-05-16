@@ -71,8 +71,8 @@ class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
 
     getPriorData(user, taxYear).flatMap {
       case Left(error) => Future.successful(Left(error))
-      case Right(prior) =>
-        prior.getEOYCISDeductionsFor(employerRef) match {
+      case Right(prior: IncomeTaxUserData) =>
+        prior.eoyCisDeductionsWith(employerRef) match {
           case Some(deductions) =>
 
             val submissionId: Option[String] = deductions.submissionId

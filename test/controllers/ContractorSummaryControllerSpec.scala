@@ -24,6 +24,7 @@ import support.builders.models.CISSourceBuilder.aCISSource
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.mocks.MockActionsProvider
+import utils.InYearUtil
 import views.html.ContractorSummaryView
 
 class ContractorSummaryControllerSpec extends ControllerUnitTest
@@ -33,14 +34,15 @@ class ContractorSummaryControllerSpec extends ControllerUnitTest
 
   private val controller = new ContractorSummaryController(
     mockActionsProvider,
-    pageView
+    pageView,
+    new InYearUtil()
   )
 
   "return a successful response" in {
     val cisDeductions = aCisDeductions.copy(employerRef = "12345")
     val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions))))
 
-    mockInYearWithPreviousDataFor(taxYear, contractor = "12345", anIncomeTaxUserData.copy(cis = Some(allCISDeductions)))
+    mockUserPriorDataFor(taxYear, contractor = "12345", anIncomeTaxUserData.copy(cis = Some(allCISDeductions)))
 
     val result = controller.show(taxYear, contractor = "12345").apply(fakeIndividualRequest)
 

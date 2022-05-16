@@ -121,11 +121,11 @@ trait MockActionsProvider extends MockFactory
       .returns(value = userPriorDataRequestActionBuilder(result))
   }
 
-  def mockInYearWithPreviousDataFor(taxYear: Int,
-                                    contractor: String,
-                                    result: IncomeTaxUserData
-                                   ): CallHandler2[Int, String, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
-    (mockActionsProvider.inYearWithPreviousDataFor(_: Int, _: String))
+  def mockUserPriorDataFor(taxYear: Int,
+                           contractor: String,
+                           result: IncomeTaxUserData
+                          ): CallHandler2[Int, String, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
+    (mockActionsProvider.userPriorDataFor(_: Int, _: String))
       .expects(taxYear, contractor)
       .returns(value = userPriorDataRequestActionBuilder(result))
   }

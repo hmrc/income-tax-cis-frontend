@@ -16,28 +16,48 @@
 
 package models.pages
 
-import java.time.Month
+import models.IncomeTaxUserData
 
-import models.CisDeductions
+import java.time.Month
+import java.time.Month.APRIL
 
 case class ContractorSummaryPage(taxYear: Int,
+                                 isInYear: Boolean,
                                  contractorName: Option[String],
                                  employerRef: String,
-                                 deductionPeriods: Seq[Month]
-                                )
+                                 deductionPeriods: Seq[Month],
+                                 customerDeductionPeriods: Seq[Month]) {
+
+  def isCustomerDeductionPeriod(month: Month): Boolean =
+    customerDeductionPeriods.contains(month)
+}
+
 object ContractorSummaryPage {
 
-  def mapToInYearPage(taxYear: Int, cisDeductions: CisDeductions): ContractorSummaryPage = {
+  def apply(taxYear: Int,
+            isInYear: Boolean,
+            employerRef: String,
+            incomeTaxUserData: IncomeTaxUserData): ContractorSummaryPage = {
+    val cisDeductions = if (isInYear) incomeTaxUserData.inYearCisDeductionsWith(employerRef).get else incomeTaxUserData.eoyCisDeductionsWith(employerRef).get
     val deductionPeriods = cisDeductions.periodData.map(_.deductionPeriod)
-    val upToApril = 4
-    val monthsOrdered: Seq[Month] = Month.values().drop(upToApril) ++ Month.values().take(upToApril)
-
-    val orderedDeductionPeriods = monthsOrdered.foldLeft(Seq[Month]())((list, h) => if(deductionPeriods.contains(h)) h +: list else list).reverse
+    val monthsOrdered: Seq[Month] = Month.values().drop(APRIL.getValue) ++ Month.values().take(APRIL.getValue)
+    val orderedDeductionPeriods = monthsOrdered.foldLeft(Seq[Month]())((list, h) => if (deductionPeriods.contains(h)) h +: list else list).reverse
+    val customerDeductionPeriods = if (isInYear) Seq.empty else getCustomerDeductionPeriods(employerRef, incomeTaxUserData)
 
     ContractorSummaryPage(
       taxYear = taxYear,
+      isInYear = isInYear,
       contractorName = cisDeductions.contractorName,
-      employerRef = cisDeductions.employerRef,
-      deductionPeriods = orderedDeductionPeriods)
+      employerRef = employerRef,
+      deductionPeriods = orderedDeductionPeriods,
+      customerDeductionPeriods = customerDeductionPeriods
+    )
+  }
+
+  private def getCustomerDeductionPeriods(employerRef: String, incomeTaxUserData: IncomeTaxUserData): Seq[Month] = {
+    val hmrcDeductionPeriods = incomeTaxUserData.inYearPeriodDataWith(employerRef).map(_.deductionPeriod)
+    val customerCisDeductions = incomeTaxUserData.customerCisDeductionsWith(employerRef).map(_.periodData.map(_.deductionPeriod)).getOrElse(Seq.empty)
+
+    customerCisDeductions.foldLeft(Seq[Month]())((acc, i) => if (hmrcDeductionPeriods.contains(i)) acc else i +: acc)
   }
 }
