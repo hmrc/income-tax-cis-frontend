@@ -16,26 +16,65 @@
 
 package controllers.errors
 
-import play.api.http.Status.OK
+import common.SessionValues
+import common.SessionValues.VALID_TAX_YEARS
+import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers.{contentType, status}
-import play.api.test.{DefaultAwaitTimeout, FakeRequest, Helpers}
-import support.ControllerUnitTest
+import play.api.test.{FakeRequest, Helpers}
+import support.builders.models.UserBuilder.aUser
+import support.mocks.MockAuthorisedAction
+import support.{ControllerUnitTest, TaxYearProvider}
 import views.html.templates.TaxYearErrorTemplate
 
-class TaxYearErrorControllerSpec extends ControllerUnitTest with DefaultAwaitTimeout {
+class TaxYearErrorControllerSpec extends ControllerUnitTest with MockAuthorisedAction with TaxYearProvider {
   private lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
   private lazy val taxYearErrorTemplate: TaxYearErrorTemplate = app.injector.instanceOf[TaxYearErrorTemplate]
 
-  private lazy val underTest = new TaxYearErrorController(mockMessagesControllerComponents, appConfig, taxYearErrorTemplate)
+  private lazy val underTest = new TaxYearErrorController(mockAuthorisedAction, mockMessagesControllerComponents, appConfig, taxYearErrorTemplate)
 
   ".show()" should {
-    "return an OK response .show() is called" in {
+    "return an OK response when .show() is called and user is authenticated as an individual" in {
+      mockAuthAsIndividual(Some(aUser.nino))
+
       val fakeRequest = FakeRequest("GET", "/error/wrong-tax-year")
+        .withHeaders(newHeaders = "X-Session-ID" -> aUser.sessionId)
+        .withSession(VALID_TAX_YEARS -> validTaxYearList.mkString(","))
+
       val result = underTest.show()(fakeRequest)
 
       status(result) shouldBe OK
       contentType(result) shouldBe Some("text/html")
+    }
+
+    "return an OK response when .show() is called and user is authenticated as an agent" in {
+      mockAuthAsAgent()
+
+      val fakeRequest = FakeRequest("GET", "/error/wrong-tax-year")
+        .withHeaders("X-Session-ID" -> aUser.sessionId)
+        .withSession(
+          SessionValues.CLIENT_MTDITID -> "1234567890",
+          SessionValues.CLIENT_NINO -> "AA123456A",
+          SessionValues.VALID_TAX_YEARS -> validTaxYearList.mkString(",")
+        )
+
+      val result = underTest.show()(fakeRequest)
+
+      status(result) shouldBe OK
+      contentType(result) shouldBe Some("text/html")
+    }
+
+    "return a SEE_OTHER response when .show() is called and user isn't authenticated" in {
+      mockFailToAuthenticate()
+
+      val fakeRequest = FakeRequest("GET", "/error/wrong-tax-year")
+        .withHeaders(newHeaders = "X-Session-ID" -> aUser.sessionId)
+        .withSession(VALID_TAX_YEARS -> validTaxYearList.mkString(","))
+
+      val result = underTest.show()(fakeRequest)
+
+      status(result) shouldBe SEE_OTHER
+      await(result).header.headers.getOrElse("Location", "/") shouldBe "/update-and-submit-income-tax-return/construction-industry-scheme-deductions/error/not-authorised-to-use-service"
     }
   }
 }
