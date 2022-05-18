@@ -55,7 +55,6 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
     val expectedHeading: String
     val expectedAlternativeHeading: String => String
     val expectedCaption: Int => String
-    val expectedEOYInsetText: String
     val expectedCIsHelplineLinkText: String
     val taxMonthLineItem: Int => String
     val taxMonthLineItem2: Int => String
@@ -73,6 +72,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
   trait SpecificExpectedResults {
     val expectedParagraphText: String
     val expectedInYearInsetText: String
+    val expectedEOYInsetText: String
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
@@ -80,8 +80,6 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
     override val expectedHeading: String = "XYZ Constructions"
     override val expectedAlternativeHeading: String => String = (employerRef: String) => s"Contractor: $employerRef"
     override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
-    override val expectedEOYInsetText: String = "You can make changes but you cannot remove information we have entered for you. " +
-      "If you have any questions about this, you can call the CIS helpline (opens in new tab)."
     override val expectedCIsHelplineLinkText: String = "CIS helpline (opens in new tab)"
     override val taxMonthLineItem: Int => String = (taxYear: Int) => s"Tax month end 5 May ${taxYear - 1}"
     override val taxMonthLineItem2: Int => String = (taxYear: Int) => s"Tax month end 5 February $taxYear"
@@ -101,8 +99,6 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
     override val expectedHeading: String = "XYZ Constructions"
     override val expectedAlternativeHeading: String => String = (employerRef: String) => s"Contractor: $employerRef"
     override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
-    override val expectedEOYInsetText: String = "You can make changes but you cannot remove information we have entered for you. " +
-      "If you have any questions about this, you can call the CIS helpline (opens in new tab)."
     override val expectedCIsHelplineLinkText: String = "CIS helpline (opens in new tab)"
     override val taxMonthLineItem: Int => String = (taxYear: Int) => s"Tax month end 5 Mai ${taxYear - 1}"
     override val taxMonthLineItem2: Int => String = (taxYear: Int) => s"Tax month end 5 Chwefror $taxYear"
@@ -120,21 +116,29 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
   object ExpectedIndividualEN extends SpecificExpectedResults {
     override val expectedParagraphText: String = "Your CIS deductions are based on the information we already hold about you."
     override val expectedInYearInsetText: String = s"You cannot update your CIS information until 6 April $taxYear."
+    override val expectedEOYInsetText: String = "You can make changes but you cannot remove information we have entered for you. " +
+      "If you have any questions about this, you can call the CIS helpline (opens in new tab)."
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     override val expectedParagraphText: String = "Your CIS deductions are based on the information we already hold about you."
     override val expectedInYearInsetText: String = s"You cannot update your CIS information until 6 April $taxYear."
+    override val expectedEOYInsetText: String = "You can make changes but you cannot remove information we have entered for you. " +
+      "If you have any questions about this, you can call the CIS helpline (opens in new tab)."
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     override val expectedParagraphText: String = "Your client’s CIS deductions are based on the information we already hold about them."
     override val expectedInYearInsetText: String = s"You cannot update your client’s CIS information until 6 April $taxYear."
+    override val expectedEOYInsetText: String = "You can make changes but you cannot remove information we have entered for your client. " +
+      "If you have any questions about this, you can call the CIS helpline (opens in new tab)."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     override val expectedParagraphText: String = "Your client’s CIS deductions are based on the information we already hold about them."
     override val expectedInYearInsetText: String = s"You cannot update your client’s CIS information until 6 April $taxYear."
+    override val expectedEOYInsetText: String = "You can make changes but you cannot remove information we have entered for your client. " +
+      "If you have any questions about this, you can call the CIS helpline (opens in new tab)."
   }
 
   override protected val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = Seq(
@@ -191,7 +195,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
           titleCheck(userScenario.commonExpectedResults.expectedTitle)
           captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
           h1Check(userScenario.commonExpectedResults.expectedHeading)
-          textOnPageCheck(userScenario.commonExpectedResults.expectedEOYInsetText, Selectors.insetTextSelector)
+          textOnPageCheck(userScenario.specificExpectedResults.get.expectedEOYInsetText, Selectors.insetTextSelector)
           linkCheck(userScenario.commonExpectedResults.expectedCIsHelplineLinkText, Selectors.cisHelpLineLink,
             href = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/construction-industry-scheme")
           textOnPageCheck(userScenario.commonExpectedResults.taxMonthLineItem(taxYearEOY), Selectors.summaryListKeySelector(1))

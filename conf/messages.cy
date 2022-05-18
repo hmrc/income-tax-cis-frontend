@@ -81,7 +81,8 @@ deductionsSummary.table.head.deductionsToDate = CIS deductions to date
 #################       Contractor Summary Page       #######################################
 
 contractorSummary.title = Contractor CIS deductions
-contractorSummary.insetText.eoy = You can make changes but you cannot remove information we have entered for you. If you have any questions about this, you can call the
+contractorSummary.insetText.eoy.agent = You can make changes but you cannot remove information we have entered for your client. If you have any questions about this, you can call the
+contractorSummary.insetText.eoy.individual = You can make changes but you cannot remove information we have entered for you. If you have any questions about this, you can call the
 contractorSummary.insetText.eoy.link = CIS helpline
 contractorSummary.lineItem = Tax month end 5 {0}
 contractorSummary.lineItem.hiddenText = {0} tax month end 5 {1}
