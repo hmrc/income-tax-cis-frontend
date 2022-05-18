@@ -43,7 +43,7 @@
 @insetContent = @{ if (pageModel.isInYear) {
         Text(messages(s"cis.insetText.${if(request.user.isAgent) "agent" else "individual"}", pageModel.taxYear.toString))
     } else {
-        val eoyInsetContent = messages("contractorSummary.insetText.eoy") + link("https://www.gov.uk/government/organisations/hm-revenue-customs/contact/construction-industry-scheme", "contractorSummary.insetText.eoy.link", Some("cis-helpline-link"), true, fullStop=true)
+        val eoyInsetContent = messages(s"contractorSummary.insetText.eoy.${if(request.user.isAgent) "agent" else "individual"}") + link("https://www.gov.uk/government/organisations/hm-revenue-customs/contact/construction-industry-scheme", "contractorSummary.insetText.eoy.link", Some("cis-helpline-link"), true, fullStop=true)
         HtmlContent(eoyInsetContent)
     }
 }
