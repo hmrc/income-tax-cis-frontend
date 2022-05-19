@@ -23,7 +23,6 @@ import common.SessionValues
 import config.AppConfig
 import helpers.{PlaySessionCookieBaker, WireMockHelper, WiremockStubHelpers}
 import models.IncomeTaxUserData
-import models.mongo.CisUserData
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -38,7 +37,6 @@ import play.api.{Application, Environment, Mode}
 import services.AuthService
 import support.builders.models.IncomeTaxUserDataBuilder
 import support.builders.models.UserBuilder.aUser
-import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
@@ -188,8 +186,9 @@ trait IntegrationTest extends AnyWordSpec
     )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L50
   )
 
-  def playSessionCookies(taxYear: Int, extraData: Map[String, String] = Map.empty): String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+  def playSessionCookies(taxYear: Int, validTaxYears: Seq[Int] = validTaxYearList, extraData: Map[String, String] = Map.empty): String = PlaySessionCookieBaker.bakeSessionCookie(Map(
     SessionValues.TAX_YEAR -> taxYear.toString,
+    SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","),
     SessionKeys.sessionId -> aUser.sessionId,
     SessionValues.CLIENT_NINO -> aUser.nino,
     SessionValues.CLIENT_MTDITID -> aUser.mtditid
