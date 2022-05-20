@@ -21,7 +21,7 @@ import play.api.mvc.Request
 
 import java.time.LocalDate
 
-// TODO: Should be tested
+// TODO: This is not tested.
 trait TaxYearHelper extends SessionHelper {
 
   private val dateNow: LocalDate = LocalDate.now()

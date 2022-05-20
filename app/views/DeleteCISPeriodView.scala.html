@@ -1,0 +1,59 @@
+@*
+ * Copyright 2022 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.routes.DeleteCISPeriodController
+@import controllers.routes.ContractorSummaryController
+@import models.pages.DeleteCISPeriodPage
+@import views.html.templates.Layout
+@import views.html.templates.helpers.ErrorSummary
+@import views.html.templates.helpers.{Heading, Link}
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import utils.ViewUtils._
+
+@this(
+    layout: Layout,
+    heading: Heading,
+    errorSummary: ErrorSummary,
+    formWithCsrf: FormWithCSRF,
+    govUkButton : GovukButton,
+    link: Link
+)
+
+@(pageModel: DeleteCISPeriodPage)(implicit request: UserPriorDataRequest[_], messages: Messages, appConfig: AppConfig)
+
+@headingToUse = @{messages("deleteCISPeriodPage.title")}
+
+@layout(pageTitle = messages("deleteCISPeriodPage.title"), taxYear = Some(pageModel.taxYear), isAgent = request.user.isAgent) {
+
+    @heading(headingToUse, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
+
+    <p class="govuk-body">@messages(s"deleteCISPeriodPage.p1", translatedMonthAndTaxYear(pageModel.month, pageModel.taxYear))</p>
+
+    @formWithCsrf(action = DeleteCISPeriodController.submit(pageModel.taxYear, pageModel.employerRef, pageModel.month.toString)) {
+        <div class="govuk-button-group">
+            @govUkButton(Button(
+                attributes = Map("data-module" -> "govuk-button", "id" -> "remove-period-button-id"),
+                preventDoubleClick = true,
+                content = Text(messages("common.remove")),
+                classes = "govuk-button--warning"
+            ))
+            @link(ContractorSummaryController.show(pageModel.taxYear, pageModel.employerRef).url, messages("common.cancel"), id = Some("cancel-link-id"))
+        </div>
+    }
+}
+@{
+// $COVERAGE-OFF$
+}

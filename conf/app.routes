@@ -19,6 +19,11 @@ GET         /:taxYear/summary                                                   
 GET         /:taxYear/contractor                                                    controllers.ContractorSummaryController.show(taxYear: Int, contractor: String)
 GET         /:taxYear/add-cis-deduction                                             controllers.ContractorSummaryController.addCisDeduction(taxYear: Int, contractor: String)
 
+###########################     Delete CIS Period pages               ########################
+
+GET        /:taxYear/remove-deduction                                               controllers.DeleteCISPeriodController.show(taxYear: Int, month: String, contractor: String)
+POST       /:taxYear/remove-deduction                                               controllers.DeleteCISPeriodController.submit(taxYear: Int, contractor: String, month: String)
+
 ###########################     Check your CIS deductions pages     ########################
 
 GET        /:taxYear/check-construction-industry-scheme-deductions                  controllers.ContractorCYAController.show(taxYear: Int, month: String, contractor: String)
@@ -73,5 +78,3 @@ GET        /error/you-need-client-authorisation                                 
 GET        /error/not-authorised-to-use-service                                     controllers.errors.UnauthorisedUserErrorController.show
 
 GET        /error/you-need-agent-services-account                                   controllers.errors.YouNeedAgentServicesController.show
-
-

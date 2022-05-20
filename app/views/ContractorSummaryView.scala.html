@@ -24,6 +24,7 @@
 @import controllers.routes.ContractorCYAController
 @import controllers.routes.ContractorSummaryController
 @import controllers.routes.DeductionsSummaryController
+@import controllers.routes.DeleteCISPeriodController
 
 @this(
     layout: Layout,
@@ -63,7 +64,7 @@
             val viewOrChangeMessage = if (isInYear) messages("common.view") else messages("common.change")
             val viewOrChangeLink = link(ContractorCYAController.show(pageModel.taxYear, deductionPeriod.toString.toLowerCase, pageModel.employerRef).url, viewOrChangeMessage, hiddenText = Some(messages("contractorSummary.lineItem.hiddenText", viewOrChangeMessage, translatedMonthAndTaxYear(deductionPeriod, pageModel.taxYear))))
             val actions = if (isInYear || !pageModel.isCustomerDeductionPeriod(deductionPeriod)) Seq()
-                          else Seq((ContractorCYAController.show(pageModel.taxYear, deductionPeriod.toString.toLowerCase, pageModel.employerRef), messages("common.remove"), Some(messages("contractorSummary.lineItem.hiddenText", messages("common.remove"), translatedMonthAndTaxYear(deductionPeriod, pageModel.taxYear)))))
+                          else Seq((DeleteCISPeriodController.show(pageModel.taxYear, deductionPeriod.toString.toLowerCase, pageModel.employerRef), messages("common.remove"), Some(messages("contractorSummary.lineItem.hiddenText", messages("common.remove"), translatedMonthAndTaxYear(deductionPeriod, pageModel.taxYear)))))
 
             summaryListRow(
                 key = HtmlContent(messages("contractorSummary.lineItem", translatedMonthAndTaxYear(deductionPeriod, pageModel.taxYear))),

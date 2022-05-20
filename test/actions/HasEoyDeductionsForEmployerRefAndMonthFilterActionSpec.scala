@@ -30,7 +30,7 @@ import support.mocks.MockErrorHandler
 import java.time.Month
 import scala.concurrent.ExecutionContext
 
-class HasEndOfYearDeductionsForEmployerRefAndMonthFilterActionSpec extends UnitTest
+class HasEoyDeductionsForEmployerRefAndMonthFilterActionSpec extends UnitTest
   with MockErrorHandler {
 
   private val anyTaxYear = 2022
@@ -39,7 +39,7 @@ class HasEndOfYearDeductionsForEmployerRefAndMonthFilterActionSpec extends UnitT
   private val appConfig = new MockAppConfig().config()
   private val executionContext = ExecutionContext.global
 
-  private val underTest = HasEndOfYearDeductionsForEmployerRefAndMonthFilterAction(
+  private val underTest = HasEoyDeductionsForEmployerRefAndMonthFilterAction(
     taxYear = anyTaxYear,
     employerRef = employerRef,
     monthValue = monthValue,
@@ -55,7 +55,7 @@ class HasEndOfYearDeductionsForEmployerRefAndMonthFilterActionSpec extends UnitT
 
   ".filter" should {
     "return a redirect to " in {
-      val underTest = HasEndOfYearDeductionsForEmployerRefAndMonthFilterAction(
+      val underTest = HasEoyDeductionsForEmployerRefAndMonthFilterAction(
         taxYear = anyTaxYear,
         employerRef = employerRef,
         monthValue = "wrong-month-value",

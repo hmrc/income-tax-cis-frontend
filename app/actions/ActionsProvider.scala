@@ -64,6 +64,14 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
     }
   }
 
+  def userPriorDataForEOY(taxYear: Int, contractor: String, month: String): ActionBuilder[UserPriorDataRequest, AnyContent] = {
+    authAction
+      .andThen(TaxYearAction.taxYearAction(taxYear)(appConfig))
+      .andThen(EndOfYearFilterAction(taxYear, inYearUtil, appConfig))
+      .andThen(UserPriorDataRefinerAction(taxYear, cisSessionService, errorHandler))
+      .andThen(HasEoyDeductionsForEmployerRefAndMonthFilterAction(taxYear, contractor, month, errorHandler, appConfig))
+  }
+
   def userPriorDataFor(taxYear: Int, contractor: String): ActionBuilder[UserPriorDataRequest, AnyContent] = {
     authAction
       .andThen(TaxYearAction.taxYearAction(taxYear)(appConfig))
@@ -114,7 +122,7 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
     if (inYearUtil.inYear(taxYear)) {
       HasInYearPeriodDataWithEmployerRefFilterAction(taxYear, contractor, appConfig)
     } else {
-      HasEOYDataWithEmployerRefFilterAction(taxYear, contractor, appConfig)
+      HasEoyDeductionsForEmployerRefFilterAction(taxYear, contractor, appConfig)
     }
   }
 
@@ -122,7 +130,7 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
     if (inYearUtil.inYear(taxYear)) {
       HasInYearDeductionsForEmployerRefAndMonthFilterAction(taxYear, contractor, month, errorHandler, appConfig)
     } else {
-      HasEndOfYearDeductionsForEmployerRefAndMonthFilterAction(taxYear, contractor, month, errorHandler, appConfig)
+      HasEoyDeductionsForEmployerRefAndMonthFilterAction(taxYear, contractor, month, errorHandler, appConfig)
     }
   }
 }
