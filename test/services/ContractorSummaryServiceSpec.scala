@@ -23,7 +23,6 @@ import support.builders.models.UserBuilder._
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.MockCISSessionService
 import support.{TaxYearProvider, UnitTest}
-import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -31,19 +30,17 @@ class ContractorSummaryServiceSpec extends UnitTest
   with MockCISSessionService
   with TaxYearProvider {
 
-  implicit private val hc: HeaderCarrier = HeaderCarrier()
-
   private val underTest = new ContractorSummaryService(mockCISSessionService)
 
-  val cya: CisCYAModel = aCisDeductions.toCYA(None, anIncomeTaxUserData.contractorPeriodsFor(aCisDeductions.employerRef))
+  private val cya: CisCYAModel = aCisDeductions.toCYA(None, anIncomeTaxUserData.contractorPeriodsFor(aCisDeductions.employerRef))
 
   ".saveCYAForNewCisDeduction" should {
     "return right when save is successful" in {
-
       mockCreateOrUpdateCISUserData(taxYearEOY, aUser, aCisDeductions.employerRef, aCisDeductions.submissionId, isPriorSubmission = true, cya, Right(aCisUserData))
 
       await(underTest.saveCYAForNewCisDeduction(taxYearEOY, aCisDeductions.employerRef, anIncomeTaxUserData, aUser)) shouldBe Right(())
     }
+
     "return error when save fails" in {
       mockCreateOrUpdateCISUserData(taxYearEOY, aUser, aCisDeductions.employerRef, aCisDeductions.submissionId, isPriorSubmission = true, cya, Left(DataNotUpdatedError))
 

@@ -114,7 +114,7 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
     UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY))
   )
 
-  val deductions = Seq(
+  private val deductions = Seq(
     ContractorDeductionToDate(Some("Contractor-1"), "ref-1", Some(123.23)),
     ContractorDeductionToDate(None, "ref-2", Some(123.24)),
     ContractorDeductionToDate(Some("Contractor-3"), "ref-3", None),

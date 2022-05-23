@@ -16,16 +16,14 @@
 
 package services
 
-import java.time.Month
-
 import models.mongo.{CYAPeriodData, DataNotFoundError, DataNotUpdatedError}
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.MockCISSessionService
 import support.{FakeRequestHelper, TaxYearProvider, UnitTest}
-import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.Month
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class DeductionPeriodServiceSpec extends UnitTest
@@ -33,11 +31,7 @@ class DeductionPeriodServiceSpec extends UnitTest
   with TaxYearProvider
   with FakeRequestHelper {
 
-  implicit private val hc: HeaderCarrier = HeaderCarrier()
-
-  private val underTest = new DeductionPeriodService(
-    mockCISSessionService
-  )
+  private val underTest = new DeductionPeriodService(mockCISSessionService)
 
   ".submitDeductionPeriod" should {
     "submit and save the data" in {
@@ -51,11 +45,13 @@ class DeductionPeriodServiceSpec extends UnitTest
 
       await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY, None)) shouldBe Right(aCisUserData)
     }
+
     "handle not getting data" in {
       mockGetSessionData(taxYearEOY, aUser, aCisDeductions.employerRef, Right(None))
 
       await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY, None)) shouldBe Left(DataNotFoundError)
     }
+
     "handle not saving the data" in {
       val default = CYAPeriodData(deductionPeriod = Month.JANUARY, contractorSubmitted = false, originallySubmittedPeriod = None)
       val cya = aCisUserData.cis
