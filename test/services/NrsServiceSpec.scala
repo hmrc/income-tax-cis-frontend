@@ -43,30 +43,26 @@ class NrsServiceSpec extends UnitTest
   ".postNrsConnector" when {
     "there is a true client ip and port" should {
       "return the connector response" in {
-        val expectedResult: NrsSubmissionResponse = Right()
+        val expectedResult: NrsSubmissionResponse = Right(())
         val headerCarrierWithTrueClientDetails = headerCarrierWithSession.copy(trueClientIp = Some("127.0.0.1"), trueClientPort = Some("80"))
 
         (connector.postNrsConnector(_: String, _: String)(_: HeaderCarrier, _: Writes[String]))
           .expects(nino, "cis", headerCarrierWithTrueClientDetails.withExtraHeaders("mtditid" -> mtditid, "clientIP" -> "127.0.0.1", "clientPort" -> "80"), writesObject)
           .returning(Future.successful(expectedResult))
 
-        val result = await(underTest.submit(nino, "cis", mtditid)(headerCarrierWithTrueClientDetails, writesObject))
-
-        result shouldBe expectedResult
+        await(underTest.submit(nino, "cis", mtditid)(headerCarrierWithTrueClientDetails, writesObject)) shouldBe expectedResult
       }
     }
 
     "there isn't a true client ip and port" should {
       "return the connector response" in {
-        val expectedResult: NrsSubmissionResponse = Right()
+        val expectedResult: NrsSubmissionResponse = Right(())
 
         (connector.postNrsConnector(_: String, _: String)(_: HeaderCarrier, _: Writes[String]))
           .expects(nino, "cis", headerCarrierWithSession.withExtraHeaders("mtditid" -> mtditid), writesObject)
           .returning(Future.successful(expectedResult))
 
-        val result = await(underTest.submit(nino, "cis", mtditid))
-
-        result shouldBe expectedResult
+        await(underTest.submit(nino, "cis", mtditid)) shouldBe expectedResult
       }
     }
   }

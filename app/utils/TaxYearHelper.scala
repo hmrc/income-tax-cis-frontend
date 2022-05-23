@@ -17,10 +17,11 @@
 package utils
 
 import common.SessionValues
-
-import java.time.LocalDate
 import play.api.mvc.Request
 
+import java.time.LocalDate
+
+// TODO: Should be tested
 trait TaxYearHelper extends SessionHelper {
 
   private val dateNow: LocalDate = LocalDate.now()
@@ -30,11 +31,11 @@ trait TaxYearHelper extends SessionHelper {
 
   val taxYearEOY: Int = taxYear - 1
 
-  def retrieveTaxYearList(implicit request: Request[_]): Seq[Int] = {
+  def retrieveTaxYearList(implicit request: Request[_]): Seq[Int] =
     getFromSession(SessionValues.VALID_TAX_YEARS)(request).getOrElse("").split(',').toSeq.map(_.toInt)
-  }
 
   def firstClientTaxYear(implicit request: Request[_]): Int = retrieveTaxYearList.head
+
   def latestClientTaxYear(implicit request: Request[_]): Int = retrieveTaxYearList.last
 
   def singleValidTaxYear(implicit request: Request[_]): Boolean = firstClientTaxYear == latestClientTaxYear

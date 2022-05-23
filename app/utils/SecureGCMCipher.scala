@@ -43,13 +43,13 @@ class EncryptionDecryptionException(method: String, reason: String, message: Str
 @Singleton
 class SecureGCMCipher @Inject()(implicit private val appConfig: AppConfig) extends Logging {
 
-  val IV_SIZE = 96
-  val TAG_BIT_LENGTH = 128
+  private val IV_SIZE = 96
+  private val TAG_BIT_LENGTH = 128
   val ALGORITHM_TO_TRANSFORM_STRING = "AES/GCM/PKCS5Padding"
-  lazy val secureRandom = new SecureRandom()
+  private lazy val secureRandom = new SecureRandom()
   val ALGORITHM_KEY = "AES"
-  val METHOD_ENCRYPT = "encrypt"
-  val METHOD_DECRYPT = "decrypt"
+  private val METHOD_ENCRYPT = "encrypt"
+  private val METHOD_DECRYPT = "decrypt"
 
   private[utils] def getCipherInstance: Cipher = Cipher.getInstance(ALGORITHM_TO_TRANSFORM_STRING)
 
@@ -126,7 +126,7 @@ class SecureGCMCipher @Inject()(implicit private val appConfig: AppConfig) exten
 
   private def validateAssociatedText(associatedText: String, method: String): Array[Byte] = {
     associatedText match {
-      case text if text.length > 0 => text.getBytes
+      case text if text.nonEmpty => text.getBytes
       case _ => throw new EncryptionDecryptionException(method, "associated text must not be null", "associated text was not defined")
     }
   }
@@ -142,8 +142,8 @@ class SecureGCMCipher @Inject()(implicit private val appConfig: AppConfig) exten
       e.getMessage)
     case e: IllegalStateException => throw new EncryptionDecryptionException(method, "Cipher is in an illegal state", e.getMessage)
     case e: UnsupportedOperationException => throw new EncryptionDecryptionException(method, "Provider might not be supporting this method", e.getMessage)
-    case e: IllegalBlockSizeException => throw new EncryptionDecryptionException(method, "Error occured due to block size", e.getMessage)
-    case e: BadPaddingException => throw new EncryptionDecryptionException(method, "Error occured due to padding scheme", e.getMessage)
+    case e: IllegalBlockSizeException => throw new EncryptionDecryptionException(method, "Error occurred due to block size", e.getMessage)
+    case e: BadPaddingException => throw new EncryptionDecryptionException(method, "Error occurred due to padding scheme", e.getMessage)
     case _ => throw new EncryptionDecryptionException(method, "Unexpected exception", ex.getMessage)
   }
 }

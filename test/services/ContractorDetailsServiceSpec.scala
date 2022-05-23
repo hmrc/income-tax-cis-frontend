@@ -22,7 +22,6 @@ import support.builders.models.UserBuilder._
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockCISSessionService, MockCISUserDataRepository}
 import support.{TaxYearProvider, UnitTest}
-import utils.TestingClock
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
