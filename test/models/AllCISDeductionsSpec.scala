@@ -26,6 +26,15 @@ import java.time.Month
 
 class AllCISDeductionsSpec extends UnitTest {
 
+  "contractorPeriodsFor" should {
+    "get months for an employer" in {
+      anAllCISDeductions.contractorPeriodsFor(aCisDeductions.employerRef) shouldBe Seq(Month.MAY)
+    }
+    "return an empty list when no data" in {
+      anAllCISDeductions.contractorPeriodsFor("12345555") shouldBe Seq.empty
+    }
+  }
+
   ".endOfYearCisDeductions" should {
     "return customer data" in {
       val underTest = AllCISDeductions(

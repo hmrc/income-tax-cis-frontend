@@ -18,6 +18,7 @@ package models
 
 import java.time.Month
 
+import models.mongo.{CYAPeriodData, CisCYAModel}
 import support.UnitTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.PeriodDataBuilder.aPeriodData
@@ -77,6 +78,20 @@ class CisDeductionsSpec extends UnitTest {
       ))
 
       underTest.submissionId shouldBe None
+    }
+  }
+
+  "toCYA" should {
+    "return a cya model" in {
+      aCisDeductions.toCYA(None, Seq.empty) shouldBe CisCYAModel(
+        Some("ABC SteelWorks"),None,List(CYAPeriodData(Month.MAY,Some(450.0),Some(100.0),Some(true),Some(50.0),contractorSubmitted = false,Some(Month.MAY)))
+      )
+    }
+    "return a cya model when making an update to existing month" in {
+      aCisDeductions.toCYA(Some(Month.MAY), Seq(Month.MAY)) shouldBe CisCYAModel(
+        Some("ABC SteelWorks"),Some(CYAPeriodData(Month.MAY,Some(450.0),Some(100.0),Some(true),Some(50.0),contractorSubmitted = true,Some(Month.MAY)))
+        ,List(CYAPeriodData(Month.MAY,Some(450.0),Some(100.0),Some(true),Some(50.0),contractorSubmitted = true,Some(Month.MAY)))
+      )
     }
   }
 

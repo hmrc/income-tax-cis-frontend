@@ -23,6 +23,8 @@ import java.time.Month
 
 case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) extends Logging {
 
+  def contractorPeriodsFor(employerRef: String): Seq[Month] = cis.map(_.contractorPeriodsFor(employerRef)).getOrElse(Seq.empty)
+
   lazy val hasInYearCisDeductions: Boolean = cis.exists(_.inYearCisDeductions.nonEmpty)
 
   def inYearCisDeductionsWith(employerRef: String): Option[CisDeductions] =
@@ -36,6 +38,12 @@ case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) extends Loggi
 
   def hasInYearCisDeductionsWith(employerRef: String, month: Month): Boolean =
     inYearCisDeductionsWith(employerRef, month).nonEmpty
+
+  def endOfYearCisDeductionsWith(employerRef: String, month: Month): Option[CisDeductions] =
+    eoyCisDeductionsWith(employerRef).find(_.periodDataFor(month).nonEmpty)
+
+  def hasEoyCisDeductionsWith(employerRef: String, month: Month): Boolean =
+    endOfYearCisDeductionsWith(employerRef, month).nonEmpty
 
   def inYearPeriodDataWith(employerRef: String): Seq[PeriodData] =
     inYearCisDeductionsWith(employerRef)

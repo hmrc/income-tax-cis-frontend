@@ -19,6 +19,7 @@ package models.pages
 import java.time.Month
 
 import models.CisDeductions
+import models.mongo.CisUserData
 
 case class ContractorCYAPage(taxYear: Int,
                              isInYear: Boolean,
@@ -27,16 +28,20 @@ case class ContractorCYAPage(taxYear: Int,
                              month: Month,
                              labourAmount: Option[BigDecimal],
                              deductionAmount: Option[BigDecimal],
-                             costOfMaterials: Option[BigDecimal]) {
+                             costOfMaterials: Option[BigDecimal],
+                             isPriorSubmission: Boolean,
+                             isContractorDeduction: Boolean,
+                             isAgent: Boolean) {
 
   val hasPaidForMaterials: Boolean = costOfMaterials.isDefined
 }
 
 object ContractorCYAPage {
 
-  def mapToInYearPage(taxYear: Int,
-                      cisDeductions: CisDeductions,
-                      month: Month): ContractorCYAPage = {
+  def inYearMapToPageModel(taxYear: Int,
+                           cisDeductions: CisDeductions,
+                           month: Month,
+                           isAgent: Boolean): ContractorCYAPage = {
     val periodData = cisDeductions.periodData.find(item => item.deductionPeriod == month).get
 
     ContractorCYAPage(
@@ -47,7 +52,31 @@ object ContractorCYAPage {
       month = periodData.deductionPeriod,
       labourAmount = periodData.grossAmountPaid,
       deductionAmount = periodData.deductionAmount,
-      costOfMaterials = periodData.costOfMaterials
+      costOfMaterials = periodData.costOfMaterials,
+      isPriorSubmission = true,
+      isContractorDeduction = true,
+      isAgent = isAgent
+    )
+  }
+
+  def eoyMapToPageModel(taxYear: Int,
+                        cisUserData: CisUserData,
+                        isAgent: Boolean): ContractorCYAPage = {
+
+    val periodData = cisUserData.cis.periodData.get
+
+    ContractorCYAPage(
+      taxYear = taxYear,
+      isInYear = false,
+      contractorName = cisUserData.cis.contractorName,
+      employerRef = cisUserData.employerRef,
+      month = periodData.deductionPeriod,
+      labourAmount = periodData.grossAmountPaid,
+      deductionAmount = periodData.deductionAmount,
+      costOfMaterials = periodData.costOfMaterials,
+      isPriorSubmission = cisUserData.isPriorSubmission,
+      isContractorDeduction = periodData.contractorSubmitted,
+      isAgent = isAgent
     )
   }
 }

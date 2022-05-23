@@ -21,10 +21,9 @@ import play.api.libs.json.{Json, OFormat}
 case class CISSource(totalDeductionAmount: Option[BigDecimal],
                      totalCostOfMaterials: Option[BigDecimal],
                      totalGrossAmountPaid: Option[BigDecimal],
-                     cisDeductions: Seq[CisDeductions]) {
+                     cisDeductions: Seq[CisDeductions]){
 
-  def cisDeductionsWith(employerRef: String): Option[CisDeductions] =
-    cisDeductions.find(_.employerRef == employerRef)
+  def cisDeductionsWith(employerRef: String): Option[CisDeductions] = cisDeductions.find(_.employerRef == employerRef)
 }
 
 object CISSource {

@@ -18,7 +18,7 @@ package controllers
 
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
-import controllers.routes.MaterialsAmountController
+import controllers.routes.{ContractorCYAController, MaterialsAmountController}
 import forms.FormsProvider
 import models.pages.MaterialsPage
 import play.api.i18n.I18nSupport
@@ -54,10 +54,9 @@ class MaterialsController @Inject()(actionsProvider: ActionsProvider,
       yesNoValue => materialsService.saveQuestion(request.user, request.cisUserData, yesNoValue).map {
         case Left(_) => errorHandler.internalServerError()
         case Right(_) => if (yesNoValue) {
-          Redirect(MaterialsAmountController.show(taxYear, month, contractor))
+          Redirect(MaterialsAmountController.show(taxYear, month.toLowerCase, contractor))
         } else {
-          // TODO: The following should be updated to redirect to Check your CIS Deductions page
-          Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          Redirect(ContractorCYAController.show(taxYear,month.toLowerCase,contractor))
         }
       }
     )

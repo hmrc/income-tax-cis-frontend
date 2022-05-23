@@ -16,6 +16,8 @@
 
 package models.mongo
 
+import java.time.Month
+
 import models.User
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{Format, Json}
@@ -31,6 +33,8 @@ case class CisUserData(sessionId: String,
                        isPriorSubmission: Boolean,
                        cis: CisCYAModel,
                        lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)) {
+
+  def isCyaDataFor(month: Month): Boolean = cis.periodData.exists(_.deductionPeriod == month)
 
   lazy val hasPeriodData: Boolean = cis.periodData.nonEmpty
 

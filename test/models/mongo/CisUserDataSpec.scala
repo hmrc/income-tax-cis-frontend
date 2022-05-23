@@ -16,6 +16,8 @@
 
 package models.mongo
 
+import java.time.Month
+
 import org.joda.time.DateTime
 import org.scalamock.scalatest.MockFactory
 import support.UnitTest
@@ -45,6 +47,19 @@ class CisUserDataSpec extends UnitTest
       val underTest = aCisUserData.copy(cis = aCisCYAModel.copy(periodData = Some(aCYAPeriodData)))
 
       underTest.hasPeriodData shouldBe true
+    }
+  }
+
+  ".isCyaDataFor" should {
+    "return true if the current cya data has the same period data as the requested month" in {
+      val underTest = aCisUserData
+
+      underTest.isCyaDataFor(Month.MAY) shouldBe true
+    }
+    "return false if the current cya data does not have the same period data as the requested month" in {
+      val underTest = aCisUserData
+
+      underTest.isCyaDataFor(Month.NOVEMBER) shouldBe false
     }
   }
 

@@ -97,11 +97,17 @@ contractorCYAPage.buttonText = Return to contractor
 contractorCYAPage.lineItem.contractorDetails = Contractor details
 contractorCYAPage.lineItem.contractorDetails.name = Name: {0}
 contractorCYAPage.lineItem.contractorDetails.ern = ERN: {0}
+contractorCYAPage.lineItem.contractorDetails.hiddenText = Change contractor details
 contractorCYAPage.lineItem.endOfTaxMonth = End of tax month
+contractorCYAPage.lineItem.endOfTaxMonth.hiddenText = Change end of tax month
 contractorCYAPage.lineItem.labour = Labour
+contractorCYAPage.lineItem.labour.hiddenText = Change amount paid for labour
 contractorCYAPage.lineItem.cisDeduction = CIS deduction
+contractorCYAPage.lineItem.cisDeduction.hiddenText = Change CIS deduction
 contractorCYAPage.lineItem.paidForMaterials = Paid for materials
+contractorCYAPage.lineItem.paidForMaterials.hiddenText = Change whether paid for materials
 contractorCYAPage.lineItem.costOfMaterials = Cost of materials
+contractorCYAPage.lineItem.costOfMaterials.hiddenText = Change cost of materials
 
 #################       Labour Pay Page       #######################################
 labourPayPage.title.agent = How much did the contractor pay your client for labour?

@@ -17,23 +17,35 @@
 package controllers
 
 import actions.ActionsProvider
-import config.AppConfig
+import config.{AppConfig, ErrorHandler}
 import models.pages.ContractorSummaryPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.ContractorSummaryService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.{InYearUtil, SessionHelper}
 import views.html.ContractorSummaryView
 
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class ContractorSummaryController @Inject()(actionsProvider: ActionsProvider,
                                             pageView: ContractorSummaryView,
-                                            inYearUtil: InYearUtil)
-                                           (implicit mcc: MessagesControllerComponents, appConfig: AppConfig)
+                                            inYearUtil: InYearUtil,
+                                            contractorSummaryService: ContractorSummaryService,
+                                            errorHandler: ErrorHandler)
+                                           (implicit mcc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.userPriorDataFor(taxYear, contractor) { implicit request =>
     Ok(pageView(ContractorSummaryPage(taxYear, inYearUtil.inYear(taxYear), contractor, request.incomeTaxUserData)))
+  }
+
+  def addCisDeduction(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.userPriorDataFor(taxYear, contractor).async { implicit request =>
+    contractorSummaryService.saveCYAForNewCisDeduction(taxYear, contractor, request.incomeTaxUserData, request.user).map {
+      case Left(_) => errorHandler.internalServerError()
+      case Right(_) =>
+        Redirect(controllers.routes.DeductionPeriodController.show(taxYear, contractor))
+    }
   }
 }

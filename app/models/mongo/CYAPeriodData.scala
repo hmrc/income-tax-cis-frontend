@@ -31,14 +31,22 @@ case class CYAPeriodData(deductionPeriod: Month,
                          grossAmountPaid: Option[BigDecimal] = None,
                          deductionAmount: Option[BigDecimal] = None,
                          costOfMaterialsQuestion: Option[Boolean] = None,
-                         costOfMaterials: Option[BigDecimal] = None) {
+                         costOfMaterials: Option[BigDecimal] = None,
+                         contractorSubmitted: Boolean,
+                         originallySubmittedPeriod: Option[Month]) {
+
+  def isAnUpdateFor(month: Month): Boolean = {
+    originallySubmittedPeriod.contains(month)
+  }
 
   def encrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCYAPeriodData = EncryptedCYAPeriodData(
     deductionPeriod = deductionPeriod.encrypted,
     grossAmountPaid = grossAmountPaid.map(_.encrypted),
     deductionAmount = deductionAmount.map(_.encrypted),
     costOfMaterialsQuestion = costOfMaterialsQuestion.map(_.encrypted),
-    costOfMaterials = costOfMaterials.map(_.encrypted)
+    costOfMaterials = costOfMaterials.map(_.encrypted),
+    contractorSubmitted = contractorSubmitted.encrypted,
+    originallySubmittedPeriod = originallySubmittedPeriod.map(_.encrypted)
   )
 
   def isFinished: Boolean = {
@@ -66,14 +74,18 @@ case class EncryptedCYAPeriodData(deductionPeriod: EncryptedValue,
                                   grossAmountPaid: Option[EncryptedValue] = None,
                                   deductionAmount: Option[EncryptedValue] = None,
                                   costOfMaterialsQuestion: Option[EncryptedValue] = None,
-                                  costOfMaterials: Option[EncryptedValue] = None) {
+                                  costOfMaterials: Option[EncryptedValue] = None,
+                                  contractorSubmitted: EncryptedValue,
+                                  originallySubmittedPeriod: Option[EncryptedValue] = None) {
 
   def decrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CYAPeriodData = CYAPeriodData(
     deductionPeriod = deductionPeriod.decrypted[Month],
     grossAmountPaid = grossAmountPaid.map(_.decrypted[BigDecimal]),
     deductionAmount = deductionAmount.map(_.decrypted[BigDecimal]),
     costOfMaterialsQuestion = costOfMaterialsQuestion.map(_.decrypted[Boolean]),
-    costOfMaterials = costOfMaterials.map(_.decrypted[BigDecimal])
+    costOfMaterials = costOfMaterials.map(_.decrypted[BigDecimal]),
+    contractorSubmitted = contractorSubmitted.decrypted[Boolean],
+    originallySubmittedPeriod = originallySubmittedPeriod.map(_.decrypted[Month])
   )
 }
 

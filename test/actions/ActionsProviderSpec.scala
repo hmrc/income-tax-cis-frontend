@@ -52,6 +52,27 @@ class ActionsProviderSpec extends ControllerUnitTest
 
   private val validTaxYears = validTaxYearList.mkString(",")
 
+  ".checkCyaExistsAndReturnSessionData" should {
+    "redirect to UnauthorisedUserErrorController when authentication fails" in {
+      mockFailToAuthenticate()
+
+      val underTest = actionsProvider.checkCyaExistsAndReturnSessionData(taxYearEOY, aCisDeductions.employerRef, "may")(block = anyBlock)
+
+      await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString,
+        SessionValues.VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
+    }
+
+    "get session data" in {
+      mockAuthAsIndividual(Some(aUser.nino))
+      mockCheckCyaAndReturnData(taxYearEOY, employerRef = aCisDeductions.employerRef, Month.MAY, result = Right(Some(aCisUserData)))
+
+      val underTest = actionsProvider.checkCyaExistsAndReturnSessionData(taxYearEOY, aCisDeductions.employerRef, "may")(block = anyBlock)
+
+      status(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString,
+        SessionValues.VALID_TAX_YEARS -> validTaxYears))) shouldBe OK
+    }
+  }
+
   ".priorCisDeductionsData" should {
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()
@@ -221,6 +242,52 @@ class ActionsProviderSpec extends ControllerUnitTest
       mockGetPriorData(taxYearEOY, aUser, Right(IncomeTaxUserData(cis = Some(allCISDeductions))))
 
       val underTest = actionsProvider.userPriorDataFor(taxYearEOY, contractor = "some-ref")(block = anyBlock)
+
+      status(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, SessionValues.VALID_TAX_YEARS -> validTaxYears))) shouldBe OK
+    }
+  }
+
+  ".userPriorDataFor(taxYear, contractor, month)" should {
+    "redirect to UnauthorisedUserErrorController when authentication fails" in {
+      mockFailToAuthenticate()
+
+      val underTest = actionsProvider.userPriorDataFor(taxYearEOY, contractor = "any-contractor", "may")(block = anyBlock)
+
+      await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString,
+        SessionValues.VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
+    }
+
+    "handle internal server error when getPriorData result in error" in {
+      mockAuthAsIndividual(Some(aUser.nino))
+      mockGetPriorData(taxYear, aUser, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
+      mockHandleError(INTERNAL_SERVER_ERROR, InternalServerError)
+
+      val underTest = actionsProvider.userPriorDataFor(taxYear, contractor = "some-ref", "may")(block = anyBlock)
+
+      await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString,
+        SessionValues.VALID_TAX_YEARS -> validTaxYears))) shouldBe InternalServerError
+    }
+
+    "return successful response when in year" in {
+      val deductions = aCisDeductions.copy(employerRef = "some-ref")
+      val allCISDeductions = anAllCISDeductions.copy(customerCISDeductions = None, contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
+
+      mockAuthAsIndividual(Some(aUser.nino))
+      mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(allCISDeductions))))
+
+      val underTest = actionsProvider.userPriorDataFor(taxYear, contractor = "some-ref", "may")(block = anyBlock)
+
+      status(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString, SessionValues.VALID_TAX_YEARS -> validTaxYears))) shouldBe OK
+    }
+
+    "return successful response when end of year" in {
+      val deductions = aCisDeductions.copy(employerRef = "some-ref")
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = None, customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
+
+      mockAuthAsIndividual(Some(aUser.nino))
+      mockGetPriorData(taxYearEOY, aUser, Right(IncomeTaxUserData(cis = Some(allCISDeductions))))
+
+      val underTest = actionsProvider.userPriorDataFor(taxYearEOY, contractor = "some-ref", "may")(block = anyBlock)
 
       status(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, SessionValues.VALID_TAX_YEARS -> validTaxYears))) shouldBe OK
     }

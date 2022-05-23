@@ -36,7 +36,7 @@ class DeductionAmountServiceSpec extends UnitTest
       val periodData: CYAPeriodData = aCYAPeriodData.copy(deductionAmount = Some(123))
       val updatedCYA = aCisUserData.cis.copy(periodData = Some(periodData))
 
-      mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(aCisUserData))
+      mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(DataNotUpdatedError))
 
       await(underTest.saveAmount(aUser, aCisUserData, amount = 123)) shouldBe Left(DataNotUpdatedError)
     }

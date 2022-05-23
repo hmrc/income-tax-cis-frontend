@@ -16,6 +16,7 @@
 
 package controllers
 
+import common.SessionValues
 import controllers.routes.DeductionPeriodController
 import forms.ContractorDetailsForm
 import models.forms.ContractorDetailsFormData
@@ -111,7 +112,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
 
         await(underTest.submit(taxYear = taxYearEOY, contractor = None)(fakeIndividualRequest.withFormUrlEncodedBody(
           ContractorDetailsForm.contractorName -> "some-name", ContractorDetailsForm.employerReferenceNumber -> "123/45678"))) shouldBe
-          Redirect(DeductionPeriodController.show(taxYearEOY, "123/45678"))
+          Redirect(DeductionPeriodController.show(taxYearEOY, "123/45678")).addingToSession(SessionValues.TEMP_EMPLOYER_REF -> "123/45678")(fakeIndividualRequest)
       }
 
       "contractor provided" in {
@@ -120,7 +121,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
 
         await(underTest.submit(taxYear = taxYearEOY, contractor = Some("123/45678"))(fakeIndividualRequest.withFormUrlEncodedBody(
           ContractorDetailsForm.contractorName -> "some-name", ContractorDetailsForm.employerReferenceNumber -> "123/45678"))) shouldBe
-          Redirect(DeductionPeriodController.show(taxYearEOY, "123/45678"))
+          Redirect(DeductionPeriodController.show(taxYearEOY, "123/45678")).addingToSession(SessionValues.TEMP_EMPLOYER_REF -> "123/45678")(fakeIndividualRequest)
       }
     }
   }

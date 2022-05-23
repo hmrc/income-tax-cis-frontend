@@ -23,14 +23,15 @@ import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.MockCISSessionService
-import support.{TaxYearProvider, UnitTest}
+import support.{FakeRequestHelper, TaxYearProvider, UnitTest}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class DeductionPeriodServiceSpec extends UnitTest
   with MockCISSessionService
-  with TaxYearProvider {
+  with TaxYearProvider
+  with FakeRequestHelper {
 
   implicit private val hc: HeaderCarrier = HeaderCarrier()
 
@@ -40,7 +41,7 @@ class DeductionPeriodServiceSpec extends UnitTest
 
   ".submitDeductionPeriod" should {
     "submit and save the data" in {
-      val default = CYAPeriodData(deductionPeriod = Month.JANUARY)
+      val default = CYAPeriodData(deductionPeriod = Month.JANUARY, contractorSubmitted = false, originallySubmittedPeriod = None)
       val cya = aCisUserData.cis
       val periodData = cya.periodData.map(_.copy(deductionPeriod = Month.JANUARY)).getOrElse(default)
       val updatedCYA = cya.copy(periodData = Some(periodData))
@@ -48,15 +49,15 @@ class DeductionPeriodServiceSpec extends UnitTest
       mockGetSessionData(taxYearEOY, aUser, aCisDeductions.employerRef, Right(Some(aCisUserData)))
       mockCreateOrUpdateCISUserData(taxYearEOY, aUser, aCisDeductions.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Right(aCisUserData))
 
-      await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY)) shouldBe Right(aCisUserData)
+      await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY, None)) shouldBe Right(aCisUserData)
     }
     "handle not getting data" in {
       mockGetSessionData(taxYearEOY, aUser, aCisDeductions.employerRef, Right(None))
 
-      await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY)) shouldBe Left(DataNotFoundError)
+      await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY, None)) shouldBe Left(DataNotFoundError)
     }
     "handle not saving the data" in {
-      val default = CYAPeriodData(deductionPeriod = Month.JANUARY)
+      val default = CYAPeriodData(deductionPeriod = Month.JANUARY, contractorSubmitted = false, originallySubmittedPeriod = None)
       val cya = aCisUserData.cis
       val periodData = cya.periodData.map(_.copy(deductionPeriod = Month.JANUARY)).getOrElse(default)
       val updatedCYA = cya.copy(periodData = Some(periodData))
@@ -64,7 +65,7 @@ class DeductionPeriodServiceSpec extends UnitTest
       mockGetSessionData(taxYearEOY, aUser, aCisDeductions.employerRef, Right(Some(aCisUserData)))
       mockCreateOrUpdateCISUserData(taxYearEOY, aUser, aCisDeductions.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(DataNotUpdatedError))
 
-      await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY)) shouldBe Left(DataNotUpdatedError)
+      await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY, None)) shouldBe Left(DataNotUpdatedError)
     }
   }
 }

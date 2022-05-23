@@ -16,7 +16,7 @@
 
 package views
 
-import controllers.routes.ContractorSummaryController
+import controllers.routes.{ContractorCYAController, ContractorSummaryController}
 import models.UserPriorDataRequest
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -34,10 +34,13 @@ class ContractorCYAViewSpec extends ViewUnitTest {
     val paragraphTextSelector = "#main-content > div > div > p.govuk-body"
     val insetTextSelector = "#main-content > div > div > div.govuk-inset-text"
     val buttonSelector = "#return-to-contractor-button-id"
+    val saveButtonSelector = "#save-and-continue-button-id"
 
     def summaryListLabel(rowId: Int): String = s"div.govuk-summary-list__row:nth-child($rowId) > dt:nth-child(1)"
 
-    def summaryListValue(rowId: Int): String = s"div.govuk-summary-list__row:nth-child($rowId) > dd:nth-child(2)"
+    def summaryListValue(rowId: Int, cell: Int = 2): String = s"div.govuk-summary-list__row:nth-child($rowId) > dd:nth-child($cell)"
+
+    def summaryListLinksSelector(row: Int, cell: Int): String = s"div.govuk-summary-list__row:nth-child($row) > dd:nth-child($cell) > a:nth-child(1)"
 
     def summaryListHiddenValue(rowId: Int): String = s"div.govuk-summary-list__row:nth-child($rowId) > dd:nth-child(2) > span:nth-child(1)"
   }
@@ -53,6 +56,14 @@ class ContractorCYAViewSpec extends ViewUnitTest {
     val expectedPaidForMaterials: String
     val expectedCostOfMaterials: String
     val expectedButtonText: String
+    val expectedSaveButtonText: String
+    val contractorDetailsHiddenText: String
+    val periodHiddenText: String
+    val labourHiddenText: String
+    val cisDeductionsHiddenText: String
+    val paidForMaterialsHiddenText: String
+    val materialsHiddenText: String
+    val changeHiddenText: String
   }
 
   trait SpecificExpectedResults {
@@ -73,6 +84,14 @@ class ContractorCYAViewSpec extends ViewUnitTest {
     override val expectedPaidForMaterials: String = "Paid for materials"
     override val expectedCostOfMaterials: String = "Cost of materials"
     override val expectedButtonText: String = "Return to contractor"
+    val expectedSaveButtonText: String = "Save and continue"
+    val changeHiddenText: String = "Change"
+    val contractorDetailsHiddenText: String = "Change contractor details"
+    val periodHiddenText: String = "Change end of tax month"
+    val labourHiddenText: String = "Change amount paid for labour"
+    val cisDeductionsHiddenText: String = "Change CIS deduction"
+    val paidForMaterialsHiddenText: String = "Change whether paid for materials"
+    val materialsHiddenText: String = "Change cost of materials"
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
@@ -86,6 +105,14 @@ class ContractorCYAViewSpec extends ViewUnitTest {
     override val expectedPaidForMaterials: String = "Paid for materials"
     override val expectedCostOfMaterials: String = "Cost of materials"
     override val expectedButtonText: String = "Return to contractor"
+    val expectedSaveButtonText: String = "Save and continue"
+    val changeHiddenText: String = "Change"
+    val contractorDetailsHiddenText: String = "Change contractor details"
+    val periodHiddenText: String = "Change end of tax month"
+    val labourHiddenText: String = "Change amount paid for labour"
+    val cisDeductionsHiddenText: String = "Change CIS deduction"
+    val paidForMaterialsHiddenText: String = "Change whether paid for materials"
+    val materialsHiddenText: String = "Change cost of materials"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -128,12 +155,60 @@ class ContractorCYAViewSpec extends ViewUnitTest {
 
   userScenarios.foreach { userScenario =>
     s"language is ${welshTest(userScenario.isWelsh)} and request is from an ${agentTest(userScenario.isAgent)}" should {
+      "render end of year version of Check your CIS deductions page" which {
+        "full model" which {
+          implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
+          implicit val messages: Messages = getMessages(userScenario.isWelsh)
+
+          implicit val document: Document = Jsoup.parse(underTest(aContractorCYAPage.copy(isAgent = userScenario.isAgent, isInYear = false)).body)
+
+          welshToggleCheck(userScenario.isWelsh)
+          titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+          captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
+          h1Check(userScenario.specificExpectedResults.get.expectedH1)
+          textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1, Selectors.paragraphTextSelector)
+          textOnPageCheck(userScenario.commonExpectedResults.expectedContractorDetails, selector = Selectors.summaryListLabel(rowId = 1))
+          val contractorNamePart = userScenario.commonExpectedResults.expectedContractorDetailsNameValue(aContractorCYAPage.contractorName.get) + " "
+          val contractorRefPart = userScenario.commonExpectedResults.expectedContractorDetailsERNValue(aContractorCYAPage.employerRef)
+          textOnPageCheck(contractorNamePart + contractorRefPart, selector = Selectors.summaryListValue(rowId = 1))
+          linkCheck(userScenario.commonExpectedResults.changeHiddenText + " " +
+            userScenario.commonExpectedResults.contractorDetailsHiddenText, Selectors.summaryListLinksSelector(row = 1, 3),
+            controllers.routes.ContractorDetailsController.show(taxYear,Some(aContractorCYAPage.employerRef)).url, additionalTestText = "(first row)")
+          textOnPageCheck(userScenario.commonExpectedResults.expectedEndOfTaxMonth, selector = Selectors.summaryListLabel(rowId = 2))
+          linkCheck(userScenario.commonExpectedResults.changeHiddenText + " " +
+            userScenario.commonExpectedResults.periodHiddenText, Selectors.summaryListLinksSelector(row = 2, 3),
+            controllers.routes.DeductionPeriodController.show(taxYear,aContractorCYAPage.employerRef).url, additionalTestText = "(2nd row)")
+          textOnPageCheck(text = "5 " + translatedMonthAndTaxYear(aContractorCYAPage.month, taxYear), selector = Selectors.summaryListValue(rowId = 2))
+          textOnPageCheck(userScenario.commonExpectedResults.expectedLabour, selector = Selectors.summaryListLabel(rowId = 3))
+          linkCheck(userScenario.commonExpectedResults.changeHiddenText + " " +
+            userScenario.commonExpectedResults.labourHiddenText, Selectors.summaryListLinksSelector(row = 3, 3),
+            controllers.routes.LabourPayController.show(taxYear,aContractorCYAPage.month.toString.toLowerCase,aContractorCYAPage.employerRef).url, additionalTestText = "(3rd row)")
+          textOnPageCheck(text = "£100", selector = Selectors.summaryListValue(rowId = 3), additionalTestText = "expectedLabour")
+          textOnPageCheck(userScenario.commonExpectedResults.expectedCISDeduction, selector = Selectors.summaryListLabel(rowId = 4))
+          linkCheck(userScenario.commonExpectedResults.changeHiddenText + " " +
+            userScenario.commonExpectedResults.cisDeductionsHiddenText, Selectors.summaryListLinksSelector(row = 4, 3),
+            controllers.routes.DeductionAmountController.show(taxYear,aContractorCYAPage.month.toString.toLowerCase,aContractorCYAPage.employerRef).url, additionalTestText = "(4th row)")
+          textOnPageCheck(text = "£200", selector = Selectors.summaryListValue(rowId = 4), additionalTestText = "expectedCISDeduction")
+          textOnPageCheck(userScenario.commonExpectedResults.expectedPaidForMaterials, selector = Selectors.summaryListLabel(rowId = 5))
+          linkCheck(userScenario.commonExpectedResults.changeHiddenText + " " +
+            userScenario.commonExpectedResults.paidForMaterialsHiddenText, Selectors.summaryListLinksSelector(row = 5, 3),
+            controllers.routes.MaterialsController.show(taxYear,aContractorCYAPage.month.toString.toLowerCase,aContractorCYAPage.employerRef).url, additionalTestText = "(5th row)")
+          textOnPageCheck(text = "Yes", selector = Selectors.summaryListValue(rowId = 5))
+          textOnPageCheck(userScenario.commonExpectedResults.expectedCostOfMaterials, selector = Selectors.summaryListLabel(rowId = 6))
+          linkCheck(userScenario.commonExpectedResults.changeHiddenText + " " +
+            userScenario.commonExpectedResults.materialsHiddenText, Selectors.summaryListLinksSelector(row = 6, 3),
+            controllers.routes.MaterialsAmountController.show(taxYear,aContractorCYAPage.month.toString.toLowerCase,aContractorCYAPage.employerRef).url, additionalTestText = "(6th row)")
+          textOnPageCheck(text = "£300", selector = Selectors.summaryListValue(rowId = 6), additionalTestText = "Cost of materials ")
+          buttonCheck(userScenario.commonExpectedResults.expectedSaveButtonText, Selectors.saveButtonSelector)
+        }
+      }
+
       "render in year version of Check your CIS deductions page" which {
         "full model" which {
           implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
           implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
-          implicit val document: Document = Jsoup.parse(underTest(aContractorCYAPage).body)
+          implicit val document: Document = Jsoup.parse(underTest(aContractorCYAPage.copy(isAgent = userScenario.isAgent)).body)
 
           welshToggleCheck(userScenario.isWelsh)
           titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
@@ -167,7 +242,8 @@ class ContractorCYAViewSpec extends ViewUnitTest {
             contractorName = None,
             labourAmount = None,
             deductionAmount = None,
-            costOfMaterials = None
+            costOfMaterials = None,
+            isAgent = userScenario.isAgent
           )
 
           implicit val document: Document = Jsoup.parse(underTest(pageModel).body)

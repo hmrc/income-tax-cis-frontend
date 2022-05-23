@@ -212,7 +212,8 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
             userScenario.commonExpectedResults.hiddenText2(userScenario.commonExpectedResults.changeText, taxYearEOY), Selectors.summaryListLinksSelector(row = 2, cell = 2),
             ContractorCYAController.show(taxYearEOY, FEBRUARY.toString.toLowerCase, employerRef).url, additionalTestText = "(second row)")
           elementNotOnPageCheck(Selectors.summaryListValueSelector(row = 2, cell = 3))
-          linkCheck(userScenario.commonExpectedResults.expectedAddAnotherLinkText, Selectors.addAnotherLink, href = controllers.routes.ContractorDetailsController.show(taxYearEOY, None).url)
+          linkCheck(userScenario.commonExpectedResults.expectedAddAnotherLinkText, Selectors.addAnotherLink,
+            href = controllers.routes.ContractorSummaryController.addCisDeduction(taxYearEOY,employerRef).url)
         }
 
         "render the in year contractor summary page with an alternative heading when there's no contractor name" which {

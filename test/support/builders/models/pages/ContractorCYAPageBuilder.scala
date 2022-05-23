@@ -31,6 +31,9 @@ object ContractorCYAPageBuilder {
     month = Month.MAY,
     labourAmount = Some(100),
     deductionAmount = Some(200),
-    costOfMaterials = Some(300)
+    costOfMaterials = Some(300),
+    isPriorSubmission = false,
+    isContractorDeduction = false,
+    isAgent = false
   )
 }

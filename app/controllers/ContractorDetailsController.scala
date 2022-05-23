@@ -18,6 +18,7 @@ package controllers
 
 import actions.ActionsProvider
 import com.google.inject.Inject
+import common.SessionValues
 import config.{AppConfig, ErrorHandler}
 import controllers.routes.DeductionPeriodController
 import forms.ContractorDetailsForm.contractorDetailsForm
@@ -66,7 +67,8 @@ class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
         Future(BadRequest(contractorDetailsView(ContractorDetailsPage(taxYear, user.isAgent, formWithErrors, optCisUserData.map(_.employerRef))))),
       formData => contractorDetailsService.saveContractorDetails(taxYear, user, optCisUserData, formData).map {
         case Left(_) => errorHandler.internalServerError()
-        case Right(_) => Redirect(DeductionPeriodController.show(taxYear, optCisUserData.map(_.employerRef).getOrElse(formData.employerReferenceNumber)))
+        case Right(_) => Redirect(DeductionPeriodController.show(taxYear, formData.employerReferenceNumber))
+          .addingToSession(SessionValues.TEMP_EMPLOYER_REF -> formData.employerReferenceNumber)
       }
     )
   }

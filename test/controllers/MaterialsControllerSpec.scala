@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.routes.MaterialsAmountController
+import controllers.routes.{ContractorCYAController, MaterialsAmountController}
 import forms.{FormsProvider, YesNoForm}
 import models.mongo.DataNotFoundError
 import org.jsoup.Jsoup
@@ -28,8 +28,10 @@ import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockActionsProvider, MockMaterialsService}
 import views.html.MaterialsView
-
 import java.time.Month
+
+import support.builders.models.CisDeductionsBuilder.aCisDeductions
+import support.builders.models.PeriodDataBuilder.aPeriodData
 
 class MaterialsControllerSpec extends ControllerUnitTest
   with MockActionsProvider
@@ -81,7 +83,7 @@ class MaterialsControllerSpec extends ControllerUnitTest
       mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Right(()))
 
       await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "true"))) shouldBe
-        Redirect(MaterialsAmountController.show(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef))
+        Redirect(MaterialsAmountController.show(taxYearEOY, Month.MAY.toString.toLowerCase, contractor = aCisUserData.employerRef))
     }
 
     "redirect to Income Tax Submission Overview when No submitted successfully" in {
@@ -89,7 +91,7 @@ class MaterialsControllerSpec extends ControllerUnitTest
       mockSaveQuestion(aUser, aCisUserData, questionValue = false, result = Right(()))
 
       await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "false"))) shouldBe
-        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY))
+        Redirect(ContractorCYAController.show(taxYearEOY,aPeriodData.deductionPeriod.toString.toLowerCase,aCisDeductions.employerRef))
     }
   }
 }

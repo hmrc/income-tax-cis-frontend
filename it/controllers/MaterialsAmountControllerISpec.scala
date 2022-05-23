@@ -28,6 +28,7 @@ import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.ViewHelpers
+import controllers.routes._
 
 class MaterialsAmountControllerISpec extends IntegrationTest
   with ViewHelpers
@@ -93,7 +94,7 @@ class MaterialsAmountControllerISpec extends IntegrationTest
       }
 
       result.status shouldBe SEE_OTHER
-      result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
+      result.headers("Location").head shouldBe ContractorCYAController.show(taxYearEOY,aPeriodData.deductionPeriod.toString.toLowerCase,aCisDeductions.employerRef).url
       findCyaData(taxYearEOY, aCisDeductions.employerRef, aUser).get.cis.periodData.get.costOfMaterials shouldBe Some(123.23)
     }
   }

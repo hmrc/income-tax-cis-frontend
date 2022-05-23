@@ -27,6 +27,8 @@ object CYAPeriodDataBuilder {
     grossAmountPaid = Some(500.00),
     deductionAmount = Some(100.00),
     costOfMaterialsQuestion = Some(true),
-    costOfMaterials = Some(250.00)
+    costOfMaterials = Some(250.00),
+    contractorSubmitted = false,
+    originallySubmittedPeriod = Some(Month.MAY)
   )
 }

@@ -22,7 +22,7 @@
 @import models.pages.ContractorSummaryPage
 @import views.html.templates.helpers.Link
 @import controllers.routes.ContractorCYAController
-@import controllers.routes.ContractorDetailsController
+@import controllers.routes.ContractorSummaryController
 @import controllers.routes.DeductionsSummaryController
 
 @this(
@@ -78,7 +78,7 @@
     }
 
     @if(!pageModel.isInYear) {
-        <p class="govuk-body">@link(ContractorDetailsController.show(pageModel.taxYear, None).url, "contractorSummary.addAnother.link", Some("add-another-link"))</p>
+        <p class="govuk-body">@link(ContractorSummaryController.addCisDeduction(pageModel.taxYear, pageModel.employerRef).url, "contractorSummary.addAnother.link", Some("add-another-link"))</p>
     }
 
     @button(alternativeText = "contractorSummary.buttonText", attributes = Map("id" -> "return-to-summary-button-id"), href = Some(DeductionsSummaryController.show(pageModel.taxYear).url))
