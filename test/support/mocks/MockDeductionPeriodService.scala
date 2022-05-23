@@ -21,8 +21,9 @@ import java.time.Month
 import models.{ServiceError, User}
 import models.mongo.{CisUserData, DatabaseError}
 import models.pages.DeductionPeriodPage
-import org.scalamock.handlers.{CallHandler3, CallHandler4}
+import org.scalamock.handlers.{CallHandler3, CallHandler4, CallHandler5}
 import org.scalamock.scalatest.MockFactory
+import play.api.mvc.Request
 import services.DeductionPeriodService
 
 import scala.concurrent.Future
@@ -36,9 +37,9 @@ trait MockDeductionPeriodService extends MockFactory {
                        user: User,
                        month: Month,
                        result: Either[ServiceError, CisUserData]
-                      ): CallHandler4[Int, String, User, Month, Future[Either[ServiceError, CisUserData]]] = {
-    (mockDeductionPeriodService.submitDeductionPeriod(_: Int, _: String, _: User, _: Month))
-      .expects(taxYear, employerRef, user, month)
+                      ): CallHandler5[Int, String, User, Month, Option[String], Future[Either[ServiceError, CisUserData]]] = {
+    (mockDeductionPeriodService.submitDeductionPeriod(_: Int, _: String, _: User, _: Month, _: Option[String]))
+      .expects(taxYear, employerRef, user, month, *)
       .returns(Future.successful(result))
   }
 

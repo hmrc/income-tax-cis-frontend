@@ -16,10 +16,13 @@
 
 package support.mocks
 
+import java.time.Month
+
 import models.mongo.{CisCYAModel, CisUserData, DatabaseError}
 import models.{HttpParserError, IncomeTaxUserData, ServiceError, User}
 import org.scalamock.handlers.{CallHandler3, CallHandler4, CallHandler6}
 import org.scalamock.scalatest.MockFactory
+import play.api.mvc.Request
 import services.CISSessionService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -38,13 +41,20 @@ trait MockCISSessionService extends MockFactory {
       .returns(Future.successful(result))
   }
 
+  def mockClear(taxYear: Int, employerRef: String,
+                result: Either[ServiceError,Unit]): CallHandler3[User, String, Int, Future[Either[ServiceError, Unit]]] = {
+    (mockCISSessionService.clear( _: User, _: String, _: Int))
+      .expects(*, employerRef, taxYear)
+      .returning(Future.successful(result))
+  }
+
   def mockGetSessionData(taxYear: Int,
                          user: User,
                          employerRef: String,
                          result: Either[DatabaseError, Option[CisUserData]]
-                        ): CallHandler3[Int, String, User, Future[Either[DatabaseError, Option[CisUserData]]]] = {
-    (mockCISSessionService.getSessionData(_: Int, _: String, _: User))
-      .expects(taxYear, employerRef, user)
+                        ): CallHandler4[Int, String, User, Option[String], Future[Either[DatabaseError, Option[CisUserData]]]] = {
+    (mockCISSessionService.getSessionData(_: Int, _: String, _: User, _: Option[String]))
+      .expects(taxYear, employerRef, user, *)
       .returns(Future.successful(result))
   }
 
@@ -54,20 +64,20 @@ trait MockCISSessionService extends MockFactory {
                                     submissionId: Option[String],
                                     isPriorSubmission: Boolean,
                                     cisCYAModel: CisCYAModel,
-                                    result: Either[Unit, CisUserData]
-                                   ): CallHandler6[User, Int, String, Option[String], Boolean, CisCYAModel, Future[Either[Unit, CisUserData]]] = {
+                                    result: Either[DatabaseError, CisUserData]
+                                   ): CallHandler6[User, Int, String, Option[String], Boolean, CisCYAModel, Future[Either[DatabaseError, CisUserData]]] = {
     (mockCISSessionService.createOrUpdateCISUserData(_: User, _: Int, _: String, _: Option[String], _: Boolean, _: CisCYAModel))
       .expects(user, taxYear, employerRef, submissionId, isPriorSubmission, cisCYAModel)
       .returns(Future.successful(result))
   }
 
-  def mockGetPriorAndMakeCYA(taxYear: Int,
-                             employerRef: String,
-                             user: User,
-                             result: Either[ServiceError, CisUserData]
-                            ): CallHandler4[Int, String, User, HeaderCarrier, Future[Either[ServiceError, CisUserData]]] = {
-    (mockCISSessionService.getPriorAndMakeCYA(_: Int, _: String, _: User)(_: HeaderCarrier))
-      .expects(taxYear, employerRef, user, *)
+  def mockCheckCyaAndReturnData(taxYear: Int,
+                                employerRef: String,
+                                month: Month,
+                                result: Either[ServiceError, Option[CisUserData]]
+                               ): CallHandler6[Int, String, User, Month, Option[String], HeaderCarrier, Future[Either[ServiceError, Option[CisUserData]]]] = {
+    (mockCISSessionService.checkCyaAndReturnData(_: Int, _: String, _: User, _: Month, _: Option[String])(_: HeaderCarrier))
+      .expects(taxYear, employerRef, *, month, *, *)
       .returns(Future.successful(result))
   }
 }

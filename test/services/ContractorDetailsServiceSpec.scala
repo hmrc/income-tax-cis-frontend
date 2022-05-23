@@ -33,7 +33,7 @@ class ContractorDetailsServiceSpec extends UnitTest
 
   private val formData = new ContractorDetailsFormData(contractorName = "some-name", employerReferenceNumber = "some-ref")
 
-  private val underTest = new ContractorDetailsService(mockCISSessionService, mockCisUserDataRepository, TestingClock)
+  private val underTest = new ContractorDetailsService(mockCISSessionService, mockCisUserDataRepository)
 
   ".saveContractorDetails" should {
     "return DataNotUpdatedError when cisSessionService.createOrUpdateCISUserData returns error" in {
@@ -42,7 +42,13 @@ class ContractorDetailsServiceSpec extends UnitTest
       mockClear(taxYear, aCisUserData.employerRef, result = true)
       mockCreateOrUpdateCISUserData(taxYear, aUser, employerRef = "some-ref", aCisUserData.submissionId, aCisUserData.isPriorSubmission, newCisCYAModel, Left(DataNotUpdatedError))
 
-      underTest.saveContractorDetails(taxYear, aUser, Some(aCisUserData), formData)
+      await(underTest.saveContractorDetails(taxYear, aUser, Some(aCisUserData), formData)) shouldBe Left(DataNotUpdatedError)
+    }
+
+    "return DataNotUpdatedError when clear returns error" in {
+      mockClear(taxYear, aCisUserData.employerRef, result = false)
+
+      await(underTest.saveContractorDetails(taxYear, aUser, Some(aCisUserData), formData)) shouldBe Left(DataNotUpdatedError)
     }
 
     "persist updated CisUserData when previous exists when" when {
@@ -52,7 +58,7 @@ class ContractorDetailsServiceSpec extends UnitTest
         mockClear(taxYear, aCisUserData.employerRef, result = true)
         mockCreateOrUpdateCISUserData(taxYear, aUser, employerRef = "some-ref", aCisUserData.submissionId, aCisUserData.isPriorSubmission, newCisCYAModel, Right(aCisUserData))
 
-        underTest.saveContractorDetails(taxYear, aUser, Some(aCisUserData), formData)
+        await(underTest.saveContractorDetails(taxYear, aUser, Some(aCisUserData), formData)) shouldBe Right(())
       }
 
       "employerRef is not updated" in {
@@ -61,7 +67,7 @@ class ContractorDetailsServiceSpec extends UnitTest
 
         mockCreateOrUpdateCISUserData(taxYear, aUser, employerRef = aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, newCisCYAModel, Right(aCisUserData))
 
-        underTest.saveContractorDetails(taxYear, aUser, Some(aCisUserData), formDataWithSameEmployerRef)
+        await(underTest.saveContractorDetails(taxYear, aUser, Some(aCisUserData), formDataWithSameEmployerRef)) shouldBe Right(())
       }
     }
 
@@ -70,7 +76,7 @@ class ContractorDetailsServiceSpec extends UnitTest
 
       mockCreateOrUpdateCISUserData(taxYear, aUser, employerRef = "some-ref", None, isPriorSubmission = false, newCisCYAModel, Right(aCisUserData))
 
-      underTest.saveContractorDetails(taxYear, aUser, None, formData)
+      await(underTest.saveContractorDetails(taxYear, aUser, None, formData)) shouldBe Right(())
     }
   }
 }

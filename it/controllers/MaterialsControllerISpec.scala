@@ -97,7 +97,7 @@ class MaterialsControllerISpec extends IntegrationTest
       }
 
       result.status shouldBe SEE_OTHER
-      result.headers("Location").head shouldBe MaterialsAmountController.show(taxYearEOY, aPeriodData.deductionPeriod.toString, aCisDeductions.employerRef).url
+      result.headers("Location").head shouldBe MaterialsAmountController.show(taxYearEOY, aPeriodData.deductionPeriod.toString.toLowerCase, aCisDeductions.employerRef).url
       findCyaData(taxYearEOY, aCisDeductions.employerRef, aUser).get.cis.periodData.get.costOfMaterialsQuestion shouldBe Some(true)
     }
   }

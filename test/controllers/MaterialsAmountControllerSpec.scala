@@ -29,8 +29,11 @@ import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockActionsProvider, MockMaterialsService}
 import views.html.MaterialsAmountView
-
 import java.time.Month
+
+import controllers.routes.ContractorCYAController
+import support.builders.models.CisDeductionsBuilder.aCisDeductions
+import support.builders.models.PeriodDataBuilder.aPeriodData
 
 class MaterialsAmountControllerSpec extends ControllerUnitTest
   with MockActionsProvider
@@ -114,7 +117,7 @@ class MaterialsAmountControllerSpec extends ControllerUnitTest
       mockSaveAmount(aUser, aCisUserData, amount = 123, result = Right(()))
 
       await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "123"))) shouldBe
-        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY))
+        Redirect(ContractorCYAController.show(taxYearEOY,aPeriodData.deductionPeriod.toString.toLowerCase,aCisDeductions.employerRef))
     }
   }
 }

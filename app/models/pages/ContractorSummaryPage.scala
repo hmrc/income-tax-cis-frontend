@@ -38,6 +38,7 @@ object ContractorSummaryPage {
             isInYear: Boolean,
             employerRef: String,
             incomeTaxUserData: IncomeTaxUserData): ContractorSummaryPage = {
+
     val cisDeductions = if (isInYear) incomeTaxUserData.inYearCisDeductionsWith(employerRef).get else incomeTaxUserData.eoyCisDeductionsWith(employerRef).get
     val deductionPeriods = cisDeductions.periodData.map(_.deductionPeriod)
     val monthsOrdered: Seq[Month] = Month.values().drop(APRIL.getValue) ++ Month.values().take(APRIL.getValue)

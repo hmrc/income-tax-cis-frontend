@@ -17,31 +17,60 @@
 package controllers
 
 import actions.ActionsProvider
-import config.AppConfig
-import models.pages.ContractorCYAPage.mapToInYearPage
+import common.SessionValues
+import config.{AppConfig, ErrorHandler}
+import controllers.routes.ContractorSummaryController
+import models.HttpParserError
+import models.pages.ContractorCYAPage._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.ContractorCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import utils.SessionHelper
+import utils.{InYearUtil, SessionHelper}
 import views.html.ContractorCYAView
 
 import java.time.Month
 import javax.inject.Inject
+import scala.concurrent.ExecutionContext
 
 class ContractorCYAController @Inject()(actionsProvider: ActionsProvider,
-                                        pageView: ContractorCYAView)
-                                       (implicit mcc: MessagesControllerComponents, appConfig: AppConfig)
+                                        pageView: ContractorCYAView,
+                                        inYearUtil: InYearUtil,
+                                        contractorCYAService: ContractorCYAService,
+                                        errorHandler: ErrorHandler)
+                                       (implicit mcc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int,
            month: String,
-           contractor: String): Action[AnyContent] = actionsProvider.inYearWithPreviousDataFor(taxYear, month, contractor) { implicit request =>
-    val pageModel = mapToInYearPage(
-      taxYear,
-      request.incomeTaxUserData.inYearCisDeductionsWith(contractor).get,
-      Month.valueOf(month.toUpperCase)
-    )
+           contractor: String): Action[AnyContent] = if(inYearUtil.inYear(taxYear)) inYear(taxYear,month,contractor) else endOfYear(taxYear,month,contractor)
 
+  private def inYear(taxYear: Int,
+                     month: String,
+                     contractor: String): Action[AnyContent] = actionsProvider.userPriorDataFor(taxYear, contractor, month) { implicit request =>
+
+    val data = request.incomeTaxUserData.inYearCisDeductionsWith(contractor).get
+    val pageModel = inYearMapToPageModel(taxYear, data, Month.valueOf(month.toUpperCase), request.user.isAgent)
     Ok(pageView(pageModel))
+  }
+
+  private def endOfYear(taxYear: Int,
+                        month: String,
+                        contractor: String): Action[AnyContent] = {
+
+    actionsProvider.checkCyaExistsAndReturnSessionData(taxYear, contractor, month) { implicit request =>
+      val pageModel = eoyMapToPageModel(taxYear, request.cisUserData, request.user.isAgent)
+      Ok(pageView(pageModel))
+    }
+  }
+
+  def submit(taxYear: Int, month: String, contractor: String): Action[AnyContent] = {
+    actionsProvider.checkCyaExistsAndReturnSessionData(taxYear, contractor, month).async { implicit request =>
+      contractorCYAService.submitCisDeductionCYA(taxYear, contractor, request.user).map {
+        case Left(HttpParserError(status)) => errorHandler.handleError(status)
+        case Left(_) => errorHandler.internalServerError()
+        case Right(_) => Redirect(ContractorSummaryController.show(taxYear,contractor)).removingFromSession(SessionValues.TEMP_EMPLOYER_REF)
+      }
+    }
   }
 }

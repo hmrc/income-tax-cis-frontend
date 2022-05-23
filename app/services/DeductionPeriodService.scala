@@ -16,22 +16,25 @@
 
 package services
 
-import java.time.Month
-
-import javax.inject.Inject
 import models.mongo._
 import models.{ServiceError, User}
+import play.api.mvc.Request
 
+import java.time.Month
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeductionPeriodService @Inject()(cisSessionService: CISSessionService)(implicit val ec: ExecutionContext) {
 
-  def submitDeductionPeriod(taxYear: Int, employerRef: String, user: User, deductionPeriod: Month): Future[Either[ServiceError, CisUserData]] = {
-    cisSessionService.getSessionData(taxYear, employerRef, user).flatMap {
+  def submitDeductionPeriod(taxYear: Int, employerRef: String, user: User, deductionPeriod: Month,
+                            tempEmployerRef: Option[String]): Future[Either[ServiceError, CisUserData]] = {
+
+    cisSessionService.getSessionData(taxYear, employerRef, user, tempEmployerRef).flatMap {
       case Right(Some(cisUserData)) =>
 
-        lazy val default = CYAPeriodData(deductionPeriod = deductionPeriod)
+        lazy val default = CYAPeriodData(deductionPeriod = deductionPeriod, contractorSubmitted = false, originallySubmittedPeriod = None)
         val cya = cisUserData.cis
+
         val periodData = cya.periodData.map(_.copy(deductionPeriod = deductionPeriod)).getOrElse(default)
         val updatedCYA = cya.copy(periodData = Some(periodData))
 

@@ -16,12 +16,13 @@
 
 package models.pages
 
-import java.time.Month
-
 import support.UnitTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.PeriodDataBuilder.aPeriodData
+import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.builders.models.pages.ContractorCYAPageBuilder.aContractorCYAPage
+
+import java.time.Month
 
 class ContractorCYAPageSpec extends UnitTest {
 
@@ -49,7 +50,7 @@ class ContractorCYAPageSpec extends UnitTest {
       )
       val cisDeductions = aCisDeductions.copy(contractorName = Some("contractor-1"), employerRef = "ref-1", periodData = periodData)
 
-      ContractorCYAPage.mapToInYearPage(anyTaxYear, cisDeductions, Month.JUNE) shouldBe ContractorCYAPage(
+      ContractorCYAPage.inYearMapToPageModel(anyTaxYear, cisDeductions, Month.JUNE, isAgent = false) shouldBe ContractorCYAPage(
         taxYear = anyTaxYear,
         isInYear = true,
         contractorName = Some("contractor-1"),
@@ -57,7 +58,29 @@ class ContractorCYAPageSpec extends UnitTest {
         month = Month.JUNE,
         labourAmount = Some(100.0),
         deductionAmount = Some(200.0),
-        costOfMaterials = Some(300.0)
+        costOfMaterials = Some(300.0),
+        isPriorSubmission = true,
+        isContractorDeduction = true,
+        isAgent = false
+      )
+    }
+  }
+
+  "ContractorCYAPage.eoyMapToPageModel" should {
+    "map to page with end of year year deductions" in {
+
+      ContractorCYAPage.eoyMapToPageModel(anyTaxYear, aCisUserData, isAgent = false) shouldBe ContractorCYAPage(
+        taxYear = anyTaxYear,
+        isInYear = false,
+        contractorName = Some("ABC Steelworks"),
+        employerRef = "123/AB123456",
+        month = Month.MAY,
+        labourAmount = Some(500.0),
+        deductionAmount = Some(100.0),
+        costOfMaterials = Some(250.0),
+        isPriorSubmission = true,
+        isContractorDeduction = false,
+        isAgent = false
       )
     }
   }

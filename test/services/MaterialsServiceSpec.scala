@@ -36,7 +36,7 @@ class MaterialsServiceSpec extends UnitTest
       val periodData: CYAPeriodData = aCYAPeriodData.copy(costOfMaterialsQuestion = Some(true))
       val updatedCYA = aCisUserData.cis.copy(periodData = Some(periodData))
 
-      mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(aCisUserData))
+      mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(DataNotUpdatedError))
 
       await(underTest.saveQuestion(aUser, aCisUserData, question = true)) shouldBe Left(DataNotUpdatedError)
     }
@@ -65,7 +65,7 @@ class MaterialsServiceSpec extends UnitTest
       val periodData: CYAPeriodData = aCYAPeriodData.copy(costOfMaterials = Some(123))
       val updatedCYA = aCisUserData.cis.copy(periodData = Some(periodData))
 
-      mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(aCisUserData))
+      mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(DataNotUpdatedError))
 
       await(underTest.saveAmount(aUser, aCisUserData, amount = 123)) shouldBe Left(DataNotUpdatedError)
     }

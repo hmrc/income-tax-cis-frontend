@@ -16,37 +16,73 @@
 
 package controllers
 
-import play.api.http.Status.OK
-import play.api.test.Helpers.{contentType, status}
+import models.forms.DeductionPeriod
+import models.mongo.DataNotUpdatedError
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
+import play.api.mvc.Results.InternalServerError
+import play.api.test.Helpers.{contentType, redirectLocation, status}
 import support.ControllerUnitTest
 import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 import support.builders.models.CISSourceBuilder.aCISSource
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
-import support.mocks.MockActionsProvider
+import support.mocks.{MockActionsProvider, MockContractorSummaryService, MockErrorHandler}
 import utils.InYearUtil
 import views.html.ContractorSummaryView
 
 class ContractorSummaryControllerSpec extends ControllerUnitTest
-  with MockActionsProvider {
+  with MockActionsProvider
+  with MockContractorSummaryService
+  with MockErrorHandler {
 
   private val pageView = inject[ContractorSummaryView]
 
   private val controller = new ContractorSummaryController(
     mockActionsProvider,
     pageView,
-    new InYearUtil()
+    new InYearUtil(),
+    mockContractorSummaryService,
+    mockErrorHandler
   )
 
-  "return a successful response" in {
-    val cisDeductions = aCisDeductions.copy(employerRef = "12345")
-    val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions))))
+  "show" should {
+    "return a successful response" in {
+      val cisDeductions = aCisDeductions.copy(employerRef = "12345")
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions))))
 
-    mockUserPriorDataFor(taxYear, contractor = "12345", anIncomeTaxUserData.copy(cis = Some(allCISDeductions)))
+      mockUserPriorDataFor(taxYear, contractor = "12345", anIncomeTaxUserData.copy(cis = Some(allCISDeductions)))
 
-    val result = controller.show(taxYear, contractor = "12345").apply(fakeIndividualRequest)
+      val result = controller.show(taxYear, contractor = "12345").apply(fakeIndividualRequest)
 
-    status(result) shouldBe OK
-    contentType(result) shouldBe Some("text/html")
+      status(result) shouldBe OK
+      contentType(result) shouldBe Some("text/html")
+    }
+  }
+
+  "addCisDeduction" should {
+    "return a successful response" in {
+      val cisDeductions = aCisDeductions.copy(employerRef = "12345")
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions))))
+
+      mockUserPriorDataFor(taxYearEOY, contractor = "12345", anIncomeTaxUserData.copy(cis = Some(allCISDeductions)))
+      mockSaveCYAForNewCisDeduction(taxYearEOY, "12345", Right(()))
+
+      val result = controller.addCisDeduction(taxYearEOY, contractor = "12345").apply(fakeIndividualRequest)
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result).get shouldBe controllers.routes.DeductionPeriodController.show(taxYearEOY,"12345").url
+    }
+    "handle an error" in {
+      val cisDeductions = aCisDeductions.copy(employerRef = "12345")
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions))))
+
+      mockUserPriorDataFor(taxYearEOY, contractor = "12345", anIncomeTaxUserData.copy(cis = Some(allCISDeductions)))
+      mockSaveCYAForNewCisDeduction(taxYearEOY, "12345", Left(DataNotUpdatedError))
+      mockInternalError(InternalServerError)
+
+      val result = controller.addCisDeduction(taxYearEOY, contractor = "12345").apply(fakeIndividualRequest)
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
   }
 }

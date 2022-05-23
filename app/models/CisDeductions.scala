@@ -58,20 +58,22 @@ case class CisDeductions(fromDate: String,
   def periodDataFor(month: Month): Option[PeriodData] =
     periodData.find(_.deductionPeriod == month)
 
-  def toCYA: CisCYAModel = {
+  def toCYA(month: Option[Month], contractorSubmittedMonths: Seq[Month]): CisCYAModel = {
     val periods = periodData.map { period =>
       CYAPeriodData(
         period.deductionPeriod,
         grossAmountPaid = period.grossAmountPaid,
         deductionAmount = period.deductionAmount,
         costOfMaterialsQuestion = Some(period.costOfMaterials.isDefined),
-        costOfMaterials = period.costOfMaterials
+        costOfMaterials = period.costOfMaterials,
+        contractorSubmitted = contractorSubmittedMonths.contains(period.deductionPeriod),
+        originallySubmittedPeriod = Some(period.deductionPeriod)
       )
     }
 
     CisCYAModel(
       contractorName = contractorName,
-      periodData = None,
+      periodData = if(month.isDefined) periods.find(_.deductionPeriod == month.get) else None,
       priorPeriodData = periods
     )
   }

@@ -18,6 +18,7 @@ package controllers
 
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
+import controllers.routes.ContractorCYAController
 import forms.FormsProvider
 import models.UserSessionDataRequest
 import models.pages.MaterialsAmountPage
@@ -61,8 +62,7 @@ class MaterialsAmountController @Inject()(actionsProvider: ActionsProvider,
         formWithErrors => Future.successful(BadRequest(pageView(MaterialsAmountPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
         amount => materialsService.saveAmount(request.user, request.cisUserData, amount).map {
           case Left(_) => errorHandler.internalServerError()
-          // TODO: Redirect to next page
-          case Right(_) => Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+          case Right(_) => Redirect(ContractorCYAController.show(taxYear,month.toLowerCase,contractor))
         }
       )
     }

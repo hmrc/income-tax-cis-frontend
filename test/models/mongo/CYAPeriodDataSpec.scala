@@ -33,17 +33,30 @@ class CYAPeriodDataSpec extends UnitTest
     "grossAmountPaid" -> Some(500.00),
     "deductionAmount" -> Some(100.00),
     "costOfMaterialsQuestion" -> Some(true),
-    "costOfMaterials" -> Some(250.00)
+    "costOfMaterials" -> Some(250.00),
+    "contractorSubmitted" -> false,
+    "originallySubmittedPeriod" -> Some(Month.MAY.toString)
   )
 
   private implicit val secureGCMCipher: SecureGCMCipher = mock[SecureGCMCipher]
   private implicit val textAndKey: TextAndKey = TextAndKey("some-associated-text", "some-aes-key")
 
   private val encryptedDeductionPeriod = EncryptedValue("encryptedDeductionPeriod", "some-nonce")
+  private val encryptedContractorSubmitted = EncryptedValue("encryptedContractorSubmitted", "some-nonce")
   private val encryptedGrossAmountPaid = EncryptedValue("encryptedGrossAmountPaid", "some-nonce")
   private val encryptedDeductionAmount = EncryptedValue("encryptedDeductionAmount", "some-nonce")
   private val encryptedCostOfMaterialsQuestion = EncryptedValue("encryptedCostOfMaterialsQuestion", "some-nonce")
   private val encryptedCostOfMaterials = EncryptedValue("encryptedCostOfMaterials", "some-nonce")
+  private val encryptedOriginallySubmittedPeriod = EncryptedValue("encryptedOriginallySubmittedPeriod", "some-nonce")
+
+  ".isAnUpdateFor" should {
+    "return true when an update is made to same month" in {
+      aCYAPeriodData.isAnUpdateFor(Month.MAY) shouldBe true
+    }
+    "return false if requested month is in the prior data" in {
+      aCYAPeriodData.isAnUpdateFor(Month.NOVEMBER) shouldBe false
+    }
+  }
 
   "CYAPeriodData" should {
     "write to Json correctly when using implicit writes" in {
@@ -99,6 +112,8 @@ class CYAPeriodDataSpec extends UnitTest
       (secureGCMCipher.encrypt(_: BigDecimal)(_: TextAndKey)).expects(aCYAPeriodData.deductionAmount.get, textAndKey).returning(encryptedDeductionAmount)
       (secureGCMCipher.encrypt(_: Boolean)(_: TextAndKey)).expects(aCYAPeriodData.costOfMaterialsQuestion.get, textAndKey).returning(encryptedCostOfMaterialsQuestion)
       (secureGCMCipher.encrypt(_: BigDecimal)(_: TextAndKey)).expects(aCYAPeriodData.costOfMaterials.get, textAndKey).returning(encryptedCostOfMaterials)
+      (secureGCMCipher.encrypt(_: Boolean)(_: TextAndKey)).expects(aCYAPeriodData.contractorSubmitted, textAndKey).returning(encryptedContractorSubmitted)
+      (secureGCMCipher.encrypt(_: Month)(_: TextAndKey)).expects(aCYAPeriodData.originallySubmittedPeriod.get, textAndKey).returning(encryptedOriginallySubmittedPeriod)
 
 
       aCYAPeriodData.encrypted shouldBe EncryptedCYAPeriodData(
@@ -107,6 +122,8 @@ class CYAPeriodDataSpec extends UnitTest
         deductionAmount = Some(encryptedDeductionAmount),
         costOfMaterialsQuestion = Some(encryptedCostOfMaterialsQuestion),
         costOfMaterials = Some(encryptedCostOfMaterials),
+        contractorSubmitted = encryptedContractorSubmitted,
+        originallySubmittedPeriod = Some(encryptedOriginallySubmittedPeriod)
       )
     }
   }
@@ -115,12 +132,16 @@ class CYAPeriodDataSpec extends UnitTest
     "return CYAPeriodData" in {
       (secureGCMCipher.decrypt[Month](_: String, _: String)(_: TextAndKey, _: Converter[Month]))
         .expects(encryptedDeductionPeriod.value, encryptedDeductionPeriod.nonce, textAndKey, *).returning(Month.JULY)
+      (secureGCMCipher.decrypt[Month](_: String, _: String)(_: TextAndKey, _: Converter[Month]))
+        .expects(encryptedOriginallySubmittedPeriod.value, encryptedOriginallySubmittedPeriod.nonce, textAndKey, *).returning(Month.MAY)
       (secureGCMCipher.decrypt[BigDecimal](_: String, _: String)(_: TextAndKey, _: Converter[BigDecimal]))
         .expects(encryptedGrossAmountPaid.value, encryptedGrossAmountPaid.nonce, textAndKey, *).returning(value = 100.0)
       (secureGCMCipher.decrypt[BigDecimal](_: String, _: String)(_: TextAndKey, _: Converter[BigDecimal]))
         .expects(encryptedDeductionAmount.value, encryptedDeductionAmount.nonce, textAndKey, *).returning(value = 200.0)
       (secureGCMCipher.decrypt[Boolean](_: String, _: String)(_: TextAndKey, _: Converter[Boolean]))
         .expects(encryptedCostOfMaterialsQuestion.value, encryptedCostOfMaterialsQuestion.nonce, textAndKey, *).returning(value = true)
+      (secureGCMCipher.decrypt[Boolean](_: String, _: String)(_: TextAndKey, _: Converter[Boolean]))
+        .expects(encryptedContractorSubmitted.value, encryptedContractorSubmitted.nonce, textAndKey, *).returning(value = false)
       (secureGCMCipher.decrypt[BigDecimal](_: String, _: String)(_: TextAndKey, _: Converter[BigDecimal]))
         .expects(encryptedCostOfMaterials.value, encryptedCostOfMaterials.nonce, textAndKey, *).returning(value = 300.0)
 
@@ -131,6 +152,8 @@ class CYAPeriodDataSpec extends UnitTest
         deductionAmount = Some(encryptedDeductionAmount),
         costOfMaterialsQuestion = Some(encryptedCostOfMaterialsQuestion),
         costOfMaterials = Some(encryptedCostOfMaterials),
+        contractorSubmitted = encryptedContractorSubmitted,
+        originallySubmittedPeriod = Some(encryptedOriginallySubmittedPeriod)
       )
 
       encryptedData.decrypted shouldBe CYAPeriodData(
@@ -138,7 +161,9 @@ class CYAPeriodDataSpec extends UnitTest
         grossAmountPaid = Some(100.0),
         deductionAmount = Some(200.0),
         costOfMaterialsQuestion = Some(true),
-        costOfMaterials = Some(300.0)
+        costOfMaterials = Some(300.0),
+        contractorSubmitted = false,
+        originallySubmittedPeriod = Some(Month.MAY)
       )
     }
   }

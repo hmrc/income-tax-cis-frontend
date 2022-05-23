@@ -16,6 +16,8 @@
 
 package models.mongo
 
+import java.time.Month
+
 import org.scalamock.scalatest.MockFactory
 import support.UnitTest
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
@@ -42,6 +44,28 @@ class CisCYAModelSpec extends UnitTest
     "return false when CYAPeriodData is empty" in {
       val result = aCisCYAModel.copy(periodData = None)
       result.isFinished shouldBe false
+    }
+  }
+
+  val underTest: CisCYAModel = aCisCYAModel
+
+  ".isNewSubmissionFor" should {
+    "return true if no prior data" in {
+      val underTest = aCisCYAModel.copy(priorPeriodData = Seq())
+
+      underTest.isNewSubmissionFor(Month.MAY) shouldBe true
+    }
+    "return false if requested month is in the prior data" in {
+      underTest.isNewSubmissionFor(Month.NOVEMBER) shouldBe false
+    }
+  }
+
+  ".isAnUpdateFor" should {
+    "return true when an update is made to same month" in {
+      underTest.isAnUpdateFor(Month.MAY) shouldBe true
+    }
+    "return false if requested month is in the prior data" in {
+      underTest.isAnUpdateFor(Month.NOVEMBER) shouldBe false
     }
   }
 

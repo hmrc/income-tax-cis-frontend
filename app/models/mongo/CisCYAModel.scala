@@ -16,6 +16,8 @@
 
 package models.mongo
 
+import java.time.Month
+
 import org.joda.time.DateTime
 import play.api.libs.json.{Format, Json, OFormat}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
@@ -28,6 +30,14 @@ import utils.{EncryptedValue, SecureGCMCipher}
 case class CisCYAModel(contractorName: Option[String] = None,
                        periodData: Option[CYAPeriodData] = None,
                        priorPeriodData: Seq[CYAPeriodData] = Seq.empty) {
+
+  def isNewSubmissionFor(month: Month): Boolean = {
+    !priorPeriodData.map(_.deductionPeriod).contains(month)
+  }
+
+  def isAnUpdateFor(month: Month): Boolean = {
+    periodData.exists(_.isAnUpdateFor(month))
+  }
 
   def encrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCisCYAModel = EncryptedCisCYAModel(
     contractorName = contractorName.map(_.encrypted),

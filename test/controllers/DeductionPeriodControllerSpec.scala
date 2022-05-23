@@ -61,7 +61,16 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
     }
 
     "return redirect when no months to submit for" in {
-      val cisCYAModel = aCisCYAModel.copy(priorPeriodData = Month.values().map(CYAPeriodData(_)))
+      val cisCYAModel = aCisCYAModel.copy(priorPeriodData = Month.values().map(CYAPeriodData(_,contractorSubmitted = false,originallySubmittedPeriod = None)))
+      mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef, cis = cisCYAModel))
+
+      val result = underTest.show(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString))
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result).get shouldBe "/overview"
+    }
+    "return redirect when month is contractor added" in {
+      val cisCYAModel = aCisCYAModel.copy(periodData = Some(CYAPeriodData(Month.APRIL,contractorSubmitted = true,originallySubmittedPeriod = Some(Month.APRIL))))
       mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef, cis = cisCYAModel))
 
       val result = underTest.show(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString))
@@ -84,11 +93,22 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
     }
 
     "redirect when no months can be added" in {
-      val cisCYAModel = aCisCYAModel.copy(priorPeriodData = Month.values().map(CYAPeriodData(_)))
+      val cisCYAModel = aCisCYAModel.copy(priorPeriodData = Month.values().map(CYAPeriodData(_,contractorSubmitted = false,originallySubmittedPeriod = None)))
       mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef, cis = cisCYAModel))
 
       val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest
         .withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june"))
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result).get shouldBe "/overview"
+    }
+
+    "return redirect when month is contractor added" in {
+      val cisCYAModel = aCisCYAModel.copy(periodData = Some(CYAPeriodData(Month.APRIL,contractorSubmitted = true,originallySubmittedPeriod = Some(Month.APRIL))))
+      mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef, cis = cisCYAModel))
+
+      val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest
+        .withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "april"))
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result).get shouldBe "/overview"

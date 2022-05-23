@@ -20,19 +20,25 @@ import connectors.IncomeTaxUserDataConnector
 import models._
 import models.mongo.{CisCYAModel, CisUserData, DataNotUpdatedError, DatabaseError}
 import org.joda.time.DateTimeZone
+import play.api.Logging
 import repositories.CisUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.Clock
 
+import java.time.Month
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
                                   incomeTaxUserDataConnector: IncomeTaxUserDataConnector,
-                                  clock: Clock)(implicit val ec: ExecutionContext) {
+                                  clock: Clock)(implicit val ec: ExecutionContext) extends Logging {
 
-  def getSessionData(taxYear: Int, employerRef: String, user: User): Future[Either[DatabaseError, Option[CisUserData]]] = {
-    cisUserDataRepository.find(taxYear, employerRef, user)
+  def getSessionData(taxYear: Int, employerRef: String, user: User, tempEmployerRef: Option[String]): Future[Either[DatabaseError, Option[CisUserData]]] = {
+
+    cisUserDataRepository.find(taxYear, employerRef, user).flatMap {
+        case Right(None) if tempEmployerRef.isDefined => cisUserDataRepository.find(taxYear, tempEmployerRef.get, user)
+        case response => Future.successful(response)
+    }
   }
 
   def createOrUpdateCISUserData(user: User,
@@ -40,7 +46,7 @@ class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
                                 employerRef: String,
                                 submissionId: Option[String],
                                 isPriorSubmission: Boolean,
-                                cisCYA: CisCYAModel): Future[Either[Unit, CisUserData]] = {
+                                cisCYA: CisCYAModel): Future[Either[DatabaseError, CisUserData]] = {
     val cisUserData = CisUserData(
       user.sessionId,
       user.mtditid,
@@ -55,7 +61,7 @@ class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
 
     cisUserDataRepository.createOrUpdate(cisUserData).map {
       case Right(_) => Right(cisUserData)
-      case Left(_) => Left(())
+      case Left(_) => Left(DataNotUpdatedError)
     }
   }
 
@@ -66,25 +72,54 @@ class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
     }
   }
 
-  def getPriorAndMakeCYA(taxYear: Int, employerRef: String, user: User)
-                        (implicit headerCarrier: HeaderCarrier): Future[Either[ServiceError, CisUserData]] = {
+  def clear(user: User, employerRef: String, taxYear: Int): Future[Either[ServiceError, Unit]] = {
+    cisUserDataRepository.clear(taxYear,employerRef,user).map {
+      case false => Left(DataNotUpdatedError)
+      case true => Right(())
+    }
+  }
 
+  def checkCyaAndReturnData(taxYear: Int, employerRef: String, user: User, month: Month, tempEmployerRef: Option[String])
+                           (implicit hc: HeaderCarrier): Future[Either[ServiceError, Option[CisUserData]]] = {
+
+    getSessionData(taxYear, employerRef, user, tempEmployerRef).flatMap {
+      case Right(data@Some(cyaData)) if cyaData.cis.isAnUpdateFor(month) =>
+        logger.info("[CISSessionService][checkCyaAndReturnData] CYA data is for updates being made to an existing period.")
+        Future.successful(Right(data))
+      case Right(data@Some(cyaData)) if cyaData.cis.isNewSubmissionFor(month) =>
+        logger.info("[CISSessionService][checkCyaAndReturnData] CYA data is a new period submission")
+        Future.successful(Right(data))
+      case Right(_) => getPriorAndSaveAsCYA(taxYear, employerRef, month, user)
+      case Left(error) => Future.successful(Left(error))
+    }
+  }
+
+  private def getPriorAndSaveAsCYA(taxYear: Int, employerRef: String, month: Month, user: User)
+                                  (implicit hc: HeaderCarrier): Future[Either[ServiceError, Option[CisUserData]]] ={
     getPriorData(user, taxYear).flatMap {
       case Left(error) => Future.successful(Left(error))
-      case Right(prior: IncomeTaxUserData) =>
-        prior.eoyCisDeductionsWith(employerRef) match {
-          case Some(deductions) =>
+      case Right(prior) => createAndSaveCYA(taxYear, employerRef, month, prior, user)
+    }
+  }
 
-            val submissionId: Option[String] = deductions.submissionId
-            val cya = deductions.toCYA
+  private def createAndSaveCYA(taxYear: Int, employerRef: String, month: Month,
+                               prior: IncomeTaxUserData, user: User): Future[Either[ServiceError, Option[CisUserData]]] = {
 
-            createOrUpdateCISUserData(user, taxYear, employerRef, submissionId, isPriorSubmission = true, cya).map {
-              case Left(_) => Left(DataNotUpdatedError)
-              case Right(value) => Right(value)
-            }
+    logger.info("[CISSessionService][createAndSaveCYA] Creating CYA data from prior data and saving.")
 
-          case None => Future.successful(Left(EmptyPriorCisDataError))
+    val deductions = prior.endOfYearCisDeductionsWith(employerRef, month)
+
+    deductions match {
+      case Some(deductions) =>
+        val submissionId: Option[String] = deductions.submissionId
+
+        val cya = deductions.toCYA(Some(month), prior.contractorPeriodsFor(employerRef))
+
+        createOrUpdateCISUserData(user, taxYear, employerRef, submissionId, isPriorSubmission = true, cya).map {
+          case Left(_) => Left(DataNotUpdatedError)
+          case Right(data) => Right(Some(data))
         }
+      case None => Future.successful(Right(None))
     }
   }
 }

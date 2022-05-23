@@ -27,6 +27,19 @@ import java.time.Month
 
 class IncomeTaxUserDataSpec extends UnitTest {
 
+  ".contractorPeriodsFor" should {
+    "return empty seq when no data" in {
+      val underTest = anIncomeTaxUserData.copy(cis = None)
+
+      underTest.contractorPeriodsFor("12345") shouldBe Seq.empty
+    }
+    "return list of months" in {
+      val underTest = anIncomeTaxUserData
+
+      underTest.contractorPeriodsFor(aCisDeductions.employerRef) shouldBe Seq(Month.MAY)
+    }
+  }
+
   ".hasInYearCisDeductions" should {
     "true when there are in year CisDeductions" in {
       val underTest = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions))
@@ -98,7 +111,21 @@ class IncomeTaxUserDataSpec extends UnitTest {
     }
   }
 
-  ".hasEOYCisDeductionsWith(...)" should {
+  "endOfYearCisDeductionsWith" should {
+    "return CisDeductions when employerRef exists" in {
+      val underTest = anIncomeTaxUserData
+
+      underTest.endOfYearCisDeductionsWith(aCisDeductions.employerRef, aPeriodData.deductionPeriod) shouldBe Some(aCisDeductions)
+    }
+
+    "return no CisDeductions when employerRef does not exist" in {
+      val underTest = anIncomeTaxUserData
+
+      underTest.endOfYearCisDeductionsWith("12345", aPeriodData.deductionPeriod) shouldBe None
+    }
+  }
+
+  ".hasEOYCisDeductionsWith(employerRef: String)" should {
     "return true when CisDeductions with employerRef exists" in {
       val cisDeductions = aCisDeductions.copy(employerRef = "some-ref")
       val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = None, customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions))))
@@ -108,10 +135,24 @@ class IncomeTaxUserDataSpec extends UnitTest {
       underTest.hasEoyCisDeductionsWith(employerRef = "some-ref") shouldBe true
     }
 
-    "return false when CisDeductions with employerRef exists" in {
+    "return false when CisDeductions with employerRef does not exist" in {
       val underTest = anIncomeTaxUserData
 
       underTest.hasEoyCisDeductionsWith(employerRef = "unknown-ref") shouldBe false
+    }
+  }
+
+  ".hasEoyCisDeductionsWith(employerRef: String, month: Month)" should {
+    "return false when CisDeductions with employerRef and month does not exist" in {
+      val underTest = anIncomeTaxUserData
+
+      underTest.hasEoyCisDeductionsWith(employerRef = "unknown-ref", aPeriodData.deductionPeriod) shouldBe false
+    }
+
+    "return true when CisDeductions with employerRef and month does exist" in {
+      val underTest = anIncomeTaxUserData
+
+      underTest.hasEoyCisDeductionsWith(aCisDeductions.employerRef, aPeriodData.deductionPeriod) shouldBe true
     }
   }
 

@@ -21,51 +21,64 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import models.pages.ContractorCYAPage
 @import controllers.routes.ContractorSummaryController
+@import controllers.routes.ContractorCYAController
+@import controllers.routes._
 
 @this(
   layout: Layout,
   heading: Heading,
   govukSummaryList: GovukSummaryList,
   govukInsetText: GovukInsetText,
-  button: Button
+  button: Button,
+  formHelper: FormWithCSRF
 )
 
-@(pageModel: ContractorCYAPage)(implicit request: UserPriorDataRequest[_], messages: Messages, appConfig: AppConfig)
+@(pageModel: ContractorCYAPage)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@titleText = @{messages(s"contractorCYAPage.title.${if(request.user.isAgent) "agent" else "individual"}")}
+@titleText = @{messages(s"contractorCYAPage.title.${if(pageModel.isAgent) "agent" else "individual"}")}
 
-@layout(pageTitle = titleText, taxYear = Some(pageModel.taxYear), isAgent = request.user.isAgent) {
+@hiddenText(item:String) = @{Some(messages(s"$item.hiddenText"))}
+
+@layout(pageTitle = titleText, taxYear = Some(pageModel.taxYear), isAgent = pageModel.isAgent) {
 
     @heading(titleText, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
 
-    <p class="govuk-body">@messages(s"cis.deductionsInfo.p1.${if(request.user.isAgent) "agent" else "individual"}")</p>
+    <p class="govuk-body govuk-!-margin-bottom-0">@messages(s"cis.deductionsInfo.p1.${if(pageModel.isAgent) "agent" else "individual"}")</p>
 
-    @govukInsetText(InsetText(content = Text(messages(s"cis.insetText.${if(request.user.isAgent) "agent" else "individual"}", pageModel.taxYear.toString))))
+    @if(pageModel.isInYear){
+        @govukInsetText(InsetText(content = Text(messages(s"cis.insetText.${if(pageModel.isAgent) "agent" else "individual"}", pageModel.taxYear.toString))))
+    }
 
     @{
         val contractorNamePart = "<p class='govuk-!-margin-bottom-0'>" + messages("contractorCYAPage.lineItem.contractorDetails.name", pageModel.contractorName.getOrElse(""))+ "</p>"
         val contractorRefPart = "<p class='govuk-!-margin-top-0'>" + messages("contractorCYAPage.lineItem.contractorDetails.ern", pageModel.employerRef)+ "</p>"
 
         val rowsData = Seq(
-            DataRowForView(messages("contractorCYAPage.lineItem.contractorDetails"), Some(contractorNamePart  + contractorRefPart)),
-            DataRowForView(messages("contractorCYAPage.lineItem.endOfTaxMonth"), Some("5 " + translatedMonthAndTaxYear(pageModel.month, pageModel.taxYear))),
-            DataRowForView(messages("contractorCYAPage.lineItem.labour"), pageModel.labourAmount.map(amount => bigDecimalCurrency(amount.toString))),
-            DataRowForView(messages("contractorCYAPage.lineItem.cisDeduction"), pageModel.deductionAmount.map(amount => bigDecimalCurrency(amount.toString))),
-            DataRowForView(messages("contractorCYAPage.lineItem.paidForMaterials"), Some(convertBoolToYesOrNo(cisField = pageModel.hasPaidForMaterials)))
-        ) ++ { if(pageModel.hasPaidForMaterials) Seq(DataRowForView(messages("contractorCYAPage.lineItem.costOfMaterials"), pageModel.costOfMaterials.map(amount => bigDecimalCurrency(amount.toString)))) else Seq.empty }
+            DataRowForView(messages("contractorCYAPage.lineItem.contractorDetails"), Some(contractorNamePart  + contractorRefPart), changeLink = if (pageModel.isInYear || pageModel.isPriorSubmission) None else Some(ContractorDetailsController.show(pageModel.taxYear, Some(pageModel.employerRef))), hiddenText = if (pageModel.isInYear || pageModel.isPriorSubmission) None else Some("contractorCYAPage.lineItem.contractorDetails")),
+            DataRowForView(messages("contractorCYAPage.lineItem.endOfTaxMonth"), Some("5 " + translatedMonthAndTaxYear(pageModel.month, pageModel.taxYear)), changeLink = if (pageModel.isInYear || pageModel.isContractorDeduction) None else Some(DeductionPeriodController.show(pageModel.taxYear, pageModel.employerRef)), hiddenText = if (pageModel.isInYear || pageModel.isContractorDeduction) None else Some("contractorCYAPage.lineItem.endOfTaxMonth")),
+            DataRowForView(messages("contractorCYAPage.lineItem.labour"), pageModel.labourAmount.map(amount => bigDecimalCurrency(amount.toString)), changeLink = if (pageModel.isInYear) None else Some(LabourPayController.show(pageModel.taxYear, pageModel.month.toString.toLowerCase, pageModel.employerRef)), hiddenText = if (pageModel.isInYear) None else Some("contractorCYAPage.lineItem.labour")),
+            DataRowForView(messages("contractorCYAPage.lineItem.cisDeduction"), pageModel.deductionAmount.map(amount => bigDecimalCurrency(amount.toString)), changeLink = if (pageModel.isInYear) None else Some(DeductionAmountController.show(pageModel.taxYear, pageModel.month.toString.toLowerCase, pageModel.employerRef)), hiddenText = if (pageModel.isInYear) None else Some("contractorCYAPage.lineItem.cisDeduction")),
+            DataRowForView(messages("contractorCYAPage.lineItem.paidForMaterials"), Some(convertBoolToYesOrNo(cisField = pageModel.hasPaidForMaterials)), changeLink = if (pageModel.isInYear) None else Some(MaterialsController.show(pageModel.taxYear, pageModel.month.toString.toLowerCase, pageModel.employerRef)), hiddenText = if (pageModel.isInYear) None else Some("contractorCYAPage.lineItem.paidForMaterials")),
+        ) ++ { if(pageModel.hasPaidForMaterials) Seq(DataRowForView(messages("contractorCYAPage.lineItem.costOfMaterials"), pageModel.costOfMaterials.map(amount => bigDecimalCurrency(amount.toString)), changeLink = if (pageModel.isInYear) None else Some(MaterialsAmountController.show(pageModel.taxYear, pageModel.month.toString.toLowerCase, pageModel.employerRef)), hiddenText = if (pageModel.isInYear) None else Some("contractorCYAPage.lineItem.costOfMaterials"))) else Seq.empty }
 
         val summaryRows = rowsData.map(dataRow => summaryListRow(
             key = HtmlContent(dataRow.fieldHeadings),
             value = dataRow.fieldValues.fold(ariaVisuallyHiddenText(messages("common.notProvided")))(HtmlContent(_)),
             keyClasses = "govuk-!-width-one-third",
-            valueClasses = "govuk-!-width-two-thirds",
-            actions = Seq.empty
+            valueClasses = if (pageModel.isInYear) "govuk-!-width-two-thirds" else "govuk-!-width-one-third",
+            actions = dataRow.changeLink.map(route => Seq((route, messages("common.change"), hiddenText(dataRow.hiddenText.get)))).getOrElse(Seq())
         ))
 
         govukSummaryList(SummaryList(summaryRows))
     }
 
-    @button(alternativeText = "contractorCYAPage.buttonText", attributes = Map("id" -> "return-to-contractor-button-id"), href = Some(ContractorSummaryController.show(pageModel.taxYear, pageModel.employerRef).url))
+    @if(pageModel.isInYear){
+        @button(alternativeText = "contractorCYAPage.buttonText", attributes = Map("id" -> "return-to-contractor-button-id"), href = Some(ContractorSummaryController.show(pageModel.taxYear, pageModel.employerRef).url))
+    } else {
+        @formHelper(action = ContractorCYAController.submit(pageModel.taxYear, pageModel.month.toString.toLowerCase, pageModel.employerRef)) {
+            @button(alternativeText = "common.saveAndContinue", attributes = Map("id" -> "save-and-continue-button-id"))
+        }
+    }
 }
 
 @{

@@ -17,11 +17,11 @@
 package controllers
 
 import java.net.URLEncoder.encode
-
 import akka.util.ByteString.UTF_8
 import play.api.http.HeaderNames
-import play.api.http.Status.OK
+import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
+import repositories.CisUserDataRepositoryImpl
 import support.IntegrationTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
@@ -36,6 +36,7 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
     s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/check-construction-industry-scheme-deductions?month=$month&contractor=$contractor"
   }
 
+  private val repoUnderTest: CisUserDataRepositoryImpl = app.injector.instanceOf[CisUserDataRepositoryImpl]
   override val userScenarios: Seq[UserScenario[_, _]] = Seq.empty
 
   ".show" should {
@@ -48,6 +49,21 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
       }
 
       result.status shouldBe OK
+    }
+  }
+
+  ".submit" should {
+    "return Check your CIS deductions page" in {
+      lazy val result: WSResponse = {
+        authoriseAgentOrIndividual(isAgent = false)
+        userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
+        urlPost(fullUrl(url(taxYearEOY, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
+          headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = "")
+      }
+
+      result.status shouldBe SEE_OTHER
+      result.headers("Location").head shouldBe controllers.routes.ContractorSummaryController.show(taxYearEOY,aCisDeductions.employerRef).url
+      await(repoUnderTest.find(taxYearEOY,aCisDeductions.employerRef,aUser)) shouldBe Right(None)
     }
   }
 }
