@@ -16,8 +16,6 @@
 
 package support.mocks
 
-import java.time.Month
-
 import actions.ActionsProvider
 import models.mongo.CisUserData
 import models.{AuthorisationRequest, IncomeTaxUserData, UserPriorDataRequest, UserSessionDataRequest}
@@ -77,7 +75,7 @@ trait MockActionsProvider extends MockFactory
       override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
     }
 
-    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String, _:Boolean))
+    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String, _: Boolean))
       .expects(taxYear, cisUserData.employerRef, *)
       .returns(value = actionBuilder)
   }
@@ -153,13 +151,23 @@ trait MockActionsProvider extends MockFactory
   }
 
   def mockCheckCyaExistsAndReturnSessionData(taxYear: Int,
-                           contractor: String,
-                           month: String,
-                           result: CisUserData
-                          ): CallHandler3[Int, String, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+                                             contractor: String,
+                                             month: String,
+                                             result: CisUserData
+                                            ): CallHandler3[Int, String, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
     (mockActionsProvider.checkCyaExistsAndReturnSessionData(_: Int, _: String, _: String))
       .expects(taxYear, contractor, month)
       .returns(value = userSessionDataRequestActionBuilder(result))
+  }
+
+  def mockUserPriorDataForEOY(taxYear: Int,
+                              contractor: String,
+                              month: String,
+                              result: IncomeTaxUserData
+                             ): CallHandler3[Int, String, String, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
+    (mockActionsProvider.userPriorDataForEOY(_: Int, _: String, _: String))
+      .expects(taxYear, contractor, month)
+      .returns(value = userPriorDataRequestActionBuilder(result))
   }
 
   def mockNotInYear(taxYear: Int): CallHandler1[Int, ActionBuilder[AuthorisationRequest, AnyContent]] = {

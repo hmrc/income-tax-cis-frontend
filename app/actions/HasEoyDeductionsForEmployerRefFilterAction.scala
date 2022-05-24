@@ -23,9 +23,9 @@ import play.api.mvc.{ActionFilter, Result}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class HasEOYDataWithEmployerRefFilterAction(taxYear: Int,
-                                                 employerRef: String,
-                                                 appConfig: AppConfig
+case class HasEoyDeductionsForEmployerRefFilterAction(taxYear: Int,
+                                                      employerRef: String,
+                                                      appConfig: AppConfig
                                                 )(implicit ec: ExecutionContext) extends ActionFilter[UserPriorDataRequest] {
 
   override protected[actions] def executionContext: ExecutionContext = ec

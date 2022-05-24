@@ -27,14 +27,14 @@ import support.builders.models.UserPriorDataRequestBuilder.aUserPriorDataRequest
 
 import scala.concurrent.ExecutionContext
 
-class HasEOYDataWithEmployerRefFilterActionSpec extends UnitTest {
+class HasEoyDeductionsForEmployerRefFilterActionSpec extends UnitTest {
 
   private val anyTaxYear = 2022
   private val employerRef = "some-employer-ref"
   private val appConfig = new MockAppConfig().config()
   private val executionContext = ExecutionContext.global
 
-  private val underTest = HasEOYDataWithEmployerRefFilterAction(
+  private val underTest = HasEoyDeductionsForEmployerRefFilterAction(
     taxYear = anyTaxYear,
     employerRef = employerRef,
     appConfig = appConfig

@@ -16,7 +16,7 @@
 
 package views
 
-import controllers.routes.{ContractorCYAController, DeductionsSummaryController}
+import controllers.routes.{ContractorCYAController, DeductionsSummaryController, DeleteCISPeriodController}
 import models.UserPriorDataRequest
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -206,7 +206,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
           textOnPageCheck(userScenario.commonExpectedResults.removeText, Selectors.summaryListValueSelector(row = 1, cell = 3), additionalTestText = "(first row)")
           linkCheck(userScenario.commonExpectedResults.removeText + " " +
             userScenario.commonExpectedResults.hiddenText(userScenario.commonExpectedResults.removeText, taxYearEOY), Selectors.summaryListLinksSelector(row = 1, cell = 3),
-            ContractorCYAController.show(taxYearEOY, MAY.toString.toLowerCase, employerRef).url, additionalTestText = "(first row)")
+            DeleteCISPeriodController.show(taxYearEOY, MAY.toString.toLowerCase, employerRef).url, additionalTestText = "(first row)")
           textOnPageCheck(userScenario.commonExpectedResults.changeText, Selectors.summaryListValueSelector(row = 2, cell = 2), additionalTestText = "(second row)")
           linkCheck(userScenario.commonExpectedResults.changeText + "" +
             userScenario.commonExpectedResults.hiddenText2(userScenario.commonExpectedResults.changeText, taxYearEOY), Selectors.summaryListLinksSelector(row = 2, cell = 2),

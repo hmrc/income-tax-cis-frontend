@@ -28,6 +28,7 @@ common.numbers = numbers
 common.notProvided = Not provided
 common.opensInNewTab = (opens in new tab)
 common.remove = Remove
+common.cancel = Cancel
 common.return.overview.buttonText = Return to overview
 common.saveAndContinue = Save and continue
 common.status.cannotUpdate = Cannot update
@@ -108,6 +109,10 @@ contractorCYAPage.lineItem.paidForMaterials = Paid for materials
 contractorCYAPage.lineItem.paidForMaterials.hiddenText = Change whether paid for materials
 contractorCYAPage.lineItem.costOfMaterials = Cost of materials
 contractorCYAPage.lineItem.costOfMaterials.hiddenText = Change cost of materials
+
+#################       Delete CIS Period Page       #######################################
+deleteCISPeriodPage.title = Are you sure you want to remove this CIS deduction?
+deleteCISPeriodPage.p1 = You will remove the CIS deduction for the tax month ending 5 {0}.
 
 #################       Labour Pay Page       #######################################
 labourPayPage.title.agent = How much did the contractor pay your client for labour?

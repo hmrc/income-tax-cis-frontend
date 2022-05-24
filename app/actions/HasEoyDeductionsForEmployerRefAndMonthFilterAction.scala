@@ -26,12 +26,12 @@ import play.api.mvc.{ActionFilter, Result}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-case class HasEndOfYearDeductionsForEmployerRefAndMonthFilterAction(taxYear: Int,
-                                                                    employerRef: String,
-                                                                    monthValue: String,
-                                                                    errorHandler: ErrorHandler,
-                                                                    appConfig: AppConfig)
-                                                                   (implicit ec: ExecutionContext) extends ActionFilter[UserPriorDataRequest] {
+case class HasEoyDeductionsForEmployerRefAndMonthFilterAction(taxYear: Int,
+                                                              employerRef: String,
+                                                              monthValue: String,
+                                                              errorHandler: ErrorHandler,
+                                                              appConfig: AppConfig)
+                                                             (implicit ec: ExecutionContext) extends ActionFilter[UserPriorDataRequest] {
 
   override protected[actions] def executionContext: ExecutionContext = ec
 
