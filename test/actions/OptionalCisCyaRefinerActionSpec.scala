@@ -16,10 +16,8 @@
 
 package actions
 
-import java.time.Month
-
 import config.MockAppConfig
-import controllers.routes.{ContractorSummaryController, DeductionPeriodController}
+import controllers.routes.ContractorSummaryController
 import models.UserSessionDataRequest
 import models.mongo.DataNotFoundError
 import play.api.mvc.Results.{InternalServerError, Redirect}
@@ -29,6 +27,7 @@ import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockCISSessionService, MockErrorHandler}
 
+import java.time.Month
 import scala.concurrent.ExecutionContext
 
 class OptionalCisCyaRefinerActionSpec extends UnitTest

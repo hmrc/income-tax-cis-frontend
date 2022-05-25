@@ -53,14 +53,14 @@ class DeleteCISPeriodControllerSpec extends ControllerUnitTest
   ".submit" should {
     "redirect when service returns Right" in {
       mockExclusivelyCustomerPriorDataForEOY(taxYearEOY, aCisDeductions.employerRef, month = "may", anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions)))
-      mockRemoveCISDeduction(taxYearEOY, aCisDeductions.employerRef, aUser, MAY, Right(()))
+      mockRemoveCISDeduction(taxYearEOY, aCisDeductions.employerRef, aUser, MAY, anIncomeTaxUserData, Right(()))
 
       status(underTest.submit(taxYearEOY, aCisDeductions.employerRef, month = "may").apply(fakeIndividualRequest)) shouldBe SEE_OTHER
     }
 
     "throw an error when service returns Left" in {
       mockExclusivelyCustomerPriorDataForEOY(taxYearEOY, aCisDeductions.employerRef, month = "may", anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions)))
-      mockRemoveCISDeduction(taxYearEOY, aCisDeductions.employerRef, aUser, MAY, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
+      mockRemoveCISDeduction(taxYearEOY, aCisDeductions.employerRef, aUser, MAY, anIncomeTaxUserData, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
       mockHandleError(INTERNAL_SERVER_ERROR, InternalServerError)
 
       status(underTest.submit(taxYearEOY, aCisDeductions.employerRef, month = "may").apply(fakeIndividualRequest)) shouldBe INTERNAL_SERVER_ERROR
@@ -68,7 +68,7 @@ class DeleteCISPeriodControllerSpec extends ControllerUnitTest
 
     "throw a internal server error when service returns Left" in {
       mockExclusivelyCustomerPriorDataForEOY(taxYearEOY, aCisDeductions.employerRef, month = "may", anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions)))
-      mockRemoveCISDeduction(taxYearEOY, aCisDeductions.employerRef, aUser, MAY, Left(DataNotFoundError))
+      mockRemoveCISDeduction(taxYearEOY, aCisDeductions.employerRef, aUser, MAY, anIncomeTaxUserData, Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
       status(underTest.submit(taxYearEOY, aCisDeductions.employerRef, month = "may").apply(fakeIndividualRequest)) shouldBe INTERNAL_SERVER_ERROR

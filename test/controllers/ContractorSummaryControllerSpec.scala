@@ -16,7 +16,6 @@
 
 package controllers
 
-import models.forms.DeductionPeriod
 import models.mongo.DataNotUpdatedError
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
 import play.api.mvc.Results.InternalServerError

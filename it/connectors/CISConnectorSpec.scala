@@ -19,7 +19,7 @@ package connectors
 import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.libs.json.Json
 import play.mvc.Http.Status._
-import support.builders.models.CISSubmissionBuilder.aCreateCISSubmission
+import support.builders.models.submission.CISSubmissionBuilder.aCISSubmission
 import support.{ConnectorIntegrationTest, TaxYearProvider}
 import support.builders.models.UserBuilder.aUser
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
@@ -38,25 +38,25 @@ class CISConnectorSpec extends ConnectorIntegrationTest with TaxYearProvider {
 
   ".CISConnector" should {
     "return an OK response when successful" in {
-      stubPost(url, OK, Json.toJson(aCreateCISSubmission).toString())
+      stubPost(url, OK, Json.toJson(aCISSubmission).toString())
 
-      Await.result(underTest.submit(aUser.nino, taxYearEOY, aCreateCISSubmission), Duration.Inf) shouldBe Right(())
+      Await.result(underTest.submit(aUser.nino, taxYearEOY, aCISSubmission), Duration.Inf) shouldBe Right(())
     }
 
     "Return an error result" when {
       Seq(BAD_REQUEST, NOT_FOUND, FORBIDDEN, UNPROCESSABLE_ENTITY, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE).foreach { status =>
         s"CIS BE returns a $status" in {
-          stubPost(url, status, Json.toJson(aCreateCISSubmission).toString())
+          stubPost(url, status, Json.toJson(aCISSubmission).toString())
 
-          Await.result(underTest.submit(aUser.nino, taxYearEOY, aCreateCISSubmission), Duration.Inf) shouldBe
+          Await.result(underTest.submit(aUser.nino, taxYearEOY, aCISSubmission), Duration.Inf) shouldBe
             Left(APIErrorModel(status, APIErrorBodyModel.parsingError))
         }
       }
 
       s"CIS BE returns an unexpected result" in {
-        stubPost(url, BAD_GATEWAY, Json.toJson(aCreateCISSubmission).toString())
+        stubPost(url, BAD_GATEWAY, Json.toJson(aCISSubmission).toString())
 
-        Await.result(underTest.submit(aUser.nino, taxYearEOY, aCreateCISSubmission), Duration.Inf) shouldBe
+        Await.result(underTest.submit(aUser.nino, taxYearEOY, aCISSubmission), Duration.Inf) shouldBe
           Left(APIErrorModel(BAD_GATEWAY, APIErrorBodyModel.parsingError))
       }
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package support.builders.models
+package support
 
 import org.jsoup.nodes.Document
 import org.scalatest.matchers.should.Matchers

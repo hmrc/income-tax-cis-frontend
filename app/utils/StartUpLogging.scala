@@ -16,9 +16,9 @@
 
 package utils
 
-import javax.inject.Inject
 import repositories.CisUserDataRepositoryImpl
 
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class StartUpLogging @Inject()(implicit val ec: ExecutionContext,

@@ -21,7 +21,6 @@ import play.api.libs.json.{JsObject, Json}
 
 import java.time.{LocalDate, Month}
 
-
 object PeriodDataBuilder {
 
   val aPeriodData: PeriodData = PeriodData(

@@ -16,6 +16,7 @@
 
 package services
 
+import audit.{AmendCisContractorAudit, AuditService, CreateNewCisContractorAudit}
 import connectors.CISConnector
 import models.mongo.CisUserData
 import models.{HttpParserError, InvalidOrUnfinishedSubmission, ServiceError, User}
@@ -25,7 +26,9 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ContractorCYAService @Inject()(cisSessionService: CISSessionService,
-                                     cisConnector: CISConnector)(implicit val ec: ExecutionContext) {
+                                     auditService: AuditService,
+                                     cisConnector: CISConnector)
+                                    (implicit val ec: ExecutionContext) {
 
   def submitCisDeductionCYA(taxYear: Int,
                             employerRef: String,
@@ -34,11 +37,32 @@ class ContractorCYAService @Inject()(cisSessionService: CISSessionService,
 
     cisUserData.toSubmission match {
       case Some(submission) =>
-        cisConnector.submit(user.nino,taxYear,submission)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)).flatMap {
-        case Left(error) => Future.successful(Left(HttpParserError(error.status)))
-        case Right(_) => cisSessionService.refreshAndClear(user,employerRef,taxYear)
-      }
+        cisConnector.submit(user.nino, taxYear, submission)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)).flatMap {
+          case Left(error) => Future.successful(Left(HttpParserError(error.status)))
+          case Right(_) =>
+            val handleAuditingFuture = handleAuditing(taxYear, employerRef, user, cisUserData)
+            val refreshAndClearFuture = cisSessionService.refreshAndClear(user, employerRef, taxYear)
+            for {
+              _ <- handleAuditingFuture
+              result <- refreshAndClearFuture
+            } yield result
+        }
       case None => Future.successful(Left(InvalidOrUnfinishedSubmission))
+    }
+  }
+
+  private def handleAuditing(taxYear: Int, employerRef: String, user: User, cisUserData: CisUserData)
+                            (implicit hc: HeaderCarrier): Future[Unit] = {
+    if (cisUserData.submissionId.isEmpty) {
+      val auditModel = CreateNewCisContractorAudit.mapFrom(taxYear, employerRef, user, cisUserData).get
+      Future.successful(auditService.sendAudit[CreateNewCisContractorAudit](auditModel.toAuditModel))
+    } else {
+      cisSessionService.getPriorData(user, taxYear).map {
+        case Left(_) => ()
+        case Right(incomeTaxUserData) =>
+          val auditModel = AmendCisContractorAudit(taxYear, employerRef, user, cisUserData, incomeTaxUserData)
+          auditService.sendAudit[AmendCisContractorAudit](auditModel.toAuditModel)
+      }
     }
   }
 }

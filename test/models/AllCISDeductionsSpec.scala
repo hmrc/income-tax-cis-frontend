@@ -289,4 +289,25 @@ class AllCISDeductionsSpec extends UnitTest {
       underTest.customerCisDeductionsWith(employerRef = "unknown-ref") shouldBe None
     }
   }
+
+  ".contractorCisDeductionsWith(employerRef)" should {
+    "return contractor cis deductions with give employerRef when exists" in {
+      val deductions = aCisDeductions.copy(employerRef = "known-employer-ref")
+      val underTest = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
+
+      underTest.contractorCisDeductionsWith(employerRef = "known-employer-ref") shouldBe Some(deductions)
+    }
+
+    "return None when contractorCISDeductions is None" in {
+      val underTest = anAllCISDeductions.copy(contractorCISDeductions = None)
+
+      underTest.contractorCisDeductionsWith(employerRef = "any-ref") shouldBe None
+    }
+
+    "return None when contractorCISDeductions with given employerRef do not exist" in {
+      val underTest = anAllCISDeductions
+
+      underTest.contractorCisDeductionsWith(employerRef = "unknown-ref") shouldBe None
+    }
+  }
 }

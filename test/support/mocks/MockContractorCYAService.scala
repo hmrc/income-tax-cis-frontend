@@ -31,10 +31,11 @@ trait MockContractorCYAService extends MockFactory {
 
   def mockSubmitCisDeductionCYA(taxYear: Int,
                                 employerRef: String,
-                                result: Either[ServiceError, Unit]): CallHandler5[Int, String,
-    User, CisUserData, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
+                                user: User,
+                                cisUserData: CisUserData,
+                                result: Either[ServiceError, Unit]): CallHandler5[Int, String, User, CisUserData, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
     (mockContractorCYAService.submitCisDeductionCYA(_: Int, _: String, _: User, _: CisUserData)(_: HeaderCarrier))
-      .expects(taxYear, employerRef, *, *, *)
+      .expects(taxYear, employerRef, user, cisUserData, *)
       .returns(Future.successful(result))
   }
 }
