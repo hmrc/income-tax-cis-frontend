@@ -14,43 +14,42 @@
  * limitations under the License.
  *@
 
-@import views.html.templates.Layout
+@import controllers.routes.DeductionPeriodController
+@import models.pages.DeductionPeriodPage
 @import views.html.templates.helpers.Heading
 @import views.html.templates.helpers.Button
 @import views.html.templates.helpers.ErrorSummary
-@import models.pages.DeductionPeriodPage
-@import models.forms.DeductionPeriod
+@import views.html.templates.Layout
 @import utils.ViewUtils.availableMonths
 
-@this(heading : Heading,
-      layout: Layout,
-      formHelper: FormWithCSRF,
-      button: Button,
-      errorSummary: ErrorSummary,
-      govukSelect : GovukSelect)
+@this(
+    layout: Layout,
+    heading : Heading,
+    errorSummary: ErrorSummary,
+    formWithCsrf: FormWithCSRF,
+    govukSelect : GovukSelect,
+    button: Button
+)
 
-@(pageModel: DeductionPeriodPage, form: Form[DeductionPeriod])(implicit request: UserSessionDataRequest[_], messages: Messages, appConfig: AppConfig)
-
-@hasFormErrors = @{form.hasErrors}
+@(pageModel: DeductionPeriodPage)(implicit request: UserSessionDataRequest[_], messages: Messages, appConfig: AppConfig)
 
 @title = @{messages(s"deductionPeriod.title.${if(request.user.isAgent) "agent" else "individual"}")}
 
 @contractor = @{pageModel.contractorName.getOrElse(messages("common.contractor.employerRef", pageModel.employerRef))}
 
-@layout(pageTitle = title, backLink = true, hasErrors = hasFormErrors, isAgent = request.user.isAgent) {
+@layout(pageTitle = title, backLink = true, hasErrors = pageModel.form.hasErrors, isAgent = request.user.isAgent) {
 
-    @errorSummary(form.errors, fieldId = Some("month"))
+    @errorSummary(pageModel.form.errors, fieldId = Some("month"))
 
     @heading(messages("deductionPeriod.heading", contractor), Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
 
     <p class="govuk-body">@messages(s"deductionPeriod.p1.${if(request.user.isAgent) "agent" else "individual"}")</p>
 
-    @formHelper(action = controllers.routes.DeductionPeriodController.submit(pageModel.taxYear, pageModel.employerRef)) {
-
+    @formWithCsrf(action = DeductionPeriodController.submit(pageModel.taxYear, pageModel.employerRef)) {
         @govukSelect(Select(
             id = "month",
             name = "month",
-            items = availableMonths(pageModel.priorSubmittedPeriods, pageModel.taxYear, if(form.data.get("month").isDefined) try{Some(java.time.Month.valueOf(form.data("month").toUpperCase))} catch { case _: Exception => None} else pageModel.period),
+            items = availableMonths(pageModel.taxYear, pageModel.form.value.map(_.month).orElse(pageModel.period)),
             label = Label(
                 content = Text(messages("deductionPeriod.taxMonthEnding")),
                 classes = "govuk-label govuk-label--s govuk-!-margin-bottom-3"

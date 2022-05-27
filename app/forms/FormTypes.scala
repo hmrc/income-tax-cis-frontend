@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package forms.validation.utils
+package forms
 
-import play.api.data.validation.{Constraint, Valid, ValidationResult}
+import models.forms.DeductionPeriod
+import play.api.data.Form
 
-
-object ConstraintUtil {
-
-  def constraint[A](f: A => ValidationResult): Constraint[A] = Constraint[A](name = "")(f)
-
-  implicit class ConstraintUtil[A](cons: Constraint[A]) {
-
-    def andThen(newCons: Constraint[A]): Constraint[A] =
-      constraint((data: A) =>
-        cons.apply(data) match {
-          case Valid => newCons.apply(data)
-          case r => r
-        }
-      )
-  }
+object FormTypes {
+  type DeductionAmountForm = Form[BigDecimal]
+  type MaterialsAmountForm = Form[BigDecimal]
+  type MaterialsYesNoForm = Form[Boolean]
+  type LabourPayAmountForm = Form[BigDecimal]
+  type DeductionPeriodForm = Form[DeductionPeriod]
 }

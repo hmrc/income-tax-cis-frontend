@@ -16,7 +16,7 @@
 
 package models.pages
 
-import forms.FormsProvider.LabourPayAmountForm
+import forms.FormTypes.LabourPayAmountForm
 import models.mongo.CisUserData
 
 import java.time.Month

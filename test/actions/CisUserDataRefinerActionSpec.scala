@@ -38,7 +38,7 @@ class CisUserDataRefinerActionSpec extends UnitTest
   private val appConfig = new MockAppConfig().config()
   private val executionContext = ExecutionContext.global
 
-  private val underTest = new CisUserDataRefinerAction(
+  private val underTest = CisUserDataRefinerAction(
     taxYear = taxYear,
     employerRef = employerRef,
     cisSessionService = mockCISSessionService,
@@ -80,13 +80,6 @@ class CisUserDataRefinerActionSpec extends UnitTest
       mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(Some(cisUserData)))
 
       await(underTest.refine(anAuthorisationRequest)) shouldBe Right(UserSessionDataRequest(cisUserData, anAuthorisationRequest.user, anAuthorisationRequest.request))
-    }
-  }
-
-  ".apply" should {
-    "construct CisUserDataActionRefiner with decoded employerRef" in {
-      CisUserDataRefinerAction.apply(taxYear, "123/1111", mockCISSessionService, mockErrorHandler, appConfig)(executionContext) shouldBe
-        new CisUserDataRefinerAction(taxYear, employerRef = "123/1111", cisSessionService = mockCISSessionService, errorHandler = mockErrorHandler, appConfig = appConfig)(executionContext)
     }
   }
 }

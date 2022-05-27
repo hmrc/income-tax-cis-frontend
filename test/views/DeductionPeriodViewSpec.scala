@@ -18,15 +18,15 @@ package views
 
 import forms.DeductionPeriodFormProvider
 import models.UserSessionDataRequest
-import models.forms.DeductionPeriod
-import models.pages.DeductionPeriodPage
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import play.api.data.{Form, FormError}
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import support.ViewUnitTest
+import support.builders.models.pages.DeductionPeriodPageBuilder.aDeductionPeriodPage
 import views.html.cis.DeductionPeriodView
+
+import java.time.Month.AUGUST
 
 class DeductionPeriodViewSpec extends ViewUnitTest {
 
@@ -105,20 +105,17 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
     UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY))
   )
 
-  private val pageModel = DeductionPeriodPage(Some("Michele Lamy Paving Ltd"),"111/11111",taxYearEOY,None,Seq())
-
   private lazy val underTest = inject[DeductionPeriodView]
 
   private def formProvider = new DeductionPeriodFormProvider()
-  private def form(isAgent: Boolean): Form[DeductionPeriod] = formProvider.deductionPeriodForm(isAgent, pageModel.priorSubmittedPeriods)
 
   userScenarios.foreach { userScenario =>
     s"language is ${welshTest(userScenario.isWelsh)} and request is from an ${agentTest(userScenario.isAgent)}" should {
-      "render the deduction period page when at the end of the year" which {
+      "render the deduction period page without errors" which {
         implicit val authRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
         implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
-        implicit val document: Document = Jsoup.parse(underTest(pageModel,form(userScenario.isAgent)).body)
+        implicit val document: Document = Jsoup.parse(underTest(aDeductionPeriodPage).body)
 
         welshToggleCheck(userScenario.isWelsh)
         titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
@@ -129,13 +126,15 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
         buttonCheck(userScenario.specificExpectedResults.get.expectedButtonText, Selectors.buttonSelector)
       }
 
-      "render the deduction period page with the correct error when at the end of the year" which {
+      "render the deduction period page with error when at the end of the year" which {
         implicit val authRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
         implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
-        def formError(isAgent: Boolean): FormError = FormError("month", formProvider.error(isAgent))
+        val formWithError = formProvider.deductionPeriodForm(userScenario.isAgent, Seq(AUGUST)).bind(Map("month" -> "august"))
 
-        implicit val document: Document = Jsoup.parse(underTest(pageModel,form(userScenario.isAgent).withError(formError(userScenario.isAgent))).body)
+        val pageModel = aDeductionPeriodPage.copy(form = formWithError)
+
+        implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
         titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
@@ -151,44 +150,45 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
 
   "the view" should {
     "display the month options correctly in welsh" which {
-      implicit val authRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(false)
-      implicit val messages: Messages = getMessages(true)
+      implicit val authRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(isAgent = false)
+      implicit val messages: Messages = getMessages(isWelsh = true)
 
-      implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(contractorName = None),form(false)).body)
+      implicit val document: Document = Jsoup.parse(underTest(aDeductionPeriodPage.copy(contractorName = None)).body)
 
-      h1Check("When did Contractor: 111/11111 make CIS deductions?")
-      textOnPageCheck(s"5 Mai $taxYearEOYStart", Selectors.optionsSelector(1))
-      textOnPageCheck(s"5 Mehefin $taxYearEOYStart", Selectors.optionsSelector(2))
-      textOnPageCheck(s"5 Gorffennaf $taxYearEOYStart", Selectors.optionsSelector(3))
-      textOnPageCheck(s"5 Awst $taxYearEOYStart", Selectors.optionsSelector(4))
-      textOnPageCheck(s"5 Medi $taxYearEOYStart", Selectors.optionsSelector(5))
-      textOnPageCheck(s"5 Hydref $taxYearEOYStart", Selectors.optionsSelector(6))
-      textOnPageCheck(s"5 Tachwedd $taxYearEOYStart", Selectors.optionsSelector(7))
-      textOnPageCheck(s"5 Rhagfyr $taxYearEOYStart", Selectors.optionsSelector(8))
-      textOnPageCheck(s"5 Ionawr $taxYearEOY", Selectors.optionsSelector(9))
-      textOnPageCheck(s"5 Chwefror $taxYearEOY", Selectors.optionsSelector(10))
-      textOnPageCheck(s"5 Mawrth $taxYearEOY", Selectors.optionsSelector(11))
-      textOnPageCheck(s"5 Ebrill $taxYearEOY", Selectors.optionsSelector(12))
+      h1Check(header = "When did Contractor: 111/11111 make CIS deductions?")
+      textOnPageCheck(text = s"5 Mai $taxYearEOYStart", selector = Selectors.optionsSelector(1))
+      textOnPageCheck(text = s"5 Mehefin $taxYearEOYStart", Selectors.optionsSelector(2))
+      textOnPageCheck(text = s"5 Gorffennaf $taxYearEOYStart", Selectors.optionsSelector(3))
+      textOnPageCheck(text = s"5 Awst $taxYearEOYStart", Selectors.optionsSelector(4))
+      textOnPageCheck(text = s"5 Medi $taxYearEOYStart", Selectors.optionsSelector(5))
+      textOnPageCheck(text = s"5 Hydref $taxYearEOYStart", Selectors.optionsSelector(6))
+      textOnPageCheck(text = s"5 Tachwedd $taxYearEOYStart", Selectors.optionsSelector(7))
+      textOnPageCheck(text = s"5 Rhagfyr $taxYearEOYStart", Selectors.optionsSelector(8))
+      textOnPageCheck(text = s"5 Ionawr $taxYearEOY", Selectors.optionsSelector(9))
+      textOnPageCheck(text = s"5 Chwefror $taxYearEOY", Selectors.optionsSelector(10))
+      textOnPageCheck(text = s"5 Mawrth $taxYearEOY", Selectors.optionsSelector(11))
+      textOnPageCheck(text = s"5 Ebrill $taxYearEOY", selector = Selectors.optionsSelector(12))
     }
+
     "display the month options correctly in english" which {
-      implicit val authRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(false)
-      implicit val messages: Messages = getMessages(false)
+      implicit val authRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(isAgent = false)
+      implicit val messages: Messages = getMessages(isWelsh = false)
 
-      implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(contractorName=None),form(false)).body)
+      implicit val document: Document = Jsoup.parse(underTest(aDeductionPeriodPage.copy(contractorName = None)).body)
 
-      h1Check("When did Contractor: 111/11111 make CIS deductions?")
-      textOnPageCheck(s"5 May $taxYearEOYStart", Selectors.optionsSelector(1))
-      textOnPageCheck(s"5 June $taxYearEOYStart", Selectors.optionsSelector(2))
-      textOnPageCheck(s"5 July $taxYearEOYStart", Selectors.optionsSelector(3))
-      textOnPageCheck(s"5 August $taxYearEOYStart", Selectors.optionsSelector(4))
-      textOnPageCheck(s"5 September $taxYearEOYStart", Selectors.optionsSelector(5))
-      textOnPageCheck(s"5 October $taxYearEOYStart", Selectors.optionsSelector(6))
-      textOnPageCheck(s"5 November $taxYearEOYStart", Selectors.optionsSelector(7))
-      textOnPageCheck(s"5 December $taxYearEOYStart", Selectors.optionsSelector(8))
-      textOnPageCheck(s"5 January $taxYearEOY", Selectors.optionsSelector(9))
-      textOnPageCheck(s"5 February $taxYearEOY", Selectors.optionsSelector(10))
-      textOnPageCheck(s"5 March $taxYearEOY", Selectors.optionsSelector(11))
-      textOnPageCheck(s"5 April $taxYearEOY", Selectors.optionsSelector(12))
+      h1Check(header = "When did Contractor: 111/11111 make CIS deductions?")
+      textOnPageCheck(text = s"5 May $taxYearEOYStart", selector = Selectors.optionsSelector(1))
+      textOnPageCheck(text = s"5 June $taxYearEOYStart", Selectors.optionsSelector(2))
+      textOnPageCheck(text = s"5 July $taxYearEOYStart", Selectors.optionsSelector(3))
+      textOnPageCheck(text = s"5 August $taxYearEOYStart", Selectors.optionsSelector(4))
+      textOnPageCheck(text = s"5 September $taxYearEOYStart", Selectors.optionsSelector(5))
+      textOnPageCheck(text = s"5 October $taxYearEOYStart", Selectors.optionsSelector(6))
+      textOnPageCheck(text = s"5 November $taxYearEOYStart", Selectors.optionsSelector(7))
+      textOnPageCheck(text = s"5 December $taxYearEOYStart", Selectors.optionsSelector(8))
+      textOnPageCheck(text = s"5 January $taxYearEOY", Selectors.optionsSelector(9))
+      textOnPageCheck(text = s"5 February $taxYearEOY", Selectors.optionsSelector(10))
+      textOnPageCheck(text = s"5 March $taxYearEOY", Selectors.optionsSelector(11))
+      textOnPageCheck(text = s"5 April $taxYearEOY", Selectors.optionsSelector(12))
     }
   }
 }

@@ -16,10 +16,10 @@
 
 package forms
 
-import java.time.Month
-
 import play.api.data.FormError
 import support.UnitTest
+
+import java.time.Month
 
 class DeductionPeriodFormProviderSpec extends UnitTest {
 

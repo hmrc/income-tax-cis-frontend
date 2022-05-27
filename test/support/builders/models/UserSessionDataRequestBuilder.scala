@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package forms.validation.utils
+package support.builders.models
 
-import play.api.data.validation.{Constraint, Valid, ValidationResult}
+import models.{User, UserSessionDataRequest}
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 
+object UserSessionDataRequestBuilder {
 
-object ConstraintUtil {
-
-  def constraint[A](f: A => ValidationResult): Constraint[A] = Constraint[A](name = "")(f)
-
-  implicit class ConstraintUtil[A](cons: Constraint[A]) {
-
-    def andThen(newCons: Constraint[A]): Constraint[A] =
-      constraint((data: A) =>
-        cons.apply(data) match {
-          case Valid => newCons.apply(data)
-          case r => r
-        }
-      )
-  }
+  val aUserSessionDataRequest: UserSessionDataRequest[AnyContentAsEmpty.type] = UserSessionDataRequest(
+    cisUserData = aCisUserData,
+    user = User(aCisUserData.mtdItId, None, aCisUserData.nino, aCisUserData.sessionId, "affinityGroup"),
+    request = FakeRequest()
+  )
 }

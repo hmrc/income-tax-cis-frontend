@@ -16,17 +16,17 @@
 
 package forms
 
-import java.time.Month
-
 import filters.InputFilters
+import forms.FormTypes.DeductionPeriodForm
 import forms.validation.mappings.MappingUtil.trimmedText
-import javax.inject.Singleton
+import forms.validation.utils.ConstraintUtil.constraint
 import models.forms.DeductionPeriod
-import play.api.data.{Form, FormError}
+import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.validation.{Constraint, Invalid, Valid}
-import forms.validation.utils.ConstraintUtil.constraint
 
+import java.time.Month
+import javax.inject.Singleton
 import scala.util.Try
 
 @Singleton
@@ -34,24 +34,17 @@ class DeductionPeriodFormProvider extends InputFilters {
 
   def error(isAgent: Boolean): String = s"deductionPeriod.error.${if (isAgent) "agent" else "individual"}"
 
-  private def alreadySubmittedCheck(submittedMonths: Seq[Month]): String => Constraint[String] = msgKey => constraint[String](
-    month => {
-      if(submittedMonths.map(_.toString).contains(month.toUpperCase)) Invalid(msgKey) else Valid
-    }
-  )
+  def deductionPeriodForm(isAgent: Boolean, submittedMonths: Seq[Month] = Seq()): DeductionPeriodForm =
+    Form(mapping("month" -> trimmedText.transform[String](filter, identity)
+      .verifying(validMonth(error(isAgent)))
+      .verifying(alreadySubmittedCheck(submittedMonths)(error(isAgent))))
+    (DeductionPeriod.formApply)(DeductionPeriod.formUnapply))
 
-  private def validMonth: String => Constraint[String] = msgKey => constraint[String](
-    month => {
-      if (Try(Month.valueOf(month.toUpperCase)).toOption.isDefined) Valid else Invalid(msgKey)
-    }
-  )
+  private def alreadySubmittedCheck(submittedMonths: Seq[Month]): String => Constraint[String] = msgKey => constraint[String] { month =>
+    if (submittedMonths.map(_.toString).contains(month.toUpperCase)) Invalid(msgKey) else Valid
+  }
 
-  def deductionPeriodForm(isAgent: Boolean, submittedMonths: Seq[Month] = Seq()): Form[DeductionPeriod] =
-    Form(
-      mapping(
-        "month" -> trimmedText.transform[String](filter, x => x)
-          .verifying(validMonth(error(isAgent)))
-          .verifying(alreadySubmittedCheck(submittedMonths)(error(isAgent)))
-      )(DeductionPeriod.formApply)(DeductionPeriod.formUnapply)
-    )
+  private def validMonth: String => Constraint[String] = msgKey => constraint[String] { month =>
+    if (Try(Month.valueOf(month.toUpperCase)).toOption.isDefined) Valid else Invalid(msgKey)
+  }
 }

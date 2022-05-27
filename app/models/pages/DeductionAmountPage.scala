@@ -16,7 +16,7 @@
 
 package models.pages
 
-import forms.FormsProvider.DeductionAmountForm
+import forms.FormTypes.DeductionAmountForm
 import models.mongo.CisUserData
 
 import java.time.Month

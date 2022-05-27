@@ -32,7 +32,7 @@ class SessionExpiredControllerISpec extends IntegrationTest with ViewHelpers {
     val formSelector = "#main-content > div > div > form"
   }
 
-  val url = s"$appUrl/timeout"
+  private val url = s"$appUrl/timeout"
 
   trait CommonExpectedResults {
     val h1Expected: String
@@ -85,7 +85,7 @@ class SessionExpiredControllerISpec extends IntegrationTest with ViewHelpers {
           welshToggleCheck(user.isWelsh)
           h1Check(h1Expected, "xl")
 
-          textOnPageCheck(p1Expected,p1Selector)
+          textOnPageCheck(p1Expected, p1Selector)
           buttonCheck(buttonExpectedText, buttonSelector)
           formGetLinkCheck(buttonExpectedUrl, formSelector)
         }

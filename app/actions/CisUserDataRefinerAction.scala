@@ -37,7 +37,6 @@ case class CisUserDataRefinerAction(taxYear: Int,
   override protected[actions] def executionContext: ExecutionContext = ec
 
   override protected[actions] def refine[A](input: AuthorisationRequest[A]): Future[Either[Result, UserSessionDataRequest[A]]] = {
-
     val tempEmployerRef = input.session.get(TEMP_EMPLOYER_REF)
 
     cisSessionService.getSessionData(taxYear, employerRef, input.user, tempEmployerRef).map {
@@ -47,21 +46,4 @@ case class CisUserDataRefinerAction(taxYear: Int,
       case Right(Some(cisUserData)) if !cisUserData.hasPeriodData => Left(Redirect(DeductionPeriodController.show(taxYear, employerRef)))
     }
   }
-}
-
-object CisUserDataRefinerAction {
-
-  def apply(taxYear: Int,
-            employerRef: String,
-            cisSessionService: CISSessionService,
-            errorHandler: ErrorHandler,
-            appConfig: AppConfig,
-            needsPeriodData: Boolean = true)(implicit ec: ExecutionContext): CisUserDataRefinerAction = new CisUserDataRefinerAction(
-    taxYear = taxYear,
-    employerRef = employerRef,
-    cisSessionService = cisSessionService,
-    errorHandler = errorHandler,
-    appConfig = appConfig,
-    needsPeriodData = needsPeriodData
-  )
 }

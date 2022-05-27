@@ -16,13 +16,29 @@
 
 package models.pages
 
+import forms.FormTypes.DeductionPeriodForm
+import models.mongo.CisUserData
+
 import java.time.Month
 
-case class DeductionPeriodPage(contractorName: Option[String],
+case class DeductionPeriodPage(taxYear: Int,
+                               contractorName: Option[String],
                                employerRef: String,
-                               taxYear: Int,
-                               period: Option[Month] = None,
-                               priorSubmittedPeriods: Seq[Month] = Seq.empty){
+                               period: Option[Month],
+                               priorSubmittedPeriods: Seq[Month],
+                               form: DeductionPeriodForm)
 
-  lazy val noPeriodsToSubmitFor: Boolean = priorSubmittedPeriods.length == Month.values().length
+object DeductionPeriodPage {
+
+  def apply(taxYear: Int,
+            cisUserData: CisUserData,
+            form: DeductionPeriodForm
+           ): DeductionPeriodPage = DeductionPeriodPage(
+    taxYear = taxYear,
+    contractorName = cisUserData.cis.contractorName,
+    employerRef = cisUserData.employerRef,
+    period = cisUserData.cis.periodData.map(_.deductionPeriod),
+    priorSubmittedPeriods = cisUserData.cis.priorPeriodData.map(_.deductionPeriod),
+    form = form
+  )
 }
