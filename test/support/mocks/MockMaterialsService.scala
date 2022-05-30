@@ -31,7 +31,7 @@ trait MockMaterialsService extends MockFactory {
   def mockSaveQuestion(user: User,
                        cisUserData: CisUserData,
                        questionValue: Boolean,
-                       result: Either[ServiceError, Unit]): CallHandler3[User, CisUserData, Boolean, Future[Either[ServiceError, Unit]]] = {
+                       result: Either[ServiceError, CisUserData]): CallHandler3[User, CisUserData, Boolean, Future[Either[ServiceError, CisUserData]]] = {
     (mockMaterialsService.saveQuestion(_: User, _: CisUserData, _: Boolean))
       .expects(user, cisUserData, questionValue)
       .returning(Future.successful(result))

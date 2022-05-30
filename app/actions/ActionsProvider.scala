@@ -32,7 +32,7 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
                                 appConfig: AppConfig
                                )(implicit ec: ExecutionContext) {
 
-  def notInYear(taxYear: Int): ActionBuilder[AuthorisationRequest, AnyContent] =
+  def endOfYear(taxYear: Int): ActionBuilder[AuthorisationRequest, AnyContent] =
     authAction
       .andThen(TaxYearAction.taxYearAction(taxYear)(appConfig))
       .andThen(EndOfYearFilterAction(taxYear, inYearUtil, appConfig))
@@ -94,8 +94,10 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
       .andThen(EndOfYearFilterAction(taxYear, inYearUtil, appConfig))
       .andThen(CisUserDataRefinerAction(taxYear, contractor, cisSessionService, errorHandler, appConfig))
 
-  def endOfYearWithSessionDataWithCustomerDeductionPeriod(taxYear: Int, contractor: String): ActionBuilder[UserSessionDataRequest, AnyContent] =
-    authAction
+  def endOfYearWithSessionDataWithCustomerDeductionPeriod(taxYear: Int,
+                                                          contractor: String,
+                                                          month: Option[String] = None): ActionBuilder[UserSessionDataRequest, AnyContent] =
+    month.map(monthValue => authAction.andThen(MonthFilterAction(monthValue, errorHandler))).getOrElse(authAction)
       .andThen(TaxYearAction.taxYearAction(taxYear)(appConfig))
       .andThen(EndOfYearFilterAction(taxYear, inYearUtil, appConfig))
       .andThen(CisUserDataRefinerAction(taxYear, contractor, cisSessionService, errorHandler, appConfig, needsPeriodData = false))

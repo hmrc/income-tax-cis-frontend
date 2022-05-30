@@ -18,8 +18,9 @@ package controllers
 
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
-import controllers.routes.DeductionAmountController
+import controllers.routes.{ContractorCYAController, DeductionAmountController}
 import forms.FormsProvider
+import models.mongo.CisUserData
 import models.pages.LabourPayPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -54,8 +55,12 @@ class LabourPayController @Inject()(actionsProvider: ActionsProvider,
       formWithErrors => Future.successful(BadRequest(pageView(LabourPayPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
       amount => labourPayService.saveLabourPay(request.user, request.cisUserData, amount).map {
         case Left(_) => errorHandler.internalServerError()
-        case Right(_) => Redirect(DeductionAmountController.show(taxYear, month, contractor))
+        case Right(cisUserData) => Redirect(getRedirectCall(taxYear, month, contractor, cisUserData))
       }
     )
+  }
+
+  private def getRedirectCall(taxYear: Int, month: String, contractor: String, cisUserData: CisUserData) = {
+    if (cisUserData.isFinished) ContractorCYAController.show(taxYear, month, contractor) else DeductionAmountController.show(taxYear, month, contractor)
   }
 }

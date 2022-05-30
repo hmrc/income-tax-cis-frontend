@@ -108,7 +108,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()
 
-      val underTest = actionsProvider.notInYear(taxYearEOY)(block = anyBlock)
+      val underTest = actionsProvider.endOfYear(taxYearEOY)(block = anyBlock)
 
       await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
     }
@@ -116,7 +116,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     "redirect to Income Tax Submission Overview when not in year" in {
       mockAuthAsIndividual(Some(aUser.nino))
 
-      val underTest = actionsProvider.notInYear(taxYear)(block = anyBlock)
+      val underTest = actionsProvider.endOfYear(taxYear)(block = anyBlock)
 
       await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
@@ -125,7 +125,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     "return successful response" in {
       mockAuthAsIndividual(Some(aUser.nino))
 
-      val underTest = actionsProvider.notInYear(taxYearEOY)(block = anyBlock)
+      val underTest = actionsProvider.endOfYear(taxYearEOY)(block = anyBlock)
 
       status(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe OK
     }
@@ -423,6 +423,15 @@ class ActionsProviderSpec extends ControllerUnitTest
   }
 
   ".endOfYearWithSessionDataWithCustomerDeductionPeriod(taxYear, contractor)" should {
+    "redirect to Error page when month is wrong" in {
+      mockAuthAsIndividual(Some(aUser.nino))
+      mockInternalError(InternalServerError)
+
+      val underTest = actionsProvider.endOfYearWithSessionDataWithCustomerDeductionPeriod(taxYear, month = Some("wrong-month"), contractor = "any-contractor")(block = anyBlock)
+
+      await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe InternalServerError
+    }
+
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()
 

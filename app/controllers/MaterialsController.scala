@@ -20,6 +20,7 @@ import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
 import controllers.routes.{ContractorCYAController, MaterialsAmountController}
 import forms.FormsProvider
+import models.mongo.CisUserData
 import models.pages.MaterialsPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -53,12 +54,16 @@ class MaterialsController @Inject()(actionsProvider: ActionsProvider,
       formWithErrors => Future.successful(BadRequest(pageView(MaterialsPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
       yesNoValue => materialsService.saveQuestion(request.user, request.cisUserData, yesNoValue).map {
         case Left(_) => errorHandler.internalServerError()
-        case Right(_) => if (yesNoValue) {
-          Redirect(MaterialsAmountController.show(taxYear, month.toLowerCase, contractor))
-        } else {
-          Redirect(ContractorCYAController.show(taxYear,month.toLowerCase,contractor))
-        }
+        case Right(cisUserData) => Redirect(getRedirectCall(taxYear, month, contractor, yesNoValue, cisUserData))
       }
     )
+  }
+
+  private def getRedirectCall(taxYear: Int, month: String, contractor: String, yesNoValue: Boolean, cisUserData: CisUserData) = {
+    if (yesNoValue && !cisUserData.isFinished) {
+      MaterialsAmountController.show(taxYear, month.toLowerCase, contractor)
+    } else {
+      ContractorCYAController.show(taxYear, month.toLowerCase, contractor)
+    }
   }
 }

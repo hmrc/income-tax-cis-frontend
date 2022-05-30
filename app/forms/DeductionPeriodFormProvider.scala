@@ -32,13 +32,15 @@ import scala.util.Try
 @Singleton
 class DeductionPeriodFormProvider extends InputFilters {
 
-  def error(isAgent: Boolean): String = s"deductionPeriod.error.${if (isAgent) "agent" else "individual"}"
+  def deductionPeriodForm(isAgent: Boolean,
+                          unSubmittableMonths: Seq[Month] = Seq()): DeductionPeriodForm =
+    Form(mapping(
+      "month" -> trimmedText.transform[String](filter, identity)
+        .verifying(validMonth(error(isAgent)))
+        .verifying(alreadySubmittedCheck(unSubmittableMonths)(error(isAgent)))
+    )(DeductionPeriod.formApply)(DeductionPeriod.formUnapply))
 
-  def deductionPeriodForm(isAgent: Boolean, submittedMonths: Seq[Month] = Seq()): DeductionPeriodForm =
-    Form(mapping("month" -> trimmedText.transform[String](filter, identity)
-      .verifying(validMonth(error(isAgent)))
-      .verifying(alreadySubmittedCheck(submittedMonths)(error(isAgent))))
-    (DeductionPeriod.formApply)(DeductionPeriod.formUnapply))
+  private def error(isAgent: Boolean): String = s"deductionPeriod.error.${if (isAgent) "agent" else "individual"}"
 
   private def alreadySubmittedCheck(submittedMonths: Seq[Month]): String => Constraint[String] = msgKey => constraint[String] { month =>
     if (submittedMonths.map(_.toString).contains(month.toUpperCase)) Invalid(msgKey) else Valid

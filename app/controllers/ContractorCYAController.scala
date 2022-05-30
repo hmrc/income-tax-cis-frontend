@@ -43,34 +43,32 @@ class ContractorCYAController @Inject()(actionsProvider: ActionsProvider,
 
   def show(taxYear: Int,
            month: String,
-           contractor: String): Action[AnyContent] = if(inYearUtil.inYear(taxYear)) inYear(taxYear,month,contractor) else endOfYear(taxYear,month,contractor)
+           contractor: String): Action[AnyContent] =
+    if (inYearUtil.inYear(taxYear)) inYear(taxYear, month, contractor) else endOfYear(taxYear, month, contractor)
+
+  def submit(taxYear: Int, month: String, contractor: String): Action[AnyContent] =
+    actionsProvider.checkCyaExistsAndReturnSessionData(taxYear, contractor, month).async { implicit request =>
+      contractorCYAService.submitCisDeductionCYA(taxYear, contractor, request.user).map {
+        case Left(HttpParserError(status)) => errorHandler.handleError(status)
+        case Left(_) => errorHandler.internalServerError()
+        case Right(_) => Redirect(ContractorSummaryController.show(taxYear, contractor)).removingFromSession(SessionValues.TEMP_EMPLOYER_REF)
+      }
+    }
 
   private def inYear(taxYear: Int,
                      month: String,
                      contractor: String): Action[AnyContent] = actionsProvider.userPriorDataFor(taxYear, contractor, month) { implicit request =>
-
     val data = request.incomeTaxUserData.inYearCisDeductionsWith(contractor).get
     val pageModel = inYearMapToPageModel(taxYear, data, Month.valueOf(month.toUpperCase), request.user.isAgent)
+
     Ok(pageView(pageModel))
   }
 
   private def endOfYear(taxYear: Int,
                         month: String,
-                        contractor: String): Action[AnyContent] = {
-
+                        contractor: String): Action[AnyContent] =
     actionsProvider.checkCyaExistsAndReturnSessionData(taxYear, contractor, month) { implicit request =>
       val pageModel = eoyMapToPageModel(taxYear, request.cisUserData, request.user.isAgent)
       Ok(pageView(pageModel))
     }
-  }
-
-  def submit(taxYear: Int, month: String, contractor: String): Action[AnyContent] = {
-    actionsProvider.checkCyaExistsAndReturnSessionData(taxYear, contractor, month).async { implicit request =>
-      contractorCYAService.submitCisDeductionCYA(taxYear, contractor, request.user).map {
-        case Left(HttpParserError(status)) => errorHandler.handleError(status)
-        case Left(_) => errorHandler.internalServerError()
-        case Right(_) => Redirect(ContractorSummaryController.show(taxYear,contractor)).removingFromSession(SessionValues.TEMP_EMPLOYER_REF)
-      }
-    }
-  }
 }

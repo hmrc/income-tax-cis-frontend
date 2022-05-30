@@ -24,7 +24,7 @@ import play.api.i18n.Messages
 import play.api.mvc.AnyContent
 import support.ViewUnitTest
 import support.builders.models.pages.DeductionPeriodPageBuilder.aDeductionPeriodPage
-import views.html.cis.DeductionPeriodView
+import views.html.DeductionPeriodView
 
 import java.time.Month.AUGUST
 

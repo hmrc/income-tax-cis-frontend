@@ -16,7 +16,6 @@
 
 package controllers
 
-import akka.util.ByteString.UTF_8
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
@@ -25,12 +24,8 @@ import support.IntegrationTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
-import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
-import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.ViewHelpers
-
-import java.net.URLEncoder.encode
 
 class ContractorSummaryControllerISpec extends IntegrationTest with ViewHelpers {
 
@@ -38,13 +33,11 @@ class ContractorSummaryControllerISpec extends IntegrationTest with ViewHelpers 
   private val repoUnderTest: CisUserDataRepositoryImpl = app.injector.instanceOf[CisUserDataRepositoryImpl]
 
   private def url(taxYear: Int, employerRef: String): String = {
-    val encodedRef = encode(employerRef, UTF_8)
-    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/contractor?contractor=$encodedRef"
+    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/contractor?contractor=$employerRef"
   }
 
   private def setupNewDeductionUrl(taxYear: Int, employerRef: String): String = {
-    val encodedRef = encode(employerRef, UTF_8)
-    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/add-cis-deduction?contractor=$encodedRef"
+    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/add-cis-deduction?contractor=$employerRef"
   }
 
   ".show" should {
@@ -77,14 +70,13 @@ class ContractorSummaryControllerISpec extends IntegrationTest with ViewHelpers 
         urlGet(fullUrl(setupNewDeductionUrl(taxYearEOY, employerRef = aCisDeductions.employerRef)), headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
       }
 
-      val data = aCisDeductions.toCYA(None,Seq())
-      val updatedCya = data.copy(
-        priorPeriodData = data.priorPeriodData.map(_.copy(contractorSubmitted = true))
+      val updatedCya = aCisDeductions.toCYA(None, Seq(), hasCompleted = false).copy(
+        priorPeriodData = aCisDeductions.toCYA(None, Seq(), hasCompleted = false).priorPeriodData.map(_.copy(contractorSubmitted = true))
       )
 
       result.status shouldBe SEE_OTHER
-      result.headers("Location").head shouldBe controllers.routes.DeductionPeriodController.show(taxYearEOY,aCisDeductions.employerRef).url
-      val response = await(repoUnderTest.find(taxYearEOY,aCisDeductions.employerRef,aUser))
+      result.headers("Location").head shouldBe controllers.routes.DeductionPeriodController.show(taxYearEOY, aCisDeductions.employerRef).url
+      val response = await(repoUnderTest.find(taxYearEOY, aCisDeductions.employerRef, aUser))
       val responseTime = response.right.get.get.lastUpdated
 
       response shouldBe Right(Some(aCisUserData.copy(cis = updatedCya, lastUpdated = responseTime)))

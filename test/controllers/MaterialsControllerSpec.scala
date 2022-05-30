@@ -24,14 +24,15 @@ import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
 import play.api.mvc.Results.{InternalServerError, Redirect}
 import play.api.test.Helpers.{contentAsString, contentType, status}
 import support.ControllerUnitTest
+import support.builders.models.CisDeductionsBuilder.aCisDeductions
+import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
+import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockActionsProvider, MockMaterialsService}
 import views.html.MaterialsView
-import java.time.Month
 
-import support.builders.models.CisDeductionsBuilder.aCisDeductions
-import support.builders.models.PeriodDataBuilder.aPeriodData
+import java.time.Month.MAY
 
 class MaterialsControllerSpec extends ControllerUnitTest
   with MockActionsProvider
@@ -58,9 +59,9 @@ class MaterialsControllerSpec extends ControllerUnitTest
 
   ".submit" should {
     "render page with error when validation of form fails" in {
-      mockEndOfYearWithSessionData(taxYearEOY, month = Month.MAY.toString, employerRef = "some-ref")
+      mockEndOfYearWithSessionData(taxYearEOY, month = "may", employerRef = "some-ref")
 
-      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> ""))
+      val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> ""))
 
       status(result) shouldBe BAD_REQUEST
       contentType(result) shouldBe Some("text/html")
@@ -69,29 +70,37 @@ class MaterialsControllerSpec extends ControllerUnitTest
     }
 
     "handle internal server error when save operation fails with database error" in {
-      mockEndOfYearWithSessionData(taxYearEOY, month = Month.MAY.toString, aCisUserData.employerRef)
+      mockEndOfYearWithSessionData(taxYearEOY, month = MAY.toString.toLowerCase, aCisUserData.employerRef)
       mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
-      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "true"))
+      val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "true"))
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
-    "redirect to Materials amount page when Yes submitted successfully" in {
-      mockEndOfYearWithSessionData(taxYearEOY, month = Month.MAY.toString, employerRef = aCisUserData.employerRef)
-      mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Right(()))
+    "redirect to Materials amount page when Yes submitted successfully and not finished" in {
+      mockEndOfYearWithSessionData(taxYearEOY, month = MAY.toString.toLowerCase, employerRef = aCisUserData.employerRef)
+      mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Right(aCisUserData.copy(cis = aCisCYAModel.copy(contractorName = None))))
 
-      await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "true"))) shouldBe
-        Redirect(MaterialsAmountController.show(taxYearEOY, Month.MAY.toString.toLowerCase, contractor = aCisUserData.employerRef))
+      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "true"))) shouldBe
+        Redirect(MaterialsAmountController.show(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef))
     }
 
-    "redirect to Income Tax Submission Overview when No submitted successfully" in {
-      mockEndOfYearWithSessionData(taxYearEOY, month = Month.MAY.toString, employerRef = aCisUserData.employerRef)
-      mockSaveQuestion(aUser, aCisUserData, questionValue = false, result = Right(()))
+    "redirect to Check CIS Deductions Page when Yes submitted successfully and is finished" in {
+      mockEndOfYearWithSessionData(taxYearEOY, month = MAY.toString.toLowerCase, employerRef = aCisUserData.employerRef)
+      mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Right(aCisUserData))
 
-      await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "false"))) shouldBe
-        Redirect(ContractorCYAController.show(taxYearEOY,aPeriodData.deductionPeriod.toString.toLowerCase,aCisDeductions.employerRef))
+      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "true"))) shouldBe
+        Redirect(ContractorCYAController.show(taxYearEOY, aPeriodData.deductionPeriod.toString.toLowerCase, aCisDeductions.employerRef))
+    }
+
+    "redirect to Check CIS Deductions Page when No submitted successfully" in {
+      mockEndOfYearWithSessionData(taxYearEOY, month = "may", employerRef = aCisUserData.employerRef)
+      mockSaveQuestion(aUser, aCisUserData, questionValue = false, result = Right(aCisUserData))
+
+      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "false"))) shouldBe
+        Redirect(ContractorCYAController.show(taxYearEOY, aPeriodData.deductionPeriod.toString.toLowerCase, aCisDeductions.employerRef))
     }
   }
 }

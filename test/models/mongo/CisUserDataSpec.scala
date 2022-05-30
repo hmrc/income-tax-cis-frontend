@@ -16,8 +16,6 @@
 
 package models.mongo
 
-import java.time.Month
-
 import org.joda.time.DateTime
 import org.scalamock.scalatest.MockFactory
 import support.UnitTest
@@ -26,6 +24,8 @@ import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.{SecureGCMCipher, TestingClock}
+
+import java.time.Month
 
 class CisUserDataSpec extends UnitTest
   with MockFactory {
@@ -60,6 +60,20 @@ class CisUserDataSpec extends UnitTest
       val underTest = aCisUserData
 
       underTest.isCyaDataFor(Month.NOVEMBER) shouldBe false
+    }
+  }
+
+  ".isFinished" should {
+    "return true when cis.isFinished returns true" in {
+      val underTest = aCisUserData.copy(cis = aCisCYAModel)
+
+      underTest.isFinished shouldBe true
+    }
+
+    "return true when cis.isFinished returns false" in {
+      val underTest = aCisUserData.copy(cis = aCisCYAModel.copy(contractorName = None))
+
+      underTest.isFinished shouldBe false
     }
   }
 

@@ -16,8 +16,6 @@
 
 package controllers
 
-import java.time.Month
-
 import controllers.routes.ContractorSummaryController
 import models.HttpParserError
 import models.mongo.DataNotUpdatedError
@@ -34,6 +32,8 @@ import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockActionsProvider, MockContractorCYAService, MockErrorHandler}
 import utils.InYearUtil
 import views.html.ContractorCYAView
+
+import java.time.Month
 
 class ContractorCYAControllerSpec extends ControllerUnitTest
   with MockActionsProvider
@@ -79,17 +79,17 @@ class ContractorCYAControllerSpec extends ControllerUnitTest
     "return successful response for end of year" in {
 
       mockCheckCyaExistsAndReturnSessionData(taxYearEOY, contractor = "12345", month = "may", aCisUserData)
-      mockSubmitCisDeductionCYA(taxYearEOY,"12345",Right(()))
+      mockSubmitCisDeductionCYA(taxYearEOY, "12345", Right(()))
 
       val result = underTest.submit(taxYearEOY, Month.MAY.toString.toLowerCase, contractor = "12345").apply(fakeIndividualRequest)
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result).get shouldBe ContractorSummaryController.show(taxYearEOY,"12345").url
+      redirectLocation(result).get shouldBe ContractorSummaryController.show(taxYearEOY, "12345").url
     }
     "handle database error" in {
 
       mockCheckCyaExistsAndReturnSessionData(taxYearEOY, contractor = "12345", month = "may", aCisUserData)
-      mockSubmitCisDeductionCYA(taxYearEOY,"12345",Left(DataNotUpdatedError))
+      mockSubmitCisDeductionCYA(taxYearEOY, "12345", Left(DataNotUpdatedError))
       mockInternalError(InternalServerError)
 
       val result = underTest.submit(taxYearEOY, Month.MAY.toString.toLowerCase, contractor = "12345").apply(fakeIndividualRequest)
@@ -99,8 +99,8 @@ class ContractorCYAControllerSpec extends ControllerUnitTest
     "handle parser error" in {
 
       mockCheckCyaExistsAndReturnSessionData(taxYearEOY, contractor = "12345", month = "may", aCisUserData)
-      mockSubmitCisDeductionCYA(taxYearEOY,"12345",Left(HttpParserError(SERVICE_UNAVAILABLE)))
-      mockHandleError(SERVICE_UNAVAILABLE,ServiceUnavailable)
+      mockSubmitCisDeductionCYA(taxYearEOY, "12345", Left(HttpParserError(SERVICE_UNAVAILABLE)))
+      mockHandleError(SERVICE_UNAVAILABLE, ServiceUnavailable)
 
       val result = underTest.submit(taxYearEOY, Month.MAY.toString.toLowerCase, contractor = "12345").apply(fakeIndividualRequest)
 

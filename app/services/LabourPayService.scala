@@ -27,7 +27,7 @@ class LabourPayService @Inject()(cisSessionService: CISSessionService)
 
   def saveLabourPay(user: User,
                     cisUserData: CisUserData,
-                    amount: BigDecimal): Future[Either[ServiceError, Unit]] = {
+                    amount: BigDecimal): Future[Either[ServiceError, CisUserData]] = {
     val periodData = cisUserData.cis.periodData.map(_.copy(grossAmountPaid = Some(amount))).get
     val updatedCYA = cisUserData.cis.copy(periodData = Some(periodData))
 
@@ -35,7 +35,7 @@ class LabourPayService @Inject()(cisSessionService: CISSessionService)
       .createOrUpdateCISUserData(user, cisUserData.taxYear, cisUserData.employerRef, cisUserData.submissionId, cisUserData.isPriorSubmission, updatedCYA)
       .map {
         case Left(_) => Left(DataNotUpdatedError)
-        case Right(_) => Right(())
+        case Right(cisUserData) => Right(cisUserData)
       }
   }
 }

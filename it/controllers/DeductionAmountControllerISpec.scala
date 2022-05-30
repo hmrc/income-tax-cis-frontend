@@ -16,10 +16,7 @@
 
 package controllers
 
-import java.net.URLEncoder.encode
-
-import akka.util.ByteString.UTF_8
-import controllers.routes.MaterialsController
+import controllers.routes.ContractorCYAController
 import forms.AmountForm
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
@@ -45,8 +42,7 @@ class DeductionAmountControllerISpec extends IntegrationTest
   }
 
   private def url(taxYear: Int, month: String, employerRef: String): String = {
-    val contractor = encode(employerRef, UTF_8)
-    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/deduction-amount?month=$month&contractor=$contractor"
+    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/deduction-amount?month=$month&contractor=$employerRef"
   }
 
   ".show" should {
@@ -98,7 +94,7 @@ class DeductionAmountControllerISpec extends IntegrationTest
       }
 
       result.status shouldBe SEE_OTHER
-      result.headers("Location").head shouldBe MaterialsController.show(taxYearEOY, aPeriodData.deductionPeriod.toString, aCisDeductions.employerRef).url
+      result.headers("Location").head shouldBe ContractorCYAController.show(taxYearEOY, aPeriodData.deductionPeriod.toString, aCisDeductions.employerRef).url
       findCyaData(taxYearEOY, aCisDeductions.employerRef, aUser).get.cis.periodData.get.deductionAmount shouldBe Some(123.23)
     }
   }

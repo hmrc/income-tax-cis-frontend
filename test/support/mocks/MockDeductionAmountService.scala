@@ -31,7 +31,7 @@ trait MockDeductionAmountService extends MockFactory {
   def mockSaveAmount(user: User,
                      cisUserData: CisUserData,
                      amount: BigDecimal,
-                     result: Either[ServiceError, Unit]): CallHandler3[User, CisUserData, BigDecimal, Future[Either[ServiceError, Unit]]] = {
+                     result: Either[ServiceError, CisUserData]): CallHandler3[User, CisUserData, BigDecimal, Future[Either[ServiceError, CisUserData]]] = {
     (mockDeductionAmountService.saveAmount(_: User, _: CisUserData, _: BigDecimal))
       .expects(user, cisUserData, amount)
       .returning(Future.successful(result))

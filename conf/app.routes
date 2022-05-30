@@ -37,7 +37,7 @@ POST      /:taxYear/contractor-details                                          
 ###########################     CIS Deduction pages         ########################
 
 GET        /:taxYear/when-deductions-made                                           controllers.DeductionPeriodController.show(taxYear: Int, contractor: String)
-POST       /:taxYear/when-deductions-made                                           controllers.DeductionPeriodController.submit(taxYear: Int, contractor: String)
+POST       /:taxYear/when-deductions-made                                           controllers.DeductionPeriodController.submit(taxYear: Int, contractor: String, month: Option[String])
 
 
 ###########################     Labour Pay pages                 ########################

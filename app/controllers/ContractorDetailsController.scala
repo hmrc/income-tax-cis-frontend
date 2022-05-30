@@ -43,7 +43,7 @@ class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int, contractor: Option[String]): Action[AnyContent] = contractor match {
-    case None => actionsProvider.notInYear(taxYear)(implicit request =>
+    case None => actionsProvider.endOfYear(taxYear)(implicit request =>
       Ok(contractorDetailsView(ContractorDetailsPage(taxYear, request.user.isAgent, contractorDetailsForm(request.user.isAgent), None))))
     case Some(contractorRef) => actionsProvider.endOfYearWithSessionData(taxYear, contractorRef) { implicit request =>
       val formData = ContractorDetailsFormData(request.cisUserData.cis.contractorName.getOrElse(""), request.cisUserData.employerRef)
@@ -53,7 +53,7 @@ class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
   }
 
   def submit(taxYear: Int, contractor: Option[String]): Action[AnyContent] = contractor match {
-    case None => actionsProvider.notInYear(taxYear).async { implicit request => handleSubmitRequest(taxYear, request.user) }
+    case None => actionsProvider.endOfYear(taxYear).async { implicit request => handleSubmitRequest(taxYear, request.user) }
     case Some(contractorRef) => actionsProvider.endOfYearWithSessionData(taxYear, contractorRef).async { implicit request =>
       handleSubmitRequest(taxYear, request.user, Some(request.cisUserData))
     }

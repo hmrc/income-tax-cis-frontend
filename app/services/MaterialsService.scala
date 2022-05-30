@@ -27,7 +27,7 @@ class MaterialsService @Inject()(cisSessionService: CISSessionService)
 
   def saveQuestion(user: User,
                    cisUserData: CisUserData,
-                   question: Boolean): Future[Either[ServiceError, Unit]] = {
+                   question: Boolean): Future[Either[ServiceError, CisUserData]] = {
     val periodData: CYAPeriodData = if (question) {
       cisUserData.cis.periodData.map(_.copy(costOfMaterialsQuestion = Some(question))).get
     } else {
@@ -39,7 +39,7 @@ class MaterialsService @Inject()(cisSessionService: CISSessionService)
       .createOrUpdateCISUserData(user, cisUserData.taxYear, cisUserData.employerRef, cisUserData.submissionId, cisUserData.isPriorSubmission, updatedCYA)
       .map {
         case Left(_) => Left(DataNotUpdatedError)
-        case Right(_) => Right(())
+        case Right(cisUserData) => Right(cisUserData)
       }
   }
 

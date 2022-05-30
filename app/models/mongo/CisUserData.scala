@@ -16,13 +16,13 @@
 
 package models.mongo
 
-import java.time.Month
-
 import models.User
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
 import utils.SecureGCMCipher
+
+import java.time.Month
 
 case class CisUserData(sessionId: String,
                        mtdItId: String,
@@ -35,6 +35,8 @@ case class CisUserData(sessionId: String,
                        lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)) {
 
   def isCyaDataFor(month: Month): Boolean = cis.periodData.exists(_.deductionPeriod == month)
+
+  lazy val isFinished: Boolean = cis.isFinished
 
   lazy val hasPeriodData: Boolean = cis.periodData.nonEmpty
 

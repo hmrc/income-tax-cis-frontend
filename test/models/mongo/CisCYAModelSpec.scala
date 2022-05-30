@@ -16,13 +16,14 @@
 
 package models.mongo
 
-import java.time.Month
-
 import org.scalamock.scalatest.MockFactory
 import support.UnitTest
+import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import utils.TypeCaster.Converter
 import utils.{EncryptedValue, SecureGCMCipher}
+
+import java.time.Month
 
 class CisCYAModelSpec extends UnitTest
   with MockFactory {
@@ -37,17 +38,30 @@ class CisCYAModelSpec extends UnitTest
   private val encryptedPeriodData2 = mock[EncryptedCYAPeriodData]
 
   "CisCYAModel.isFinished" should {
-    "return true when CYAPeriodData is not empty" in {
-      aCisCYAModel.isFinished shouldBe true
+    "return false when contractorName is empty" in {
+      val underTest = aCisCYAModel.copy(periodData = None)
+
+      underTest.isFinished shouldBe false
     }
 
     "return false when CYAPeriodData is empty" in {
-      val result = aCisCYAModel.copy(periodData = None)
-      result.isFinished shouldBe false
+      val underTest = aCisCYAModel.copy(periodData = None)
+
+      underTest.isFinished shouldBe false
+    }
+
+    "return false when CYAPeriodData is not finished" in {
+      val underTest = aCisCYAModel.copy(periodData = Some(aCYAPeriodData.copy(grossAmountPaid = None)))
+
+      underTest.isFinished shouldBe false
+    }
+
+    "return true when contractorName is not empty and CYAPeriodData is finished" in {
+      val underTest = aCisCYAModel.copy(contractorName = Some("some-name"), periodData = Some(aCYAPeriodData))
+
+      underTest.isFinished shouldBe true
     }
   }
-
-  val underTest: CisCYAModel = aCisCYAModel
 
   ".isNewSubmissionFor" should {
     "return true if no prior data" in {
@@ -56,16 +70,17 @@ class CisCYAModelSpec extends UnitTest
       underTest.isNewSubmissionFor(Month.MAY) shouldBe true
     }
     "return false if requested month is in the prior data" in {
-      underTest.isNewSubmissionFor(Month.NOVEMBER) shouldBe false
+      aCisCYAModel.isNewSubmissionFor(Month.NOVEMBER) shouldBe false
     }
   }
 
   ".isAnUpdateFor" should {
     "return true when an update is made to same month" in {
-      underTest.isAnUpdateFor(Month.MAY) shouldBe true
+      aCisCYAModel.isAnUpdateFor(Month.MAY) shouldBe true
     }
+
     "return false if requested month is in the prior data" in {
-      underTest.isAnUpdateFor(Month.NOVEMBER) shouldBe false
+      aCisCYAModel.isAnUpdateFor(Month.NOVEMBER) shouldBe false
     }
   }
 
@@ -94,8 +109,14 @@ class CisCYAModelSpec extends UnitTest
       (encryptedPeriodData1.decrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData1)
       (encryptedPeriodData2.decrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData2)
 
-      EncryptedCisCYAModel(Some(encryptedContractorName), Some(encryptedPeriodData1), Seq(encryptedPeriodData1, encryptedPeriodData2)).decrypted shouldBe
-        CisCYAModel(contractorName = Some("contractor-name"), Some(cyaPeriodData1), Seq(cyaPeriodData1, cyaPeriodData2))
+      EncryptedCisCYAModel(Some(encryptedContractorName),
+        Some(encryptedPeriodData1),
+        Seq(encryptedPeriodData1, encryptedPeriodData2)
+      ).decrypted shouldBe CisCYAModel(
+        contractorName = Some("contractor-name"),
+        Some(cyaPeriodData1),
+        Seq(cyaPeriodData1, cyaPeriodData2)
+      )
     }
   }
 }

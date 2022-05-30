@@ -16,10 +16,10 @@
 
 package models
 
-import java.time.Month
-
 import models.mongo.{CYAPeriodData, CisCYAModel}
 import play.api.libs.json.{Json, OFormat}
+
+import java.time.Month
 
 case class CisDeductions(fromDate: String,
                          toDate: String,
@@ -47,7 +47,7 @@ case class CisDeductions(fromDate: String,
   def recalculateFigures: CisDeductions = {
     this.copy(
       totalDeductionAmount = Some(periodData.flatMap(_.deductionAmount).sum),
-      totalCostOfMaterials = if(periodData.flatMap(_.costOfMaterials).sum > BigDecimal(0)) Some(periodData.flatMap(_.costOfMaterials).sum) else None,
+      totalCostOfMaterials = if (periodData.flatMap(_.costOfMaterials).sum > BigDecimal(0)) Some(periodData.flatMap(_.costOfMaterials).sum) else None,
       totalGrossAmountPaid = Some(periodData.flatMap(_.grossAmountPaid).sum)
     )
   }
@@ -58,7 +58,7 @@ case class CisDeductions(fromDate: String,
   def periodDataFor(month: Month): Option[PeriodData] =
     periodData.find(_.deductionPeriod == month)
 
-  def toCYA(month: Option[Month], contractorSubmittedMonths: Seq[Month]): CisCYAModel = {
+  def toCYA(month: Option[Month], contractorSubmittedMonths: Seq[Month], hasCompleted: Boolean): CisCYAModel = {
     val periods = periodData.map { period =>
       CYAPeriodData(
         period.deductionPeriod,
@@ -73,7 +73,7 @@ case class CisDeductions(fromDate: String,
 
     CisCYAModel(
       contractorName = contractorName,
-      periodData = if(month.isDefined) periods.find(_.deductionPeriod == month.get) else None,
+      periodData = if (month.isDefined) periods.find(_.deductionPeriod == month.get) else None,
       priorPeriodData = periods
     )
   }
