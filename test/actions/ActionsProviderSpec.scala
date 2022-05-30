@@ -28,6 +28,7 @@ import support.ControllerUnitTest
 import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 import support.builders.models.CISSourceBuilder.aCISSource
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
+import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
@@ -83,15 +84,6 @@ class ActionsProviderSpec extends ControllerUnitTest
       await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show())
     }
 
-    "get prior data when not in year" in {
-      mockAuthAsIndividual(Some(aUser.nino))
-      mockGetPriorData(taxYearEOY, aUser, Right(IncomeTaxUserData(cis = Some(anAllCISDeductions))))
-
-      val underTest = actionsProvider.priorCisDeductionsData(taxYearEOY)(block = anyBlock)
-
-      status(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe OK
-    }
-
     "handle internal server error when getPriorData result in error" in {
       mockAuthAsIndividual(Some(aUser.nino))
       mockGetPriorData(taxYear, aUser, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
@@ -102,7 +94,26 @@ class ActionsProviderSpec extends ControllerUnitTest
       await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe InternalServerError
     }
 
-    "return successful response when authorised user with in year cis deductions" in {
+    "get prior data when end of year" in {
+      mockAuthAsIndividual(Some(aUser.nino))
+      mockGetPriorData(taxYearEOY, aUser, Right(anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = None)))))
+
+      val underTest = actionsProvider.priorCisDeductionsData(taxYearEOY)(block = anyBlock)
+
+      status(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe OK
+    }
+
+    "redirect to Income Tax Submission Overview when in year and has no in year cis deductions" in {
+      mockAuthAsIndividual(Some(aUser.nino))
+      mockGetPriorData(taxYear, aUser, Right(anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = None)))))
+
+      val underTest = actionsProvider.priorCisDeductionsData(taxYear)(block = anyBlock)
+
+      await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    }
+
+    "return successful response in year with in year cis deductions" in {
       mockAuthAsIndividual(Some(aUser.nino))
       mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(anAllCISDeductions))))
 

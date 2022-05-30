@@ -57,11 +57,11 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
       .andThen(HasInYearDeductionsForEmployerRefAndMonthFilterAction(taxYear, contractor, month, errorHandler, appConfig))
 
   def priorCisDeductionsData(taxYear: Int): ActionBuilder[UserPriorDataRequest, AnyContent] = {
-    if (inYearUtil.inYear(taxYear)) {
-      priorDataWithInYearCisDeductions(taxYear)
-    } else {
-      priorDataWithEndOfYearCisDeductions(taxYear)
-    }
+    val actionsPipeline = authAction
+      .andThen(TaxYearAction.taxYearAction(taxYear)(appConfig))
+      .andThen(UserPriorDataRefinerAction(taxYear, cisSessionService, errorHandler))
+
+    if (inYearUtil.inYear(taxYear)) actionsPipeline.andThen(HasInYearCisDeductionsFilterAction(taxYear, appConfig)) else actionsPipeline
   }
 
   def userPriorDataForEOY(taxYear: Int, contractor: String, month: String): ActionBuilder[UserPriorDataRequest, AnyContent] = {
@@ -104,19 +104,6 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
       .andThen(TaxYearAction.taxYearAction(taxYear)(appConfig))
       .andThen(OptionalCisCyaRefinerAction(taxYear, contractor, month, cisSessionService, errorHandler, appConfig))
   }
-
-  private def priorDataWithInYearCisDeductions(taxYear: Int): ActionBuilder[UserPriorDataRequest, AnyContent] =
-    authAction
-      .andThen(TaxYearAction.taxYearAction(taxYear)(appConfig))
-      .andThen(InYearFilterAction(taxYear, inYearUtil, appConfig))
-      .andThen(UserPriorDataRefinerAction(taxYear, cisSessionService, errorHandler))
-      .andThen(HasInYearCisDeductionsFilterAction(taxYear, appConfig))
-
-  private def priorDataWithEndOfYearCisDeductions(taxYear: Int): ActionBuilder[UserPriorDataRequest, AnyContent] =
-    authAction
-      .andThen(TaxYearAction.taxYearAction(taxYear)(appConfig))
-      .andThen(EndOfYearFilterAction(taxYear, inYearUtil, appConfig))
-      .andThen(UserPriorDataRefinerAction(taxYear, cisSessionService, errorHandler))
 
   private def getHasPeriodDataFilterActionFor(taxYear: Int, contractor: String): ActionFilter[UserPriorDataRequest] = {
     if (inYearUtil.inYear(taxYear)) {

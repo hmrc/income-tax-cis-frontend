@@ -41,6 +41,7 @@ class DeductionsSummaryControllerSpec extends ControllerUnitTest
       status(result) shouldBe OK
       contentType(result) shouldBe Some("text/html")
     }
+
     "return successful response when end of the year" in {
       mockPriorCisDeductionsData(taxYearEOY, anIncomeTaxUserData)
 

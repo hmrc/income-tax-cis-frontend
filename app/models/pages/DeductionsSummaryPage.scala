@@ -25,18 +25,18 @@ case class DeductionsSummaryPage(taxYear: Int,
 
 object DeductionsSummaryPage {
 
-  private def deductions(incomeTaxUserData: IncomeTaxUserData, inYear: Boolean): Seq[ContractorDeductionToDate] ={
+  def apply(taxYear: Int,
+            isInYear: Boolean,
+            incomeTaxUserData: IncomeTaxUserData): DeductionsSummaryPage = DeductionsSummaryPage(
+    taxYear = taxYear,
+    isInYear = isInYear,
+    deductions(incomeTaxUserData, inYear = isInYear)
+  )
+
+  private def deductions(incomeTaxUserData: IncomeTaxUserData, inYear: Boolean): Seq[ContractorDeductionToDate] = {
     incomeTaxUserData.cis
-      .map(cis => if(inYear) cis.inYearCisDeductions else cis.endOfYearCisDeductions)
+      .map(cis => if (inYear) cis.inYearCisDeductions else cis.endOfYearCisDeductions)
       .getOrElse(Seq.empty)
       .map(ContractorDeductionToDate(_))
-  }
-
-  def mapToInYearPage(taxYear: Int, incomeTaxUserData: IncomeTaxUserData): DeductionsSummaryPage = {
-    DeductionsSummaryPage(taxYear, isInYear = true, deductions(incomeTaxUserData, inYear = true))
-  }
-
-  def mapToEndOfYearPage(taxYear: Int, incomeTaxUserData: IncomeTaxUserData): DeductionsSummaryPage = {
-    DeductionsSummaryPage(taxYear, isInYear = false, deductions(incomeTaxUserData, inYear = false))
   }
 }
