@@ -18,6 +18,7 @@ package controllers
 
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
+import controllers.routes.DeductionPeriodController
 import models.pages.ContractorSummaryPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -44,8 +45,7 @@ class ContractorSummaryController @Inject()(actionsProvider: ActionsProvider,
   def addCisDeduction(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.userPriorDataFor(taxYear, contractor).async { implicit request =>
     contractorSummaryService.saveCYAForNewCisDeduction(taxYear, contractor, request.incomeTaxUserData, request.user).map {
       case Left(_) => errorHandler.internalServerError()
-      case Right(_) =>
-        Redirect(controllers.routes.DeductionPeriodController.show(taxYear, contractor))
+      case Right(_) => Redirect(DeductionPeriodController.show(taxYear, contractor))
     }
   }
 }

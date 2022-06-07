@@ -18,8 +18,9 @@ package controllers
 
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
-import controllers.routes.MaterialsController
+import controllers.routes.{ContractorCYAController, MaterialsController}
 import forms.FormsProvider
+import models.mongo.CisUserData
 import models.pages.DeductionAmountPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -53,8 +54,12 @@ class DeductionAmountController @Inject()(actionsProvider: ActionsProvider,
       formWithErrors => Future.successful(BadRequest(pageView(DeductionAmountPage(Month.valueOf(month.toUpperCase), request.cisUserData, formWithErrors)))),
       amount => deductionAmountService.saveAmount(request.user, request.cisUserData, amount).map {
         case Left(_) => errorHandler.internalServerError()
-        case Right(_) => Redirect(MaterialsController.show(taxYear, month, contractor))
+        case Right(cisUserData) => Redirect(getRedirectCall(taxYear, month, contractor, cisUserData))
       }
     )
+  }
+
+  private def getRedirectCall(taxYear: Int, month: String, contractor: String, cisUserData: CisUserData) = {
+    if (cisUserData.isFinished) ContractorCYAController.show(taxYear, month, contractor) else MaterialsController.show(taxYear, month, contractor)
   }
 }

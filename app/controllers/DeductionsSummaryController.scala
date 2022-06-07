@@ -18,7 +18,7 @@ package controllers
 
 import actions.ActionsProvider
 import config.AppConfig
-import models.pages.DeductionsSummaryPage.{mapToEndOfYearPage, mapToInYearPage}
+import models.pages.DeductionsSummaryPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -34,10 +34,6 @@ class DeductionsSummaryController @Inject()(actionsProvider: ActionsProvider,
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int): Action[AnyContent] = actionsProvider.priorCisDeductionsData(taxYear) { implicit request =>
-    if (inYearUtil.inYear(taxYear)) {
-      Ok(pageView(mapToInYearPage(taxYear, request.incomeTaxUserData)))
-    } else {
-      Ok(pageView(mapToEndOfYearPage(taxYear, request.incomeTaxUserData)))
-    }
+    Ok(pageView(DeductionsSummaryPage(taxYear, inYearUtil.inYear(taxYear), request.incomeTaxUserData)))
   }
 }

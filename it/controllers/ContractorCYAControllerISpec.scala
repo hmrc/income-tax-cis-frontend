@@ -16,8 +16,6 @@
 
 package controllers
 
-import java.net.URLEncoder.encode
-import akka.util.ByteString.UTF_8
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
@@ -32,8 +30,7 @@ import utils.ViewHelpers
 class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
 
   private def url(taxYear: Int, month: String, employerRef: String): String = {
-    val contractor = encode(employerRef, UTF_8)
-    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/check-construction-industry-scheme-deductions?month=$month&contractor=$contractor"
+    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/check-construction-industry-scheme-deductions?month=$month&contractor=$employerRef"
   }
 
   private val repoUnderTest: CisUserDataRepositoryImpl = app.injector.instanceOf[CisUserDataRepositoryImpl]
@@ -62,8 +59,8 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
       }
 
       result.status shouldBe SEE_OTHER
-      result.headers("Location").head shouldBe controllers.routes.ContractorSummaryController.show(taxYearEOY,aCisDeductions.employerRef).url
-      await(repoUnderTest.find(taxYearEOY,aCisDeductions.employerRef,aUser)) shouldBe Right(None)
+      result.headers("Location").head shouldBe controllers.routes.ContractorSummaryController.show(taxYearEOY, aCisDeductions.employerRef).url
+      await(repoUnderTest.find(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Right(None)
     }
   }
 }

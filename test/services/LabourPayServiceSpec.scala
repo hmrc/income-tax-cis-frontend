@@ -47,7 +47,7 @@ class LabourPayServiceSpec extends UnitTest
 
       mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Right(aCisUserData))
 
-      await(underTest.saveLabourPay(aUser, aCisUserData, amount = 123)) shouldBe Right(())
+      await(underTest.saveLabourPay(aUser, aCisUserData, amount = 123)) shouldBe Right(aCisUserData)
     }
   }
 }

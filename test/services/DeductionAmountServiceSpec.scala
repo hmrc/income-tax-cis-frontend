@@ -47,7 +47,7 @@ class DeductionAmountServiceSpec extends UnitTest
 
       mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Right(aCisUserData))
 
-      await(underTest.saveAmount(aUser, aCisUserData, amount = 123)) shouldBe Right(())
+      await(underTest.saveAmount(aUser, aCisUserData, amount = 123)) shouldBe Right(aCisUserData)
     }
   }
 }

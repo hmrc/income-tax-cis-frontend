@@ -16,7 +16,9 @@
 
 package support.builders.models.pages
 
+import forms.DeductionPeriodFormProvider
 import models.pages.DeductionPeriodPage
+import support.builders.models.UserBuilder.aUser
 import utils.TaxYearUtils
 
 import java.time.Month
@@ -24,10 +26,11 @@ import java.time.Month
 object DeductionPeriodPageBuilder {
 
   val aDeductionPeriodPage: DeductionPeriodPage = DeductionPeriodPage(
-    taxYear = TaxYearUtils.taxYear,
+    taxYear = TaxYearUtils.taxYearEOY,
     contractorName = Some("Michele Lamy Paving Ltd"),
     employerRef = "111/11111",
     period = Some(Month.DECEMBER),
-    priorSubmittedPeriods = Seq(Month.APRIL)
+    priorSubmittedPeriods = Seq(Month.APRIL),
+    form = new DeductionPeriodFormProvider().deductionPeriodForm(isAgent = aUser.isAgent)
   )
 }

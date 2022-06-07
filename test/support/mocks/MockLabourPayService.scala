@@ -31,7 +31,7 @@ trait MockLabourPayService extends MockFactory {
   def mockSaveLabourPay(user: User,
                         cisUserData: CisUserData,
                         amount: BigDecimal,
-                        result: Either[ServiceError, Unit]): CallHandler3[User, CisUserData, BigDecimal, Future[Either[ServiceError, Unit]]] = {
+                        result: Either[ServiceError, CisUserData]): CallHandler3[User, CisUserData, BigDecimal, Future[Either[ServiceError, CisUserData]]] = {
     (mockLabourPayService.saveLabourPay(_: User, _: CisUserData, _: BigDecimal))
       .expects(user, cisUserData, amount)
       .returning(Future.successful(result))

@@ -16,8 +16,6 @@
 
 package models.mongo
 
-import java.time.Month
-
 import org.joda.time.DateTime
 import play.api.libs.json.{Format, Json, OFormat}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
@@ -27,25 +25,26 @@ import utils.EncryptableSyntax.EncryptableOps
 import utils.EncryptorInstances.stringEncryptor
 import utils.{EncryptedValue, SecureGCMCipher}
 
+import java.time.Month
+
 case class CisCYAModel(contractorName: Option[String] = None,
                        periodData: Option[CYAPeriodData] = None,
                        priorPeriodData: Seq[CYAPeriodData] = Seq.empty) {
 
-  def isNewSubmissionFor(month: Month): Boolean = {
-    !priorPeriodData.map(_.deductionPeriod).contains(month)
-  }
+  lazy val isFinished: Boolean =
+    contractorName.isDefined && periodData.exists(_.isFinished)
 
-  def isAnUpdateFor(month: Month): Boolean = {
+  def isNewSubmissionFor(month: Month): Boolean =
+    !priorPeriodData.map(_.deductionPeriod).contains(month)
+
+  def isAnUpdateFor(month: Month): Boolean =
     periodData.exists(_.isAnUpdateFor(month))
-  }
 
   def encrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCisCYAModel = EncryptedCisCYAModel(
     contractorName = contractorName.map(_.encrypted),
     periodData = periodData.map(_.encrypted),
     priorPeriodData = priorPeriodData.map(_.encrypted)
   )
-
-  def isFinished: Boolean = periodData.nonEmpty
 }
 
 object CisCYAModel {

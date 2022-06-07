@@ -19,6 +19,7 @@ package forms.validation.mappings
 import play.api.data.Forms.{default, of, optional, text}
 import play.api.data.{FieldMapping, Mapping}
 
+// TODO: Not tested
 object MappingUtil extends Formatters {
 
   val trimmedText: Mapping[String] = default(text, "").transform(_.trim, identity)
@@ -39,5 +40,4 @@ object MappingUtil extends Formatters {
                args: Seq[String] = Seq.empty[String]
               ): FieldMapping[BigDecimal] =
     of(currencyFormatter(requiredKey, wrongFormatKey, maxAmountKey, args))
-
 }

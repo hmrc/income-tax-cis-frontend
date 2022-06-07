@@ -16,8 +16,6 @@
 
 package models.mongo
 
-import java.time.Month
-
 import org.joda.time.DateTime
 import play.api.libs.json._
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
@@ -27,6 +25,8 @@ import utils.EncryptableSyntax.EncryptableOps
 import utils.EncryptorInstances.{bigDecimalEncryptor, booleanEncryptor, monthEncryptor}
 import utils.{EncryptedValue, SecureGCMCipher}
 
+import java.time.Month
+
 case class CYAPeriodData(deductionPeriod: Month,
                          grossAmountPaid: Option[BigDecimal] = None,
                          deductionAmount: Option[BigDecimal] = None,
@@ -35,9 +35,8 @@ case class CYAPeriodData(deductionPeriod: Month,
                          contractorSubmitted: Boolean,
                          originallySubmittedPeriod: Option[Month]) {
 
-  def isAnUpdateFor(month: Month): Boolean = {
+  def isAnUpdateFor(month: Month): Boolean =
     originallySubmittedPeriod.contains(month)
-  }
 
   def encrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCYAPeriodData = EncryptedCYAPeriodData(
     deductionPeriod = deductionPeriod.encrypted,
@@ -49,7 +48,7 @@ case class CYAPeriodData(deductionPeriod: Month,
     originallySubmittedPeriod = originallySubmittedPeriod.map(_.encrypted)
   )
 
-  def isFinished: Boolean = {
+  lazy val isFinished: Boolean = {
     val costOfMaterialsFinished = costOfMaterialsQuestion match {
       case Some(true) => costOfMaterials.isDefined
       case Some(false) => true

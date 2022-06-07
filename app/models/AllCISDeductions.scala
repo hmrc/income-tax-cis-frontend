@@ -16,17 +16,16 @@
 
 package models
 
-import java.time.Month
-
 import play.api.Logging
 import play.api.libs.json.{Json, OFormat}
 import utils.DateTimeUtil.parseDate
+
+import java.time.Month
 
 case class AllCISDeductions(customerCISDeductions: Option[CISSource],
                             contractorCISDeductions: Option[CISSource]) extends Logging {
 
   def contractorPeriodsFor(employerRef: String): Seq[Month] = {
-
     val cisDeductions = contractorCISDeductions.flatMap(_.cisDeductions.find(_.employerRef == employerRef))
     cisDeductions.map(_.periodData.map(_.deductionPeriod)).getOrElse(Seq.empty)
   }

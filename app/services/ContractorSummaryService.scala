@@ -30,7 +30,7 @@ class ContractorSummaryService @Inject()(cisSessionService: CISSessionService)(i
                                 user: User): Future[Either[ServiceError, Unit]] = {
 
     val deductions = priorData.eoyCisDeductionsWith(employerRef).get
-    val cya = deductions.toCYA(None, priorData.contractorPeriodsFor(employerRef))
+    val cya = deductions.toCYA(None, priorData.contractorPeriodsFor(employerRef), hasCompleted = false)
     val submissionId = deductions.submissionId
     val isPriorSubmission = true
 

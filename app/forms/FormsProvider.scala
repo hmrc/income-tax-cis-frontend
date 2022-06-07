@@ -16,8 +16,7 @@
 
 package forms
 
-import forms.FormsProvider.{DeductionAmountForm, LabourPayAmountForm, MaterialsAmountForm, MaterialsYesNoForm}
-import play.api.data.Form
+import forms.FormTypes.{DeductionAmountForm, LabourPayAmountForm, MaterialsAmountForm, MaterialsYesNoForm}
 
 import javax.inject.Singleton
 
@@ -45,11 +44,4 @@ class FormsProvider {
     wrongFormatKey = s"materialsAmountPage.error.incorrectFormat.${if (isAgent) "agent" else "individual"}",
     exceedsMaxAmountKey = s"materialsAmountPage.error.overMaximum.${if (isAgent) "agent" else "individual"}"
   )
-}
-
-object FormsProvider {
-  type DeductionAmountForm = Form[BigDecimal]
-  type MaterialsAmountForm = Form[BigDecimal]
-  type MaterialsYesNoForm = Form[Boolean]
-  type LabourPayAmountForm = Form[BigDecimal]
 }

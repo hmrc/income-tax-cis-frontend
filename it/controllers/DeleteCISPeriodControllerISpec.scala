@@ -16,7 +16,6 @@
 
 package controllers
 
-import akka.util.ByteString.UTF_8
 import controllers.routes.ContractorSummaryController
 import forms.AmountForm
 import org.scalatest.BeforeAndAfterEach
@@ -32,8 +31,6 @@ import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.ViewHelpers
 
-import java.net.URLEncoder.encode
-
 class DeleteCISPeriodControllerISpec extends IntegrationTest
   with ViewHelpers with BeforeAndAfterEach {
 
@@ -43,8 +40,7 @@ class DeleteCISPeriodControllerISpec extends IntegrationTest
   }
 
   private def url(taxYear: Int, month: String, employerRef: String): String = {
-    val contractor = encode(employerRef, UTF_8)
-    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/remove-deduction?contractor=$contractor&month=$month"
+    s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/remove-deduction?contractor=$employerRef&month=$month"
   }
 
   override val userScenarios: Seq[UserScenario[_, _]] = Seq.empty

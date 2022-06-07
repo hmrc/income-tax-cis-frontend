@@ -19,91 +19,57 @@ package controllers
 import actions.ActionsProvider
 import common.SessionValues.TEMP_EMPLOYER_REF
 import config.{AppConfig, ErrorHandler}
-import controllers.routes.LabourPayController
+import controllers.routes.{ContractorCYAController, LabourPayController}
 import forms.DeductionPeriodFormProvider
-import models.UserSessionDataRequest
 import models.forms.DeductionPeriod
 import models.mongo.CisUserData
 import models.pages.DeductionPeriodPage
 import play.api.Logging
-import play.api.data.Form
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.DeductionPeriodService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
-import views.html.cis.DeductionPeriodView
+import views.html.DeductionPeriodView
 
+import java.time.Month
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeductionPeriodController @Inject()(actionsProvider: ActionsProvider,
-                                          view: DeductionPeriodView,
+                                          pageView: DeductionPeriodView,
                                           deductionPeriodService: DeductionPeriodService,
                                           errorHandler: ErrorHandler,
                                           formProvider: DeductionPeriodFormProvider)
                                          (implicit mcc: MessagesControllerComponents, ec: ExecutionContext, appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
 
-  def show(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(
-    taxYear, contractor, needsPeriodData = false).async { implicit request =>
-
-    val cya = request.cisUserData
-    val pageModel = DeductionPeriodPage(cya.cis.contractorName, cya.employerRef, taxYear,
-      cya.cis.periodData.map(_.deductionPeriod), cya.cis.priorPeriodData.map(_.deductionPeriod))
-
-    validatePageAccess(taxYear, pageModel, cya) match {
-      case Some(redirect) => redirect
-      case None => Future.successful(Ok(view(pageModel, formProvider.deductionPeriodForm(request.user.isAgent, pageModel.priorSubmittedPeriods))))
+  def show(taxYear: Int, contractor: String): Action[AnyContent] =
+    actionsProvider.endOfYearWithSessionDataWithCustomerDeductionPeriod(taxYear, contractor) { implicit request =>
+      Ok(pageView(DeductionPeriodPage(taxYear, request.cisUserData, formProvider.deductionPeriodForm(request.user.isAgent))))
     }
-  }
 
-  def submit(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.endOfYearWithSessionData(
-    taxYear, contractor, needsPeriodData = false).async { implicit request =>
+  def submit(taxYear: Int, contractor: String, month: Option[String] = None): Action[AnyContent] =
+    actionsProvider.endOfYearWithSessionDataWithCustomerDeductionPeriod(taxYear, contractor, month).async { implicit request =>
+      val tempEmployerRef = request.session.get(TEMP_EMPLOYER_REF)
+      val submittedMonths = request.cisUserData.cis.priorPeriodData.map(_.deductionPeriod)
+      val unSubmittableMonths = month.map(monthValue => submittedMonths.filterNot(_ == Month.valueOf(monthValue.toUpperCase))).getOrElse(submittedMonths)
+      val deductionPeriodForm = formProvider.deductionPeriodForm(request.user.isAgent, unSubmittableMonths)
 
-    val cya = request.cisUserData
-    val pageModel = DeductionPeriodPage(cya.cis.contractorName, cya.employerRef, taxYear,
-      cya.cis.periodData.map(_.deductionPeriod), cya.cis.priorPeriodData.map(_.deductionPeriod))
-
-    validatePageAccess(taxYear, pageModel, cya, "submit") match {
-      case Some(redirect) => redirect
-      case None =>
-        val form = formProvider.deductionPeriodForm(request.user.isAgent, pageModel.priorSubmittedPeriods)
-        handleForm(taxYear, contractor, form, pageModel)
+      deductionPeriodForm.bindFromRequest().fold(
+        formWithErrors => Future.successful(BadRequest(pageView(DeductionPeriodPage(taxYear, request.cisUserData, formWithErrors)))),
+        deductionPeriod => deductionPeriodService.submitDeductionPeriod(taxYear, contractor, request.user, deductionPeriod.month, tempEmployerRef).map {
+          case Left(_) => errorHandler.internalServerError
+          case Right(cisUserData) => Redirect(getRedirectCall(taxYear, contractor, deductionPeriod, cisUserData))
+        }
+      )
     }
-  }
 
-  private def validatePageAccess(taxYear: Int, pageModel: DeductionPeriodPage, cya: CisUserData, method: String = "show"): Option[Future[Result]] = {
-    lazy val overviewRedirect = Future.successful(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-
-    if (pageModel.noPeriodsToSubmitFor) {
-      noAvailableDeductionPeriodsLog(method)
-      Some(overviewRedirect)
-    } else if (cya.cis.periodData.exists(_.contractorSubmitted)) {
-      cannotChangeContractorSubmittedPeriodLog(method)
-      Some(overviewRedirect)
+  private def getRedirectCall(taxYear: Int, contractor: String, deductionPeriod: DeductionPeriod, cisUserData: CisUserData) = {
+    if (cisUserData.isFinished) {
+      ContractorCYAController.show(taxYear, deductionPeriod.month.toString.toLowerCase, contractor)
     } else {
-      None
+      LabourPayController.show(taxYear, deductionPeriod.month.toString.toLowerCase, contractor)
     }
   }
-
-  private def handleForm(taxYear: Int, employerRef: String, form: Form[DeductionPeriod], pageModel: DeductionPeriodPage)
-                        (implicit request: UserSessionDataRequest[_]): Future[Result] = {
-
-    val tempEmployerRef = request.session.get(TEMP_EMPLOYER_REF)
-
-    form.bindFromRequest().fold(
-      formWithErrors => Future.successful(BadRequest(view(pageModel, formWithErrors))),
-      deductionPeriod => deductionPeriodService.submitDeductionPeriod(taxYear, employerRef, request.user, deductionPeriod.month, tempEmployerRef).map {
-        case Left(_) => errorHandler.internalServerError
-        case Right(_) => Redirect(LabourPayController.show(taxYear, deductionPeriod.month.toString, employerRef))
-      }
-    )
-  }
-
-  private def noAvailableDeductionPeriodsLog(method: String): Unit = logger.info(
-    s"[DeductionPeriodController][$method] User has no more deduction periods to submit for. Redirecting.")
-
-  private def cannotChangeContractorSubmittedPeriodLog(method: String): Unit = logger.info(
-    s"[DeductionPeriodController][$method] User cannot change contractor submitted period. Redirecting.")
 }

@@ -18,6 +18,7 @@ package utils
 
 import play.api.i18n.Messages
 import play.api.mvc.Call
+import uk.gov.hmrc.govukfrontend.views.Aliases
 import uk.gov.hmrc.govukfrontend.views.Aliases.SelectItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
@@ -69,15 +70,8 @@ object ViewUtils {
                      actionClasses: String = "govuk-!-width-one-third",
                      actions: Seq[(Call, String, Option[String])]): SummaryListRow = {
     SummaryListRow(
-
-      key = Key(
-        content = key,
-        classes = keyClasses
-      ),
-      value = Value(
-        content = value,
-        classes = valueClasses
-      ),
+      key = Key(content = key, classes = keyClasses),
+      value = Value(content = value, classes = valueClasses),
       actions = Some(Actions(
         items = actions.map { case (call, linkText, visuallyHiddenText) => ActionItem(
           href = call.url,
@@ -105,29 +99,29 @@ object ViewUtils {
       .replaceAll("\\B(?=(\\d{3})+(?!\\d))", ",")
   }
 
-  private def allMonthsSelectItems(taxYear: Int, prefillMonth: Option[Month])(implicit messages: Messages): Seq[SelectItem] = {
-    val upToApril = 4
-    val monthsOrdered: Seq[Month] = Month.values().drop(upToApril) ++ Month.values().take(upToApril)
-
-    monthsOrdered.map {
-      month =>
-
-        val monthMsg = messages(s"common.${month.name().toLowerCase}")
-
-        SelectItem(
-          value = Some(month.name().toLowerCase),
-          text = messages("common.taxMonth", monthMsg, monthToTaxYearConverter(month, taxYear).toString),
-          selected = prefillMonth.contains(month)
-        )
-    }
+  def availableMonths(taxYear: Int, prefillMonth: Option[Month])(implicit messages: Messages): Seq[SelectItem] = {
+    allMonthsSelectItems(taxYear, prefillMonth)
   }
 
-  def availableMonths(submittedMonths: Seq[Month], taxYear: Int, prefillMonth: Option[Month])(implicit messages: Messages): Seq[SelectItem] = {
-    allMonthsSelectItems(taxYear, prefillMonth)
-    // Filters out already submitted months
-    //  .filterNot{
-    //  selectItem =>
-    //    submittedMonths.map(_.name().toLowerCase).contains(selectItem.value.getOrElse(""))
-    //}
+  //  def availableMonths(submittedMonths: Seq[Month], taxYear: Int, prefillMonth: Option[Month])(implicit messages: Messages): Seq[SelectItem] = {
+  //    allMonthsSelectItems(taxYear, prefillMonth)
+  //      .filterNot(selectItem => submittedMonths.map(_.name().toLowerCase).contains(selectItem.value.getOrElse("")))
+  //  }
+
+  private def allMonthsSelectItems(taxYear: Int, prefillMonth: Option[Month])(implicit messages: Messages): Seq[SelectItem] = {
+    val upToApril = Month.APRIL.getValue
+    val monthsOrdered: Seq[Month] = Month.values().drop(upToApril) ++ Month.values().take(upToApril)
+
+    monthsOrdered.map(month => mapToSelectItem(taxYear, messages, month, prefillMonth.contains(month)))
+  }
+
+  private def mapToSelectItem(taxYear: Int, messages: Messages, month: Month, selected: Boolean): Aliases.SelectItem = {
+    val monthMsg = messages(s"common.${month.name().toLowerCase}")
+
+    SelectItem(
+      value = Some(month.name().toLowerCase),
+      text = messages("common.taxMonth", monthMsg, monthToTaxYearConverter(month, taxYear).toString),
+      selected = selected
+    )
   }
 }

@@ -17,17 +17,16 @@
 package actions
 
 import common.SessionValues.TEMP_EMPLOYER_REF
-
-import java.time.Month
 import config.{AppConfig, ErrorHandler}
+import controllers.routes.ContractorSummaryController
 import models.mongo.{CisCYAModel, CisUserData}
 import models.{AuthorisationRequest, UserSessionDataRequest}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
 import services.CISSessionService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendHeaderCarrierProvider
-import controllers.routes.ContractorSummaryController
 
+import java.time.Month
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 

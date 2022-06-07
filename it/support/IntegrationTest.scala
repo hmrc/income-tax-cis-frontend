@@ -149,7 +149,7 @@ trait IntegrationTest extends AnyWordSpec
   lazy val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
 
-  val defaultAcceptedConfidenceLevels = Seq(
+  val defaultAcceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq(
     ConfidenceLevel.L200,
     ConfidenceLevel.L500
   )

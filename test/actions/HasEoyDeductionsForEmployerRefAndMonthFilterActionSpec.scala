@@ -54,7 +54,7 @@ class HasEoyDeductionsForEmployerRefAndMonthFilterActionSpec extends UnitTest
   }
 
   ".filter" should {
-    "return a redirect to " in {
+    "should error when wrong month value is passed" in {
       val underTest = HasEoyDeductionsForEmployerRefAndMonthFilterAction(
         taxYear = anyTaxYear,
         employerRef = employerRef,

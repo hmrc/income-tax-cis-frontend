@@ -22,18 +22,18 @@ import org.scalamock.scalatest.MockFactory
 import services.DeleteCISPeriodService
 
 import java.time.Month
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 trait MockDeleteCISPeriodService extends MockFactory {
 
   protected val mockService: DeleteCISPeriodService = mock[DeleteCISPeriodService]
 
   def mockRemoveCISDeduction(taxYear: Int,
-                                  employerRef: String,
-                                  user: User,
-                                  deductionPeriod: Month,
-                                  result: Either[ServiceError, Unit])(implicit ec:ExecutionContext): CallHandler4[Int, String, User, Month, Future[Either[ServiceError, Unit]]]= {
-    (mockService.removeCisDeduction(_: Int, _:String, _: User, _:Month))
+                             employerRef: String,
+                             user: User,
+                             deductionPeriod: Month,
+                             result: Either[ServiceError, Unit]): CallHandler4[Int, String, User, Month, Future[Either[ServiceError, Unit]]] = {
+    (mockService.removeCisDeduction(_: Int, _: String, _: User, _: Month))
       .expects(taxYear, employerRef, user, deductionPeriod)
       .returns(Future.successful(result))
   }

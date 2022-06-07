@@ -47,7 +47,7 @@ class MaterialsServiceSpec extends UnitTest
 
       mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Right(aCisUserData))
 
-      await(underTest.saveQuestion(aUser, aCisUserData, question = true)) shouldBe Right(())
+      await(underTest.saveQuestion(aUser, aCisUserData, question = true)) shouldBe Right(aCisUserData)
     }
 
     "persist cisUserData when question is No" in {
@@ -56,7 +56,7 @@ class MaterialsServiceSpec extends UnitTest
 
       mockCreateOrUpdateCISUserData(aCisUserData.taxYear, aUser, aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Right(aCisUserData))
 
-      await(underTest.saveQuestion(aUser, aCisUserData, question = false)) shouldBe Right(())
+      await(underTest.saveQuestion(aUser, aCisUserData, question = false)) shouldBe Right(aCisUserData)
     }
   }
 

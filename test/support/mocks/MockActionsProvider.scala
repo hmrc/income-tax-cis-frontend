@@ -65,7 +65,7 @@ trait MockActionsProvider extends MockFactory
     }
 
   def mockEndOfYearWithSessionData(taxYear: Int,
-                                   cisUserData: CisUserData): CallHandler3[Int, String, Boolean, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+                                   cisUserData: CisUserData): CallHandler2[Int, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
     val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
       override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
 
@@ -75,8 +75,8 @@ trait MockActionsProvider extends MockFactory
       override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
     }
 
-    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String, _: Boolean))
-      .expects(taxYear, cisUserData.employerRef, *)
+    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String))
+      .expects(taxYear, cisUserData.employerRef)
       .returns(value = actionBuilder)
   }
 
@@ -94,6 +94,23 @@ trait MockActionsProvider extends MockFactory
 
     (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String, _: String))
       .expects(taxYear, month, employerRef)
+      .returns(value = actionBuilder)
+  }
+
+  def mockEndOfYearWithSessionDataWithCustomerDeductionPeriod(taxYear: Int,
+                                                              cisUserData: CisUserData,
+                                                              month: Option[String] = None): CallHandler3[Int, String, Option[String], ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+    val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+
+      override def invokeBlock[A](request: Request[A], block: UserSessionDataRequest[A] => Future[Result]): Future[Result] =
+        block(UserSessionDataRequest(cisUserData, aUser, request))
+
+      override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
+    }
+
+    (mockActionsProvider.endOfYearWithSessionDataWithCustomerDeductionPeriod(_: Int, _: String, _: Option[String]))
+      .expects(taxYear, cisUserData.employerRef, month)
       .returns(value = actionBuilder)
   }
 
@@ -171,7 +188,7 @@ trait MockActionsProvider extends MockFactory
   }
 
   def mockNotInYear(taxYear: Int): CallHandler1[Int, ActionBuilder[AuthorisationRequest, AnyContent]] = {
-    (mockActionsProvider.notInYear(_: Int))
+    (mockActionsProvider.endOfYear(_: Int))
       .expects(taxYear)
       .returns(value = authorisationRequestActionBuilder)
   }

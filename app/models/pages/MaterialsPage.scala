@@ -16,7 +16,7 @@
 
 package models.pages
 
-import forms.FormsProvider.MaterialsYesNoForm
+import forms.FormTypes.MaterialsYesNoForm
 import models.mongo.CisUserData
 
 import java.time.Month

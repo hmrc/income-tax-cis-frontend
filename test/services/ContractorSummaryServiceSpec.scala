@@ -32,7 +32,7 @@ class ContractorSummaryServiceSpec extends UnitTest
 
   private val underTest = new ContractorSummaryService(mockCISSessionService)
 
-  private val cya: CisCYAModel = aCisDeductions.toCYA(None, anIncomeTaxUserData.contractorPeriodsFor(aCisDeductions.employerRef))
+  private val cya: CisCYAModel = aCisDeductions.toCYA(None, anIncomeTaxUserData.contractorPeriodsFor(aCisDeductions.employerRef), hasCompleted = false)
 
   ".saveCYAForNewCisDeduction" should {
     "return right when save is successful" in {

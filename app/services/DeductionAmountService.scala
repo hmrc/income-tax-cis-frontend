@@ -27,7 +27,7 @@ class DeductionAmountService @Inject()(cisSessionService: CISSessionService)
 
   def saveAmount(user: User,
                  cisUserData: CisUserData,
-                 amount: BigDecimal): Future[Either[ServiceError, Unit]] = {
+                 amount: BigDecimal): Future[Either[ServiceError, CisUserData]] = {
     val periodData: CYAPeriodData = cisUserData.cis.periodData.map(_.copy(deductionAmount = Some(amount))).get
     val updatedCYA = cisUserData.cis.copy(periodData = Some(periodData))
 
@@ -35,7 +35,7 @@ class DeductionAmountService @Inject()(cisSessionService: CISSessionService)
       .createOrUpdateCISUserData(user, cisUserData.taxYear, cisUserData.employerRef, cisUserData.submissionId, cisUserData.isPriorSubmission, updatedCYA)
       .map {
         case Left(_) => Left(DataNotUpdatedError)
-        case Right(_) => Right(())
+        case Right(cisUserData) => Right(cisUserData)
       }
   }
 }

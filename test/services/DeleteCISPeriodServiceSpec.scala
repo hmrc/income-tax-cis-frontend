@@ -16,18 +16,18 @@
 
 package services
 
-import support.{TaxYearProvider, UnitTest}
 import support.builders.models.UserBuilder.aUser
+import support.{TaxYearProvider, UnitTest}
 
 import java.time.Month
 
-class DeleteCISPeriodServiceSpec extends UnitTest with TaxYearProvider{
+class DeleteCISPeriodServiceSpec extends UnitTest with TaxYearProvider {
 
   val underTest = new DeleteCISPeriodService
 
   ".remove CISDeduction" should {
     "return right" in {
-      await(underTest.removeCisDeduction(taxYearEOY, "employerRef", aUser, Month.MAY)) shouldBe Right()
+      await(underTest.removeCisDeduction(taxYearEOY, employerRef = "employerRef", user = aUser, deductionPeriod = Month.MAY)) shouldBe Right(())
     }
   }
 }

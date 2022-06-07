@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.routes.MaterialsController
+import controllers.routes.{ContractorCYAController, MaterialsController}
 import forms.{AmountForm, FormsProvider}
 import models.mongo.DataNotFoundError
 import org.jsoup.Jsoup
@@ -24,12 +24,15 @@ import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
 import play.api.mvc.Results.{InternalServerError, Redirect}
 import play.api.test.Helpers.{contentAsString, contentType, status}
 import support.ControllerUnitTest
+import support.builders.models.CisDeductionsBuilder.aCisDeductions
+import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
+import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockActionsProvider, MockDeductionAmountService}
 import views.html.DeductionAmountView
 
-import java.time.Month
+import java.time.Month.MAY
 
 class DeductionAmountControllerSpec extends ControllerUnitTest
   with MockActionsProvider
@@ -56,9 +59,9 @@ class DeductionAmountControllerSpec extends ControllerUnitTest
 
   ".submit" should {
     "render page with error when validation of form fails" in {
-      mockEndOfYearWithSessionData(taxYearEOY, month = "MAY", employerRef = "some-ref")
+      mockEndOfYearWithSessionData(taxYearEOY, month = "may", employerRef = "some-ref")
 
-      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "2.3.4"))
+      val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "2.3.4"))
 
       status(result) shouldBe BAD_REQUEST
       contentType(result) shouldBe Some("text/html")
@@ -67,21 +70,29 @@ class DeductionAmountControllerSpec extends ControllerUnitTest
     }
 
     "handle internal server error when save operation fails with database error" in {
-      mockEndOfYearWithSessionData(taxYearEOY, month = "MAY", aCisUserData.employerRef)
+      mockEndOfYearWithSessionData(taxYearEOY, month = "may", aCisUserData.employerRef)
       mockSaveAmount(aUser, aCisUserData, amount = 123, result = Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
-      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "123"))
+      val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "123"))
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
-    "redirect to Materials Question Page on successful submission" in {
-      mockEndOfYearWithSessionData(taxYearEOY, month = "MAY", employerRef = aCisUserData.employerRef)
-      mockSaveAmount(aUser, aCisUserData, amount = 123, result = Right(()))
+    "redirect to Materials Question Page on successful submission when data collection not finished" in {
+      mockEndOfYearWithSessionData(taxYearEOY, month = "may", employerRef = aCisUserData.employerRef)
+      mockSaveAmount(aUser, aCisUserData, amount = 123, result = Right(aCisUserData.copy(cis = aCisCYAModel.copy(contractorName = None))))
 
-      await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "123"))) shouldBe
-        Redirect(MaterialsController.show(taxYearEOY, Month.MAY.toString, aCisUserData.employerRef))
+      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "123"))) shouldBe
+        Redirect(MaterialsController.show(taxYearEOY, MAY.toString.toLowerCase, aCisUserData.employerRef))
+    }
+
+    "redirect to Check CIS Deductions Page on successful submission when data collection finished" in {
+      mockEndOfYearWithSessionData(taxYearEOY, month = "may", employerRef = aCisUserData.employerRef)
+      mockSaveAmount(aUser, aCisUserData, amount = 123, result = Right(aCisUserData))
+
+      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "123"))) shouldBe
+        Redirect(ContractorCYAController.show(taxYearEOY, aPeriodData.deductionPeriod.toString.toLowerCase, aCisDeductions.employerRef))
     }
   }
 }
