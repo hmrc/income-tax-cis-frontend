@@ -17,10 +17,10 @@
 package controllers
 
 import common.SessionValues
-import controllers.routes.DeductionPeriodController
+import controllers.routes.{ContractorCYAController, DeductionPeriodController}
 import forms.ContractorDetailsForm
-import models.forms.ContractorDetailsFormData
-import models.mongo.DataNotFoundError
+import models.forms.ContractorDetails
+import models.mongo.{CisCYAModel, DataNotFoundError}
 import org.jsoup.Jsoup
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
 import play.api.mvc.Results.{InternalServerError, Redirect}
@@ -80,7 +80,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
     "handle internal server error when save operation fails with database error when" when {
       "no contractor provided" in {
         mockNotInYear(taxYearEOY)
-        mockSaveContractorDetails(taxYearEOY, aUser, None, ContractorDetailsFormData("some-name", "123/45678"), Left(DataNotFoundError))
+        mockSaveContractorDetails(taxYearEOY, aUser, None, ContractorDetails("some-name", "123/45678"), Left(DataNotFoundError))
         mockInternalError(InternalServerError)
 
         val result = underTest.submit(taxYearEOY, contractor = None).apply(fakeIndividualRequest.withFormUrlEncodedBody(
@@ -93,7 +93,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
 
       "contractor provided" in {
         mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = "123/45678"))
-        mockSaveContractorDetails(taxYearEOY, aUser, Some(aCisUserData.copy(employerRef = "123/45678")), ContractorDetailsFormData("some-name", "123/45678"), Left(DataNotFoundError))
+        mockSaveContractorDetails(taxYearEOY, aUser, Some(aCisUserData.copy(employerRef = "123/45678")), ContractorDetails("some-name", "123/45678"), Left(DataNotFoundError))
         mockInternalError(InternalServerError)
 
         val result = underTest.submit(taxYearEOY, contractor = Some("123/45678")).apply(fakeIndividualRequest.withFormUrlEncodedBody(
@@ -107,21 +107,24 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
 
     "redirect to Deduction period on successful submission when" when {
       "no contractor provided" in {
+        val newCisCYAModel = CisCYAModel(contractorName = Some("some-name"))
         mockNotInYear(taxYearEOY)
-        mockSaveContractorDetails(taxYearEOY, aUser, None, ContractorDetailsFormData("some-name", "123/45678"), Right(()))
+        mockSaveContractorDetails(taxYearEOY, aUser, None, ContractorDetails("some-name", "123/45678"), Right(aCisUserData.copy(employerRef = "123/45678", cis = newCisCYAModel)))
 
         await(underTest.submit(taxYear = taxYearEOY, contractor = None)(fakeIndividualRequest.withFormUrlEncodedBody(
           ContractorDetailsForm.contractorName -> "some-name", ContractorDetailsForm.employerReferenceNumber -> "123/45678"))) shouldBe
-          Redirect(DeductionPeriodController.show(taxYearEOY, "123/45678")).addingToSession(SessionValues.TEMP_EMPLOYER_REF -> "123/45678")(fakeIndividualRequest)
+          Redirect(DeductionPeriodController.show(taxYearEOY, contractor = "123/45678")).addingToSession(SessionValues.TEMP_EMPLOYER_REF -> "123/45678")(fakeIndividualRequest)
       }
 
       "contractor provided" in {
         mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = "123/45678"))
-        mockSaveContractorDetails(taxYearEOY, aUser, Some(aCisUserData.copy(employerRef = "123/45678")), ContractorDetailsFormData("some-name", "123/45678"), Right(()))
+        val cisUserData = aCisUserData.copy(employerRef = "123/45678")
+        mockSaveContractorDetails(taxYearEOY, aUser, Some(cisUserData), ContractorDetails("some-name", "123/45678"), Right(cisUserData))
 
+        val month = cisUserData.cis.periodData.get.deductionPeriod.toString.toLowerCase
         await(underTest.submit(taxYear = taxYearEOY, contractor = Some("123/45678"))(fakeIndividualRequest.withFormUrlEncodedBody(
           ContractorDetailsForm.contractorName -> "some-name", ContractorDetailsForm.employerReferenceNumber -> "123/45678"))) shouldBe
-          Redirect(DeductionPeriodController.show(taxYearEOY, "123/45678")).addingToSession(SessionValues.TEMP_EMPLOYER_REF -> "123/45678")(fakeIndividualRequest)
+          Redirect(ContractorCYAController.show(taxYearEOY, month, contractor = "123/45678"))
       }
     }
   }

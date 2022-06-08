@@ -20,7 +20,7 @@ import filters.InputFilters
 import forms.validation.StringConstraints.{validateChar, validateSize}
 import forms.validation.mappings.MappingUtil.trimmedText
 import forms.validation.utils.ConstraintUtil.ConstraintUtil
-import models.forms.ContractorDetailsFormData
+import models.forms.ContractorDetails
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.validation.Constraint
@@ -35,7 +35,7 @@ object ContractorDetailsForm extends InputFilters {
   val contractorName = "contractorName"
   val employerReferenceNumber = "employerReferenceNumber"
 
-  def contractorDetailsForm(isAgent: Boolean): Form[ContractorDetailsFormData] = {
+  def contractorDetailsForm(isAgent: Boolean): Form[ContractorDetails] = {
     val nameNotEmpty: Constraint[String] = nonEmpty(s"contractor-details.name.error.noEntry.${if (isAgent) "agent" else "individual"}")
     val refNotEmpty: Constraint[String] = nonEmpty(s"contractor-details.employer-ref.error.noEntry")
     val nameNotCharLimit: Constraint[String] = validateSize(nameCharLimit)("contractor-details.name.error.notCharLimit")
@@ -44,14 +44,14 @@ object ContractorDetailsForm extends InputFilters {
 
     Form(
       mapping(
-      contractorName -> trimmedText.verifying(nameNotEmpty andThen nameNotCharLimit andThen validateNameFormat),
-      employerReferenceNumber -> trimmedText.verifying(refNotEmpty andThen validateRefFormat)
-    )(ContractorDetailsFormData.apply)(ContractorDetailsFormData.unapply).transform[ContractorDetailsFormData](
-      details => details.copy(
-        contractorName = filter(details.contractorName),
-        employerReferenceNumber = filter(details.employerReferenceNumber)
-      ), x => x
-    )
+        contractorName -> trimmedText.verifying(nameNotEmpty andThen nameNotCharLimit andThen validateNameFormat),
+        employerReferenceNumber -> trimmedText.verifying(refNotEmpty andThen validateRefFormat)
+      )(ContractorDetails.apply)(ContractorDetails.unapply).transform[ContractorDetails](
+        details => details.copy(
+          contractorName = filter(details.contractorName),
+          employerReferenceNumber = filter(details.employerReferenceNumber)
+        ), x => x
+      )
     )
   }
 }

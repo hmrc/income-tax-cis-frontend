@@ -91,7 +91,7 @@ class ContractorDetailsControllerISpec extends IntegrationTest
       result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
     }
 
-    "Redirect to the same page" in {
+    "Save contractor details and redirect to the Deduction Period Page" in {
       lazy val body = Map(ContractorDetailsForm.contractorName -> "some-name", ContractorDetailsForm.employerReferenceNumber -> "123/55555")
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
@@ -99,7 +99,6 @@ class ContractorDetailsControllerISpec extends IntegrationTest
         insertCyaData(aCisUserData)
         urlPost(fullUrl(url(taxYearEOY)), body = body, headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
       }
-
 
       result.status shouldBe SEE_OTHER
       result.headers("Location").head shouldBe DeductionPeriodController.show(taxYearEOY, contractor = "123/55555").url

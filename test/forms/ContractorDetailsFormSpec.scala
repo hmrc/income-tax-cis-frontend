@@ -16,13 +16,13 @@
 
 package forms
 
-import models.forms.ContractorDetailsFormData
+import models.forms.ContractorDetails
 import play.api.data.{Form, FormError}
 import support.UnitTest
 
 class ContractorDetailsFormSpec extends UnitTest {
 
-  private def theForm(isAgent: Boolean): Form[ContractorDetailsFormData] = ContractorDetailsForm.contractorDetailsForm(isAgent)
+  private def theForm(isAgent: Boolean): Form[ContractorDetails] = ContractorDetailsForm.contractorDetailsForm(isAgent)
 
   private val contractorName = "contractorName"
   private val employerReferenceNumber = "employerReferenceNumber"
@@ -33,7 +33,7 @@ class ContractorDetailsFormSpec extends UnitTest {
     " in culpa qui officia deserunt mollit anim id est laborum."
 
   private val validInput = Map(contractorName -> "Contractor name", employerReferenceNumber -> "123/AB12345")
-  private val validResult = ContractorDetailsFormData("Contractor name", "123/AB12345")
+  private val validResult = ContractorDetails("Contractor name", "123/AB12345")
 
   "The ContractorDetailsForm" should {
     "Correctly validate a contractor details view model" when {

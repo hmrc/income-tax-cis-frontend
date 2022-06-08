@@ -16,7 +16,7 @@
 
 package support.mocks
 
-import models.forms.ContractorDetailsFormData
+import models.forms.ContractorDetails
 import models.mongo.{CisUserData, DatabaseError}
 import models.{ServiceError, User}
 import org.scalamock.handlers.CallHandler4
@@ -32,8 +32,8 @@ trait MockContractorDetailsService extends MockFactory {
   def mockSaveContractorDetails(taxYear: Int,
                                 user: User,
                                 optCisUserData: Option[CisUserData],
-                                formData: ContractorDetailsFormData,
-                                result: Either[DatabaseError, Unit]): CallHandler4[Int, User, Option[CisUserData], ContractorDetailsFormData, Future[Either[ServiceError, Unit]]] = {
+                                formData: ContractorDetails,
+                                result: Either[DatabaseError, CisUserData]): CallHandler4[Int, User, Option[CisUserData], ContractorDetails, Future[Either[ServiceError, CisUserData]]] = {
     (mockContractorDetailsService.saveContractorDetails _)
       .expects(taxYear, user, optCisUserData, formData)
       .returns(Future.successful(result))

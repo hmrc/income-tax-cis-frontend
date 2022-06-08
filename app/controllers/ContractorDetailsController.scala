@@ -20,10 +20,10 @@ import actions.ActionsProvider
 import com.google.inject.Inject
 import common.SessionValues
 import config.{AppConfig, ErrorHandler}
-import controllers.routes.DeductionPeriodController
+import controllers.routes.{ContractorCYAController, DeductionPeriodController}
 import forms.ContractorDetailsForm.contractorDetailsForm
 import models.User
-import models.forms.ContractorDetailsFormData
+import models.forms.ContractorDetails
 import models.mongo.CisUserData
 import models.pages.ContractorDetailsPage
 import play.api.i18n.I18nSupport
@@ -46,7 +46,7 @@ class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
     case None => actionsProvider.endOfYear(taxYear)(implicit request =>
       Ok(contractorDetailsView(ContractorDetailsPage(taxYear, request.user.isAgent, contractorDetailsForm(request.user.isAgent), None))))
     case Some(contractorRef) => actionsProvider.endOfYearWithSessionData(taxYear, contractorRef) { implicit request =>
-      val formData = ContractorDetailsFormData(request.cisUserData.cis.contractorName.getOrElse(""), request.cisUserData.employerRef)
+      val formData = ContractorDetails(request.cisUserData.cis.contractorName.getOrElse(""), request.cisUserData.employerRef)
       val form = contractorDetailsForm(request.user.isAgent).fill(formData)
       Ok(contractorDetailsView(ContractorDetailsPage(taxYear, request.user.isAgent, form, Some(request.cisUserData.employerRef))))
     }
@@ -65,11 +65,21 @@ class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
     contractorDetailsForm(user.isAgent).bindFromRequest().fold(
       formWithErrors =>
         Future(BadRequest(contractorDetailsView(ContractorDetailsPage(taxYear, user.isAgent, formWithErrors, optCisUserData.map(_.employerRef))))),
-      formData => contractorDetailsService.saveContractorDetails(taxYear, user, optCisUserData, formData).map {
+      contractorDetails => contractorDetailsService.saveContractorDetails(taxYear, user, optCisUserData, contractorDetails).map {
         case Left(_) => errorHandler.internalServerError()
-        case Right(_) => Redirect(DeductionPeriodController.show(taxYear, formData.employerReferenceNumber))
-          .addingToSession(SessionValues.TEMP_EMPLOYER_REF -> formData.employerReferenceNumber)
+        case Right(cisUserData) => getRedirect(taxYear, cisUserData)
       }
     )
+  }
+
+  private def getRedirect(taxYear: Int, cisUserData: CisUserData)
+                         (implicit requestHeader: RequestHeader): Result = {
+    val contractor = cisUserData.employerRef
+    if (cisUserData.isFinished) {
+      val month = cisUserData.cis.periodData.get.deductionPeriod.toString.toLowerCase
+      Redirect(ContractorCYAController.show(taxYear, month, contractor))
+    } else {
+      Redirect(DeductionPeriodController.show(taxYear, contractor)).addingToSession(SessionValues.TEMP_EMPLOYER_REF -> contractor)
+    }
   }
 }
