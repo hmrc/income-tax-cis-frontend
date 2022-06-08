@@ -18,7 +18,7 @@ package views
 
 import forms.ContractorDetailsForm._
 import models.AuthorisationRequest
-import models.forms.ContractorDetailsFormData
+import models.forms.ContractorDetails
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.i18n.Messages
@@ -140,7 +140,7 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
       "render end of year version of contractor details page with previous content" which {
         implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(userScenario.isAgent)
         implicit val messages: Messages = getMessages(userScenario.isWelsh)
-        val form = contractorDetailsForm(userScenario.isAgent).fill(ContractorDetailsFormData("ABC Steelworks", "123/AB12345"))
+        val form = contractorDetailsForm(userScenario.isAgent).fill(ContractorDetails("ABC Steelworks", "123/AB12345"))
         val pageModel = aContractorDetailsPage.copy(isAgent = userScenario.isAgent, form = form, originalEmployerRef = Some("123/AB12345"))
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 

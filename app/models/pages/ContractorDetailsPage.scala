@@ -16,12 +16,12 @@
 
 package models.pages
 
-import models.forms.ContractorDetailsFormData
+import models.forms.ContractorDetails
 import play.api.data.Form
 
 case class ContractorDetailsPage(taxYear: Int,
                                  isAgent: Boolean,
-                                 form: Form[ContractorDetailsFormData],
+                                 form: Form[ContractorDetails],
                                  originalEmployerRef: Option[String]) {
 
   val isReplay: Boolean = originalEmployerRef.isDefined

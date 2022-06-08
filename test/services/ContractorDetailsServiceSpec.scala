@@ -16,7 +16,7 @@
 
 package services
 
-import models.forms.ContractorDetailsFormData
+import models.forms.ContractorDetails
 import models.mongo.{CisCYAModel, DataNotUpdatedError}
 import support.builders.models.UserBuilder._
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
@@ -30,7 +30,7 @@ class ContractorDetailsServiceSpec extends UnitTest
   with MockCISUserDataRepository
   with TaxYearProvider {
 
-  private val formData = new ContractorDetailsFormData(contractorName = "some-name", employerReferenceNumber = "some-ref")
+  private val formData = new ContractorDetails(contractorName = "some-name", employerReferenceNumber = "some-ref")
 
   private val underTest = new ContractorDetailsService(mockCISSessionService, mockCisUserDataRepository)
 
@@ -57,7 +57,7 @@ class ContractorDetailsServiceSpec extends UnitTest
         mockClear(taxYear, aCisUserData.employerRef, result = true)
         mockCreateOrUpdateCISUserData(taxYear, aUser, employerRef = "some-ref", aCisUserData.submissionId, aCisUserData.isPriorSubmission, newCisCYAModel, Right(aCisUserData))
 
-        await(underTest.saveContractorDetails(taxYear, aUser, Some(aCisUserData), formData)) shouldBe Right(())
+        await(underTest.saveContractorDetails(taxYear, aUser, Some(aCisUserData), formData)) shouldBe Right(aCisUserData)
       }
 
       "employerRef is not updated" in {
@@ -66,7 +66,7 @@ class ContractorDetailsServiceSpec extends UnitTest
 
         mockCreateOrUpdateCISUserData(taxYear, aUser, employerRef = aCisUserData.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, newCisCYAModel, Right(aCisUserData))
 
-        await(underTest.saveContractorDetails(taxYear, aUser, Some(aCisUserData), formDataWithSameEmployerRef)) shouldBe Right(())
+        await(underTest.saveContractorDetails(taxYear, aUser, Some(aCisUserData), formDataWithSameEmployerRef)) shouldBe Right(aCisUserData)
       }
     }
 
@@ -75,7 +75,7 @@ class ContractorDetailsServiceSpec extends UnitTest
 
       mockCreateOrUpdateCISUserData(taxYear, aUser, employerRef = "some-ref", None, isPriorSubmission = false, newCisCYAModel, Right(aCisUserData))
 
-      await(underTest.saveContractorDetails(taxYear, aUser, None, formData)) shouldBe Right(())
+      await(underTest.saveContractorDetails(taxYear, aUser, None, formData)) shouldBe Right(aCisUserData)
     }
   }
 }

@@ -16,18 +16,10 @@
 
 package models.forms
 
-import play.api.libs.json.Json
-import support.UnitTest
+import play.api.libs.json.{Json, OFormat}
 
-class ContractorDetailsFormDataSpec extends UnitTest {
+case class ContractorDetails(contractorName: String, employerReferenceNumber: String)
 
-  "ContractorDetailsViewModel" should {
-    "write to json correctly when using implicit writes" in {
-      Json.toJson(ContractorDetailsFormData("ABC Steelworks", "123/AB12345")) shouldBe
-        Json.obj(
-          "contractorName" -> "ABC Steelworks",
-          "employerReferenceNumber" -> "123/AB12345"
-        )
-    }
-  }
+object ContractorDetails {
+  implicit val formats: OFormat[ContractorDetails] = Json.format[ContractorDetails]
 }
