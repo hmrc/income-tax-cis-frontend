@@ -16,7 +16,7 @@
 
 package views
 
-import controllers.routes.{ContractorCYAController, ContractorSummaryController}
+import controllers.routes.ContractorSummaryController
 import models.UserPriorDataRequest
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -30,7 +30,6 @@ import views.html.ContractorCYAView
 class ContractorCYAViewSpec extends ViewUnitTest {
 
   object Selectors {
-
     val paragraphTextSelector = "#main-content > div > div > p.govuk-body"
     val insetTextSelector = "#main-content > div > div > div.govuk-inset-text"
     val buttonSelector = "#return-to-contractor-button-id"
@@ -143,7 +142,6 @@ class ContractorCYAViewSpec extends ViewUnitTest {
     override val expectedInsetText: Int => String = (taxYear: Int) => s"You cannot update your client’s CIS information until 6 April $taxYear."
   }
 
-
   override protected val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = Seq(
     UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
     UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
@@ -173,31 +171,31 @@ class ContractorCYAViewSpec extends ViewUnitTest {
           textOnPageCheck(contractorNamePart + contractorRefPart, selector = Selectors.summaryListValue(rowId = 1))
           linkCheck(userScenario.commonExpectedResults.changeHiddenText + " " +
             userScenario.commonExpectedResults.contractorDetailsHiddenText, Selectors.summaryListLinksSelector(row = 1, 3),
-            controllers.routes.ContractorDetailsController.show(taxYear,Some(aContractorCYAPage.employerRef)).url, additionalTestText = "(first row)")
+            controllers.routes.ContractorDetailsController.show(taxYear, Some(aContractorCYAPage.employerRef)).url, additionalTestText = "(first row)")
           textOnPageCheck(userScenario.commonExpectedResults.expectedEndOfTaxMonth, selector = Selectors.summaryListLabel(rowId = 2))
           linkCheck(userScenario.commonExpectedResults.changeHiddenText + " " +
             userScenario.commonExpectedResults.periodHiddenText, Selectors.summaryListLinksSelector(row = 2, 3),
-            controllers.routes.DeductionPeriodController.show(taxYear,aContractorCYAPage.employerRef).url, additionalTestText = "(2nd row)")
+            controllers.routes.DeductionPeriodController.show(taxYear, aContractorCYAPage.employerRef).url, additionalTestText = "(2nd row)")
           textOnPageCheck(text = "5 " + translatedMonthAndTaxYear(aContractorCYAPage.month, taxYear), selector = Selectors.summaryListValue(rowId = 2))
           textOnPageCheck(userScenario.commonExpectedResults.expectedLabour, selector = Selectors.summaryListLabel(rowId = 3))
           linkCheck(userScenario.commonExpectedResults.changeHiddenText + " " +
             userScenario.commonExpectedResults.labourHiddenText, Selectors.summaryListLinksSelector(row = 3, 3),
-            controllers.routes.LabourPayController.show(taxYear,aContractorCYAPage.month.toString.toLowerCase,aContractorCYAPage.employerRef).url, additionalTestText = "(3rd row)")
+            controllers.routes.LabourPayController.show(taxYear, aContractorCYAPage.month.toString.toLowerCase, aContractorCYAPage.employerRef).url, additionalTestText = "(3rd row)")
           textOnPageCheck(text = "£100", selector = Selectors.summaryListValue(rowId = 3), additionalTestText = "expectedLabour")
           textOnPageCheck(userScenario.commonExpectedResults.expectedCISDeduction, selector = Selectors.summaryListLabel(rowId = 4))
           linkCheck(userScenario.commonExpectedResults.changeHiddenText + " " +
             userScenario.commonExpectedResults.cisDeductionsHiddenText, Selectors.summaryListLinksSelector(row = 4, 3),
-            controllers.routes.DeductionAmountController.show(taxYear,aContractorCYAPage.month.toString.toLowerCase,aContractorCYAPage.employerRef).url, additionalTestText = "(4th row)")
+            controllers.routes.DeductionAmountController.show(taxYear, aContractorCYAPage.month.toString.toLowerCase, aContractorCYAPage.employerRef).url, additionalTestText = "(4th row)")
           textOnPageCheck(text = "£200", selector = Selectors.summaryListValue(rowId = 4), additionalTestText = "expectedCISDeduction")
           textOnPageCheck(userScenario.commonExpectedResults.expectedPaidForMaterials, selector = Selectors.summaryListLabel(rowId = 5))
           linkCheck(userScenario.commonExpectedResults.changeHiddenText + " " +
             userScenario.commonExpectedResults.paidForMaterialsHiddenText, Selectors.summaryListLinksSelector(row = 5, 3),
-            controllers.routes.MaterialsController.show(taxYear,aContractorCYAPage.month.toString.toLowerCase,aContractorCYAPage.employerRef).url, additionalTestText = "(5th row)")
+            controllers.routes.MaterialsController.show(taxYear, aContractorCYAPage.month.toString.toLowerCase, aContractorCYAPage.employerRef).url, additionalTestText = "(5th row)")
           textOnPageCheck(text = "Yes", selector = Selectors.summaryListValue(rowId = 5))
           textOnPageCheck(userScenario.commonExpectedResults.expectedCostOfMaterials, selector = Selectors.summaryListLabel(rowId = 6))
           linkCheck(userScenario.commonExpectedResults.changeHiddenText + " " +
             userScenario.commonExpectedResults.materialsHiddenText, Selectors.summaryListLinksSelector(row = 6, 3),
-            controllers.routes.MaterialsAmountController.show(taxYear,aContractorCYAPage.month.toString.toLowerCase,aContractorCYAPage.employerRef).url, additionalTestText = "(6th row)")
+            controllers.routes.MaterialsAmountController.show(taxYear, aContractorCYAPage.month.toString.toLowerCase, aContractorCYAPage.employerRef).url, additionalTestText = "(6th row)")
           textOnPageCheck(text = "£300", selector = Selectors.summaryListValue(rowId = 6), additionalTestText = "Cost of materials ")
           buttonCheck(userScenario.commonExpectedResults.expectedSaveButtonText, Selectors.saveButtonSelector)
         }

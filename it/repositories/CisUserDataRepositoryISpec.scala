@@ -18,15 +18,17 @@ package repositories
 
 import com.mongodb.MongoTimeoutException
 import common.UUID
-import models.AuthorisationRequest
 import models.mongo._
 import org.joda.time.{DateTime, DateTimeZone}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import org.mongodb.scala.{MongoException, MongoInternalException, MongoWriteException}
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import support.IntegrationTest
+import support.builders.models.AuthorisationRequestBuilder.anAuthorisationRequest
+import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
@@ -42,9 +44,10 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
   private val now = DateTime.now(DateTimeZone.UTC)
   private val userDataFull = aCisUserData.copy(sessionId = sessionIdOne)
   private val userDataOne = aCisUserData.copy(sessionId = sessionIdOne, taxYear = taxYear, lastUpdated = now)
-  private val userOne = AuthorisationRequest(models.User(userDataOne.mtdItId, None, userDataOne.nino, userDataOne.sessionId, Individual.toString), fakeRequest)
-  private val repoWithInvalidEncryption = appWithInvalidEncryptionKey.injector.instanceOf[CisUserDataRepositoryImpl]
+  private val userOne = anAuthorisationRequest.copy(aUser.copy(userDataOne.mtdItId, None, userDataOne.nino, userDataOne.sessionId, Individual.toString))
   private implicit val secureGCMCipher: SecureGCMCipher = app.injector.instanceOf[SecureGCMCipher]
+  private val repoWithInvalidEncryption = GuiceApplicationBuilder().configure(config + ("mongodb.encryption.key" -> "key")).build()
+    .injector.instanceOf[CisUserDataRepositoryImpl]
 
   private def count: Long = await(underTest.collection.countDocuments().toFuture())
 
@@ -73,16 +76,14 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       countFromOtherDatabase mustBe 0
       await(repoWithInvalidEncryption.collection.insertOne(userDataOne.encrypted).toFuture())
       countFromOtherDatabase mustBe 1
-      private val res = await(repoWithInvalidEncryption.find(userDataOne.taxYear, userDataOne.employerRef ,userOne.user))
-      res mustBe Left(EncryptionDecryptionError(
-        "Key being used is not valid. It could be due to invalid encoding, wrong length or uninitialized for decrypt Invalid AES key length: 2 bytes"))
+      await(repoWithInvalidEncryption.find(userDataOne.taxYear, userDataOne.employerRef, userOne.user)) mustBe
+        Left(EncryptionDecryptionError("Key being used is not valid. It could be due to invalid encoding, wrong length or uninitialized for decrypt Invalid AES key length: 2 bytes"))
     }
   }
 
   "handleEncryptionDecryptionException" should {
     "handle an exception" in {
-      val res = repoWithInvalidEncryption.handleEncryptionDecryptionException(new Exception("fail"), "")
-      res mustBe Left(EncryptionDecryptionError("fail"))
+      repoWithInvalidEncryption.handleEncryptionDecryptionException(new Exception("fail"), "") mustBe Left(EncryptionDecryptionError("fail"))
     }
   }
 
@@ -107,12 +108,10 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       await(ensureIndexes)
       count mustBe 0
 
-      private val res = await(underTest.createOrUpdate(userDataOne))
-      res mustBe Right(())
+      await(underTest.createOrUpdate(userDataOne)) mustBe Right(())
       count mustBe 1
 
-      private val res2 = await(underTest.createOrUpdate(userDataOne.copy(sessionId = "1234567890")))
-      res2.left.get.message must include("Command failed with error 11000 (DuplicateKey)")
+      await(underTest.createOrUpdate(userDataOne.copy(sessionId = "1234567890"))).left.get.message must include("Command failed with error 11000 (DuplicateKey)")
       count mustBe 1
     }
 
@@ -130,7 +129,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       await(underTest.createOrUpdate(userDataOne)) mustBe Right(())
       count mustBe 1
 
-      private val updatedCisUserData = userDataOne.copy(cis =aCisCYAModel)
+      private val updatedCisUserData = userDataOne.copy(cis = aCisCYAModel)
 
       await(underTest.createOrUpdate(updatedCisUserData)) mustBe Right(())
       count mustBe 1
@@ -165,9 +164,8 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       await(underTest.createOrUpdate(userDataFull)) mustBe Right(())
       count mustBe 1
 
-      val findResult: Either[DatabaseError, Option[CisUserData]] = {
+      val findResult: Either[DatabaseError, Option[CisUserData]] =
         await(underTest.find(userDataFull.taxYear, userDataOne.employerRef, userOne.user))
-      }
 
       findResult mustBe Right(Some(userDataFull.copy(lastUpdated = findResult.right.get.get.lastUpdated)))
     }

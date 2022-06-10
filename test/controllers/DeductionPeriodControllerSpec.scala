@@ -16,7 +16,7 @@
 
 package controllers
 
-import common.SessionValues
+import common.SessionValues.TAX_YEAR
 import controllers.routes.{ContractorCYAController, LabourPayController}
 import forms.DeductionPeriodFormProvider
 import models.mongo.DataNotUpdatedError
@@ -24,6 +24,7 @@ import org.jsoup.Jsoup
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
 import play.api.mvc.Results.InternalServerError
 import play.api.test.Helpers.{contentAsString, contentType, redirectLocation, status}
+import sttp.model.Method.POST
 import support.ControllerUnitTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.UserBuilder.aUser
@@ -57,7 +58,7 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
     "return successful response" in {
       mockEndOfYearWithSessionDataWithCustomerDeductionPeriod(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef))
 
-      val result = underTest.show(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString))
+      val result = underTest.show(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString))
 
       status(result) shouldBe OK
       contentType(result) shouldBe Some("text/html")
@@ -69,8 +70,8 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
       val cisCYAModel = aCisCYAModel.copy(priorPeriodData = Seq(aCYAPeriodData.copy(deductionPeriod = NOVEMBER)))
       mockEndOfYearWithSessionDataWithCustomerDeductionPeriod(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef, cis = cisCYAModel))
 
-      val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest
-        .withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "november"))
+      val request = fakeIndividualRequest.withMethod(POST.method).withSession(TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "november")
+      val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef).apply(request)
 
       status(result) shouldBe BAD_REQUEST
       contentType(result) shouldBe Some("text/html")
@@ -83,8 +84,8 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
       mockSubmitMonth(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JUNE, Left(DataNotUpdatedError))
       mockInternalError(InternalServerError)
 
-      val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef).apply(fakeIndividualRequest
-        .withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june"))
+      val request = fakeIndividualRequest.withMethod(POST.method).withSession(TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june")
+      val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef).apply(request)
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
@@ -93,8 +94,8 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
       mockEndOfYearWithSessionDataWithCustomerDeductionPeriod(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef))
       mockSubmitMonth(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JUNE, Right(aCisUserData.copy(cis = aCisCYAModel.copy(periodData = None))))
 
-      val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef, month = None).apply(fakeIndividualRequest
-        .withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june"))
+      val request = fakeIndividualRequest.withMethod(POST.method).withSession(TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june")
+      val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef, month = None).apply(request)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result).get shouldBe LabourPayController.show(taxYearEOY, Month.JUNE.toString.toLowerCase, aCisDeductions.employerRef).url
@@ -104,8 +105,8 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
       mockEndOfYearWithSessionDataWithCustomerDeductionPeriod(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef), month = Some("june"))
       mockSubmitMonth(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JUNE, Right(aCisUserData))
 
-      val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef, Some("june")).apply(fakeIndividualRequest
-        .withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june"))
+      val request = fakeIndividualRequest.withMethod(POST.method).withSession(TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june")
+      val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef, Some("june")).apply(request)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result).get shouldBe ContractorCYAController.show(taxYearEOY, Month.JUNE.toString.toLowerCase, aCisDeductions.employerRef).url
@@ -115,8 +116,8 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
       mockEndOfYearWithSessionDataWithCustomerDeductionPeriod(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef), month = Some("july"))
       mockSubmitMonth(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JUNE, Right(aCisUserData.copy(cis = aCisCYAModel.copy(contractorName = None))))
 
-      val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef, Some("july")).apply(fakeIndividualRequest
-        .withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june"))
+      val request = fakeIndividualRequest.withMethod(POST.method).withSession(TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june")
+      val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef, Some("july")).apply(request)
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result).get shouldBe LabourPayController.show(taxYearEOY, Month.JUNE.toString.toLowerCase, aCisDeductions.employerRef).url

@@ -28,7 +28,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Play.materializer
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.mvc._
-import play.api.test.{FakeRequest, Helpers}
+import play.api.test.Helpers
+import support.FakeRequestHelper
 import support.builders.models.UserBuilder.aUser
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -40,9 +41,9 @@ trait ViewTest extends AnyWordSpec
   with Matchers
   with MockFactory
   with BeforeAndAfterEach
-  with GuiceOneAppPerSuite {
+  with GuiceOneAppPerSuite
+  with FakeRequestHelper {
 
-  val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("X-Session-ID" -> aUser.sessionId)
   implicit lazy val authorisationRequest: AuthorisationRequest[AnyContent] = new AuthorisationRequest[AnyContent](aUser, fakeRequest)
   implicit val mockAppConfig: AppConfig = new MockAppConfig().config()
 

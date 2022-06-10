@@ -16,24 +16,25 @@
 
 package controllers
 
+import controllers.routes.ContractorCYAController
 import forms.{AmountForm, FormsProvider}
 import models.mongo.DataNotFoundError
 import org.jsoup.Jsoup
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
 import play.api.mvc.Results.{InternalServerError, Redirect}
 import play.api.test.Helpers.{contentAsString, contentType, status}
+import sttp.model.Method.POST
 import support.ControllerUnitTest
+import support.builders.models.CisDeductionsBuilder.aCisDeductions
+import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockActionsProvider, MockMaterialsService}
 import views.html.MaterialsAmountView
-import java.time.Month
 
-import controllers.routes.ContractorCYAController
-import support.builders.models.CisDeductionsBuilder.aCisDeductions
-import support.builders.models.PeriodDataBuilder.aPeriodData
+import java.time.Month
 
 class MaterialsAmountControllerSpec extends ControllerUnitTest
   with MockActionsProvider
@@ -77,7 +78,8 @@ class MaterialsAmountControllerSpec extends ControllerUnitTest
       val periodData = aCYAPeriodData.copy(costOfMaterialsQuestion = None)
       mockEndOfYearWithSessionData(taxYear = taxYearEOY, month = Month.MAY.toString, aCisUserData.copy(employerRef = "some-ref", cis = aCisCYAModel.copy(periodData = Some(periodData))))
 
-      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "2.3.4"))
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(AmountForm.amount -> "2.3.4")
+      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(request)
 
       await(result) shouldBe Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY))
     }
@@ -86,7 +88,8 @@ class MaterialsAmountControllerSpec extends ControllerUnitTest
       val periodData = aCYAPeriodData.copy(costOfMaterialsQuestion = Some(false))
       mockEndOfYearWithSessionData(taxYear = taxYearEOY, month = Month.MAY.toString, aCisUserData.copy(employerRef = "some-ref", cis = aCisCYAModel.copy(periodData = Some(periodData))))
 
-      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "2.3.4"))
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(AmountForm.amount -> "2.3.4")
+      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(request)
 
       await(result) shouldBe Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY))
     }
@@ -94,7 +97,8 @@ class MaterialsAmountControllerSpec extends ControllerUnitTest
     "render page with error when validation of form fails" in {
       mockEndOfYearWithSessionData(taxYearEOY, month = Month.MAY.toString, employerRef = "some-ref")
 
-      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "2.3.4"))
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(AmountForm.amount -> "2.3.4")
+      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = "some-ref").apply(request)
 
       status(result) shouldBe BAD_REQUEST
       contentType(result) shouldBe Some("text/html")
@@ -107,7 +111,8 @@ class MaterialsAmountControllerSpec extends ControllerUnitTest
       mockSaveAmount(aUser, aCisUserData, amount = 123, result = Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
-      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "123"))
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(AmountForm.amount -> "123")
+      val result = underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(request)
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
@@ -116,8 +121,9 @@ class MaterialsAmountControllerSpec extends ControllerUnitTest
       mockEndOfYearWithSessionData(taxYearEOY, month = Month.MAY.toString, employerRef = aCisUserData.employerRef)
       mockSaveAmount(aUser, aCisUserData, amount = 123, result = Right(()))
 
-      await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(AmountForm.amount -> "123"))) shouldBe
-        Redirect(ContractorCYAController.show(taxYearEOY,aPeriodData.deductionPeriod.toString.toLowerCase,aCisDeductions.employerRef))
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(AmountForm.amount -> "123")
+      await(underTest.submit(taxYearEOY, Month.MAY.toString, contractor = aCisUserData.employerRef).apply(request)) shouldBe
+        Redirect(ContractorCYAController.show(taxYearEOY, aPeriodData.deductionPeriod.toString.toLowerCase, aCisDeductions.employerRef))
     }
   }
 }

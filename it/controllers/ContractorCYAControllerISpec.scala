@@ -38,7 +38,7 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
 
   ".show" should {
     "return Check your CIS deductions page" in {
-      lazy val result: WSResponse = {
+      val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYear)
         urlGet(fullUrl(url(taxYear, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),

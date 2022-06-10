@@ -21,7 +21,8 @@ import models.{AuthorisationRequest, UserPriorDataRequest, UserSessionDataReques
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.mvc.AnyContent
-import play.api.test.{FakeRequest, Injecting}
+import play.api.test.Injecting
+import support.builders.models.AuthorisationRequestBuilder.anAuthorisationRequest
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.ViewHelper
@@ -33,35 +34,34 @@ trait ViewUnitTest extends UnitTest
   with ViewHelper
   with GuiceOneAppPerSuite
   with Injecting
-  with TaxYearProvider {
-
-  private val fakeRequest = FakeRequest().withHeaders("X-Session-ID" -> aUser.sessionId)
+  with TaxYearProvider
+  with FakeRequestHelper {
 
   protected implicit val mockAppConfig: AppConfig = new MockAppConfig().config()
   protected implicit lazy val messagesApi: MessagesApi = inject[MessagesApi]
 
-  protected lazy val defaultMessages: Messages = messagesApi.preferred(fakeRequest.withHeaders())
+  protected lazy val defaultMessages: Messages = messagesApi.preferred(fakeRequest)
   protected lazy val welshMessages: Messages = messagesApi.preferred(Seq(Lang("cy")))
 
-  protected lazy val individualUserRequest = new AuthorisationRequest[AnyContent](aUser, fakeRequest)
-  protected lazy val agentUserRequest = new AuthorisationRequest[AnyContent](aUser.copy(arn = Some("arn"), affinityGroup = AffinityGroup.Agent.toString), fakeRequest)
+  protected lazy val agentUserRequest: AuthorisationRequest[AnyContent] =
+    anAuthorisationRequest.copy[AnyContent](aUser.copy(arn = Some("arn"), affinityGroup = AffinityGroup.Agent.toString))
 
   protected def getMessages(isWelsh: Boolean): Messages = if (isWelsh) welshMessages else defaultMessages
 
   protected def getAuthRequest(isAgent: Boolean): AuthorisationRequest[AnyContent] =
-    if (isAgent) agentUserRequest else individualUserRequest
+    if (isAgent) agentUserRequest else anAuthorisationRequest.copy[AnyContent]()
 
   protected def getUserSessionDataRequest(isAgent: Boolean): UserSessionDataRequest[AnyContent] =
     if (isAgent) {
       UserSessionDataRequest(aCisUserData, agentUserRequest.user, agentUserRequest.request)
     } else {
-      UserSessionDataRequest(aCisUserData, individualUserRequest.user, individualUserRequest.request)
+      UserSessionDataRequest(aCisUserData, anAuthorisationRequest.user, anAuthorisationRequest.request)
     }
 
   protected def getUserPriorDataRequest(isAgent: Boolean): UserPriorDataRequest[AnyContent] =
     if (isAgent) {
       UserPriorDataRequest(anIncomeTaxUserData, agentUserRequest.user, agentUserRequest.request)
     } else {
-      UserPriorDataRequest(anIncomeTaxUserData, individualUserRequest.user, individualUserRequest.request)
+      UserPriorDataRequest(anIncomeTaxUserData, anAuthorisationRequest.user, anAuthorisationRequest.request)
     }
 }

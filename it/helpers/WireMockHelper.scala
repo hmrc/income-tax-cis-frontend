@@ -31,23 +31,22 @@ import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 
 trait WireMockHelper {
 
-  val wiremockPort = 11111
-  val wiremockHost = "localhost"
+  protected val wiremockPort = 11111
+  protected val wiremockHost = "localhost"
 
-  lazy val wmConfig: WireMockConfiguration = wireMockConfig().port(wiremockPort)
-  lazy val wireMockServer = new WireMockServer(wmConfig)
+  protected lazy val wmConfig: WireMockConfiguration = wireMockConfig().port(wiremockPort)
+  protected lazy val wireMockServer = new WireMockServer(wmConfig)
 
-
-  def startWiremock(): Unit = {
+  protected def startWiremock(): Unit = {
     wireMockServer.start()
     WireMock.configureFor(wiremockHost, wiremockPort)
   }
 
-  def stopWiremock(): Unit = wireMockServer.stop()
+  protected def stopWiremock(): Unit = wireMockServer.stop()
 
-  def resetWiremock(): Unit = WireMock.reset()
+  protected def resetWiremock(): Unit = WireMock.reset()
 
-  def verifyPost(uri: String, optBody: Option[String] = None): Unit = {
+  protected def verifyPost(uri: String, optBody: Option[String] = None): Unit = {
     val uriMapping = postRequestedFor(urlEqualTo(uri))
     val postRequest = optBody match {
       case Some(body) => uriMapping.withRequestBody(equalTo(body))
@@ -56,103 +55,61 @@ trait WireMockHelper {
     verify(postRequest)
   }
 
-  def verifyGet(uri: String): Unit = {
+  protected def verifyGet(uri: String): Unit = {
     verify(getRequestedFor(urlEqualTo(uri)))
   }
 
-  def stubGet(url: String, status: Int, body: String): StubMapping =
-    stubFor(get(urlMatching(url))
-      .willReturn(
-        aResponse().
-          withStatus(status).
-          withBody(body)
-      )
-    )
+  protected def stubGet(url: String, status: Int, body: String): StubMapping =
+    stubFor(get(urlMatching(url)).willReturn(aResponse().withStatus(status).withBody(body)))
 
-  def stubGetWithHeadersCheck(url: String,
-                              status: Int,
-                              responseBody: String,
-                              sessionHeader: (String, String) = "X-Session-ID" -> aUser.sessionId,
-                              mtdidHeader: (String, String) = "mtditid" -> aUser.mtditid): StubMapping =
+  protected def stubGetWithHeadersCheck(url: String,
+                                        status: Int,
+                                        responseBody: String,
+                                        sessionHeader: (String, String) = "X-Session-ID" -> aUser.sessionId,
+                                        mtdidHeader: (String, String) = "mtditid" -> aUser.mtditid): StubMapping =
     stubFor(get(urlMatching(url))
       .withHeader(sessionHeader._1, equalTo(sessionHeader._2))
       .withHeader(mtdidHeader._1, equalTo(mtdidHeader._2))
-      .willReturn(
-        aResponse().
-          withStatus(status).
-          withBody(responseBody)
-      )
+      .willReturn(aResponse().withStatus(status).withBody(responseBody))
     )
 
-  def stubPost(url: String, status: Int, responseBody: String, requestHeaders: Seq[HttpHeader] = Seq.empty): StubMapping = {
+  protected def stubPost(url: String, status: Int, responseBody: String, requestHeaders: Seq[HttpHeader] = Seq.empty): StubMapping = {
     val mappingWithHeaders: MappingBuilder = requestHeaders.foldLeft(post(urlMatching(url))) { (result, nxt) =>
       result.withHeader(nxt.key(), equalTo(nxt.firstValue()))
     }
 
-    stubFor(mappingWithHeaders
-      .willReturn(
-        aResponse().
-          withStatus(status).
-          withBody(responseBody)
-      )
-    )
+    stubFor(mappingWithHeaders.willReturn(aResponse().withStatus(status).withBody(responseBody)))
   }
 
-  def stubPut(url: String, status: Int, responseBody: String, requestHeaders: Seq[HttpHeader] = Seq.empty): StubMapping = {
+  protected def stubPut(url: String, status: Int, responseBody: String, requestHeaders: Seq[HttpHeader] = Seq.empty): StubMapping = {
     val mappingWithHeaders: MappingBuilder = requestHeaders.foldLeft(put(urlMatching(url))) { (result, nxt) =>
       result.withHeader(nxt.key(), equalTo(nxt.firstValue()))
     }
 
-    stubFor(mappingWithHeaders
-      .willReturn(
-        aResponse().
-          withStatus(status).
-          withBody(responseBody)
-      )
-    )
+    stubFor(mappingWithHeaders.willReturn(aResponse().withStatus(status).withBody(responseBody)))
   }
 
-  def stubPatch(url: String, status: Int, responseBody: String): StubMapping =
-    stubFor(patch(urlMatching(url))
-      .willReturn(
-        aResponse().
-          withStatus(status).
-          withBody(responseBody)
-      )
-    )
+  protected def stubPatch(url: String, status: Int, responseBody: String): StubMapping =
+    stubFor(patch(urlMatching(url)).willReturn(aResponse().withStatus(status).withBody(responseBody)))
 
-  def stubDelete(url: String, status: Int, responseBody: String): StubMapping =
-    stubFor(delete(urlMatching(url))
-      .willReturn(
-        aResponse().
-          withStatus(status).
-          withBody(responseBody)
-      )
-    )
+  protected def stubDelete(url: String, status: Int, responseBody: String): StubMapping =
+    stubFor(delete(urlMatching(url)).willReturn(aResponse().withStatus(status).withBody(responseBody)))
 
-  def stubDeleteWithHeadersCheck(url: String, status: Int, responseBody: String,
-                                 sessionHeader: (String, String), mtdidHeader: (String, String)): StubMapping =
+  protected def stubDeleteWithHeadersCheck(url: String, status: Int, responseBody: String,
+                                           sessionHeader: (String, String), mtdidHeader: (String, String)): StubMapping =
     stubFor(delete(urlMatching(url))
       .withHeader(sessionHeader._1, equalTo(sessionHeader._2))
       .withHeader(mtdidHeader._1, equalTo(mtdidHeader._2))
-      .willReturn(
-        aResponse().
-          withStatus(status).
-          withBody(responseBody)
-      )
+      .willReturn(aResponse().withStatus(status).withBody(responseBody))
     )
 
-  def stubPostWithHeadersCheck(url: String, status: Int, requestBody: String, responseBody: String,
-                               sessionHeader: (String, String), mtdidHeader: (String, String)): StubMapping =
+  protected def stubPostWithHeadersCheck(url: String, status: Int, requestBody: String, responseBody: String,
+                                         sessionHeader: (String, String), mtdidHeader: (String, String)): StubMapping =
     stubFor(post(urlMatching(url))
       .withHeader(sessionHeader._1, equalTo(sessionHeader._2))
       .withHeader(mtdidHeader._1, equalTo(mtdidHeader._2))
       .withRequestBody(equalTo(requestBody))
-      .willReturn(
-        aResponse().
-          withStatus(status).
-          withBody(responseBody)
-      )
+      .willReturn(aResponse().withStatus(status).withBody(responseBody))
     )
 
   private val authoriseUri = "/auth/authorise"
@@ -201,28 +158,27 @@ trait WireMockHelper {
     }
   }
 
-  def authoriseIndividual(withNino: Boolean = true): StubMapping = {
+  protected def authoriseIndividual(withNino: Boolean = true): StubMapping = {
     stubPost(authoriseUri, OK, Json.prettyPrint(successfulAuthResponse(Some(AffinityGroup.Individual), ConfidenceLevel.L200,
       enrolments = Seq(mtditEnrolment) ++ (if (withNino) Seq(ninoEnrolment) else Seq.empty[JsObject]): _*)))
   }
 
-  def authoriseIndividualUnauthorized(): StubMapping = {
+  protected def authoriseIndividualUnauthorized(): StubMapping = {
     stubPost(authoriseUri, UNAUTHORIZED, Json.prettyPrint(
       successfulAuthResponse(Some(AffinityGroup.Individual), ConfidenceLevel.L200, Seq(mtditEnrolment, ninoEnrolment): _*)
     ))
   }
 
-  def authoriseAgent(): StubMapping = {
+  protected def authoriseAgent(): StubMapping = {
     stubPost(authoriseUri, OK, Json.prettyPrint(
       successfulAuthResponse(Some(AffinityGroup.Agent), ConfidenceLevel.L200, Seq(asAgentEnrolment, mtditEnrolment): _*)
     ))
   }
 
-  def authoriseAgentUnauthorized(): StubMapping = {
+  protected def authoriseAgentUnauthorized(): StubMapping = {
     stubPost(authoriseUri, UNAUTHORIZED, Json.prettyPrint(
       successfulAuthResponse(Some(AffinityGroup.Agent), ConfidenceLevel.L200, Seq(asAgentEnrolment, mtditEnrolment): _*)
     ))
   }
-
 }
 

@@ -36,7 +36,7 @@ trait MockActionsProvider extends MockFactory
 
   private def userPriorDataRequestActionBuilder(incomeTaxUserData: IncomeTaxUserData): ActionBuilder[UserPriorDataRequest, AnyContent] =
     new ActionBuilder[UserPriorDataRequest, AnyContent] {
-      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => throw new NotImplementedError)
 
       override def invokeBlock[A](request: Request[A], block: UserPriorDataRequest[A] => Future[Result]): Future[Result] =
         block(UserPriorDataRequest(incomeTaxUserData, aUser, request))
@@ -46,7 +46,7 @@ trait MockActionsProvider extends MockFactory
 
   private def userSessionDataRequestActionBuilder(userData: CisUserData): ActionBuilder[UserSessionDataRequest, AnyContent] =
     new ActionBuilder[UserSessionDataRequest, AnyContent] {
-      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => throw new NotImplementedError)
 
       override def invokeBlock[A](request: Request[A], block: UserSessionDataRequest[A] => Future[Result]): Future[Result] =
         block(UserSessionDataRequest(userData, aUser, request))
@@ -56,7 +56,7 @@ trait MockActionsProvider extends MockFactory
 
   private def authorisationRequestActionBuilder: ActionBuilder[AuthorisationRequest, AnyContent] =
     new ActionBuilder[AuthorisationRequest, AnyContent] {
-      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => throw new NotImplementedError)
 
       override def invokeBlock[A](request: Request[A], block: AuthorisationRequest[A] => Future[Result]): Future[Result] =
         block(AuthorisationRequest(aUser, request))
@@ -67,7 +67,7 @@ trait MockActionsProvider extends MockFactory
   def mockEndOfYearWithSessionData(taxYear: Int,
                                    cisUserData: CisUserData): CallHandler2[Int, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
     val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
-      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => throw new NotImplementedError)
 
       override def invokeBlock[A](request: Request[A], block: UserSessionDataRequest[A] => Future[Result]): Future[Result] =
         block(UserSessionDataRequest(cisUserData, aUser, request))
@@ -84,7 +84,7 @@ trait MockActionsProvider extends MockFactory
                                    month: String,
                                    employerRef: String): CallHandler3[Int, String, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
     val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
-      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => throw new NotImplementedError)
 
       override def invokeBlock[A](request: Request[A], block: UserSessionDataRequest[A] => Future[Result]): Future[Result] =
         block(UserSessionDataRequest(aCisUserData.copy(employerRef = employerRef), aUser, request))
@@ -101,7 +101,7 @@ trait MockActionsProvider extends MockFactory
                                                               cisUserData: CisUserData,
                                                               month: Option[String] = None): CallHandler3[Int, String, Option[String], ActionBuilder[UserSessionDataRequest, AnyContent]] = {
     val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
-      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => throw new NotImplementedError)
 
       override def invokeBlock[A](request: Request[A], block: UserSessionDataRequest[A] => Future[Result]): Future[Result] =
         block(UserSessionDataRequest(cisUserData, aUser, request))
@@ -118,7 +118,7 @@ trait MockActionsProvider extends MockFactory
                                    month: String,
                                    cisUserData: CisUserData): CallHandler3[Int, String, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
     val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
-      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => ???)
+      override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => throw new NotImplementedError)
 
       override def invokeBlock[A](request: Request[A], block: UserSessionDataRequest[A] => Future[Result]): Future[Result] =
         block(UserSessionDataRequest(cisUserData, aUser, request))

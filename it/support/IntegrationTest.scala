@@ -16,7 +16,6 @@
 
 package support
 
-import actions.AuthorisedAction
 import akka.actor.ActorSystem
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import common.SessionValues
@@ -27,22 +26,14 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.http.Status.NO_CONTENT
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
-import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
-import play.api.test.FakeRequest
+import play.api.mvc.Result
 import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
-import services.AuthService
 import support.builders.models.IncomeTaxUserDataBuilder
 import support.builders.models.UserBuilder.aUser
-import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.syntax.retrieved.authSyntaxForRetrieved
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
-import utils.MockAuthConnector
-import views.html.templates.AgentAuthErrorPageView
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
@@ -56,20 +47,15 @@ trait IntegrationTest extends AnyWordSpec
   with TaxYearProvider
   with DatabaseHelper {
 
-  implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
-  implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid)
+  protected implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
+  protected implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders(headers = "mtditid" -> aUser.mtditid)
+  protected implicit val actorSystem: ActorSystem = ActorSystem()
+  protected implicit lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+  protected implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
-  implicit val actorSystem: ActorSystem = ActorSystem()
+  protected lazy val appUrl = s"http://localhost:$port/update-and-submit-income-tax-return/construction-industry-scheme-deductions"
 
-  implicit def wsClient: WSClient = app.injector.instanceOf[WSClient]
-
-  protected def fullUrl(endOfUrl: String): String = s"http://localhost:$port" + endOfUrl
-
-  lazy val appUrl = s"http://localhost:$port/update-and-submit-income-tax-return/construction-industry-scheme-deductions"
-
-  def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
-
-  def config: Map[String, String] = Map(
+  protected val config: Map[String, String] = Map(
     "defaultTaxYear" -> taxYear.toString,
     "auditing.enabled" -> "false",
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
@@ -85,48 +71,10 @@ trait IntegrationTest extends AnyWordSpec
     "useEncryption" -> "true"
   )
 
-  def configWithInvalidEncryptionKey: Map[String, String] = Map(
-    "defaultTaxYear" -> taxYear.toString,
-    "auditing.enabled" -> "false",
-    "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
-    "microservice.services.income-tax-submission-frontend.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.auth.host" -> wiremockHost,
-    "microservice.services.auth.port" -> wiremockPort.toString,
-    "microservice.services.income-tax-cis.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.income-tax-submission.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.view-and-change.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.income-tax-nrs-proxy.url" -> s"http://$wiremockHost:$wiremockPort",
-    "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
-    "taxYearErrorFeatureSwitch" -> "false",
-    "useEncryption" -> "true",
-    "mongodb.encryption.key" -> "key"
-  )
-
-  def externalConfig: Map[String, String] = Map(
-    "defaultTaxYear" -> taxYear.toString,
-    "auditing.enabled" -> "false",
-    "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
-    "microservice.services.income-tax-submission.url" -> s"http://127.0.0.1:$wiremockPort",
-    "metrics.enabled" -> "false"
-  )
-
-  lazy val agentAuthErrorPage: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]
-
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
     .configure(config)
     .build
-
-  lazy val appWithFakeExternalCall: Application = new GuiceApplicationBuilder()
-    .in(Environment.simple(mode = Mode.Dev))
-    .configure(externalConfig)
-    .build
-
-  lazy val appWithInvalidEncryptionKey: Application = GuiceApplicationBuilder()
-    .configure(configWithInvalidEncryptionKey)
-    .build()
-
-  implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -139,62 +87,24 @@ trait IntegrationTest extends AnyWordSpec
     super.afterAll()
   }
 
-  def status(awaitable: Future[Result]): Int = await(awaitable).header.status
+  protected def fullUrl(endOfUrl: String): String = s"http://localhost:$port" + endOfUrl
 
-  def bodyOf(awaitable: Future[Result]): String = {
-    val awaited = await(awaitable)
-    await(awaited.body.consumeData.map(_.utf8String))
-  }
+  protected def await[T](awaitable: Awaitable[T]): T = Await.result(awaitable, Duration.Inf)
 
-  lazy val mcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+  protected def status(awaitable: Future[Result]): Int = await(awaitable).header.status
 
-
-  val defaultAcceptedConfidenceLevels: Seq[ConfidenceLevel] = Seq(
-    ConfidenceLevel.L200,
-    ConfidenceLevel.L500
-  )
-
-  def authService(stubbedRetrieval: Future[_], acceptedConfidenceLevel: Seq[ConfidenceLevel]): AuthService = new AuthService(
-    new MockAuthConnector(stubbedRetrieval, acceptedConfidenceLevel)
-  )
-
-  def authAction(
-                  stubbedRetrieval: Future[_],
-                  acceptedConfidenceLevel: Seq[ConfidenceLevel] = Seq.empty[ConfidenceLevel]
-                ): AuthorisedAction = new AuthorisedAction(
-    appConfig
-  )(
-    authService(stubbedRetrieval, if (acceptedConfidenceLevel.nonEmpty) {
-      acceptedConfidenceLevel
-    } else {
-      defaultAcceptedConfidenceLevels
-    }),
-    mcc
-  )
-
-  def successfulRetrieval: Future[Enrolments ~ Some[AffinityGroup] ~ ConfidenceLevel] = Future.successful(
-    Enrolments(Set(
-      Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-      Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-    )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L200
-  )
-
-  def insufficientConfidenceRetrieval: Future[Enrolments ~ Some[AffinityGroup] ~ ConfidenceLevel] = Future.successful(
-    Enrolments(Set(
-      Enrolment("HMRC-MTD-IT", Seq(EnrolmentIdentifier("MTDITID", "1234567890")), "Activated", None),
-      Enrolment("HMRC-NI", Seq(EnrolmentIdentifier("NINO", "AA123456A")), "Activated", None)
-    )) and Some(AffinityGroup.Individual) and ConfidenceLevel.L50
-  )
-
-  def playSessionCookies(taxYear: Int, validTaxYears: Seq[Int] = validTaxYearList, extraData: Map[String, String] = Map.empty): String = PlaySessionCookieBaker.bakeSessionCookie(Map(
+  protected def playSessionCookies(taxYear: Int,
+                                   validTaxYears: Seq[Int] = validTaxYearList,
+                                   extraData: Map[String, String] = Map.empty): String = PlaySessionCookieBaker.bakeSessionCookie(Map(
     SessionValues.TAX_YEAR -> taxYear.toString,
     SessionValues.VALID_TAX_YEARS -> validTaxYears.mkString(","),
     SessionKeys.sessionId -> aUser.sessionId,
     SessionValues.CLIENT_NINO -> aUser.nino,
-    SessionValues.CLIENT_MTDITID -> aUser.mtditid
+    SessionValues.CLIENT_MTDITID -> aUser.mtditid,
+    SessionKeys.authToken -> "mock-bearer-token"
   ) ++ extraData)
 
-  def userDataStub(userData: IncomeTaxUserData, nino: String, taxYear: Int): StubMapping = {
+  protected def userDataStub(userData: IncomeTaxUserData, nino: String, taxYear: Int): StubMapping = {
     stubGetWithHeadersCheck(
       url = s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear",
       status = OK,
@@ -203,14 +113,4 @@ trait IntegrationTest extends AnyWordSpec
       mtdidHeader = "mtditid" -> aUser.mtditid
     )
   }
-
-  def noUserDataStub(nino: String, taxYear: Int): StubMapping = stubGetWithHeadersCheck(
-    url = s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear",
-    status = NO_CONTENT,
-    responseBody = "{}",
-    sessionHeader = "X-Session-ID" -> aUser.sessionId,
-    mtdidHeader = "mtditid" -> aUser.mtditid
-  )
-
-  val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 }

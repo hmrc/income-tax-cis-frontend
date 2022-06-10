@@ -23,6 +23,7 @@ import org.jsoup.Jsoup
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
 import play.api.mvc.Results.{InternalServerError, Redirect}
 import play.api.test.Helpers.{contentAsString, contentType, status}
+import sttp.model.Method.POST
 import support.ControllerUnitTest
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
@@ -59,7 +60,8 @@ class LabourPayControllerSpec extends ControllerUnitTest
     "render page with error when validation of form fails" in {
       mockEndOfYearWithSessionData(taxYearEOY, month = MAY.toString.toLowerCase, employerRef = "some-ref")
 
-      val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody("amount" -> "2.3.4"))
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody("amount" -> "2.3.4")
+      val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = "some-ref").apply(request)
 
       status(result) shouldBe BAD_REQUEST
       contentType(result) shouldBe Some("text/html")
@@ -72,7 +74,8 @@ class LabourPayControllerSpec extends ControllerUnitTest
       mockSaveLabourPay(aUser, aCisUserData, amount = 123, result = Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
-      val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody("amount" -> "123"))
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody("amount" -> "123")
+      val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, aCisUserData.employerRef).apply(request)
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
@@ -81,7 +84,8 @@ class LabourPayControllerSpec extends ControllerUnitTest
       mockEndOfYearWithSessionData(taxYearEOY, month = MAY.toString.toLowerCase, aCisUserData.employerRef)
       mockSaveLabourPay(aUser, aCisUserData, amount = 123, result = Right(aCisUserData.copy(cis = aCisCYAModel.copy(contractorName = None))))
 
-      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody("amount" -> "123"))) shouldBe
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody("amount" -> "123")
+      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, aCisUserData.employerRef).apply(request)) shouldBe
         Redirect(DeductionAmountController.show(taxYearEOY, MAY.toString.toLowerCase, aCisUserData.employerRef))
     }
 
@@ -89,7 +93,8 @@ class LabourPayControllerSpec extends ControllerUnitTest
       mockEndOfYearWithSessionData(taxYearEOY, month = MAY.toString.toLowerCase, aCisUserData.employerRef)
       mockSaveLabourPay(aUser, aCisUserData, amount = 123, result = Right(aCisUserData))
 
-      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody("amount" -> "123"))) shouldBe
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody("amount" -> "123")
+      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, aCisUserData.employerRef).apply(request)) shouldBe
         Redirect(ContractorCYAController.show(taxYearEOY, MAY.toString.toLowerCase, aCisUserData.employerRef))
     }
   }
