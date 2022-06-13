@@ -60,7 +60,7 @@ class ContractorSummaryPageSpec extends UnitTest
       ) shouldBe aContractorSummaryPage.copy(
         taxYear = taxYear,
         isInYear = true,
-        contractorName = Some("ABC SteelWorks"),
+        contractorName = Some("ABC Steelworks"),
         employerRef = "123/AB123456",
         deductionPeriods = Seq(JUNE, APRIL),
         customerDeductionPeriods = Seq.empty
@@ -84,7 +84,7 @@ class ContractorSummaryPageSpec extends UnitTest
       ) shouldBe aContractorSummaryPage.copy(
         taxYear = taxYearEOY,
         isInYear = false,
-        contractorName = Some("ABC SteelWorks"),
+        contractorName = Some("ABC Steelworks"),
         employerRef = "123/AB123456",
         deductionPeriods = Seq(JUNE, JULY, MARCH, APRIL),
         customerDeductionPeriods = Seq(JULY)

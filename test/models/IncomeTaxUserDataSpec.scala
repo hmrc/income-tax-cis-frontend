@@ -16,7 +16,8 @@
 
 package models
 
-import support.UnitTest
+import models.submission.CISSubmission
+import support.{TaxYearProvider, UnitTest}
 import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 import support.builders.models.CISSourceBuilder.aCISSource
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
@@ -25,7 +26,57 @@ import support.builders.models.PeriodDataBuilder.aPeriodData
 
 import java.time.Month
 
-class IncomeTaxUserDataSpec extends UnitTest {
+class IncomeTaxUserDataSpec extends UnitTest with TaxYearProvider {
+
+  ".hasExclusivelyCustomerEoyCisDeductionsWith" should {
+    "return false when no data" in {
+      val underTest = anIncomeTaxUserData.copy(cis = None)
+
+      underTest.hasExclusivelyCustomerEoyCisDeductionsWith(aCisDeductions.employerRef,aPeriodData.deductionPeriod) shouldBe false
+    }
+    "return false when only contractor data" in {
+      val underTest = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(customerCISDeductions = None)))
+
+      underTest.hasExclusivelyCustomerEoyCisDeductionsWith(aCisDeductions.employerRef,aPeriodData.deductionPeriod) shouldBe false
+    }
+    "return true when only customer data" in {
+      val underTest = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = None)))
+
+      underTest.hasExclusivelyCustomerEoyCisDeductionsWith(aCisDeductions.employerRef,aPeriodData.deductionPeriod) shouldBe true
+    }
+  }
+
+  ".toSubmissionWithoutPeriod" should {
+    "return none when no data" in {
+      val underTest = anIncomeTaxUserData.copy(cis = None)
+
+      underTest.toSubmissionWithoutPeriod(aCisDeductions.employerRef,aPeriodData.deductionPeriod, taxYearEOY) shouldBe None
+    }
+    "return a submission model without the selected month" in {
+
+      val mayPeriodData = aPeriodData.copy(deductionPeriod = Month.MAY)
+      val julyPeriodData = aPeriodData.copy(deductionPeriod = Month.JULY)
+      val cisDeductions1 = aCisDeductions.copy(contractorName = Some("contractor-1"))
+      val cisDeductions2 = aCisDeductions.copy(contractorName = Some("contractor-2"), employerRef = "ref-2", periodData = Seq(mayPeriodData, julyPeriodData))
+      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(cisDeductions1, cisDeductions2))))
+
+      val underTest = anIncomeTaxUserData.copy(
+        cis = Some(allCISDeductions)
+      )
+
+      underTest.toSubmissionWithoutPeriod("ref-2",Month.MAY, taxYearEOY) shouldBe Some(
+        CISSubmission(
+          None,None,List(submission.PeriodData(
+            deductionFromDate = "2021-06-06",
+            deductionToDate = "2021-07-05",
+            grossAmountPaid = Some(450.0),
+            deductionAmount = 100.0,
+            costOfMaterials = Some(50.0)
+          )),Some("submissionId")
+        )
+      )
+    }
+  }
 
   ".contractorPeriodsFor" should {
     "return empty seq when no data" in {

@@ -16,18 +16,86 @@
 
 package services
 
+import models.{APIErrorBodyModel, APIErrorModel, HttpParserError, InvalidOrUnfinishedSubmission}
+import play.api.http.Status.INTERNAL_SERVER_ERROR
+import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
+import support.builders.models.CISSourceBuilder.aCISSource
+import support.builders.models.CISSubmissionBuilder.anUpdateCISSubmission
+import support.builders.models.CisDeductionsBuilder.aCisDeductions
+import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
+import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
+import support.builders.models.{CISSubmissionBuilder, PeriodDataBuilder}
+import support.mocks.{MockCISConnector, MockCISSessionService}
 import support.{TaxYearProvider, UnitTest}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.Month
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class DeleteCISPeriodServiceSpec extends UnitTest with TaxYearProvider {
+class DeleteCISPeriodServiceSpec extends UnitTest
+  with MockCISSessionService
+  with MockCISConnector
+  with TaxYearProvider {
 
-  val underTest = new DeleteCISPeriodService
+  val underTest = new DeleteCISPeriodService(mockCISSessionService,mockCISConnector)
+
+  implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid)
 
   ".remove CISDeduction" should {
-    "return right" in {
-      await(underTest.removeCisDeduction(taxYearEOY, employerRef = "employerRef", user = aUser, deductionPeriod = Month.MAY)) shouldBe Right(())
+    "return invalid or unfinished submission" in {
+      await(underTest.removeCisDeduction(taxYearEOY, employerRef = "employerRef", user = aUser, deductionPeriod = Month.MAY, anIncomeTaxUserData)) shouldBe Left(InvalidOrUnfinishedSubmission)
+    }
+
+    "return API error when submit fails" in {
+
+      mockSubmit(aUser.nino, taxYearEOY, anUpdateCISSubmission.copy(
+        periodData = Seq(CISSubmissionBuilder.aPeriodData.copy(
+          grossAmountPaid = Some(450),
+          deductionAmount = 100,
+          costOfMaterials = Some(50)
+        ))
+      ), Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError)))
+
+      val data = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(
+        contractorCISDeductions = None,
+        customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(aCisDeductions.copy(
+          periodData = Seq(
+            PeriodDataBuilder.aPeriodData,
+            PeriodDataBuilder.aPeriodData.copy(
+              deductionPeriod = Month.NOVEMBER
+            )
+          )
+        ))))
+      )))
+
+      await(underTest.removeCisDeduction(taxYearEOY, employerRef = aCisDeductions.employerRef,
+        user = aUser, deductionPeriod = Month.NOVEMBER, data)) shouldBe Left(HttpParserError(INTERNAL_SERVER_ERROR))
+    }
+    "return Right(()) when submitted and refreshed data" in {
+
+      mockSubmit(aUser.nino, taxYearEOY, anUpdateCISSubmission.copy(
+        periodData = Seq(CISSubmissionBuilder.aPeriodData.copy(
+          grossAmountPaid = Some(450),
+          deductionAmount = 100,
+          costOfMaterials = Some(50)
+        ))
+      ), Right(()))
+      mockRefreshAndClear(taxYearEOY, aCisUserData.employerRef, result = Right(()))
+
+      val data = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(
+        contractorCISDeductions = None,
+        customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(aCisDeductions.copy(
+          periodData = Seq(
+            PeriodDataBuilder.aPeriodData,
+            PeriodDataBuilder.aPeriodData.copy(
+              deductionPeriod = Month.NOVEMBER
+            )
+          )
+        ))))
+      )))
+
+      await(underTest.removeCisDeduction(taxYearEOY, employerRef = aCisDeductions.employerRef, user = aUser, deductionPeriod = Month.NOVEMBER, data)) shouldBe Right(())
     }
   }
 }

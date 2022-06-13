@@ -16,13 +16,13 @@
 
 package models
 
-import java.time.{LocalDate, Month}
-
 import play.api.Logging
 import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.json._
 import utils.PagerDutyHelper.PagerDutyKeys.INVALID_PERIOD_DATES
 import utils.PagerDutyHelper.pagerDutyLog
+
+import java.time.{LocalDate, Month}
 
 case class PeriodData(deductionPeriod: Month,
                       deductionAmount: Option[BigDecimal],
@@ -30,7 +30,14 @@ case class PeriodData(deductionPeriod: Month,
                       grossAmountPaid: Option[BigDecimal],
                       submissionDate: String,
                       submissionId: Option[String],
-                      source: String)
+                      source: String){
+
+  def toSubmissionPeriodData(taxYear: Int): Option[submission.PeriodData] = {
+    deductionAmount.map { deductionAmount =>
+      submission.PeriodData(taxYear, deductionPeriod, grossAmountPaid, deductionAmount, costOfMaterials)
+    }
+  }
+}
 
 object PeriodData extends Logging {
 

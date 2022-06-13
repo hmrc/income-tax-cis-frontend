@@ -54,7 +54,7 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
             |        {
             |          "fromDate": "2020-04-06",
             |          "toDate": "2021-04-05",
-            |          "contractorName": "ABC SteelWorks",
+            |          "contractorName": "ABC Steelworks",
             |          "employerRef": "123/AB123456",
             |          "totalDeductionAmount": 100.00,
             |          "totalCostOfMaterials": 50.00,
@@ -82,7 +82,7 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
             |        {
             |          "fromDate": "2020-04-06",
             |          "toDate": "2021-04-05",
-            |          "contractorName": "ABC SteelWorks",
+            |          "contractorName": "ABC Steelworks",
             |          "employerRef": "123/AB123456",
             |          "totalDeductionAmount": 100,
             |          "totalCostOfMaterials": 50,

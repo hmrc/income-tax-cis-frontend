@@ -16,6 +16,7 @@
 
 package models.mongo
 
+import models.submission.{CISSubmission, PeriodData}
 import org.joda.time.DateTime
 import org.scalamock.scalatest.MockFactory
 import support.UnitTest
@@ -35,6 +36,36 @@ class CisUserDataSpec extends UnitTest
 
   private val cisCYAModel = mock[CisCYAModel]
   private val encryptedCisCYAModel = mock[EncryptedCisCYAModel]
+
+  "CisUserData.toSubmission" should {
+    "return None when no period data" in {
+      val underTest = aCisUserData.copy(cis = aCisCYAModel.copy(periodData = None))
+
+      underTest.toSubmission shouldBe None
+    }
+    "return a submission when finished" in {
+      val underTest = aCisUserData
+
+      underTest.toSubmission shouldBe Some(
+        CISSubmission(None,None, List(
+          PeriodData(
+            deductionFromDate = "2021-04-06",
+            deductionToDate = "2021-05-05",
+            grossAmountPaid = Some(500.0),
+            deductionAmount = 100.0,
+            costOfMaterials = Some(250.0)
+          ),
+          PeriodData(
+            deductionFromDate = "2021-10-06",
+            deductionToDate = "2021-11-05",
+            grossAmountPaid = Some(500.0),
+            deductionAmount = 100.0,
+            costOfMaterials = Some(250.0)
+          )
+        ),Some("submissionId"))
+      )
+    }
+  }
 
   "CisUserData.hasPeriodData" should {
     "return false when does not have periodData is None" in {

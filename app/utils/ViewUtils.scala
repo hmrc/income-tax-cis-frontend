@@ -22,6 +22,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases
 import uk.gov.hmrc.govukfrontend.views.Aliases.SelectItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import utils.DateMonthUtil.monthToTaxYearConverter
 
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, Month}
@@ -53,11 +54,6 @@ object ViewUtils {
 
   def getAgentDynamicContent(msgKey: String, isAgent: Boolean): String = {
     s"$msgKey.${if (isAgent) "agent" else "individual"}"
-  }
-
-  def monthToTaxYearConverter(month: Month, taxYear: Int): Int = month match {
-    case Month.JANUARY | Month.FEBRUARY | Month.MARCH | Month.APRIL => taxYear
-    case _ => taxYear - 1
   }
 
   def translatedMonthAndTaxYear(month: Month, taxYear: Int)(implicit messages: Messages): String =

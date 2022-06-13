@@ -16,16 +16,14 @@
 
 package support.mocks
 
-import java.time.Month
-
 import models.mongo.{CisCYAModel, CisUserData, DatabaseError}
 import models.{HttpParserError, IncomeTaxUserData, ServiceError, User}
-import org.scalamock.handlers.{CallHandler3, CallHandler4, CallHandler6}
+import org.scalamock.handlers.{CallHandler3, CallHandler4, CallHandler5, CallHandler6}
 import org.scalamock.scalatest.MockFactory
-import play.api.mvc.Request
 import services.CISSessionService
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.Month
 import scala.concurrent.Future
 
 trait MockCISSessionService extends MockFactory {
@@ -41,10 +39,10 @@ trait MockCISSessionService extends MockFactory {
       .returns(Future.successful(result))
   }
 
-  def mockClear(taxYear: Int, employerRef: String,
-                result: Either[ServiceError,Unit]): CallHandler3[User, String, Int, Future[Either[ServiceError, Unit]]] = {
-    (mockCISSessionService.clear( _: User, _: String, _: Int))
-      .expects(*, employerRef, taxYear)
+  def mockRefreshAndClear(taxYear: Int, employerRef: String,
+                          result: Either[ServiceError,Unit]): CallHandler5[User, String, Int, Boolean, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
+    (mockCISSessionService.refreshAndClear( _: User, _: String, _: Int, _: Boolean)(_: HeaderCarrier))
+      .expects(*, employerRef, taxYear, *, *)
       .returning(Future.successful(result))
   }
 

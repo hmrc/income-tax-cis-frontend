@@ -24,7 +24,7 @@ import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.mocks.{MockCISUserDataRepository, MockIncomeTaxUserDataConnector}
+import support.mocks.{MockCISUserDataRepository, MockIncomeTaxUserDataConnector, MockRefreshIncomeSourceConnector}
 import support.{FakeRequestHelper, TaxYearProvider, UnitTest}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.TestingClock
@@ -34,6 +34,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class CISSessionServiceSpec extends UnitTest
   with MockIncomeTaxUserDataConnector
+  with MockRefreshIncomeSourceConnector
   with MockCISUserDataRepository
   with TaxYearProvider
   with FakeRequestHelper {
@@ -43,20 +44,33 @@ class CISSessionServiceSpec extends UnitTest
   private val underTest = new CISSessionService(
     mockCisUserDataRepository,
     mockIncomeTaxUserDataConnector,
+    mockRefreshIncomeSourceConnector,
     TestingClock
   )
 
-  ".clear" should {
+  ".refreshAndClear" should {
 
-    "return right when clears data" in {
+    "return right when refreshes and clears data" in {
       mockClear(taxYearEOY, aCisDeductions.employerRef, result = true)
+      mockRefresh(aUser.nino, taxYearEOY, Right(()))
 
-      await(underTest.clear(aUser, aCisDeductions.employerRef, taxYearEOY)) shouldBe Right(())
+      await(underTest.refreshAndClear(aUser, aCisDeductions.employerRef, taxYearEOY)) shouldBe Right(())
+    }
+    "return right when refreshes data" in {
+      mockRefresh(aUser.nino, taxYearEOY, Right(()))
+
+      await(underTest.refreshAndClear(aUser, aCisDeductions.employerRef, taxYearEOY, clearCYA = false)) shouldBe Right(())
     }
     "return error when fails to clear data" in {
       mockClear(taxYearEOY, aCisDeductions.employerRef, result = false)
+      mockRefresh(aUser.nino, taxYearEOY, Right(()))
 
-      await(underTest.clear(aUser, aCisDeductions.employerRef, taxYearEOY)) shouldBe Left(DataNotUpdatedError)
+      await(underTest.refreshAndClear(aUser, aCisDeductions.employerRef, taxYearEOY)) shouldBe Left(DataNotUpdatedError)
+    }
+    "return error when fails to refresh data" in {
+      mockRefresh(aUser.nino, taxYearEOY, Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError)))
+
+      await(underTest.refreshAndClear(aUser, aCisDeductions.employerRef, taxYearEOY)) shouldBe Left(HttpParserError(500))
     }
   }
 

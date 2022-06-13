@@ -16,10 +16,11 @@
 
 package support.mocks
 
-import models.{ServiceError, User}
-import org.scalamock.handlers.CallHandler4
+import models.{IncomeTaxUserData, ServiceError, User}
+import org.scalamock.handlers.CallHandler6
 import org.scalamock.scalatest.MockFactory
 import services.DeleteCISPeriodService
+import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.Month
 import scala.concurrent.Future
@@ -32,9 +33,10 @@ trait MockDeleteCISPeriodService extends MockFactory {
                              employerRef: String,
                              user: User,
                              deductionPeriod: Month,
-                             result: Either[ServiceError, Unit]): CallHandler4[Int, String, User, Month, Future[Either[ServiceError, Unit]]] = {
-    (mockService.removeCisDeduction(_: Int, _: String, _: User, _: Month))
-      .expects(taxYear, employerRef, user, deductionPeriod)
+                             result: Either[ServiceError, Unit]): CallHandler6[Int, String, User,
+    Month, IncomeTaxUserData, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
+    (mockService.removeCisDeduction(_: Int, _: String, _: User, _: Month, _: IncomeTaxUserData)(_: HeaderCarrier))
+      .expects(taxYear, employerRef, user, deductionPeriod, *, *)
       .returns(Future.successful(result))
   }
 }

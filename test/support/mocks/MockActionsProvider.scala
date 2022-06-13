@@ -177,12 +177,12 @@ trait MockActionsProvider extends MockFactory
       .returns(value = userSessionDataRequestActionBuilder(result))
   }
 
-  def mockUserPriorDataForEOY(taxYear: Int,
-                              contractor: String,
-                              month: String,
-                              result: IncomeTaxUserData
+  def mockExclusivelyCustomerPriorDataForEOY(taxYear: Int,
+                                             contractor: String,
+                                             month: String,
+                                             result: IncomeTaxUserData
                              ): CallHandler3[Int, String, String, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
-    (mockActionsProvider.userPriorDataForEOY(_: Int, _: String, _: String))
+    (mockActionsProvider.exclusivelyCustomerPriorDataForEOY(_: Int, _: String, _: String))
       .expects(taxYear, contractor, month)
       .returns(value = userPriorDataRequestActionBuilder(result))
   }

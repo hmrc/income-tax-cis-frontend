@@ -60,5 +60,7 @@ class MockAppConfig extends MockFactory with TaxYearProvider {
 
     override lazy val encryptionKey: String = "encryptionKey12345"
     override lazy val useEncryption: Boolean = encrypt
+
+    override lazy val incomeTaxCISBEUrl: String = "http://localhost:11111/income-tax-cis"
   }
 }

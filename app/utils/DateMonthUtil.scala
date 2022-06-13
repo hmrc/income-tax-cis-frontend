@@ -14,10 +14,24 @@
  * limitations under the License.
  */
 
-package models
+package utils
 
-trait ServiceError
+import java.time.{LocalDate, Month}
 
-case class HttpParserError(status: Int) extends ServiceError
-case object EmptyPriorCisDataError extends ServiceError
-case object InvalidOrUnfinishedSubmission extends ServiceError
+object DateMonthUtil {
+
+  def monthToTaxYearConverter(month: Month, taxYear: Int): Int = month match {
+    case Month.JANUARY | Month.FEBRUARY | Month.MARCH | Month.APRIL => taxYear
+    case _ => taxYear - 1
+  }
+
+  def monthToDates(month: Month, taxYear: Int): (String, String) = {
+    val year = monthToTaxYearConverter(month, taxYear)
+    val endOfPeriodDay = 5
+
+    val toDate: LocalDate = LocalDate.of(year, month, endOfPeriodDay)
+    val fromDate: LocalDate = toDate.minusMonths(1).plusDays(1)
+
+    (fromDate.toString, toDate.toString)
+  }
+}

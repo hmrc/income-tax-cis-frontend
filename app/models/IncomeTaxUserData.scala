@@ -16,12 +16,25 @@
 
 package models
 
+import models.submission.CISSubmission
 import play.api.Logging
 import play.api.libs.json.{Json, OFormat}
+import utils.SubmissionUtil.validateDataAndCreateSubmission
 
 import java.time.Month
 
 case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) extends Logging {
+
+  def toSubmissionWithoutPeriod(employerRef: String, month: Month, taxYear: Int): Option[CISSubmission] =
+    cis.flatMap(_.eoyCisDeductionsWith(employerRef)) match {
+      case Some(cisDeductions) =>
+
+        val periodDataForSubmission = cisDeductions.periodData.filterNot(_.deductionPeriod == month).map(_.toSubmissionPeriodData(taxYear))
+        lazy val submissionId = cisDeductions.submissionId
+        validateDataAndCreateSubmission(periodDataForSubmission, submissionId, cisDeductions.contractorName, employerRef)
+
+      case _ => None
+    }
 
   def contractorPeriodsFor(employerRef: String): Seq[Month] = cis.map(_.contractorPeriodsFor(employerRef)).getOrElse(Seq.empty)
 
@@ -44,6 +57,14 @@ case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) extends Loggi
 
   def hasEoyCisDeductionsWith(employerRef: String, month: Month): Boolean =
     endOfYearCisDeductionsWith(employerRef, month).nonEmpty
+
+  def hasExclusivelyCustomerEoyCisDeductionsWith(employerRef: String, month: Month): Boolean = {
+
+    val customerCisDeductionForMonth: Option[CisDeductions] = cis.flatMap(_.customerCisDeductionsWith(employerRef)).find(_.periodDataFor(month).nonEmpty)
+    val contractorCisDeductionForMonth: Option[CisDeductions] = cis.flatMap(_.contractorCisDeductionsWith(employerRef)).find(_.periodDataFor(month).nonEmpty)
+
+    customerCisDeductionForMonth.isDefined && contractorCisDeductionForMonth.isEmpty
+  }
 
   def inYearPeriodDataWith(employerRef: String): Seq[PeriodData] =
     inYearCisDeductionsWith(employerRef)

@@ -262,11 +262,11 @@ class ActionsProviderSpec extends ControllerUnitTest
     }
   }
 
-  ".userPriorDataForEOY(taxYear, contractor, month)" should {
+  ".exclusivelyCustomerPriorDataForEOY(taxYear, contractor, month)" should {
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()
 
-      val underTest = actionsProvider.userPriorDataForEOY(taxYearEOY, contractor = "any-contractor", month = "may")(block = anyBlock)
+      val underTest = actionsProvider.exclusivelyCustomerPriorDataForEOY(taxYearEOY, contractor = "any-contractor", month = "may")(block = anyBlock)
 
       await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show())
     }
@@ -274,7 +274,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     "redirect to Income Tax Submission Overview when in year" in {
       mockAuthAsIndividual(Some(aUser.nino))
 
-      val underTest = actionsProvider.userPriorDataForEOY(taxYear, contractor = "any-contractor", month = "may")(block = anyBlock)
+      val underTest = actionsProvider.exclusivelyCustomerPriorDataForEOY(taxYear, contractor = "any-contractor", month = "may")(block = anyBlock)
 
       await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
@@ -285,7 +285,7 @@ class ActionsProviderSpec extends ControllerUnitTest
       mockGetPriorData(taxYearEOY, aUser, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
       mockHandleError(INTERNAL_SERVER_ERROR, InternalServerError)
 
-      val underTest = actionsProvider.userPriorDataForEOY(taxYearEOY, contractor = "some-ref", month = "may")(block = anyBlock)
+      val underTest = actionsProvider.exclusivelyCustomerPriorDataForEOY(taxYearEOY, contractor = "some-ref", month = "may")(block = anyBlock)
 
       await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe InternalServerError
     }
@@ -297,7 +297,7 @@ class ActionsProviderSpec extends ControllerUnitTest
       mockAuthAsIndividual(Some(aUser.nino))
       mockGetPriorData(taxYearEOY, aUser, Right(IncomeTaxUserData(cis = Some(allCISDeductions))))
 
-      val underTest = actionsProvider.userPriorDataForEOY(taxYearEOY, contractor = "some-ref", month = "may")(block = anyBlock)
+      val underTest = actionsProvider.exclusivelyCustomerPriorDataForEOY(taxYearEOY, contractor = "some-ref", month = "may")(block = anyBlock)
 
       status(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe OK
     }

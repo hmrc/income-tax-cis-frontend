@@ -51,13 +51,6 @@ class ViewUtilSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
     }
   }
 
-  "monthToTaxYearConverter" should {
-    "return the correct taxYear when a month is passed" in {
-      ViewUtils.monthToTaxYearConverter(Month.JUNE, 2022) shouldBe 2021
-      ViewUtils.monthToTaxYearConverter(Month.FEBRUARY, 2022) shouldBe 2022
-    }
-  }
-
   "translateMonthAndTaxYear" should {
     "correctly translate the month and tax year" in {
       ViewUtils.translatedMonthAndTaxYear(Month.JULY, 2022) shouldBe "July 2021"

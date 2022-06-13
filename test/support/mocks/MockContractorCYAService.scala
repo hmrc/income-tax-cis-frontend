@@ -16,10 +16,12 @@
 
 package support.mocks
 
+import models.mongo.CisUserData
 import models.{ServiceError, User}
-import org.scalamock.handlers.CallHandler3
+import org.scalamock.handlers.CallHandler5
 import org.scalamock.scalatest.MockFactory
 import services.ContractorCYAService
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
@@ -29,9 +31,10 @@ trait MockContractorCYAService extends MockFactory {
 
   def mockSubmitCisDeductionCYA(taxYear: Int,
                                 employerRef: String,
-                                result: Either[ServiceError, Unit]): CallHandler3[Int, String, User, Future[Either[ServiceError, Unit]]] = {
-    (mockContractorCYAService.submitCisDeductionCYA(_: Int, _: String, _: User))
-      .expects(taxYear, employerRef, *)
+                                result: Either[ServiceError, Unit]): CallHandler5[Int, String,
+    User, CisUserData, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
+    (mockContractorCYAService.submitCisDeductionCYA(_: Int, _: String, _: User, _: CisUserData)(_: HeaderCarrier))
+      .expects(taxYear, employerRef, *, *, *)
       .returns(Future.successful(result))
   }
 }

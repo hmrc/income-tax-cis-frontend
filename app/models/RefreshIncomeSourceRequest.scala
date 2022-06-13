@@ -16,8 +16,10 @@
 
 package models
 
-trait ServiceError
+import play.api.libs.json.{Json, OFormat}
 
-case class HttpParserError(status: Int) extends ServiceError
-case object EmptyPriorCisDataError extends ServiceError
-case object InvalidOrUnfinishedSubmission extends ServiceError
+case class RefreshIncomeSourceRequest(incomeSource: String)
+
+object RefreshIncomeSourceRequest {
+  implicit val formats: OFormat[RefreshIncomeSourceRequest] = Json.format[RefreshIncomeSourceRequest]
+}

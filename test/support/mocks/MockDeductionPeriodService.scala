@@ -16,16 +16,13 @@
 
 package support.mocks
 
-import java.time.Month
-
+import models.mongo.CisUserData
 import models.{ServiceError, User}
-import models.mongo.{CisUserData, DatabaseError}
-import models.pages.DeductionPeriodPage
-import org.scalamock.handlers.{CallHandler3, CallHandler4, CallHandler5}
+import org.scalamock.handlers.CallHandler5
 import org.scalamock.scalatest.MockFactory
-import play.api.mvc.Request
 import services.DeductionPeriodService
 
+import java.time.Month
 import scala.concurrent.Future
 
 trait MockDeductionPeriodService extends MockFactory {

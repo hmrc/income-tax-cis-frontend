@@ -16,6 +16,7 @@
 
 package models.mongo
 
+import models.submission.PeriodData
 import org.joda.time.DateTime
 import play.api.libs.json._
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
@@ -34,6 +35,12 @@ case class CYAPeriodData(deductionPeriod: Month,
                          costOfMaterials: Option[BigDecimal] = None,
                          contractorSubmitted: Boolean,
                          originallySubmittedPeriod: Option[Month]) {
+
+  def toSubmissionPeriodData(taxYear: Int): Option[PeriodData] = {
+    deductionAmount.map { deductionAmount =>
+      PeriodData(taxYear, deductionPeriod, grossAmountPaid, deductionAmount, costOfMaterials)
+    }
+  }
 
   def isAnUpdateFor(month: Month): Boolean =
     originallySubmittedPeriod.contains(month)

@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.IncomeTaxUserDataConnector
+import connectors.{IncomeTaxUserDataConnector, RefreshIncomeSourceConnector}
 import models._
 import models.mongo.{CisCYAModel, CisUserData, DataNotUpdatedError, DatabaseError}
 import org.joda.time.DateTimeZone
@@ -31,6 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
                                   incomeTaxUserDataConnector: IncomeTaxUserDataConnector,
+                                  refreshIncomeSourceConnector: RefreshIncomeSourceConnector,
                                   clock: Clock)(implicit val ec: ExecutionContext) extends Logging {
 
   def getSessionData(taxYear: Int, employerRef: String, user: User, tempEmployerRef: Option[String]): Future[Either[DatabaseError, Option[CisUserData]]] = {
@@ -72,10 +73,19 @@ class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
     }
   }
 
-  def clear(user: User, employerRef: String, taxYear: Int): Future[Either[ServiceError, Unit]] = {
-    cisUserDataRepository.clear(taxYear, employerRef, user).map {
-      case false => Left(DataNotUpdatedError)
-      case true => Right(())
+  def refreshAndClear(user: User, employerRef: String, taxYear: Int, clearCYA: Boolean = true)
+                     (implicit hc: HeaderCarrier): Future[Either[ServiceError, Unit]] = {
+    refreshIncomeSourceConnector.put(taxYear, user.nino)(hc.withExtraHeaders("mtditid" -> user.mtditid)).flatMap {
+      case Left(error) => Future.successful(Left(HttpParserError(error.status)))
+      case _ =>
+        if (clearCYA) {
+          cisUserDataRepository.clear(taxYear, employerRef, user).map {
+            case true => Right(())
+            case false => Left(DataNotUpdatedError)
+          }
+        } else {
+          Future.successful(Right(()))
+        }
     }
   }
 

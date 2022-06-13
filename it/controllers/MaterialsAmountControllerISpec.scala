@@ -16,6 +16,7 @@
 
 package controllers
 
+import controllers.routes._
 import forms.AmountForm
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
@@ -28,7 +29,6 @@ import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.ViewHelpers
-import controllers.routes._
 
 class MaterialsAmountControllerISpec extends IntegrationTest
   with ViewHelpers
