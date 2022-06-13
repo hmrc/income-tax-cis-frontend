@@ -34,9 +34,8 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthorisedAction @Inject()(appConfig: AppConfig)
-                                (implicit val authService: AuthService,
-                                 val mcc: MessagesControllerComponents
-                                ) extends ActionBuilder[AuthorisationRequest, AnyContent] with I18nSupport {
+                                (implicit val authService: AuthService, val mcc: MessagesControllerComponents)
+  extends ActionBuilder[AuthorisationRequest, AnyContent] with I18nSupport {
 
   private lazy val logger: Logger = Logger.apply(this.getClass)
 
@@ -48,7 +47,6 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
   private val minimumConfidenceLevel: Int = ConfidenceLevel.L200.level
 
   override def invokeBlock[A](request: Request[A], block: AuthorisationRequest[A] => Future[Result]): Future[Result] = {
-
     implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authService.authorised.retrieve(affinityGroup) {
@@ -79,9 +77,7 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
 
   def individualAuthentication[A](block: AuthorisationRequest[A] => Future[Result], affinityGroup: AffinityGroup)
                                  (implicit request: Request[A], hc: HeaderCarrier): Future[Result] = {
-
     authService.authorised.retrieve(allEnrolments and confidenceLevel) {
-
       case enrolments ~ userConfidence if userConfidence.level >= minimumConfidenceLevel =>
         val optionalMtdItId: Option[String] = enrolmentGetIdentifierValue(EnrolmentKeys.Individual, EnrolmentIdentifiers.individualId, enrolments)
         val optionalNino: Option[String] = enrolmentGetIdentifierValue(EnrolmentKeys.nino, EnrolmentIdentifiers.nino, enrolments)
@@ -111,14 +107,11 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
 
   private[actions] def agentAuthentication[A](block: AuthorisationRequest[A] => Future[Result])
                                              (implicit request: Request[A], hc: HeaderCarrier): Future[Result] = {
-
     lazy val agentDelegatedAuthRuleKey = "mtd-it-auth"
-
     lazy val agentAuthPredicate: String => Enrolment = identifierId =>
       Enrolment(EnrolmentKeys.Individual)
         .withIdentifier(EnrolmentIdentifiers.individualId, identifierId)
         .withDelegatedAuthRule(agentDelegatedAuthRuleKey)
-
     val optionalNino = request.session.get(SessionValues.CLIENT_NINO)
     val optionalMtdItId = request.session.get(SessionValues.CLIENT_MTDITID)
 

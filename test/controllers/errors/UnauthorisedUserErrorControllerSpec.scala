@@ -23,7 +23,9 @@ import support.ControllerUnitTest
 import utils.ViewTest
 import views.html.templates.UnauthorisedUserErrorPageView
 
-class UnauthorisedUserErrorControllerSpec extends ControllerUnitTest with DefaultAwaitTimeout with ViewTest {
+class UnauthorisedUserErrorControllerSpec extends ControllerUnitTest
+  with DefaultAwaitTimeout
+  with ViewTest {
 
   private lazy val underTest = new UnauthorisedUserErrorController(
     mockMessagesControllerComponents,

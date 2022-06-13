@@ -23,10 +23,11 @@ import support.builders.models.UserBuilder.aUser
 
 trait FakeRequestHelper {
 
+  protected val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
   protected val fakeIndividualRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
     .withHeaders(newHeaders = "X-Session-ID" -> aUser.sessionId)
 
   protected val fakeAgentRequest: FakeRequest[AnyContentAsEmpty.type] = fakeIndividualRequest
-    .withHeaders(newHeaders = "X-Session-ID" -> aUser.sessionId)
     .withSession(SessionValues.CLIENT_MTDITID -> aUser.mtditid, SessionValues.CLIENT_NINO -> aUser.nino)
 }

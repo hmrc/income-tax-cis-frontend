@@ -23,6 +23,7 @@ import org.jsoup.Jsoup
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
 import play.api.mvc.Results.{InternalServerError, Redirect}
 import play.api.test.Helpers.{contentAsString, contentType, status}
+import sttp.model.Method.POST
 import support.ControllerUnitTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.PeriodDataBuilder.aPeriodData
@@ -61,7 +62,8 @@ class MaterialsControllerSpec extends ControllerUnitTest
     "render page with error when validation of form fails" in {
       mockEndOfYearWithSessionData(taxYearEOY, month = "may", employerRef = "some-ref")
 
-      val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = "some-ref").apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> ""))
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(YesNoForm.yesNo -> "")
+      val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = "some-ref")(request)
 
       status(result) shouldBe BAD_REQUEST
       contentType(result) shouldBe Some("text/html")
@@ -74,7 +76,8 @@ class MaterialsControllerSpec extends ControllerUnitTest
       mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
-      val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "true"))
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(YesNoForm.yesNo -> "true")
+      val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef)(request)
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
@@ -83,7 +86,8 @@ class MaterialsControllerSpec extends ControllerUnitTest
       mockEndOfYearWithSessionData(taxYearEOY, month = MAY.toString.toLowerCase, employerRef = aCisUserData.employerRef)
       mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Right(aCisUserData.copy(cis = aCisCYAModel.copy(contractorName = None))))
 
-      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "true"))) shouldBe
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(YesNoForm.yesNo -> "true")
+      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef)(request)) shouldBe
         Redirect(MaterialsAmountController.show(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef))
     }
 
@@ -91,15 +95,18 @@ class MaterialsControllerSpec extends ControllerUnitTest
       mockEndOfYearWithSessionData(taxYearEOY, month = MAY.toString.toLowerCase, employerRef = aCisUserData.employerRef)
       mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Right(aCisUserData))
 
-      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "true"))) shouldBe
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(YesNoForm.yesNo -> "true")
+      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(request)) shouldBe
         Redirect(ContractorCYAController.show(taxYearEOY, aPeriodData.deductionPeriod.toString.toLowerCase, aCisDeductions.employerRef))
     }
 
     "redirect to Check CIS Deductions Page when No submitted successfully" in {
+      val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(YesNoForm.yesNo -> "false")
+
       mockEndOfYearWithSessionData(taxYearEOY, month = "may", employerRef = aCisUserData.employerRef)
       mockSaveQuestion(aUser, aCisUserData, questionValue = false, result = Right(aCisUserData))
 
-      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(fakeIndividualRequest.withFormUrlEncodedBody(YesNoForm.yesNo -> "false"))) shouldBe
+      await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(request)) shouldBe
         Redirect(ContractorCYAController.show(taxYearEOY, aPeriodData.deductionPeriod.toString.toLowerCase, aCisDeductions.employerRef))
     }
   }

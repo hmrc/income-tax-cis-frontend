@@ -24,7 +24,7 @@ import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 object AuthorisationRequestBuilder {
 
   val anAuthorisationRequest: AuthorisationRequest[AnyContentAsEmpty.type] = AuthorisationRequest(
-    User(aCisUserData.mtdItId, None, aCisUserData.nino, aCisUserData.sessionId, "affinityGroup"),
-    FakeRequest()
+    user = User(aCisUserData.mtdItId, None, aCisUserData.nino, aCisUserData.sessionId, "affinityGroup"),
+    request = FakeRequest()
   )
 }
