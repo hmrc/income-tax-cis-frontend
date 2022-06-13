@@ -17,6 +17,7 @@
 package controllers
 
 import models.HttpParserError
+import models.mongo.DataNotFoundError
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER}
 import play.api.mvc.Results.InternalServerError
 import play.api.test.Helpers.{contentType, status}
@@ -40,7 +41,7 @@ class DeleteCISPeriodControllerSpec extends ControllerUnitTest
 
   ".show" should {
     "return the page" in {
-      mockUserPriorDataForEOY(taxYearEOY, aCisDeductions.employerRef, month = "may", anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions)))
+      mockExclusivelyCustomerPriorDataForEOY(taxYearEOY, aCisDeductions.employerRef, month = "may", anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions)))
 
       val result = underTest.show(taxYearEOY, month = "may", contractor = aCisDeductions.employerRef).apply(fakeIndividualRequest)
 
@@ -51,15 +52,23 @@ class DeleteCISPeriodControllerSpec extends ControllerUnitTest
 
   ".submit" should {
     "redirect when service returns Right" in {
-      mockUserPriorDataForEOY(taxYearEOY, aCisDeductions.employerRef, month = "may", anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions)))
+      mockExclusivelyCustomerPriorDataForEOY(taxYearEOY, aCisDeductions.employerRef, month = "may", anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions)))
       mockRemoveCISDeduction(taxYearEOY, aCisDeductions.employerRef, aUser, MAY, Right(()))
 
       status(underTest.submit(taxYearEOY, aCisDeductions.employerRef, month = "may").apply(fakeIndividualRequest)) shouldBe SEE_OTHER
     }
 
     "throw an error when service returns Left" in {
-      mockUserPriorDataForEOY(taxYearEOY, aCisDeductions.employerRef, month = "may", anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions)))
+      mockExclusivelyCustomerPriorDataForEOY(taxYearEOY, aCisDeductions.employerRef, month = "may", anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions)))
       mockRemoveCISDeduction(taxYearEOY, aCisDeductions.employerRef, aUser, MAY, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
+      mockHandleError(INTERNAL_SERVER_ERROR, InternalServerError)
+
+      status(underTest.submit(taxYearEOY, aCisDeductions.employerRef, month = "may").apply(fakeIndividualRequest)) shouldBe INTERNAL_SERVER_ERROR
+    }
+
+    "throw a internal server error when service returns Left" in {
+      mockExclusivelyCustomerPriorDataForEOY(taxYearEOY, aCisDeductions.employerRef, month = "may", anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions)))
+      mockRemoveCISDeduction(taxYearEOY, aCisDeductions.employerRef, aUser, MAY, Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
       status(underTest.submit(taxYearEOY, aCisDeductions.employerRef, month = "may").apply(fakeIndividualRequest)) shouldBe INTERNAL_SERVER_ERROR

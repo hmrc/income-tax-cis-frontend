@@ -25,7 +25,7 @@ object CisDeductionsBuilder {
   val aCisDeductions: CisDeductions = CisDeductions(
     fromDate = "2020-04-06",
     toDate = "2021-04-05",
-    contractorName = Some("ABC SteelWorks"),
+    contractorName = Some("ABC Steelworks"),
     employerRef = "123/AB123456",
     totalDeductionAmount = Some(100.00),
     totalCostOfMaterials = Some(50.00),

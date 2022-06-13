@@ -17,32 +17,61 @@
 package services
 
 import models.mongo.DataNotUpdatedError
+import models.{APIErrorBodyModel, APIErrorModel, HttpParserError, InvalidOrUnfinishedSubmission}
+import play.api.http.Status.INTERNAL_SERVER_ERROR
+import support.builders.models.CISSubmissionBuilder.{aPeriodData, anUpdateCISSubmission}
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.UserBuilder._
+import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.mocks.MockCISSessionService
+import support.mocks.{MockCISConnector, MockCISSessionService}
 import support.{TaxYearProvider, UnitTest}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ContractorCYAServiceSpec extends UnitTest
   with MockCISSessionService
+  with MockCISConnector
   with TaxYearProvider {
 
-  private val underTest = new ContractorCYAService(mockCISSessionService)
+  implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid)
+
+  private val underTest = new ContractorCYAService(mockCISSessionService,mockCISConnector)
 
   ".submitCisDeductionCYA" should {
-    "return right when clear is successful" in {
+    "return right when submit and clear are successful" in {
 
-      mockClear(taxYear, aCisUserData.employerRef, result = Right(()))
+      mockSubmit(aUser.nino, taxYearEOY, anUpdateCISSubmission.copy(
+        periodData = Seq(aPeriodData,aPeriodData.copy(deductionFromDate = "2021-10-06",deductionToDate = "2021-11-05"))
+      ), Right(()))
+      mockRefreshAndClear(taxYearEOY, aCisUserData.employerRef, result = Right(()))
 
-      await(underTest.submitCisDeductionCYA(taxYear, aCisDeductions.employerRef, aUser)) shouldBe Right(())
+      await(underTest.submitCisDeductionCYA(taxYearEOY, aCisDeductions.employerRef, aUser, aCisUserData)) shouldBe Right(())
     }
     "return error when clear fails" in {
 
-      mockClear(taxYear, aCisUserData.employerRef, result = Left(DataNotUpdatedError))
+      mockSubmit(aUser.nino, taxYearEOY, anUpdateCISSubmission.copy(
+        periodData = Seq(aPeriodData,aPeriodData.copy(deductionFromDate = "2021-10-06",deductionToDate = "2021-11-05"))
+      ), Right(()))
+      mockRefreshAndClear(taxYearEOY, aCisUserData.employerRef, result = Left(DataNotUpdatedError))
 
-      await(underTest.submitCisDeductionCYA(taxYear, aCisDeductions.employerRef, aUser)) shouldBe Left(DataNotUpdatedError)
+      await(underTest.submitCisDeductionCYA(taxYearEOY, aCisDeductions.employerRef, aUser, aCisUserData)) shouldBe Left(DataNotUpdatedError)
+    }
+    "return error when submit fails" in {
+
+      mockSubmit(aUser.nino, taxYearEOY, anUpdateCISSubmission.copy(
+        periodData = Seq(aPeriodData,aPeriodData.copy(deductionFromDate = "2021-10-06",deductionToDate = "2021-11-05"))
+      ),  Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError)))
+
+      await(underTest.submitCisDeductionCYA(taxYearEOY, aCisDeductions.employerRef, aUser, aCisUserData)) shouldBe Left(HttpParserError(500))
+    }
+    "return InvalidOrUnfinishedSubmission error unable to submit" in {
+
+      await(underTest.submitCisDeductionCYA(taxYearEOY, aCisDeductions.employerRef, aUser, aCisUserData.copy(cis =
+        aCisCYAModel.copy(contractorName = None),
+        submissionId = None
+      ))) shouldBe Left(InvalidOrUnfinishedSubmission)
     }
   }
 }

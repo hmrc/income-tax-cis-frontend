@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.routes.ContractorSummaryController
-import models.HttpParserError
+import models.{HttpParserError, InvalidOrUnfinishedSubmission}
 import models.mongo.DataNotUpdatedError
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER, SERVICE_UNAVAILABLE}
 import play.api.mvc.Results.{InternalServerError, ServiceUnavailable}
@@ -95,6 +95,16 @@ class ContractorCYAControllerSpec extends ControllerUnitTest
       val result = underTest.submit(taxYearEOY, Month.MAY.toString.toLowerCase, contractor = "12345").apply(fakeIndividualRequest)
 
       status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
+    "handle not finished error" in {
+
+      mockCheckCyaExistsAndReturnSessionData(taxYearEOY, contractor = "12345", month = "may", aCisUserData)
+      mockSubmitCisDeductionCYA(taxYearEOY, "12345", Left(InvalidOrUnfinishedSubmission))
+
+      val result = underTest.submit(taxYearEOY, Month.MAY.toString.toLowerCase, contractor = "12345").apply(fakeIndividualRequest)
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result).get shouldBe controllers.routes.ContractorCYAController.show(taxYearEOY, Month.MAY.toString.toLowerCase,"12345").url
     }
     "handle parser error" in {
 

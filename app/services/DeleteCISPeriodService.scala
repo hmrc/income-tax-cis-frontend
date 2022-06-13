@@ -16,15 +16,43 @@
 
 package services
 
-import models.{ServiceError, User}
+import connectors.CISConnector
+import models.{HttpParserError, IncomeTaxUserData, InvalidOrUnfinishedSubmission, PeriodData, ServiceError, User}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.Month
-import scala.concurrent.Future
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
-class DeleteCISPeriodService {
-  //TODO: - remove functionality to be implemented after Update/Delete CIS orchestration
+class DeleteCISPeriodService @Inject()(cisSessionService: CISSessionService,
+                                       cisConnector: CISConnector)(implicit val ec: ExecutionContext) {
+
   //TODO: - Update integration test to check if the item has been removed, when this is implemented.
-  def removeCisDeduction(taxYear: Int, employerRef: String, user: User, deductionPeriod: Month): Future[Either[ServiceError, Unit]] = {
-    Future.successful(Right(()))
+  def removeCisDeduction(taxYear: Int,
+                         employerRef: String,
+                         user: User,
+                         deductionPeriod: Month,
+                         incomeTaxUserData: IncomeTaxUserData)(implicit hc: HeaderCarrier): Future[Either[ServiceError, Unit]] = {
+
+    val customerPeriods: Seq[PeriodData] = incomeTaxUserData.customerCisDeductionsWith(employerRef).map(_.periodData).getOrElse(Seq.empty)
+
+    val isLastCustomerPeriodToRemove: Boolean = customerPeriods.size == 1 && customerPeriods.map(_.deductionPeriod).contains(deductionPeriod)
+
+    if(isLastCustomerPeriodToRemove){
+      //TODO Delete orchestration
+      Future.successful(Right(()))
+
+    } else {
+      val submission = incomeTaxUserData.toSubmissionWithoutPeriod(employerRef,deductionPeriod,taxYear)
+
+      submission match {
+        case Some(submission) =>
+          cisConnector.submit(user.nino,taxYear,submission)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)).flatMap {
+            case Left(error) => Future.successful(Left(HttpParserError(error.status)))
+            case Right(_) => cisSessionService.refreshAndClear(user,employerRef,taxYear,clearCYA = false)
+          }
+        case None => Future.successful(Left(InvalidOrUnfinishedSubmission))
+      }
+    }
   }
 }

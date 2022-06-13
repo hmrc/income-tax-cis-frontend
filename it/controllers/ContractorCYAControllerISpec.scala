@@ -18,13 +18,18 @@ package controllers
 
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
+import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
 import repositories.CisUserDataRepositoryImpl
 import support.IntegrationTest
+import support.builders.models.CISSubmissionBuilder
+import support.builders.models.CISSubmissionBuilder.{aCreateCISSubmission, anUpdateCISSubmission}
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
+import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
+import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.ViewHelpers
 
 class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
@@ -50,10 +55,34 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
   }
 
   ".submit" should {
-    "return Check your CIS deductions page" in {
+    "return Check your CIS deductions page when making an update for cis deductions" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
+        val cisUrl = "/income-tax-cis/income-tax/nino/AA123456A/sources?taxYear=2022"
+        val requestBody = Json.toJson(anUpdateCISSubmission.copy(
+          periodData = Seq(CISSubmissionBuilder.aPeriodData.copy(
+            grossAmountPaid = Some(450),
+            deductionAmount = 100,
+            costOfMaterials = Some(50)
+          ))
+        )).toString()
+        stubPostWithoutResponseBody(cisUrl,OK,requestBody)
+        urlPost(fullUrl(url(taxYearEOY, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
+          headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = "")
+      }
+
+      result.status shouldBe SEE_OTHER
+      result.headers("Location").head shouldBe controllers.routes.ContractorSummaryController.show(taxYearEOY, aCisDeductions.employerRef).url
+      await(repoUnderTest.find(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Right(None)
+    }
+    "return Check your CIS deductions page when creating a new cis deductions" in {
+      lazy val result: WSResponse = {
+        authoriseAgentOrIndividual(isAgent = false)
+        insertCyaData(aCisUserData.copy(submissionId = None,isPriorSubmission = false, cis = aCisCYAModel.copy(priorPeriodData = Seq())))
+        val cisUrl = "/income-tax-cis/income-tax/nino/AA123456A/sources?taxYear=2022"
+        val requestBody = Json.toJson(aCreateCISSubmission).toString()
+        stubPostWithoutResponseBody(cisUrl,OK,requestBody)
         urlPost(fullUrl(url(taxYearEOY, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
           headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = "")
       }

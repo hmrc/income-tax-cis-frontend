@@ -50,6 +50,9 @@ case class AllCISDeductions(customerCISDeductions: Option[CISSource],
   def customerCisDeductionsWith(employerRef: String): Option[CisDeductions] =
     customerCISDeductions.flatMap(_.cisDeductionsWith(employerRef))
 
+  def contractorCisDeductionsWith(employerRef: String): Option[CisDeductions] =
+    contractorCISDeductions.flatMap(_.cisDeductionsWith(employerRef))
+
   private def makeCISDeductionsListFromCustomerAndContractor(contractorCISDeductions: Seq[CisDeductions],
                                                              customerCISDeductions: Seq[CisDeductions]): Seq[CisDeductions] = {
     val contractorEmployers = contractorCISDeductions.map(_.employerRef)

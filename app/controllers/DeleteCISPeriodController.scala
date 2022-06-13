@@ -19,6 +19,7 @@ package controllers
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
 import controllers.routes.ContractorSummaryController
+import models.HttpParserError
 import models.pages.DeleteCISPeriodPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -40,14 +41,15 @@ class DeleteCISPeriodController @Inject()(actionsProvider: ActionsProvider,
 
   def show(taxYear: Int,
            month: String,
-           contractor: String): Action[AnyContent] = actionsProvider.userPriorDataForEOY(taxYear, contractor, month) { implicit request =>
+           contractor: String): Action[AnyContent] = actionsProvider.exclusivelyCustomerPriorDataForEOY(taxYear, contractor, month) { implicit request =>
     Ok(view(DeleteCISPeriodPage(taxYear, contractor, Month.valueOf(month.toUpperCase))))
   }
 
   def submit(taxYear: Int,
              contractor: String,
-             month: String): Action[AnyContent] = actionsProvider.userPriorDataForEOY(taxYear, contractor, month).async { implicit request =>
-    deleteCISPeriodService.removeCisDeduction(taxYear, contractor, request.user, Month.valueOf(month.toUpperCase)).map {
+             month: String): Action[AnyContent] = actionsProvider.exclusivelyCustomerPriorDataForEOY(taxYear, contractor, month).async { implicit request =>
+    deleteCISPeriodService.removeCisDeduction(taxYear, contractor, request.user, Month.valueOf(month.toUpperCase), request.incomeTaxUserData).map {
+      case Left(HttpParserError(status)) => errorHandler.handleError(status)
       case Left(_) => errorHandler.internalServerError()
       case Right(_) => Redirect(ContractorSummaryController.show(taxYear, contractor))
     }

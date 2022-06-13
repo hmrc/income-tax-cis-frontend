@@ -24,11 +24,11 @@ import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
 import support.IntegrationTest
+import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
-import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.ViewHelpers
 
 class DeleteCISPeriodControllerISpec extends IntegrationTest
@@ -61,8 +61,7 @@ class DeleteCISPeriodControllerISpec extends IntegrationTest
     "return OK when EOY" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
-        userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
-        insertCyaData(aCisUserData)
+        userDataStub(anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = None))), aUser.nino, taxYearEOY)
         urlGet(fullUrl(url(taxYearEOY, month = aPeriodData.deductionPeriod.toString.toLowerCase, employerRef = aCisDeductions.employerRef)),
           headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
       }
@@ -87,8 +86,7 @@ class DeleteCISPeriodControllerISpec extends IntegrationTest
     "remove deduction period and redirect to contractor summary page" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
-        userDataStub(anIncomeTaxUserData, aCisUserData.nino, taxYearEOY)
-        insertCyaData(aCisUserData)
+        userDataStub(anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = None))), aUser.nino, taxYearEOY)
         urlPost(fullUrl(url(taxYearEOY, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
           headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = Json.obj())
       }

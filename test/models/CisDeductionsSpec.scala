@@ -85,14 +85,14 @@ class CisDeductionsSpec extends UnitTest {
     val anyBoolean = true
     "return a cya model" in {
       aCisDeductions.toCYA(None, Seq.empty, hasCompleted = anyBoolean) shouldBe CisCYAModel(
-        Some("ABC SteelWorks"),
+        Some("ABC Steelworks"),
         None,
         List(CYAPeriodData(Month.MAY, Some(450.0), Some(100.0), Some(true), Some(50.0), contractorSubmitted = false, Some(Month.MAY)))
       )
     }
     "return a cya model when making an update to existing month" in {
       aCisDeductions.toCYA(Some(Month.MAY), Seq(Month.MAY), anyBoolean) shouldBe CisCYAModel(
-        Some("ABC SteelWorks"),
+        Some("ABC Steelworks"),
         Some(CYAPeriodData(Month.MAY, Some(450.0), Some(100.0), Some(true), Some(50.0), contractorSubmitted = true, Some(Month.MAY))),
         List(CYAPeriodData(Month.MAY, Some(450.0), Some(100.0), Some(true), Some(50.0), contractorSubmitted = true, Some(Month.MAY)))
       )

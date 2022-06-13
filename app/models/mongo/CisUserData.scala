@@ -17,10 +17,12 @@
 package models.mongo
 
 import models.User
+import models.submission.CISSubmission
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
 import utils.SecureGCMCipher
+import utils.SubmissionUtil.validateDataAndCreateSubmission
 
 import java.time.Month
 
@@ -33,6 +35,17 @@ case class CisUserData(sessionId: String,
                        isPriorSubmission: Boolean,
                        cis: CisCYAModel,
                        lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)) {
+
+  def toSubmission: Option[CISSubmission] =
+    cis.periodData match {
+      case Some(currentPeriod) if currentPeriod.isFinished =>
+
+        val cyaPeriodData = Seq(currentPeriod) ++ cis.priorPeriodData.filterNot(period => currentPeriod.deductionPeriod == period.deductionPeriod)
+        val periodDataForSubmission = cyaPeriodData.map(_.toSubmissionPeriodData(taxYear))
+        validateDataAndCreateSubmission(periodDataForSubmission, submissionId, cis.contractorName, employerRef)
+
+      case _ => None
+    }
 
   def isCyaDataFor(month: Month): Boolean = cis.periodData.exists(_.deductionPeriod == month)
 

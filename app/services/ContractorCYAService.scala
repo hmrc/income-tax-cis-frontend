@@ -16,24 +16,29 @@
 
 package services
 
-import models.{ServiceError, User}
+import connectors.CISConnector
+import models.mongo.CisUserData
+import models.{HttpParserError, InvalidOrUnfinishedSubmission, ServiceError, User}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class ContractorCYAService @Inject()(cisSessionService: CISSessionService)(implicit val ec: ExecutionContext) {
+class ContractorCYAService @Inject()(cisSessionService: CISSessionService,
+                                     cisConnector: CISConnector)(implicit val ec: ExecutionContext) {
 
-  def submitCisDeductionCYA(taxYear: Int, employerRef: String, user: User
-                            //, cisUserData: CisUserData*/)(implicit hc: HeaderCarrier) TODO Uncomment when doing the post orchestration
-                           ): Future[Either[ServiceError, Unit]] = {
+  def submitCisDeductionCYA(taxYear: Int,
+                            employerRef: String,
+                            user: User,
+                            cisUserData: CisUserData)(implicit hc: HeaderCarrier): Future[Either[ServiceError, Unit]] = {
 
-    //TODO Create payload for POST orchestration from cis user data & send to cis BE connector
-
-    //TODO Refresh cis cached prior data
-
-    cisSessionService.clear(user,employerRef,taxYear).map {
-      case Left(error) => Left(error)
-      case Right(_) => Right(())
+    cisUserData.toSubmission match {
+      case Some(submission) =>
+        cisConnector.submit(user.nino,taxYear,submission)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)).flatMap {
+        case Left(error) => Future.successful(Left(HttpParserError(error.status)))
+        case Right(_) => cisSessionService.refreshAndClear(user,employerRef,taxYear)
+      }
+      case None => Future.successful(Left(InvalidOrUnfinishedSubmission))
     }
   }
 }

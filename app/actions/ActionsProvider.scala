@@ -59,12 +59,12 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
     if (inYearUtil.inYear(taxYear)) actionsPipeline.andThen(HasInYearCisDeductionsFilterAction(taxYear, appConfig)) else actionsPipeline
   }
 
-  def userPriorDataForEOY(taxYear: Int, contractor: String, month: String): ActionBuilder[UserPriorDataRequest, AnyContent] = {
+  def exclusivelyCustomerPriorDataForEOY(taxYear: Int, contractor: String, month: String): ActionBuilder[UserPriorDataRequest, AnyContent] = {
     authAction
       .andThen(TaxYearAction.taxYearAction(taxYear)(appConfig))
       .andThen(EndOfYearFilterAction(taxYear, inYearUtil, appConfig))
       .andThen(UserPriorDataRefinerAction(taxYear, cisSessionService, errorHandler))
-      .andThen(HasEoyDeductionsForEmployerRefAndMonthFilterAction(taxYear, contractor, month, errorHandler, appConfig))
+      .andThen(HasEoyDeductionsForEmployerRefAndMonthFilterAction(taxYear, contractor, month, errorHandler, appConfig, needsToBeExclusivelyCustomerData = true))
   }
 
   def userPriorDataFor(taxYear: Int, contractor: String): ActionBuilder[UserPriorDataRequest, AnyContent] = {

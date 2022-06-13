@@ -30,7 +30,8 @@ case class HasEoyDeductionsForEmployerRefAndMonthFilterAction(taxYear: Int,
                                                               employerRef: String,
                                                               monthValue: String,
                                                               errorHandler: ErrorHandler,
-                                                              appConfig: AppConfig)
+                                                              appConfig: AppConfig,
+                                                              needsToBeExclusivelyCustomerData: Boolean = false)
                                                              (implicit ec: ExecutionContext) extends ActionFilter[UserPriorDataRequest] {
 
   override protected[actions] def executionContext: ExecutionContext = ec
@@ -39,7 +40,14 @@ case class HasEoyDeductionsForEmployerRefAndMonthFilterAction(taxYear: Int,
     Try(Month.valueOf(monthValue.toUpperCase)) match {
       case Failure(_) => Some(errorHandler.internalServerError()(input))
       case Success(month: Month) =>
-        if (!input.incomeTaxUserData.hasEoyCisDeductionsWith(employerRef, month)) {
+
+        val caughtByFilterAction = if(needsToBeExclusivelyCustomerData){
+          !input.incomeTaxUserData.hasExclusivelyCustomerEoyCisDeductionsWith(employerRef, month)
+        } else {
+          !input.incomeTaxUserData.hasEoyCisDeductionsWith(employerRef, month)
+        }
+
+        if(caughtByFilterAction){
           Some(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
         } else {
           None

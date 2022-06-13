@@ -14,10 +14,18 @@
  * limitations under the License.
  */
 
-package models
+package models.submission
 
-trait ServiceError
+import play.api.libs.json.{Json, OFormat}
 
-case class HttpParserError(status: Int) extends ServiceError
-case object EmptyPriorCisDataError extends ServiceError
-case object InvalidOrUnfinishedSubmission extends ServiceError
+case class CISSubmission(employerRef: Option[String],
+                         contractorName: Option[String],
+                         periodData: Seq[PeriodData],
+                         submissionId: Option[String])
+
+object CISSubmission {
+  implicit val format: OFormat[CISSubmission] = Json.format[CISSubmission]
+}
+
+
+
