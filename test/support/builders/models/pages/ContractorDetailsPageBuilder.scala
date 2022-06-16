@@ -25,7 +25,7 @@ object ContractorDetailsPageBuilder {
   val aContractorDetailsPage: ContractorDetailsPage = ContractorDetailsPage(
     taxYear = TaxYearUtils.taxYearEOY,
     isAgent = false,
-    form = contractorDetailsForm(isAgent = false),
+    form = contractorDetailsForm(isAgent = false, Seq.empty),
     originalEmployerRef = None
   )
 }

@@ -25,6 +25,9 @@ import java.time.Month
 case class AllCISDeductions(customerCISDeductions: Option[CISSource],
                             contractorCISDeductions: Option[CISSource]) extends Logging {
 
+  def allEmployerRefs: Seq[String] =
+    (customerCISDeductions.map(_.allEmployerRefs).getOrElse(Seq.empty) ++ contractorCISDeductions.map(_.allEmployerRefs).getOrElse(Seq.empty)).distinct
+
   def contractorPeriodsFor(employerRef: String): Seq[Month] = {
     val cisDeductions = contractorCISDeductions.flatMap(_.cisDeductions.find(_.employerRef == employerRef))
     cisDeductions.map(_.periodData.map(_.deductionPeriod)).getOrElse(Seq.empty)

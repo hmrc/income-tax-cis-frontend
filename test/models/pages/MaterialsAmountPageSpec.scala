@@ -29,20 +29,6 @@ class MaterialsAmountPageSpec extends UnitTest {
 
   private val formsProvider = new FormsProvider()
 
-  "MaterialsAmountPage.contractor" should {
-    "return the contractor name when it exists" in {
-      val underTest = aMaterialsAmountPage.copy(contractorName = Some("some-contractor-name"))
-
-      underTest.contractor shouldBe "some-contractor-name"
-    }
-
-    "return employerRef when the contractor name doesn't exist" in {
-      val underTest = aMaterialsAmountPage.copy(contractorName = None, employerRef = "some-ref")
-
-      underTest.contractor shouldBe "some-ref"
-    }
-  }
-
   "MaterialsAmountPage.isReplay" should {
     "return true when originalAmount is defined" in {
       val underTest = aMaterialsAmountPage.copy(originalAmount = Some(200.00))

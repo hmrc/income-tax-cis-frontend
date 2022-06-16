@@ -126,7 +126,7 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
 
   userScenarios.foreach { userScenario =>
     s"language is ${welshTest(userScenario.isWelsh)} and request is from an ${agentTest(userScenario.isAgent)}" should {
-      "render in year version of deduction summary page" which {
+      "render in year version of deduction summary page for a user with contractor cis deductions" which {
         implicit val authRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
         implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
@@ -177,6 +177,21 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
         linkCheck(text = "Contractor-3", Selectors.contractorEmployerRef(rowId = 3),
           href = ContractorSummaryController.show(taxYear, contractor = "ref-3").url, additionalTestText = "first column")
         textOnPageCheck(text = "", selector = Selectors.contractorDeductions(rowId = 3), additionalTestText = "second column")
+        buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector, Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      }
+
+      "render in year version of deduction summary page when no cis deductions" which {
+        implicit val authRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
+        implicit val messages: Messages = getMessages(userScenario.isWelsh)
+
+        implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(isInYear = true, deductions = Seq.empty)).body)
+
+        welshToggleCheck(userScenario.isWelsh)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
+        h1Check(userScenario.commonExpectedResults.expectedH1)
+        textOnPageCheck(userScenario.specificExpectedResults.get.expectedInsetText(taxYear), Selectors.insetTextSelector)
+        elementNotOnPageCheck(Selectors.addContractorSelector)
         buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector, Some(mockAppConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       }
 

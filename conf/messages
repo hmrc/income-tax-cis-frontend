@@ -40,6 +40,7 @@ common.use = use
 common.warning = Warning
 common.yes = Yes
 common.contractor.employerRef = Contractor: {0}
+common.this.contractor = this contractor
 common.january = January
 common.february = February
 common.march = March
@@ -63,6 +64,7 @@ cis.deductionsInfo.p1.individual = Your CIS deductions are based on the informat
 
 deductionPeriod.title.individual = When did your contractor make CIS deductions?
 deductionPeriod.title.agent = When did your client’s contractor make CIS deductions?
+deductionPeriod.title = When did this contractor make CIS deductions?
 deductionPeriod.heading = When did {0} make CIS deductions?
 deductionPeriod.p1.agent = Tell us the end date on your client’s CIS statement.
 deductionPeriod.p1.individual = Tell us the end date on your CIS statement.
@@ -88,6 +90,7 @@ contractorSummary.insetText.eoy.link = CIS helpline
 contractorSummary.lineItem = Tax month end 5 {0}
 contractorSummary.lineItem.hiddenText = {0} tax month end 5 {1}
 contractorSummary.addAnother.link = Add another CIS deduction
+contractorSummary.add.link = Add a CIS deduction
 contractorSummary.buttonText = Return to CIS summary
 
 #################       Contractor CYA Page       #######################################
@@ -115,17 +118,17 @@ deleteCISPeriodPage.title = Are you sure you want to remove this CIS deduction?
 deleteCISPeriodPage.p1 = You will remove the CIS deduction for the tax month ending 5 {0}.
 
 #################       Labour Pay Page       #######################################
-labourPayPage.title.agent = How much did the contractor pay your client for labour?
-labourPayPage.title.individual = How much did your contractor pay you for labour?
+labourPayPage.title.agent = How much did this contractor pay your client for labour?
+labourPayPage.title.individual = How much did this contractor pay you for labour?
+labourPayPage.title.agent.named = How much did the contractor pay your client for labour?
+labourPayPage.title.individual.named = How much did your contractor pay you for labour?
 labourPayPage.heading.agent = How much did {0} pay your client for labour?
 labourPayPage.heading.individual = How much did {0} pay you for labour?
 labourPayPage.p1.agent = Tell us the amount on your client’s {0} CIS statement, before any deductions were made.
 labourPayPage.p1.individual = Tell us the amount on your {0} CIS statement, before any deductions were made.
 labourPayPage.p.noVAT = Do not include VAT or cost of materials.
-labourPayPage.p1.replay.agent = If your client was not paid {0} for labour, tell us the correct amount.
-labourPayPage.p1.replay.individual = If you were not paid {0} for labour, tell us the correct amount.
-labourPayPage.p2.replay.agent = It’s the amount on their {0} CIS statement, before any deductions were made.
-labourPayPage.p2.replay.individual = It’s the amount on your {0} CIS statement, before any deductions were made.
+labourPayPage.p1.replay.agent = It’s the amount on their {0} CIS statement, before any deductions were made.
+labourPayPage.p1.replay.individual = It’s the amount on your {0} CIS statement, before any deductions were made.
 labourPayPage.error.noEntry.agent = Enter the amount your client was paid for labour
 labourPayPage.error.noEntry.individual = Enter the amount you were paid for labour
 labourPayPage.error.wrongFormat.agent = Enter the amount your client was paid for labour in the correct format
@@ -135,12 +138,13 @@ labourPayPage.error.overMaximum.individual = The amount you were paid for labour
 
 #################       Deduction Amount Page       #######################################
 deductionAmountPage.title = How much was taken by this contractor in CIS deductions?
+deductionAmountPage.title.individual = How much was taken by your contractor in CIS deductions?
+deductionAmountPage.title.agent = How much was taken by the contractor in CIS deductions?
 deductionAmountPage.heading.contractorName = How much was taken by {0} in CIS deductions?
 deductionAmountPage.p1.agent = Tell us the amount on your client’s {0} CIS statement.
 deductionAmountPage.p1.individual = Tell us the amount on your {0} CIS statement.
-deductionAmountPage.p1.replay = If {0} was not taken in CIS deductions, tell us the correct amount.
-deductionAmountPage.p2.replay.agent = You can find this on your client’s {0} CIS statement.
-deductionAmountPage.p2.replay.individual = You can find this on your {0} CIS statement.
+deductionAmountPage.p1.replay.agent = You can find this on your client’s {0} CIS statement.
+deductionAmountPage.p1.replay.individual = You can find this on your {0} CIS statement.
 deductionAmountPage.error.noEntry = Enter the CIS deduction amount
 deductionAmountPage.error.wrongFormat = Enter the CIS deduction in the correct format
 deductionAmountPage.error.overMaximum = The CIS deduction must be less than £100,000,000,000
@@ -163,16 +167,17 @@ contractor-details.name.error.notCharLimit = Contractor name must be 105 charact
 contractor-details.name.error.wrongFormat = Contractor name can only include letters a to z, numbers 0 to 9, and the symbols - , . & ; /
 contractor-details.employer-ref = Employer Reference Number (ERN)
 contractor-details.employer-ref.hint = For example, 123/AB12345.
-contractor-details.employer-ref.replay.individual = If your ERN is not {0}, tell us the correct reference.
-contractor-details.employer-ref.replay.agent = If your client’s ERN is not {0}, tell us the correct reference.
 contractor-details.employer-ref.error.noEntry = Enter the Employer Reference Number
 contractor-details.employer-ref.error.wrongFormat = Enter the Employer Reference Number in the correct format
+contractor-details.employer-ref.error.duplicate = You cannot add this Employer Reference Number again. Enter a new Employer Reference Number
 
 #################       Materials Page       #######################################
-materialsPage.title.agent = Did your client pay for materials for their contractor?
-materialsPage.title.individual = Did you pay for materials for your contractor?
-materialsPage.heading.contractorName.agent = Did your client pay for materials at {0}?
-materialsPage.heading.contractorName.individual = Did you pay for materials at {0}?
+materialsPage.title.agent = Did your client pay for building materials on this contract?
+materialsPage.title.individual = Did you pay for building materials on this contract?
+materialsPage.title.agent.named = Did your client pay for materials for their contractor?
+materialsPage.title.individual.named = Did you pay for materials for your contractor?
+materialsPage.heading.agent = Did your client pay for materials at {0}?
+materialsPage.heading.individual = Did you pay for materials at {0}?
 materialsPage.paragraph.agent = Materials include things your client pays for as part of a construction project, for example:
 materialsPage.paragraph.individual = Materials include things you pay for as part of a construction project, for example:
 materialsPage.bullet.one = bricks, piping, timber, fixings
@@ -183,14 +188,14 @@ materialsPage.error.individual = Select yes if you paid for materials
 
 #################   Materials Amount Page   ############################
 
-materialsAmountPage.title.individual = How much did you pay for building materials for your contractor?
-materialsAmountPage.title.agent = How much did your client pay for building materials for the contractor?
+materialsAmountPage.title.individual.named = How much did you pay for building materials for your contractor?
+materialsAmountPage.title.agent.named = How much did your client pay for building materials for the contractor?
+materialsAmountPage.title.individual = How much did you pay for building materials on this contract?
+materialsAmountPage.title.agent = How much did your client pay for building materials on this contract?
 materialsAmountPage.heading.individual = How much did you pay for building materials at {0}?
 materialsAmountPage.heading.agent = How much did your client pay for building materials at {0}?
-materialsAmountPage.replayContent.p1.individual = If you did not pay {0} for materials, tell us the correct amount.
-materialsAmountPage.replayContent.p1.agent = If your client did not pay {0} for materials, tell us the correct amount.
-materialsAmountPage.replayContent.p2.individual = You can find this on your 5 {0} CIS statement.
-materialsAmountPage.replayContent.p2.agent = You can find this on their 5 {0} CIS statement.
+materialsAmountPage.replayContent.p1.individual = You can find this on your 5 {0} CIS statement.
+materialsAmountPage.replayContent.p1.agent = You can find this on their 5 {0} CIS statement.
 materialsAmountPage.p1.individual = Tell us the amount on your 5 {0} CIS statement.
 materialsAmountPage.p1.agent = Tell us the amount on your client’s 5 {0} CIS statement.
 materialsAmountPage.vatParagraph.individual = Only include VAT if you are not VAT registered.

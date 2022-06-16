@@ -42,10 +42,6 @@
 
     @heading(headingText, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
 
-    @if(pageModel.isReplay) {
-        <p class="govuk-body">@messages(s"contractor-details.employer-ref.replay.${if(pageModel.isAgent) "agent" else "individual"}", pageModel.originalEmployerRef.get)</p>
-    }
-
     @formWithCsrf(action = controllers.routes.ContractorDetailsController.submit(pageModel.taxYear, pageModel.originalEmployerRef)) {
         @inputText(
             pageModel.form,

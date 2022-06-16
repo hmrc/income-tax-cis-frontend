@@ -65,7 +65,7 @@ trait MockActionsProvider extends MockFactory
     }
 
   def mockEndOfYearWithSessionData(taxYear: Int,
-                                   cisUserData: CisUserData): CallHandler2[Int, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+                                   cisUserData: CisUserData): CallHandler3[Int, String, Boolean, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
     val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
       override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => throw new NotImplementedError)
 
@@ -75,8 +75,8 @@ trait MockActionsProvider extends MockFactory
       override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
     }
 
-    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String))
-      .expects(taxYear, cisUserData.employerRef)
+    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String, _: Boolean))
+      .expects(taxYear, cisUserData.employerRef, *)
       .returns(value = actionBuilder)
   }
 

@@ -55,7 +55,20 @@ class ContractorDetailsControllerISpec extends IntegrationTest
       result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
     }
 
-    "return OK when EOY and no contractor provided" in {
+    "redirect to income tax submission overview when isPriorSubmission is true" in {
+      lazy val result: WSResponse = {
+        authoriseAgentOrIndividual(isAgent = false)
+        userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
+        insertCyaData(aCisUserData.copy(isPriorSubmission = true))
+        urlGet(fullUrl(url(taxYearEOY, Some(aCisDeductions.employerRef))), headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
+      }
+
+      result.status shouldBe SEE_OTHER
+      result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
+    }
+
+
+    "return OK when EOY and no contractor provided (add new contractor journey)" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
@@ -65,11 +78,11 @@ class ContractorDetailsControllerISpec extends IntegrationTest
       result.status shouldBe OK
     }
 
-    "return OK when EOY and existing contractor provided" in {
+    "return OK when EOY and existing contractor provided (add new contractor journey)" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
-        insertCyaData(aCisUserData)
+        insertCyaData(aCisUserData.copy(isPriorSubmission = false))
         urlGet(fullUrl(url(taxYearEOY, Some(aCisDeductions.employerRef))), headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
       }
 
@@ -89,6 +102,18 @@ class ContractorDetailsControllerISpec extends IntegrationTest
 
       result.status shouldBe SEE_OTHER
       result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYear)
+    }
+
+    "redirect to income tax submission overview when isPriorSubmission is true" in {
+      lazy val result: WSResponse = {
+        authoriseAgentOrIndividual(isAgent = false)
+        userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
+        insertCyaData(aCisUserData.copy(isPriorSubmission = true))
+        urlGet(fullUrl(url(taxYearEOY, Some(aCisDeductions.employerRef))), headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)))
+      }
+
+      result.status shouldBe SEE_OTHER
+      result.headers("Location").head shouldBe appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY)
     }
 
     "Save contractor details and redirect to the Deduction Period Page" in {

@@ -31,17 +31,20 @@ case class CisUserDataRefinerAction(taxYear: Int,
                                     cisSessionService: CISSessionService,
                                     errorHandler: ErrorHandler,
                                     appConfig: AppConfig,
-                                    needsPeriodData: Boolean = true
+                                    needsPeriodData: Boolean,
+                                    redirectIfPrior: Boolean
                                    )(implicit ec: ExecutionContext) extends ActionRefiner[AuthorisationRequest, UserSessionDataRequest] {
 
   override protected[actions] def executionContext: ExecutionContext = ec
 
+  //scalastyle:off
   override protected[actions] def refine[A](input: AuthorisationRequest[A]): Future[Either[Result, UserSessionDataRequest[A]]] = {
     val tempEmployerRef = input.session.get(TEMP_EMPLOYER_REF)
 
     cisSessionService.getSessionData(taxYear, employerRef, input.user, tempEmployerRef).map {
       case Left(_) => Left(errorHandler.internalServerError()(input))
       case Right(None) => Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      case Right(Some(cisUserData)) if cisUserData.isPriorSubmission && redirectIfPrior => Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       case Right(Some(cisUserData)) if cisUserData.hasPeriodData || !needsPeriodData => Right(UserSessionDataRequest(cisUserData, input.user, input.request))
       case Right(Some(cisUserData)) if !cisUserData.hasPeriodData => Left(Redirect(DeductionPeriodController.show(taxYear, employerRef)))
     }

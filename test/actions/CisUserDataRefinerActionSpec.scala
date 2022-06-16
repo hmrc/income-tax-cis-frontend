@@ -38,17 +38,19 @@ class CisUserDataRefinerActionSpec extends UnitTest
   private val appConfig = new MockAppConfig().config()
   private val executionContext = ExecutionContext.global
 
-  private val underTest = CisUserDataRefinerAction(
+  private def underTest(needsPeriodData: Boolean = true, redirectIfPrior: Boolean = false) = CisUserDataRefinerAction(
     taxYear = taxYear,
     employerRef = employerRef,
     cisSessionService = mockCISSessionService,
     errorHandler = mockErrorHandler,
     appConfig = appConfig,
+    needsPeriodData = needsPeriodData,
+    redirectIfPrior = redirectIfPrior
   )(executionContext)
 
   ".executionContext" should {
     "return the given execution context" in {
-      underTest.executionContext shouldBe executionContext
+      underTest().executionContext shouldBe executionContext
     }
   }
 
@@ -57,13 +59,13 @@ class CisUserDataRefinerActionSpec extends UnitTest
       mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Left(DataNotFoundError))
       mockInternalError(InternalServerError)
 
-      await(underTest.refine(anAuthorisationRequest)) shouldBe Left(InternalServerError)
+      await(underTest().refine(anAuthorisationRequest)) shouldBe Left(InternalServerError)
     }
 
     "return a redirect to Income Tax Submission Overview when session data is None" in {
       mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(None))
 
-      await(underTest.refine(anAuthorisationRequest)) shouldBe Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+      await(underTest().refine(anAuthorisationRequest)) shouldBe Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }
 
     "return a redirect to Deduction Period Page when session data has no PeriodData" in {
@@ -71,15 +73,23 @@ class CisUserDataRefinerActionSpec extends UnitTest
 
       mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(Some(cisUserDataWithoutPeriodData)))
 
-      await(underTest.refine(anAuthorisationRequest)) shouldBe Left(Redirect(DeductionPeriodController.show(taxYear, employerRef)))
+      await(underTest().refine(anAuthorisationRequest)) shouldBe Left(Redirect(DeductionPeriodController.show(taxYear, employerRef)))
     }
 
-    "return UserSessionDataRequest when period data exists" in {
+    "return UserSessionDataRequest when period data exists and redirectIfPrior is false" in {
       val cisUserData = aCisUserData.copy(employerRef = employerRef, taxYear = taxYear)
 
       mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(Some(cisUserData)))
 
-      await(underTest.refine(anAuthorisationRequest)) shouldBe Right(UserSessionDataRequest(cisUserData, anAuthorisationRequest.user, anAuthorisationRequest.request))
+      await(underTest().refine(anAuthorisationRequest)) shouldBe Right(UserSessionDataRequest(cisUserData, anAuthorisationRequest.user, anAuthorisationRequest.request))
+    }
+
+    "return a redirect to Income Tax Overview Page when period data is a prior submission and redirectIfPrior is true" in {
+      val cisUserData = aCisUserData.copy(employerRef = employerRef, taxYear = taxYear, isPriorSubmission = true)
+
+      mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(Some(cisUserData)))
+
+      await(underTest(redirectIfPrior = true).refine(anAuthorisationRequest)) shouldBe Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }
   }
 }

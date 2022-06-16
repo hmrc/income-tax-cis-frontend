@@ -28,7 +28,6 @@ case class MaterialsAmountPage(taxYear: Int,
                                form: MaterialsAmountForm,
                                originalAmount: Option[BigDecimal]
                               ) {
-  val contractor: String = contractorName.getOrElse(employerRef)
   val isReplay: Boolean = originalAmount.isDefined
 }
 

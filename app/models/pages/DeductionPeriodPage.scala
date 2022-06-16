@@ -28,6 +28,7 @@ case class DeductionPeriodPage(taxYear: Int,
                                priorSubmittedPeriods: Seq[Month],
                                form: DeductionPeriodForm)
 
+
 object DeductionPeriodPage {
 
   def apply(taxYear: Int,

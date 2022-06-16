@@ -23,6 +23,10 @@ case class CISSource(totalDeductionAmount: Option[BigDecimal],
                      totalGrossAmountPaid: Option[BigDecimal],
                      cisDeductions: Seq[CisDeductions]){
 
+  def allEmployerRefs: Seq[String] = {
+    cisDeductions.map(_.employerRef)
+  }
+
   def cisDeductionsWith(employerRef: String): Option[CisDeductions] = cisDeductions.find(_.employerRef == employerRef)
 }
 

@@ -19,14 +19,23 @@ package services
 import com.google.inject.Inject
 import models.forms.ContractorDetails
 import models.mongo.{CisCYAModel, CisUserData, DataNotUpdatedError, DatabaseError}
-import models.{ServiceError, User}
+import models.{HttpParserError, ServiceError, User}
 import repositories.CisUserDataRepository
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class ContractorDetailsService @Inject()(cisSessionService: CISSessionService,
                                          cisUserDataRepository: CisUserDataRepository)
                                         (implicit ec: ExecutionContext) {
+
+  def getPriorEmployerRefs(taxYear: Int,
+                           user: User)(implicit hc: HeaderCarrier): Future[Either[HttpParserError, Seq[String]]] ={
+    cisSessionService.getPriorData(user, taxYear).map {
+      case Left(error) => Left(error)
+      case Right(prior) => Right(prior.allEmployerRefs)
+    }
+  }
 
   def saveContractorDetails(taxYear: Int,
                             user: User,
