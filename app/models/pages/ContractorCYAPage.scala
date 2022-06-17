@@ -16,10 +16,10 @@
 
 package models.pages
 
-import java.time.Month
-
 import models.CisDeductions
 import models.mongo.CisUserData
+
+import java.time.Month
 
 case class ContractorCYAPage(taxYear: Int,
                              isInYear: Boolean,

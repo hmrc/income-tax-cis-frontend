@@ -16,10 +16,10 @@
 
 package utils
 
-import java.time.format.DateTimeFormatter
-
 import org.joda.time.DateTime
 import play.api.Logging
+
+import java.time.format.DateTimeFormatter
 
 object DateTimeUtil extends Logging {
 

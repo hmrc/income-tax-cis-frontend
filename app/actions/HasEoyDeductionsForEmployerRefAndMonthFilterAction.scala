@@ -16,13 +16,12 @@
 
 package actions
 
-import java.time.Month
-
 import config.{AppConfig, ErrorHandler}
 import models.UserPriorDataRequest
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
 
+import java.time.Month
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 

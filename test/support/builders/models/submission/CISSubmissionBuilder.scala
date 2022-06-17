@@ -14,35 +14,16 @@
  * limitations under the License.
  */
 
-package support.builders.models
+package support.builders.models.submission
 
-import models.submission.{CISSubmission, PeriodData}
+import models.submission.CISSubmission
+import support.builders.models.submission.PeriodDataBuilder.aPeriodData
 
 object CISSubmissionBuilder {
-
-  val aPeriodData: PeriodData = PeriodData(
-    deductionFromDate = "2021-04-06",
-    deductionToDate = "2021-05-05",
-    grossAmountPaid = Some(500),
-    deductionAmount = 100,
-    costOfMaterials = Some(250)
-  )
-
-  val anUpdateCISSubmission: CISSubmission = CISSubmission(
-    employerRef = None,
-    submissionId = Some("submissionId"),
-    contractorName = None,
-    periodData = Seq(
-      aPeriodData
-    )
-  )
-
-  val aCreateCISSubmission: CISSubmission = CISSubmission(
-    contractorName = Some("ABC Steelworks"),
+  val aCISSubmission: CISSubmission = CISSubmission(
     employerRef = Some("123/AB123456"),
-    submissionId = None,
-    periodData = Seq(
-      aPeriodData
-    )
+    contractorName = Some("ABC Steelworks"),
+    periodData = Seq(aPeriodData),
+    submissionId = None
   )
 }

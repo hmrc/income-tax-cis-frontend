@@ -84,6 +84,35 @@ class CisCYAModelSpec extends UnitTest
     }
   }
 
+  ".periodDataUpdated" should {
+    "return true when prior period data does not contain period data" in {
+      val underTest = aCisCYAModel.copy(
+        periodData = Some(aCYAPeriodData.copy(deductionPeriod = Month.APRIL, grossAmountPaid = Some(100))),
+        priorPeriodData = Seq(aCYAPeriodData.copy(deductionPeriod = Month.FEBRUARY), aCYAPeriodData.copy(deductionPeriod = Month.APRIL))
+      )
+
+      underTest.periodDataUpdated shouldBe true
+    }
+
+    "return true when period data is None" in {
+      val underTest = aCisCYAModel.copy(
+        periodData = None,
+        priorPeriodData = Seq(aCYAPeriodData.copy(deductionPeriod = Month.APRIL))
+      )
+
+      underTest.periodDataUpdated shouldBe true
+    }
+
+    "return false when prior period data contains period data" in {
+      val underTest = aCisCYAModel.copy(
+        periodData = Some(aCYAPeriodData.copy(deductionPeriod = Month.APRIL)),
+        priorPeriodData = Seq(aCYAPeriodData, aCYAPeriodData.copy(deductionPeriod = Month.APRIL))
+      )
+
+      underTest.periodDataUpdated shouldBe false
+    }
+  }
+
   "CisCYAModel.encrypted" should {
     "return EncryptedCisCYAModel" in {
       val underTest = CisCYAModel(Some("some-contractor-name"), Some(cyaPeriodData1), Seq(cyaPeriodData1, cyaPeriodData2))

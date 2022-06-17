@@ -33,10 +33,10 @@ trait MockDeleteCISPeriodService extends MockFactory {
                              employerRef: String,
                              user: User,
                              deductionPeriod: Month,
-                             result: Either[ServiceError, Unit]): CallHandler6[Int, String, User,
-    Month, IncomeTaxUserData, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
+                             incomeTaxUserData: IncomeTaxUserData,
+                             result: Either[ServiceError, Unit]): CallHandler6[Int, String, User, Month, IncomeTaxUserData, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
     (mockService.removeCisDeduction(_: Int, _: String, _: User, _: Month, _: IncomeTaxUserData)(_: HeaderCarrier))
-      .expects(taxYear, employerRef, user, deductionPeriod, *, *)
+      .expects(taxYear, employerRef, user, deductionPeriod, incomeTaxUserData, *)
       .returns(Future.successful(result))
   }
 }

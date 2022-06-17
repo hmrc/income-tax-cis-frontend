@@ -18,7 +18,7 @@ package utils
 
 import models.submission.CISSubmission
 import support.UnitTest
-import support.builders.models.CISSubmissionBuilder.aPeriodData
+import support.builders.models.submission.PeriodDataBuilder.aPeriodData
 import utils.SubmissionUtil.validateDataAndCreateSubmission
 
 class SubmissionUtilSpec extends UnitTest {

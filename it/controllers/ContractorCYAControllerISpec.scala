@@ -16,20 +16,21 @@
 
 package controllers
 
+import models.submission.CISSubmission
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
 import repositories.CisUserDataRepositoryImpl
 import support.IntegrationTest
-import support.builders.models.CISSubmissionBuilder
-import support.builders.models.CISSubmissionBuilder.{aCreateCISSubmission, anUpdateCISSubmission}
+import support.builders.models.submission.CISSubmissionBuilder.aCISSubmission
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
+import support.builders.models.submission
 import utils.ViewHelpers
 
 class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
@@ -37,6 +38,13 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
   private def url(taxYear: Int, month: String, employerRef: String): String = {
     s"/update-and-submit-income-tax-return/construction-industry-scheme-deductions/$taxYear/check-construction-industry-scheme-deductions?month=$month&contractor=$employerRef"
   }
+
+  private val anUpdateCISSubmission: CISSubmission = aCISSubmission.copy(
+    employerRef = None,
+    contractorName = None,
+    periodData = Seq(submission.PeriodDataBuilder.aPeriodData),
+    submissionId = Some("submissionId")
+  )
 
   private val repoUnderTest: CisUserDataRepositoryImpl = app.injector.instanceOf[CisUserDataRepositoryImpl]
   override val userScenarios: Seq[UserScenario[_, _]] = Seq.empty
@@ -61,13 +69,10 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
         val cisUrl = "/income-tax-cis/income-tax/nino/AA123456A/sources?taxYear=2022"
         val requestBody = Json.toJson(anUpdateCISSubmission.copy(
-          periodData = Seq(CISSubmissionBuilder.aPeriodData.copy(
-            grossAmountPaid = Some(450),
-            deductionAmount = 100,
-            costOfMaterials = Some(50)
-          ))
+          periodData = Seq(submission.PeriodDataBuilder.aPeriodData)
         )).toString()
-        stubPostWithoutResponseBody(cisUrl,OK,requestBody)
+        insertCyaData(aCisUserData.copy(employerRef = aCisDeductions.employerRef, cis = aCisCYAModel.copy(priorPeriodData = Seq.empty)))
+        stubPostWithoutResponseBody(cisUrl, OK, requestBody)
         urlPost(fullUrl(url(taxYearEOY, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
           headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = "")
       }
@@ -76,13 +81,14 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
       result.headers("Location").head shouldBe controllers.routes.ContractorSummaryController.show(taxYearEOY, aCisDeductions.employerRef).url
       await(repoUnderTest.find(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Right(None)
     }
+
     "return Check your CIS deductions page when creating a new cis deductions" in {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
-        insertCyaData(aCisUserData.copy(submissionId = None,isPriorSubmission = false, cis = aCisCYAModel.copy(priorPeriodData = Seq())))
+        insertCyaData(aCisUserData.copy(submissionId = None, isPriorSubmission = false, cis = aCisCYAModel.copy(priorPeriodData = Seq())))
         val cisUrl = "/income-tax-cis/income-tax/nino/AA123456A/sources?taxYear=2022"
-        val requestBody = Json.toJson(aCreateCISSubmission).toString()
-        stubPostWithoutResponseBody(cisUrl,OK,requestBody)
+        val requestBody = Json.toJson(aCISSubmission).toString()
+        stubPostWithoutResponseBody(cisUrl, OK, requestBody)
         urlPost(fullUrl(url(taxYearEOY, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
           headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = "")
       }

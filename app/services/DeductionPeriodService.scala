@@ -18,7 +18,6 @@ package services
 
 import models.mongo._
 import models.{ServiceError, User}
-import play.api.mvc.Request
 
 import java.time.Month
 import javax.inject.Inject

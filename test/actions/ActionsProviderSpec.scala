@@ -18,6 +18,7 @@ package actions
 
 import common.SessionValues
 import common.SessionValues.VALID_TAX_YEARS
+import config.MockAuditService
 import controllers.errors.routes.UnauthorisedUserErrorController
 import models.{HttpParserError, IncomeTaxUserData}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
@@ -31,6 +32,8 @@ import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
+import support.builders.models.audit.ContractorDetailsAndPeriodDataBuilder.aContractorDetailsAndPeriodData
+import support.builders.models.audit.ViewCisPeriodAuditBuilder.aViewCisPeriodAudit
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
@@ -42,6 +45,7 @@ import java.time.Month
 class ActionsProviderSpec extends ControllerUnitTest
   with MockAuthorisedAction
   with MockCISSessionService
+  with MockAuditService
   with MockErrorHandler {
 
   private val anyBlock = (_: Request[AnyContent]) => Ok("any-result")
@@ -49,6 +53,7 @@ class ActionsProviderSpec extends ControllerUnitTest
   private val actionsProvider = new ActionsProvider(
     mockAuthorisedAction,
     mockCISSessionService,
+    mockAuditService,
     mockErrorHandler,
     new InYearUtil,
     appConfig
@@ -240,9 +245,11 @@ class ActionsProviderSpec extends ControllerUnitTest
     "return successful response when in year" in {
       val deductions = aCisDeductions.copy(employerRef = "some-ref")
       val allCISDeductions = anAllCISDeductions.copy(customerCISDeductions = None, contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
+      val viewAudit = aViewCisPeriodAudit.copy(cisPeriod = aContractorDetailsAndPeriodData.copy(ern = "some-ref"))
 
       mockAuthAsIndividual(Some(aUser.nino))
       mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(allCISDeductions))))
+      mockSendAudit(viewAudit.toAuditModel)
 
       val underTest = actionsProvider.userPriorDataFor(taxYear, contractor = "some-ref", month = "may")(block = anyBlock)
 
@@ -251,10 +258,15 @@ class ActionsProviderSpec extends ControllerUnitTest
 
     "return successful response when end of year" in {
       val deductions = aCisDeductions.copy(employerRef = "some-ref")
-      val allCISDeductions = anAllCISDeductions.copy(contractorCISDeductions = None, customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
+      val allCISDeductions = anAllCISDeductions.copy(
+        contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))),
+        customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions)))
+      )
+      val viewAudit = aViewCisPeriodAudit.copy(taxYear = taxYearEOY, cisPeriod = aContractorDetailsAndPeriodData.copy(ern = "some-ref"))
 
       mockAuthAsIndividual(Some(aUser.nino))
       mockGetPriorData(taxYearEOY, aUser, Right(IncomeTaxUserData(cis = Some(allCISDeductions))))
+      mockSendAudit(viewAudit.toAuditModel)
 
       val underTest = actionsProvider.userPriorDataFor(taxYearEOY, contractor = "some-ref", month = "may")(block = anyBlock)
 
@@ -492,8 +504,13 @@ class ActionsProviderSpec extends ControllerUnitTest
     }
 
     "get session data" in {
+      val viewAudit = aViewCisPeriodAudit.copy(taxYear = taxYearEOY,
+        cisPeriod = aContractorDetailsAndPeriodData.copy(labour = Some(500), materialsCost = Some(250))
+      )
+
       mockAuthAsIndividual(Some(aUser.nino))
       mockCheckCyaAndReturnData(taxYearEOY, employerRef = aCisDeductions.employerRef, Month.MAY, result = Right(Some(aCisUserData)))
+      mockSendAudit(viewAudit.toAuditModel)
 
       val underTest = actionsProvider.checkCyaExistsAndReturnSessionData(taxYearEOY, aCisDeductions.employerRef, "may")(block = anyBlock)
 

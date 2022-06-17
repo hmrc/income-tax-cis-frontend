@@ -16,12 +16,12 @@
 
 package repositories
 
-import java.util.concurrent.TimeUnit
-
 import config.AppConfig
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Indexes.{ascending, compoundIndex}
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
+
+import java.util.concurrent.TimeUnit
 
 private[repositories] object CisUserDataIndexes {
 

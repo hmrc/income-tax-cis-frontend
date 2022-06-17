@@ -20,8 +20,8 @@ import actions.ActionsProvider
 import common.SessionValues
 import config.{AppConfig, ErrorHandler}
 import controllers.routes.{ContractorCYAController, ContractorSummaryController}
-import models.{HttpParserError, InvalidOrUnfinishedSubmission}
 import models.pages.ContractorCYAPage._
+import models.{HttpParserError, InvalidOrUnfinishedSubmission}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.ContractorCYAService
@@ -31,7 +31,7 @@ import views.html.ContractorCYAView
 
 import java.time.Month
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class ContractorCYAController @Inject()(actionsProvider: ActionsProvider,
                                         pageView: ContractorCYAView,
@@ -48,11 +48,15 @@ class ContractorCYAController @Inject()(actionsProvider: ActionsProvider,
 
   def submit(taxYear: Int, month: String, contractor: String): Action[AnyContent] =
     actionsProvider.checkCyaExistsAndReturnSessionData(taxYear, contractor, month).async { implicit request =>
-      contractorCYAService.submitCisDeductionCYA(taxYear, contractor, request.user, request.cisUserData).map {
-        case Left(HttpParserError(status)) => errorHandler.handleError(status)
-        case Left(InvalidOrUnfinishedSubmission) => Redirect(ContractorCYAController.show(taxYear,month,contractor))
-        case Left(_) => errorHandler.internalServerError()
-        case Right(_) => Redirect(ContractorSummaryController.show(taxYear, contractor)).removingFromSession(SessionValues.TEMP_EMPLOYER_REF)
+      if (request.cisUserData.cis.periodDataUpdated) {
+        contractorCYAService.submitCisDeductionCYA(taxYear, contractor, request.user, request.cisUserData).map {
+          case Left(HttpParserError(status)) => errorHandler.handleError(status)
+          case Left(InvalidOrUnfinishedSubmission) => Redirect(ContractorCYAController.show(taxYear, month, contractor))
+          case Left(_) => errorHandler.internalServerError()
+          case Right(_) => Redirect(ContractorSummaryController.show(taxYear, contractor)).removingFromSession(SessionValues.TEMP_EMPLOYER_REF)
+        }
+      } else {
+        Future.successful(Redirect(ContractorSummaryController.show(taxYear, contractor)).removingFromSession(SessionValues.TEMP_EMPLOYER_REF))
       }
     }
 
