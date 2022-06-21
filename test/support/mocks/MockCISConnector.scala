@@ -37,4 +37,13 @@ trait MockCISConnector extends MockFactory {
       .expects(nino, taxYear, submission, *)
       .returning(Future.successful(result))
   }
+
+  def mockDelete(nino: String,
+                 taxYear: Int,
+                 submissionId: String,
+                 result: CISResponse): CallHandler4[String, Int, String, HeaderCarrier, Future[CISResponse]] = {
+    (mockCISConnector.delete(_: String, _: Int, _: String)(_: HeaderCarrier))
+      .expects(nino, taxYear, submissionId, *)
+      .returning(Future.successful(result))
+  }
 }

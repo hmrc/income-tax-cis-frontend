@@ -16,6 +16,7 @@
 
 package connectors
 
+import models.submission.CISSubmission
 import models.{APIErrorBodyModel, APIErrorModel}
 import play.api.libs.json.Json
 import play.mvc.Http.Status._
@@ -35,8 +36,15 @@ class CISConnectorSpec extends ConnectorIntegrationTest with TaxYearProvider {
   private implicit val headerCarrierWithSession: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(aUser.sessionId)))
 
   private val url: String = s"/income-tax-cis/income-tax/nino/${aUser.nino}/sources\\?taxYear=$taxYearEOY"
+  private val deleteUrl: String = s"/income-tax-cis/income-tax/nino/${aUser.nino}/sources/submissionId\\?taxYear=$taxYearEOY"
 
-  ".CISConnector" should {
+  val anUpdateCISSubmission: CISSubmission = aCISSubmission.copy(
+    employerRef = None,
+    contractorName = None,
+    submissionId = Some("submissionId")
+  )
+
+  ".submit" should {
     "return an OK response when successful" in {
       stubPost(url, OK, Json.toJson(aCISSubmission).toString())
 
@@ -57,6 +65,32 @@ class CISConnectorSpec extends ConnectorIntegrationTest with TaxYearProvider {
         stubPost(url, BAD_GATEWAY, Json.toJson(aCISSubmission).toString())
 
         Await.result(underTest.submit(aUser.nino, taxYearEOY, aCISSubmission), Duration.Inf) shouldBe
+          Left(APIErrorModel(BAD_GATEWAY, APIErrorBodyModel.parsingError))
+      }
+    }
+  }
+
+  ".delete" should {
+    "return an NO CONTENT response when successful" in {
+      stubDelete(deleteUrl, NO_CONTENT)
+
+      Await.result(underTest.delete(aUser.nino, taxYearEOY, anUpdateCISSubmission.submissionId.get), Duration.Inf) shouldBe Right(())
+    }
+
+    "Return an error result" when {
+      Seq(BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR, SERVICE_UNAVAILABLE).foreach { status =>
+        s"CIS BE returns a $status" in {
+          stubDelete(deleteUrl, status)
+
+          Await.result(underTest.delete(aUser.nino, taxYearEOY, anUpdateCISSubmission.submissionId.get), Duration.Inf) shouldBe
+            Left(APIErrorModel(status, APIErrorBodyModel.parsingError))
+        }
+      }
+
+      s"CIS BE returns an unexpected result" in {
+        stubDelete(deleteUrl, BAD_GATEWAY)
+
+        Await.result(underTest.delete(aUser.nino, taxYearEOY, anUpdateCISSubmission.submissionId.get), Duration.Inf) shouldBe
           Left(APIErrorModel(BAD_GATEWAY, APIErrorBodyModel.parsingError))
       }
     }

@@ -18,6 +18,7 @@ package services
 
 import audit.{AuditService, DeleteCisPeriodAudit}
 import connectors.CISConnector
+import connectors.parsers.CISHttpParser.CISResponse
 import models._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -30,7 +31,8 @@ class DeleteCISPeriodService @Inject()(cisSessionService: CISSessionService,
                                        auditService: AuditService,
                                        cisConnector: CISConnector)(implicit val ec: ExecutionContext) {
 
-  //TODO: - Update integration test to check if the item has been removed, when this is implemented.
+  lazy val unfinishedSubmissionResponse: Future[Either[ServiceError, Unit]] = Future.successful(Left(InvalidOrUnfinishedSubmission))
+
   def removeCisDeduction(taxYear: Int,
                          employerRef: String,
                          user: User,
@@ -39,25 +41,31 @@ class DeleteCISPeriodService @Inject()(cisSessionService: CISSessionService,
 
     val customerPeriods: Seq[PeriodData] = incomeTaxUserData.customerCisDeductionsWith(employerRef).map(_.periodData).getOrElse(Seq.empty)
 
-    val isLastCustomerPeriodToRemove: Boolean = customerPeriods.size == 1 && customerPeriods.map(_.deductionPeriod).contains(deductionPeriod)
-
-    if (isLastCustomerPeriodToRemove) {
-      handleAuditing(taxYear, employerRef, user, deductionPeriod, incomeTaxUserData)
-      //TODO Delete orchestration
-      Future.successful(Right(()))
-    } else {
-      val submission = incomeTaxUserData.toSubmissionWithoutPeriod(employerRef, deductionPeriod, taxYear)
-
-      submission match {
-        case Some(submission) =>
-          cisConnector.submit(user.nino, taxYear, submission)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)).flatMap {
-            case Left(error) => Future.successful(Left(HttpParserError(error.status)))
-            case Right(_) =>
-              handleAuditing(taxYear, employerRef, user, deductionPeriod, incomeTaxUserData)
-              cisSessionService.refreshAndClear(user, employerRef, taxYear, clearCYA = false)
-          }
-        case None => Future.successful(Left(InvalidOrUnfinishedSubmission))
+    if(customerPeriods.size == 1) {
+      customerPeriods.find(_.deductionPeriod == deductionPeriod) match {
+        case Some(PeriodData(_,_,_,_,_,Some(submissionId), _)) =>
+          handleAPICall(cisConnector.delete(user.nino, taxYear, submissionId)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)),
+            user, employerRef, taxYear, deductionPeriod, incomeTaxUserData)
+        case _ => unfinishedSubmissionResponse
       }
+    } else {
+      incomeTaxUserData.toSubmissionWithoutPeriod(employerRef,deductionPeriod,taxYear) match {
+        case Some(submission) =>
+          handleAPICall(cisConnector.submit(user.nino,taxYear,submission)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)),
+            user, employerRef, taxYear, deductionPeriod, incomeTaxUserData)
+        case None => unfinishedSubmissionResponse
+      }
+    }
+  }
+
+  private def handleAPICall(api: Future[CISResponse], user: User, employerRef: String, taxYear: Int,
+                            deductionPeriod: Month, incomeTaxUserData: IncomeTaxUserData)
+                           (implicit hc: HeaderCarrier): Future[Either[ServiceError, Unit]] = {
+    api.flatMap {
+      case Left(error) => Future.successful(Left(HttpParserError(error.status)))
+      case Right(_) =>
+        handleAuditing(taxYear, employerRef, user, deductionPeriod, incomeTaxUserData)
+        cisSessionService.refreshAndClear(user, employerRef, taxYear, clearCYA = false)
     }
   }
 

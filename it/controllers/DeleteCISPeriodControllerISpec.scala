@@ -20,9 +20,10 @@ import controllers.routes.ContractorSummaryController
 import forms.AmountForm
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
-import play.api.http.Status.{OK, SEE_OTHER}
+import play.api.http.Status.{NO_CONTENT, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
+import repositories.CisUserDataRepositoryImpl
 import support.IntegrationTest
 import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
@@ -87,13 +88,14 @@ class DeleteCISPeriodControllerISpec extends IntegrationTest
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = None))), aUser.nino, taxYearEOY)
+        stubDeleteWithoutResponseBody("/income-tax-cis/income-tax/nino/AA123456A/sources/submissionId\\?taxYear=2022",NO_CONTENT)
         urlPost(fullUrl(url(taxYearEOY, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
           headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = Json.obj())
       }
 
       result.status shouldBe SEE_OTHER
       result.headers("Location").head shouldBe ContractorSummaryController.show(taxYearEOY, aCisDeductions.employerRef).url
-      // TODO: Verify item has been removed when service method is implemented.
+      await(app.injector.instanceOf[CisUserDataRepositoryImpl].find(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Right(None)
     }
   }
 }

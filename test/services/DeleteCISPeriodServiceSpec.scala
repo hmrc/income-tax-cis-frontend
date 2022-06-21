@@ -60,8 +60,26 @@ class DeleteCISPeriodServiceSpec extends UnitTest
   private val underTest = new DeleteCISPeriodService(mockCISSessionService, mockAuditService, mockCISConnector)
 
   ".remove CISDeduction" should {
-    "return invalid or unfinished submission" in {
+    "return invalid or unfinished submission when employerRef can't be found" in {
       await(underTest.removeCisDeduction(taxYearEOY, employerRef = "employerRef", user = aUser, deductionPeriod = Month.MAY, anIncomeTaxUserData)) shouldBe Left(InvalidOrUnfinishedSubmission)
+
+    }
+    "return invalid or unfinished submission when month can't be found" in {
+
+      val data = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(
+        contractorCISDeductions = None,
+        customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(aCisDeductions.copy(periodData = Seq(PeriodDataBuilder.aPeriodData)))))
+      )))
+
+      await(underTest.removeCisDeduction(taxYearEOY, employerRef = aCisDeductions.employerRef, user = aUser, deductionPeriod = Month.NOVEMBER, data)) shouldBe Left(InvalidOrUnfinishedSubmission)
+    }
+    "return invalid or unfinished submission when no data" in {
+
+      val emptyData = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(
+        contractorCISDeductions = None,
+        customerCISDeductions = None
+      )))
+      await(underTest.removeCisDeduction(taxYearEOY, employerRef = aCisDeductions.employerRef, user = aUser, deductionPeriod = Month.NOVEMBER, emptyData)) shouldBe Left(InvalidOrUnfinishedSubmission)
     }
     "return API error when submit fails" in {
       mockSubmit(aUser.nino, taxYearEOY, updateCisSubmission, Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError)))
@@ -100,6 +118,27 @@ class DeleteCISPeriodServiceSpec extends UnitTest
       )))
 
       await(underTest.removeCisDeduction(taxYearEOY, employerRef = aCisDeductions.employerRef, user = aUser, deductionPeriod = NOVEMBER, data)) shouldBe Right(())
+    }
+    "return Right(()) when submitted and refreshed data when it's the last period" in {
+
+      mockDelete(aUser.nino, taxYearEOY, aCisUserData.submissionId.get, Right(()))
+      mockRefreshAndClear(taxYearEOY, aCisUserData.employerRef, result = Right(()))
+      val audit = DeleteCisPeriodAudit(taxYearEOY, aUser, aCisDeductions.contractorName, aCisDeductions.employerRef, aPeriodData.copy(deductionPeriod = NOVEMBER))
+
+      mockSendAudit(audit.toAuditModel)
+
+      val data = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(
+        contractorCISDeductions = None,
+        customerCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(aCisDeductions.copy(
+          periodData = Seq(
+            PeriodDataBuilder.aPeriodData.copy(
+              deductionPeriod = Month.NOVEMBER
+            )
+          )
+        ))))
+      )))
+
+      await(underTest.removeCisDeduction(taxYearEOY, employerRef = aCisDeductions.employerRef, user = aUser, deductionPeriod = Month.NOVEMBER, data)) shouldBe Right(())
     }
   }
 }

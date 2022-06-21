@@ -49,6 +49,14 @@ class NrsConnectorSpec extends ConnectorIntegrationTest {
       Await.result(underTest.postNrsConnector(aUser.nino, "cis"), Duration.Inf) shouldBe Left(expectedResult)
     }
 
+    "return a SERVICE_UNAVAILABLE" in {
+      val expectedResult = APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("SERVICE_UNAVAILABLE", "Internal Server Error"))
+
+      stubPost(url, SERVICE_UNAVAILABLE, expectedResult.toJson.toString())
+
+      Await.result(underTest.postNrsConnector(aUser.nino, "cis"), Duration.Inf) shouldBe Left(expectedResult)
+    }
+
     "return a NotFound error" in {
       val expectedResult = APIErrorModel(NOT_FOUND, APIErrorBodyModel("NOT_FOUND", "NRS returning not found error"))
 

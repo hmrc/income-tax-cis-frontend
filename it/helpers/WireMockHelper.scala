@@ -92,8 +92,13 @@ trait WireMockHelper {
   protected def stubPatch(url: String, status: Int, responseBody: String): StubMapping =
     stubFor(patch(urlMatching(url)).willReturn(aResponse().withStatus(status).withBody(responseBody)))
 
-  protected def stubDelete(url: String, status: Int, responseBody: String): StubMapping =
-    stubFor(delete(urlMatching(url)).willReturn(aResponse().withStatus(status).withBody(responseBody)))
+  protected def stubDelete(url: String, status: Int): StubMapping =
+    stubFor(delete(urlMatching(url))
+      .willReturn(
+        aResponse().
+          withStatus(status)
+      )
+    )
 
   protected def stubDeleteWithHeadersCheck(url: String, status: Int, responseBody: String,
                                            sessionHeader: (String, String), mtdidHeader: (String, String)): StubMapping =

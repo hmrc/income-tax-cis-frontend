@@ -16,24 +16,21 @@
 
 package connectors.parsers
 
-import connectors.parsers.IncomeTaxUserDataHttpParser.{handleAPIError, logMessage}
-import models.APIErrorModel
+import connectors.parsers.CISHttpParser.CISResponse
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
-import utils.PagerDutyHelper.PagerDutyKeys.{FOURXX_RESPONSE_FROM_API, INTERNAL_SERVER_ERROR_FROM_API,
-  SERVICE_UNAVAILABLE_FROM_API, UNEXPECTED_RESPONSE_FROM_API}
+import utils.PagerDutyHelper.PagerDutyKeys.{FOURXX_RESPONSE_FROM_API, INTERNAL_SERVER_ERROR_FROM_API, SERVICE_UNAVAILABLE_FROM_API, UNEXPECTED_RESPONSE_FROM_API}
 import utils.PagerDutyHelper.pagerDutyLog
 
-object NrsSubmissionHttpParser extends APIParser {
-  type NrsSubmissionResponse = Either[APIErrorModel, Unit]
-  override val parserName: String = "NrsSubmissionHttpParser"
-  override val service: String = "income-tax-nrs-proxy"
+object DeleteCISHttpParser extends APIParser {
+  override val parserName: String = "DeleteCISHttpParser"
+  override val service: String = "income-tax-cis"
 
-  implicit object NrsSubmissionHttpReads extends HttpReads[NrsSubmissionResponse] {
-    override def read(method: String, url: String, response: HttpResponse): NrsSubmissionResponse = {
+  implicit object DeleteCISHttpReads extends HttpReads[CISResponse] {
+    override def read(method: String, url: String, response: HttpResponse): CISResponse = {
       response.status match {
-        case ACCEPTED => Right(())
-        case NOT_FOUND | BAD_REQUEST | UNAUTHORIZED =>
+        case NO_CONTENT => Right(())
+        case BAD_REQUEST | NOT_FOUND =>
           pagerDutyLog(FOURXX_RESPONSE_FROM_API, logMessage(response))
           handleAPIError(response)
         case INTERNAL_SERVER_ERROR =>
