@@ -32,18 +32,26 @@ class DateMonthUtilSpec extends UnitTest {
 
   "monthToDates" should {
     "return the correct dates for a month and tax year" in {
-      monthToDates(Month.JANUARY, 2022) shouldBe ("2021-12-06","2022-01-05")
-      monthToDates(Month.FEBRUARY, 2022) shouldBe ("2022-01-06","2022-02-05")
-      monthToDates(Month.MARCH, 2022) shouldBe ("2022-02-06","2022-03-05")
-      monthToDates(Month.APRIL, 2022) shouldBe ("2022-03-06","2022-04-05")
-      monthToDates(Month.MAY, 2022) shouldBe ("2021-04-06","2021-05-05")
-      monthToDates(Month.JUNE, 2022) shouldBe ("2021-05-06","2021-06-05")
-      monthToDates(Month.JULY, 2022) shouldBe ("2021-06-06","2021-07-05")
-      monthToDates(Month.AUGUST, 2022) shouldBe ("2021-07-06","2021-08-05")
-      monthToDates(Month.SEPTEMBER, 2022) shouldBe ("2021-08-06","2021-09-05")
-      monthToDates(Month.OCTOBER, 2022) shouldBe ("2021-09-06","2021-10-05")
-      monthToDates(Month.NOVEMBER, 2022) shouldBe ("2021-10-06","2021-11-05")
-      monthToDates(Month.DECEMBER, 2022) shouldBe ("2021-11-06","2021-12-05")
+
+      Month.values().map{
+        month =>
+          val (from, to) = monthToDates(month, 2022)
+
+          month match {
+            case Month.JANUARY => from shouldBe "2021-12-06"; to shouldBe "2022-01-05"
+            case Month.FEBRUARY => from shouldBe "2022-01-06"; to shouldBe "2022-02-05"
+            case Month.MARCH => from shouldBe "2022-02-06"; to shouldBe "2022-03-05"
+            case Month.APRIL => from shouldBe "2022-03-06"; to shouldBe "2022-04-05"
+            case Month.MAY => from shouldBe "2021-04-06"; to shouldBe "2021-05-05"
+            case Month.JUNE => from shouldBe "2021-05-06"; to shouldBe "2021-06-05"
+            case Month.JULY => from shouldBe "2021-06-06"; to shouldBe "2021-07-05"
+            case Month.AUGUST => from shouldBe "2021-07-06"; to shouldBe "2021-08-05"
+            case Month.SEPTEMBER => from shouldBe "2021-08-06"; to shouldBe "2021-09-05"
+            case Month.OCTOBER => from shouldBe "2021-09-06"; to shouldBe "2021-10-05"
+            case Month.NOVEMBER => from shouldBe "2021-10-06"; to shouldBe "2021-11-05"
+            case Month.DECEMBER => from shouldBe "2021-11-06"; to shouldBe "2021-12-05"
+          }
+      }
     }
   }
 }

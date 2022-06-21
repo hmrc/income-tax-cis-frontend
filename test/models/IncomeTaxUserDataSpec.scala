@@ -39,6 +39,7 @@ class IncomeTaxUserDataSpec extends UnitTest with TaxYearProvider {
 
       underTest.hasExclusivelyCustomerEoyCisDeductionsWith(aCisDeductions.employerRef,aPeriodData.deductionPeriod) shouldBe false
     }
+
     "return true when only customer data" in {
       val underTest = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = None)))
 
