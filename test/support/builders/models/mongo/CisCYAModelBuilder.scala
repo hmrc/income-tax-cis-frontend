@@ -19,13 +19,13 @@ package support.builders.models.mongo
 import models.mongo.CisCYAModel
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 
-import java.time.Month
+import java.time.Month.NOVEMBER
 
 object CisCYAModelBuilder {
 
   val aCisCYAModel: CisCYAModel = CisCYAModel(
     contractorName = Some("ABC Steelworks"),
     periodData = Some(aCYAPeriodData),
-    priorPeriodData = Seq(aCYAPeriodData.copy(deductionPeriod = Month.NOVEMBER))
+    priorPeriodData = Seq(aCYAPeriodData.copy(deductionPeriod = NOVEMBER, originallySubmittedPeriod = Some(NOVEMBER)))
   )
 }

@@ -37,6 +37,10 @@ case class CisCYAModel(contractorName: Option[String] = None,
   lazy val isFinished: Boolean =
     contractorName.isDefined && periodData.exists(_.isFinished)
 
+  lazy val cyaPeriodData: Seq[CYAPeriodData] = periodData
+    .map(periodData => periodData +: priorPeriodData.filterNot(_.originallySubmittedPeriod == periodData.originallySubmittedPeriod))
+    .getOrElse(priorPeriodData)
+
   def isNewSubmissionFor(month: Month): Boolean =
     !priorPeriodData.map(_.deductionPeriod).contains(month)
 

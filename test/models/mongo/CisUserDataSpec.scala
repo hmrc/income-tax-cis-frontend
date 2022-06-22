@@ -43,11 +43,12 @@ class CisUserDataSpec extends UnitTest
 
       underTest.toSubmission shouldBe None
     }
+
     "return a submission when finished" in {
       val underTest = aCisUserData
 
       underTest.toSubmission shouldBe Some(
-        CISSubmission(None,None, List(
+        CISSubmission(None, None, List(
           PeriodData(
             deductionFromDate = "2021-04-06",
             deductionToDate = "2021-05-05",
@@ -62,7 +63,7 @@ class CisUserDataSpec extends UnitTest
             deductionAmount = 100.0,
             costOfMaterials = Some(250.0)
           )
-        ),Some("submissionId"))
+        ), Some("submissionId"))
       )
     }
   }
