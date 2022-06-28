@@ -145,6 +145,14 @@ deductionAmountPage.error.noEntry = Enter the CIS deduction amount
 deductionAmountPage.error.wrongFormat = Enter the CIS deduction in the correct format
 deductionAmountPage.error.overMaximum = The CIS deduction must be less than £100,000,000,000
 
+#################       Deduction From Payments Page       #######################################
+deductionsFromPaymentsPage.title.agent = Has your client had CIS deductions taken from their payments by contractors?
+deductionsFromPaymentsPage.title.individual = Have you had CIS deductions taken from your payments by contractors?
+deductionsFromPaymentsPage.paragraph.agent = You’ll find the deductions on statements that contractors gave your client.
+deductionsFromPaymentsPage.paragraph.individual = You’ll find the deductions on statements that contractors gave you.
+deductionsFromPaymentsPage.error.agent = Select yes if your client had CIS deductions taken from their payments by contractors.
+deductionsFromPaymentsPage.error.individual = Select yes if you had CIS deductions taken from your payments by contractors.
+
 #################       Contractor Details messages        ########################################
 
 contractor-details.name = Contractor name

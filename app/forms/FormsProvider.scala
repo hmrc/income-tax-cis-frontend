@@ -16,7 +16,7 @@
 
 package forms
 
-import forms.FormTypes.{DeductionAmountForm, LabourPayAmountForm, MaterialsAmountForm, MaterialsYesNoForm}
+import forms.FormTypes.{DeductionAmountForm, DeductionsFromPaymentsForm, LabourPayAmountForm, MaterialsAmountForm, MaterialsYesNoForm}
 
 import javax.inject.Singleton
 
@@ -33,6 +33,10 @@ class FormsProvider {
     emptyFieldKey = s"deductionAmountPage.error.noEntry",
     wrongFormatKey = s"deductionAmountPage.error.wrongFormat",
     exceedsMaxAmountKey = s"deductionAmountPage.error.overMaximum"
+  )
+
+  def deductionsFromPaymentsForm(isAgent: Boolean): DeductionsFromPaymentsForm = YesNoForm.yesNoForm(
+    missingInputError = s"deductionsFromPaymentsPage.error.${if (isAgent) "agent" else "individual"}"
   )
 
   def materialsYesNoForm(isAgent: Boolean): MaterialsYesNoForm = YesNoForm.yesNoForm(

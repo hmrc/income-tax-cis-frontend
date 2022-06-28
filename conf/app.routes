@@ -51,6 +51,11 @@ POST       /:taxYear/labour-pay                                                 
 GET        /:taxYear/deduction-amount                                               controllers.DeductionAmountController.show(taxYear: Int, month: String, contractor: String)
 POST       /:taxYear/deduction-amount                                               controllers.DeductionAmountController.submit(taxYear: Int, month: String, contractor: String)
 
+###########################     Deduction From Payments pages    ########################
+
+GET        /:taxYear/deductions-from-payments                                        controllers.DeductionsFromPaymentsController.show(taxYear: Int)
+POST       /:taxYear/deductions-from-payments                                        controllers.DeductionsFromPaymentsController.submit(taxYear: Int)
+
 ###########################     Materials Question pages         ########################
 
 GET        /:taxYear/materials                                                      controllers.MaterialsController.show(taxYear: Int, month: String, contractor: String)

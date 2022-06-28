@@ -18,7 +18,7 @@ package actions
 
 import common.SessionValues
 import common.SessionValues.VALID_TAX_YEARS
-import config.MockAuditService
+import config.{AppConfig, MockAppConfig, MockAuditService}
 import controllers.errors.routes.UnauthorisedUserErrorController
 import models.{HttpParserError, IncomeTaxUserData}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
@@ -50,7 +50,11 @@ class ActionsProviderSpec extends ControllerUnitTest
 
   private val anyBlock = (_: Request[AnyContent]) => Ok("any-result")
 
-  private val actionsProvider = new ActionsProvider(
+  private val actionsProvider = createActionsProvider(appConfig)
+
+  private val validTaxYears = validTaxYearList.mkString(",")
+
+  private def createActionsProvider(appConfig: AppConfig) = new ActionsProvider(
     mockAuthorisedAction,
     mockCISSessionService,
     mockAuditService,
@@ -58,8 +62,6 @@ class ActionsProviderSpec extends ControllerUnitTest
     new InYearUtil,
     appConfig
   )
-
-  private val validTaxYears = validTaxYearList.mkString(",")
 
   ".priorCisDeductionsData" should {
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
@@ -131,6 +133,33 @@ class ActionsProviderSpec extends ControllerUnitTest
       mockAuthAsIndividual(Some(aUser.nino))
 
       val underTest = actionsProvider.endOfYear(taxYearEOY)(block = anyBlock)
+
+      status(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe OK
+    }
+  }
+
+  ".tailoringEnabledFilterWithEndOfYear" should {
+    "redirect to UnauthorisedUserErrorController when authentication fails" in {
+      mockFailToAuthenticate()
+
+      val underTest = actionsProvider.tailoringEnabledFilterWithEndOfYear(taxYearEOY)(block = anyBlock)
+
+      await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
+    }
+
+    "redirect to Income Tax Submission Overview when tailoring is disabled" in {
+      mockAuthAsIndividual(Some(aUser.nino))
+
+      val underTest = actionsProvider.tailoringEnabledFilterWithEndOfYear(taxYear)(block = anyBlock)
+
+      await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    }
+
+    "return successful response when tailoring is enabled" in {
+      mockAuthAsIndividual(Some(aUser.nino))
+
+      val underTest = createActionsProvider(new MockAppConfig().config(enableTailoring = true)).endOfYear(taxYearEOY)(block = anyBlock)
 
       status(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe OK
     }

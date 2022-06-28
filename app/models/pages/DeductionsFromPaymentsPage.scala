@@ -14,16 +14,8 @@
  * limitations under the License.
  */
 
-package forms
+package models.pages
 
-import models.forms.DeductionPeriod
-import play.api.data.Form
+import forms.FormTypes.DeductionsFromPaymentsForm
 
-object FormTypes {
-  type DeductionAmountForm = Form[BigDecimal]
-  type DeductionsFromPaymentsForm = Form[Boolean]
-  type MaterialsAmountForm = Form[BigDecimal]
-  type MaterialsYesNoForm = Form[Boolean]
-  type LabourPayAmountForm = Form[BigDecimal]
-  type DeductionPeriodForm = Form[DeductionPeriod]
-}
+case class DeductionsFromPaymentsPage(taxYear: Int, form: DeductionsFromPaymentsForm)
