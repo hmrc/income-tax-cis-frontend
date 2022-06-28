@@ -63,6 +63,40 @@ class CisCYAModelSpec extends UnitTest
     }
   }
 
+  ".cyaPeriodData" should {
+    "return priorPeriodData when periodData is None" in {
+      val expectedPriorPeriodData = Seq(
+        aCYAPeriodData.copy(deductionPeriod = Month.MAY),
+        aCYAPeriodData.copy(deductionPeriod = Month.JUNE)
+      )
+
+      val underTest = aCisCYAModel.copy(periodData = None, priorPeriodData = expectedPriorPeriodData)
+
+      underTest.cyaPeriodData shouldBe expectedPriorPeriodData
+    }
+
+    "return periodData along with priorPeriodData for a new period" in {
+      val periodData = aCYAPeriodData.copy(deductionPeriod = Month.JULY, originallySubmittedPeriod = None)
+      val priorPeriodData = Seq(
+        aCYAPeriodData.copy(deductionPeriod = Month.MAY),
+        aCYAPeriodData.copy(deductionPeriod = Month.JUNE)
+      )
+
+      val underTest = aCisCYAModel.copy(periodData = Some(periodData), priorPeriodData = priorPeriodData)
+
+      underTest.cyaPeriodData shouldBe periodData +: priorPeriodData
+    }
+
+    "return updated priorPeriodData when periodData is an update" in {
+      val periodData = aCYAPeriodData.copy(deductionPeriod = Month.JULY, originallySubmittedPeriod = Some(Month.JUNE))
+      val mayPeriodData = aCYAPeriodData.copy(deductionPeriod = Month.MAY)
+      val junePeriodData = aCYAPeriodData.copy(deductionPeriod = Month.JUNE, originallySubmittedPeriod = Some(Month.JUNE))
+      val underTest = aCisCYAModel.copy(periodData = Some(periodData), priorPeriodData = Seq(mayPeriodData, junePeriodData))
+
+      underTest.cyaPeriodData shouldBe Seq(periodData, mayPeriodData)
+    }
+  }
+
   ".isNewSubmissionFor" should {
     "return true if no prior data" in {
       val underTest = aCisCYAModel.copy(priorPeriodData = Seq())

@@ -39,9 +39,7 @@ case class CisUserData(sessionId: String,
   def toSubmission: Option[CISSubmission] =
     cis.periodData match {
       case Some(currentPeriod) if currentPeriod.isFinished =>
-
-        val cyaPeriodData = Seq(currentPeriod) ++ cis.priorPeriodData.filterNot(period => currentPeriod.deductionPeriod == period.deductionPeriod)
-        val periodDataForSubmission = cyaPeriodData.map(_.toSubmissionPeriodData(taxYear))
+        val periodDataForSubmission = cis.cyaPeriodData.map(_.toSubmissionPeriodData(taxYear))
         validateDataAndCreateSubmission(periodDataForSubmission, submissionId, cis.contractorName, employerRef)
 
       case _ => None
