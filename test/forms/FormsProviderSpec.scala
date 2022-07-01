@@ -116,6 +116,40 @@ class FormsProviderSpec extends UnitTest {
     }
   }
 
+  ".deductionsFromPaymentsForm" should {
+    "return a form that maps data when data is correct" in {
+      underTest.deductionsFromPaymentsForm(isAgent = anyBoolean).bind(correctBooleanData).errors shouldBe Seq.empty
+    }
+
+    "return a form that contains agent error" which {
+      "when isAgent is true and key is wrong" in {
+        underTest.deductionsFromPaymentsForm(isAgent = true).bind(wrongKeyData).errors shouldBe Seq(
+          FormError("value", Seq("deductionsFromPaymentsPage.error.agent"), Seq())
+        )
+      }
+
+      "when isAgent is true and data is empty" in {
+        underTest.deductionsFromPaymentsForm(isAgent = true).bind(emptyData).errors shouldBe Seq(
+          FormError("value", Seq("deductionsFromPaymentsPage.error.agent"), Seq())
+        )
+      }
+    }
+
+    "return a form that contains individual error" which {
+      "when isAgent is false and key is wrong" in {
+        underTest.deductionsFromPaymentsForm(isAgent = false).bind(wrongKeyData).errors shouldBe Seq(
+          FormError("value", Seq("deductionsFromPaymentsPage.error.individual"), Seq())
+        )
+      }
+
+      "when isAgent is false and data is empty" in {
+        underTest.deductionsFromPaymentsForm(isAgent = false).bind(emptyData).errors shouldBe Seq(
+          FormError("value", Seq("deductionsFromPaymentsPage.error.individual"), Seq())
+        )
+      }
+    }
+  }
+
   ".materialsYesNoForm" should {
     "return a form that maps data when data is correct" in {
       underTest.materialsYesNoForm(isAgent = anyBoolean).bind(correctBooleanData).errors shouldBe Seq.empty

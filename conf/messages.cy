@@ -145,6 +145,14 @@ deductionAmountPage.error.noEntry = Enter the CIS deduction amount
 deductionAmountPage.error.wrongFormat = Enter the CIS deduction in the correct format
 deductionAmountPage.error.overMaximum = The CIS deduction must be less than £100,000,000,000
 
+#################       Deduction From Payments Page       #######################################
+deductionsFromPaymentsPage.title.agent = A yw’ch cleient wedi cael didyniadau CIS o’i daliadau gan gontractwyr?
+deductionsFromPaymentsPage.title.individual = A ydych wedi cael didyniadau CIS a gymerwyd o’ch taliadau gan gontractwyr?
+deductionsFromPaymentsPage.paragraph.agent = Cewch hyd i’r didyniadau mewn datganiadau a roddwyd i’ch cleient gan gontractwyr.
+deductionsFromPaymentsPage.paragraph.individual = Cewch hyd i’r didyniadau mewn datganiadau a roddwyd i chi gan gontractwyr.
+deductionsFromPaymentsPage.error.agent = Dewiswch ‘Iawn’ os oedd gan eich cleient ddidyniadau CIS wedi''u cymryd o''i daliadau gan gontractwyr.
+deductionsFromPaymentsPage.error.individual = Dewiswch ‘Iawn’ os oedd gennych ddidyniadau CIS wedi''u cymryd o''ch taliadau gan gontractwyr.
+
 #################       Contractor Details messages        ########################################
 
 contractor-details.name = Contractor name
