@@ -58,6 +58,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
       status(result) shouldBe OK
       contentType(result) shouldBe Some("text/html")
     }
+
     "return error response when failed to get employerRefs" in {
       mockNotInYear(taxYearEOY)
       mockGetPriorEmployerRefs(Left(HttpParserError(INTERNAL_SERVER_ERROR)))
@@ -77,6 +78,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
       status(result) shouldBe OK
       contentType(result) shouldBe Some("text/html")
     }
+
     "return error response when contractor provided but fails to get employerRefs" in {
       mockGetPriorEmployerRefs(Left(HttpParserError(INTERNAL_SERVER_ERROR)))
       mockHandleError(INTERNAL_SERVER_ERROR,InternalServerError)
@@ -111,6 +113,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
+
       "contractor provided" in {
         mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = "123/45678"))
         mockGetPriorEmployerRefs(Left(HttpParserError(INTERNAL_SERVER_ERROR)))

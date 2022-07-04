@@ -37,7 +37,7 @@ class AllCISDeductionsSpec extends UnitTest {
 
   "allEmployerRefs" should {
     "return an empty list when no data" in {
-      anAllCISDeductions.copy(None,None).allEmployerRefs shouldBe Seq.empty
+      anAllCISDeductions.copy(None, None).allEmployerRefs shouldBe Seq.empty
     }
     "return a list when contractor data exists" in {
       anAllCISDeductions.copy(customerCISDeductions = None).allEmployerRefs shouldBe Seq(aCisDeductions.employerRef)

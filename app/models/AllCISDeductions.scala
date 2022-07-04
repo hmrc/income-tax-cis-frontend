@@ -25,6 +25,7 @@ import java.time.Month
 case class AllCISDeductions(customerCISDeductions: Option[CISSource],
                             contractorCISDeductions: Option[CISSource]) extends Logging {
 
+  // TODO: This method could be removed when ContractorDetailsService is refactored
   def allEmployerRefs: Seq[String] =
     (customerCISDeductions.map(_.allEmployerRefs).getOrElse(Seq.empty) ++ contractorCISDeductions.map(_.allEmployerRefs).getOrElse(Seq.empty)).distinct
 

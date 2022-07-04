@@ -27,6 +27,7 @@ import support.ViewUnitTest
 import support.builders.models.pages.ContractorDetailsPageBuilder.aContractorDetailsPage
 import views.html.ContractorDetailsView
 
+// TODO: Tests are missing for error messages
 class ContractorDetailsViewSpec extends ViewUnitTest {
 
   object Selectors {

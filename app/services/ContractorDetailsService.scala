@@ -29,8 +29,9 @@ class ContractorDetailsService @Inject()(cisSessionService: CISSessionService,
                                          cisUserDataRepository: CisUserDataRepository)
                                         (implicit ec: ExecutionContext) {
 
+  // TODO: This method potentially will be deleted and supplemented with containsEmployerRef
   def getPriorEmployerRefs(taxYear: Int,
-                           user: User)(implicit hc: HeaderCarrier): Future[Either[HttpParserError, Seq[String]]] ={
+                           user: User)(implicit hc: HeaderCarrier): Future[Either[HttpParserError, Seq[String]]] = {
     cisSessionService.getPriorData(user, taxYear).map {
       case Left(error) => Left(error)
       case Right(prior) => Right(prior.allEmployerRefs)

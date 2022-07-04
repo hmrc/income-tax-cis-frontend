@@ -36,6 +36,7 @@ import views.html.ContractorDetailsView
 
 import scala.concurrent.{ExecutionContext, Future}
 
+// TODO: Refactor controller
 class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
                                             contractorDetailsView: ContractorDetailsView,
                                             contractorDetailsService: ContractorDetailsService,
@@ -43,13 +44,14 @@ class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
                                            (implicit mcc: MessagesControllerComponents, ec: ExecutionContext, appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
-  def handlePriorEmployerRefs(taxYear: Int, user: User)(implicit hc: HeaderCarrier, request: Request[_]): Future[Either[Result, Seq[String]]] ={
+  def handlePriorEmployerRefs(taxYear: Int, user: User)(implicit hc: HeaderCarrier, request: Request[_]): Future[Either[Result, Seq[String]]] = {
     contractorDetailsService.getPriorEmployerRefs(taxYear, user).map {
       case Left(error) => Left(errorHandler.handleError(error.status))
       case Right(employerRefs) => Right(employerRefs)
     }
   }
 
+  // TODO: I think getting the employerRefs for show does not make sense
   def show(taxYear: Int, contractor: Option[String]): Action[AnyContent] = contractor match {
     case None => actionsProvider.endOfYear(taxYear).async { implicit request =>
       handlePriorEmployerRefs(taxYear, request.user).map {

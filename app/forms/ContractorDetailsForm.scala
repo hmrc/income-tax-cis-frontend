@@ -26,6 +26,7 @@ import play.api.data.Forms.mapping
 import play.api.data.validation.Constraints.nonEmpty
 import play.api.data.validation.{Constraint, Invalid, Valid}
 
+// TODO: Refactor and possibly move to a form provider
 object ContractorDetailsForm extends InputFilters {
 
   private val nameCharLimit = 105
@@ -43,7 +44,7 @@ object ContractorDetailsForm extends InputFilters {
     val validateRefFormat: Constraint[String] = validateChar(refRegex)(s"contractor-details.employer-ref.error.wrongFormat")
 
     def validateEmployerRefNotAlreadySubmitted(previousEntries: Seq[String]): String => Constraint[String] = msgKey => constraint[String](
-      x => if(previousEntries.contains(x)) Invalid(msgKey) else Valid
+      x => if (previousEntries.contains(x)) Invalid(msgKey) else Valid
     )
 
     def notDuplicateEmployerRef(employerRefs: Seq[String]): Constraint[String] =
