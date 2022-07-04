@@ -29,20 +29,6 @@ class LabourPayPageSpec extends UnitTest {
 
   private val formsProvider = new FormsProvider()
 
-  "LabourPayPage.contractor" should {
-    "return contractor name when exists" in {
-      val underTest = aLabourPayPage.copy(contractorName = Some("some-contractor-name"))
-
-      underTest.contractor shouldBe "some-contractor-name"
-    }
-
-    "return employerRef when contractor name does not exists" in {
-      val underTest = aLabourPayPage.copy(contractorName = None, employerRef = "some-employer-ref")
-
-      underTest.contractor shouldBe "some-employer-ref"
-    }
-  }
-
   "LabourPayPage.isReplay" should {
     "return true when originalGrossAmount exists" in {
       val underTest = aLabourPayPage.copy(originalGrossAmount = Some(123.01))

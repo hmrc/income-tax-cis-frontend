@@ -27,6 +27,7 @@ import support.ViewUnitTest
 import support.builders.models.pages.ContractorDetailsPageBuilder.aContractorDetailsPage
 import views.html.ContractorDetailsView
 
+// TODO: Tests are missing for error messages
 class ContractorDetailsViewSpec extends ViewUnitTest {
 
   object Selectors {
@@ -38,7 +39,6 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
     val ernFieldBox = "#employerReferenceNumber"
     val buttonSelector = "#continue"
     val formSelector = "#main-content > div > div > form"
-    val replayContentSelector = "#main-content > div > div > p"
   }
 
   trait CommonExpectedResults {
@@ -55,7 +55,6 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
   trait SpecificExpectedResults {
     val expectedP1: String
     val expectedInsetText: Int => String
-    val replayText: String
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
@@ -83,25 +82,21 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
   object ExpectedIndividualEN extends SpecificExpectedResults {
     override val expectedP1: String = "Your CIS deductions are based on the information we already hold about you."
     override val expectedInsetText: Int => String = (taxYear: Int) => s"You cannot update your CIS information until 6 April $taxYear."
-    override val replayText: String = "If your ERN is not 123/AB12345, tell us the correct reference."
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     override val expectedP1: String = "Your CIS deductions are based on the information we already hold about you."
     override val expectedInsetText: Int => String = (taxYear: Int) => s"You cannot update your CIS information until 6 April $taxYear."
-    override val replayText: String = "If your ERN is not 123/AB12345, tell us the correct reference."
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     override val expectedP1: String = "Your client’s CIS deductions are based on the information we already hold about them."
     override val expectedInsetText: Int => String = (taxYear: Int) => s"You cannot update your client’s CIS information until 6 April $taxYear."
-    override val replayText: String = "If your client’s ERN is not 123/AB12345, tell us the correct reference."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     override val expectedP1: String = "Your client’s CIS deductions are based on the information we already hold about them."
     override val expectedInsetText: Int => String = (taxYear: Int) => s"You cannot update your client’s CIS information until 6 April $taxYear."
-    override val replayText: String = "If your client’s ERN is not 123/AB12345, tell us the correct reference."
   }
 
   override protected val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = Seq(
@@ -118,7 +113,7 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
       "render end of year version of contractor details page" which {
         implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(userScenario.isAgent)
         implicit val messages: Messages = getMessages(userScenario.isWelsh)
-        val form = contractorDetailsForm(userScenario.isAgent)
+        val form = contractorDetailsForm(userScenario.isAgent, Seq.empty)
         val pageModel = aContractorDetailsPage.copy(isAgent = userScenario.isAgent, form = form)
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
@@ -137,10 +132,10 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
 
       }
 
-      "render end of year version of contractor details page with previous content" which {
+      "render end of year version of contractor details page with a pre-filled form" which {
         implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(userScenario.isAgent)
         implicit val messages: Messages = getMessages(userScenario.isWelsh)
-        val form = contractorDetailsForm(userScenario.isAgent).fill(ContractorDetails("ABC Steelworks", "123/AB12345"))
+        val form = contractorDetailsForm(userScenario.isAgent, Seq.empty).fill(ContractorDetails("ABC Steelworks", "123/AB12345"))
         val pageModel = aContractorDetailsPage.copy(isAgent = userScenario.isAgent, form = form, originalEmployerRef = Some("123/AB12345"))
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
@@ -148,7 +143,6 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
         titleCheck(userScenario.commonExpectedResults.expectedTitle)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.commonExpectedResults.expectedTitle)
-        textOnPageCheck(userScenario.specificExpectedResults.get.replayText, Selectors.replayContentSelector)
         textOnPageCheck(userScenario.commonExpectedResults.contractorName, Selectors.contractorNameFieldHead)
         hintTextCheck(userScenario.commonExpectedResults.contractorNameHint, Selectors.contractorNameFieldHint)
         inputFieldValueCheck("contractorName", Selectors.contractorNameFieldBox, "ABC Steelworks")

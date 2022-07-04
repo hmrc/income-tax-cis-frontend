@@ -47,6 +47,15 @@ class IncomeTaxUserDataSpec extends UnitTest with TaxYearProvider {
     }
   }
 
+  "allEmployerRefs" should {
+    "return an empty list when no data" in {
+      anIncomeTaxUserData.copy(None).allEmployerRefs shouldBe Seq.empty
+    }
+    "return a list when both sources of data exist" in {
+      anIncomeTaxUserData.allEmployerRefs shouldBe Seq(aCisDeductions.employerRef)
+    }
+  }
+
   ".toSubmissionWithoutPeriod" should {
     "return none when no data" in {
       val underTest = anIncomeTaxUserData.copy(cis = None)

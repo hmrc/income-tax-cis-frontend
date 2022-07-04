@@ -91,16 +91,6 @@ class ActionsProviderSpec extends ControllerUnitTest
       status(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe OK
     }
 
-    "redirect to Income Tax Submission Overview when in year and has no in year cis deductions" in {
-      mockAuthAsIndividual(Some(aUser.nino))
-      mockGetPriorData(taxYear, aUser, Right(anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = None)))))
-
-      val underTest = actionsProvider.priorCisDeductionsData(taxYear)(block = anyBlock)
-
-      await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe
-        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
-    }
-
     "return successful response in year with in year cis deductions" in {
       mockAuthAsIndividual(Some(aUser.nino))
       mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(anAllCISDeductions))))
@@ -402,7 +392,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()
 
-      val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, contractor = "any-contractor")(block = anyBlock)
+      val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, contractor = "any-contractor", redirectIfPrior = false)(block = anyBlock)
 
       await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
     }
@@ -410,17 +400,27 @@ class ActionsProviderSpec extends ControllerUnitTest
     "redirect to Income Tax Submission Overview when in year" in {
       mockAuthAsIndividual(Some(aUser.nino))
 
-      val underTest = actionsProvider.endOfYearWithSessionData(taxYear, contractor = "any-contractor")(block = anyBlock)
+      val underTest = actionsProvider.endOfYearWithSessionData(taxYear, contractor = "any-contractor", redirectIfPrior = false)(block = anyBlock)
 
       await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))
+    }
+
+    "redirect to Income Tax Submission Overview when redirectIfPrior is true and it's a prior submission" in {
+      mockAuthAsIndividual(Some(aUser.nino))
+      mockGetSessionData(taxYearEOY, aUser, employerRef = "some/ref", result = Right(Some(aCisUserData)))
+
+      val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, contractor = "some/ref", redirectIfPrior = true)(block = anyBlock)
+
+      await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe
+        Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYearEOY))
     }
 
     "return successful response" in {
       mockAuthAsIndividual(Some(aUser.nino))
       mockGetSessionData(taxYearEOY, aUser, employerRef = "some/ref", result = Right(Some(aCisUserData)))
 
-      val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, contractor = "some/ref")(block = anyBlock)
+      val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, contractor = "some/ref", redirectIfPrior = false)(block = anyBlock)
 
       status(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe OK
     }

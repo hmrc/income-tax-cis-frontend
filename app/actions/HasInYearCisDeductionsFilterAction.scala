@@ -23,6 +23,7 @@ import play.api.mvc.{ActionFilter, Result}
 
 import scala.concurrent.{ExecutionContext, Future}
 
+//TODO - check if this is still needed
 case class HasInYearCisDeductionsFilterAction(taxYear: Int, appConfig: AppConfig)
                                              (implicit ec: ExecutionContext) extends ActionFilter[UserPriorDataRequest] {
 

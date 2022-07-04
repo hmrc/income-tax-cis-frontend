@@ -26,6 +26,7 @@ import support.ViewUnitTest
 import support.builders.models.pages.DeductionPeriodPageBuilder.aDeductionPeriodPage
 import views.html.DeductionPeriodView
 
+import java.time.Month
 import java.time.Month.AUGUST
 
 class DeductionPeriodViewSpec extends ViewUnitTest {
@@ -44,14 +45,18 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
     val expectedLabel: String
     val expectedHeading: String
     val expectedCaption: Int => String
+
   }
 
   trait SpecificExpectedResults {
     val expectedTitle: String
+    val expectedTitleNoContractorName: String
     val expectedErrorTitle: String
+    val expectingHeadingNoContractorName: String
     val expectedP1: String
     val expectedError: String
     val expectedButtonText: String
+
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
@@ -68,7 +73,9 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
     override val expectedTitle: String = "When did your contractor make CIS deductions?"
+    override val expectedTitleNoContractorName: String = "When did this contractor make CIS deductions?"
     override val expectedErrorTitle: String = "Error: When did your contractor make CIS deductions?"
+    override val expectingHeadingNoContractorName: String = "When did this contractor make CIS deductions?"
     override val expectedP1: String = "Tell us the end date on your CIS statement."
     override val expectedError: String = "You cannot select a date you already have information for"
     override val expectedButtonText: String = "Continue"
@@ -76,7 +83,9 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     override val expectedTitle: String = "When did your contractor make CIS deductions?"
+    override val expectedTitleNoContractorName: String = "When did this contractor make CIS deductions?"
     override val expectedErrorTitle: String = "Error: When did your contractor make CIS deductions?"
+    override val expectingHeadingNoContractorName: String = "When did this contractor make CIS deductions?"
     override val expectedP1: String = "Tell us the end date on your CIS statement."
     override val expectedError: String = "You cannot select a date you already have information for"
     override val expectedButtonText: String = "Continue"
@@ -84,7 +93,9 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     override val expectedTitle: String = "When did your client’s contractor make CIS deductions?"
+    override val expectedTitleNoContractorName: String = "When did this contractor make CIS deductions?"
     override val expectedErrorTitle: String = "Error: When did your client’s contractor make CIS deductions?"
+    override val expectingHeadingNoContractorName: String = "When did this contractor make CIS deductions?"
     override val expectedP1: String = "Tell us the end date on your client’s CIS statement."
     override val expectedError: String = "You cannot select a date your client already has information for"
     override val expectedButtonText: String = "Continue"
@@ -92,7 +103,9 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     override val expectedTitle: String = "When did your client’s contractor make CIS deductions?"
+    override val expectedTitleNoContractorName: String = "When did this contractor make CIS deductions?"
     override val expectedErrorTitle: String = "Error: When did your client’s contractor make CIS deductions?"
+    override val expectingHeadingNoContractorName: String = "When did this contractor make CIS deductions?"
     override val expectedP1: String = "Tell us the end date on your client’s CIS statement."
     override val expectedError: String = "You cannot select a date your client already has information for"
     override val expectedButtonText: String = "Continue"
@@ -126,6 +139,19 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
         buttonCheck(userScenario.specificExpectedResults.get.expectedButtonText, Selectors.buttonSelector)
       }
 
+      "render the deduction period page with an alternative H1 when contractor name is None" which {
+        implicit val userSessionDataRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
+        implicit val messages: Messages = getMessages(userScenario.isWelsh)
+
+        val pageModel = aDeductionPeriodPage.copy(contractorName = None, employerRef = "some-ref", priorSubmittedPeriods = Seq(Month.APRIL))
+        implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
+
+        welshToggleCheck(userScenario.isWelsh)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitleNoContractorName)
+        captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
+        h1Check(userScenario.specificExpectedResults.get.expectingHeadingNoContractorName)
+      }
+
       "render the deduction period page with error when at the end of the year" which {
         implicit val authRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
         implicit val messages: Messages = getMessages(userScenario.isWelsh)
@@ -155,7 +181,6 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
 
       implicit val document: Document = Jsoup.parse(underTest(aDeductionPeriodPage.copy(contractorName = None)).body)
 
-      h1Check(header = "When did Contractor: 111/11111 make CIS deductions?")
       textOnPageCheck(text = s"5 Mai $taxYearEOYStart", selector = Selectors.optionsSelector(1))
       textOnPageCheck(text = s"5 Mehefin $taxYearEOYStart", Selectors.optionsSelector(2))
       textOnPageCheck(text = s"5 Gorffennaf $taxYearEOYStart", Selectors.optionsSelector(3))
@@ -176,7 +201,6 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
 
       implicit val document: Document = Jsoup.parse(underTest(aDeductionPeriodPage.copy(contractorName = None)).body)
 
-      h1Check(header = "When did Contractor: 111/11111 make CIS deductions?")
       textOnPageCheck(text = s"5 May $taxYearEOYStart", selector = Selectors.optionsSelector(1))
       textOnPageCheck(text = s"5 June $taxYearEOYStart", Selectors.optionsSelector(2))
       textOnPageCheck(text = s"5 July $taxYearEOYStart", Selectors.optionsSelector(3))

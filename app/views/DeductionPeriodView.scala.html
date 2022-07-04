@@ -33,9 +33,9 @@
 
 @(pageModel: DeductionPeriodPage)(implicit request: UserSessionDataRequest[_], messages: Messages, appConfig: AppConfig)
 
-@title = @{messages(s"deductionPeriod.title.${if(request.user.isAgent) "agent" else "individual"}")}
+@title = @{if(pageModel.contractorName.isDefined) messages(s"deductionPeriod.title.${if(request.user.isAgent) "agent" else "individual"}") else messages("deductionPeriod.title")}
 
-@contractor = @{pageModel.contractorName.getOrElse(messages("common.contractor.employerRef", pageModel.employerRef))}
+@contractor = @{pageModel.contractorName.getOrElse(messages("common.this.contractor"))}
 
 @layout(pageTitle = title, backLink = true, hasErrors = pageModel.form.hasErrors, isAgent = request.user.isAgent) {
 

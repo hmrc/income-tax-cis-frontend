@@ -18,10 +18,11 @@ package support.mocks
 
 import models.forms.ContractorDetails
 import models.mongo.{CisUserData, DatabaseError}
-import models.{ServiceError, User}
-import org.scalamock.handlers.CallHandler4
+import models.{HttpParserError, ServiceError, User}
+import org.scalamock.handlers.{CallHandler3, CallHandler4}
 import org.scalamock.scalatest.MockFactory
 import services.ContractorDetailsService
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
@@ -37,5 +38,11 @@ trait MockContractorDetailsService extends MockFactory {
     (mockContractorDetailsService.saveContractorDetails _)
       .expects(taxYear, user, optCisUserData, formData)
       .returns(Future.successful(result))
+  }
+
+  def mockGetPriorEmployerRefs(employerRefs: Either[HttpParserError, Seq[String]]): CallHandler3[Int, User, HeaderCarrier, Future[Either[HttpParserError, Seq[String]]]] = {
+    (mockContractorDetailsService.getPriorEmployerRefs(_: Int, _: User)(_: HeaderCarrier))
+      .expects(*, *, *)
+      .returns(Future.successful(employerRefs))
   }
 }

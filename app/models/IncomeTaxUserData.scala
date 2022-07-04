@@ -25,6 +25,8 @@ import java.time.Month
 
 case class IncomeTaxUserData(cis: Option[AllCISDeductions] = None) extends Logging {
 
+  def allEmployerRefs: Seq[String] = cis.map(_.allEmployerRefs).getOrElse(Seq.empty)
+
   def toSubmissionWithoutPeriod(employerRef: String, month: Month, taxYear: Int): Option[CISSubmission] =
     cis.flatMap(_.eoyCisDeductionsWith(employerRef)) match {
       case Some(cisDeductions) =>

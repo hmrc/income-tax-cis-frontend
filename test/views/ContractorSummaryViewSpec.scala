@@ -27,7 +27,7 @@ import support.builders.models.pages.ContractorSummaryPageBuilder.aContractorSum
 import views.html.ContractorSummaryView
 
 import java.time.Month
-import java.time.Month.{APRIL, FEBRUARY, MAY}
+import java.time.Month.{APRIL, AUGUST, DECEMBER, FEBRUARY, JANUARY, JULY, JUNE, MARCH, MAY, NOVEMBER, OCTOBER, SEPTEMBER}
 
 class ContractorSummaryViewSpec extends ViewUnitTest {
 
@@ -230,6 +230,23 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
           h1Check(userScenario.commonExpectedResults.expectedAlternativeHeading(employerRef))
           buttonCheck(userScenario.commonExpectedResults.buttonText, Selectors.buttonSelector, Some(DeductionsSummaryController.show(taxYear).url))
         }
+        "render the end of year contractor summary page with out the add another link" which {
+          val pageModel = aContractorSummaryPage.copy(taxYear = taxYearEOY, isInYear = false, contractorName = None, employerRef = employerRef, deductionPeriods = Month.values())
+
+
+          implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
+          implicit val messages: Messages = getMessages(userScenario.isWelsh)
+
+          implicit val document: Document = Jsoup.parse(page(pageModel).body)
+
+          welshToggleCheck(userScenario.isWelsh)
+          titleCheck(userScenario.commonExpectedResults.expectedTitle)
+          captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
+          h1Check(userScenario.commonExpectedResults.expectedAlternativeHeading(employerRef))
+          buttonCheck(userScenario.commonExpectedResults.buttonText, Selectors.buttonSelector, Some(DeductionsSummaryController.show(taxYearEOY).url))
+
+        }
+
       }
     }
   }

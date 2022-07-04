@@ -51,10 +51,11 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
 
   trait SpecificExpectedResults {
     val expectedTitle: String
+    val expectedTitleThisContract: String
     val expectedErrorTitle: String
     val expectedH1: String => String
+    val expectedH1ThisContract: String
     val expectedReplayContent1: String => String
-    val expectedReplayContent2: String => String
     val expectedTellUsTheAmountText: String => String
     val expectedOnlyIncludeVATParagraph: String
     val expectedErrorNoEntry: String
@@ -76,10 +77,11 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
     override val expectedTitle: String = "How much did you pay for building materials for your contractor?"
+    override val expectedTitleThisContract: String = "How much did you pay for building materials on this contract?"
     override val expectedErrorTitle: String = s"Error: $expectedTitle"
     override val expectedH1: String => String = (contractorName: String) => s"How much did you pay for building materials at $contractorName?"
-    override val expectedReplayContent1: String => String = (amount: String) => s"If you did not pay $amount for materials, tell us the correct amount."
-    override val expectedReplayContent2: String => String = (statementDate: String) => s"You can find this on your 5 $statementDate CIS statement."
+    override val expectedH1ThisContract: String = "How much did you pay for building materials on this contract?"
+    override val expectedReplayContent1: String => String = (statementDate: String) => s"You can find this on your 5 $statementDate CIS statement."
     override val expectedTellUsTheAmountText: String => String = (statementDate: String) => s"Tell us the amount on your 5 $statementDate CIS statement."
     override val expectedOnlyIncludeVATParagraph: String = "Only include VAT if you are not VAT registered."
     override val expectedErrorNoEntry: String = "Enter the amount you paid for materials"
@@ -89,10 +91,11 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     override val expectedTitle: String = "How much did you pay for building materials for your contractor?"
+    override val expectedTitleThisContract: String = "How much did you pay for building materials on this contract?"
     override val expectedErrorTitle: String = s"Error: $expectedTitle"
     override val expectedH1: String => String = (contractorName: String) => s"How much did you pay for building materials at $contractorName?"
-    override val expectedReplayContent1: String => String = (amount: String) => s"If you did not pay $amount for materials, tell us the correct amount."
-    override val expectedReplayContent2: String => String = (statementDate: String) => s"You can find this on your 5 $statementDate CIS statement."
+    override val expectedH1ThisContract: String = "How much did you pay for building materials on this contract?"
+    override val expectedReplayContent1: String => String = (statementDate: String) => s"You can find this on your 5 $statementDate CIS statement."
     override val expectedTellUsTheAmountText: String => String = (statementDate: String) => s"Tell us the amount on your 5 $statementDate CIS statement."
     override val expectedOnlyIncludeVATParagraph: String = "Only include VAT if you are not VAT registered."
     override val expectedErrorNoEntry: String = "Enter the amount you paid for materials"
@@ -102,10 +105,11 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     override val expectedTitle: String = "How much did your client pay for building materials for the contractor?"
+    override val expectedTitleThisContract: String = "How much did your client pay for building materials on this contract?"
     override val expectedErrorTitle: String = s"Error: $expectedTitle"
     override val expectedH1: String => String = (contractorName: String) => s"How much did your client pay for building materials at $contractorName?"
-    override val expectedReplayContent1: String => String = (amount: String) => s"If your client did not pay $amount for materials, tell us the correct amount."
-    override val expectedReplayContent2: String => String = (statementDate: String) => s"You can find this on their 5 $statementDate CIS statement."
+    override val expectedH1ThisContract: String = "How much did your client pay for building materials on this contract?"
+    override val expectedReplayContent1: String => String = (statementDate: String) => s"You can find this on their 5 $statementDate CIS statement."
     override val expectedTellUsTheAmountText: String => String = (statementDate: String) => s"Tell us the amount on your client’s 5 $statementDate CIS statement."
     override val expectedOnlyIncludeVATParagraph: String = "Only include VAT if your client is not VAT registered."
     override val expectedErrorNoEntry: String = "Enter the amount your client paid for materials"
@@ -115,10 +119,11 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     override val expectedTitle: String = "How much did your client pay for building materials for the contractor?"
+    override val expectedTitleThisContract: String = "How much did your client pay for building materials on this contract?"
     override val expectedErrorTitle: String = s"Error: $expectedTitle"
     override val expectedH1: String => String = (contractorName: String) => s"How much did your client pay for building materials at $contractorName?"
-    override val expectedReplayContent1: String => String = (amount: String) => s"If your client did not pay $amount for materials, tell us the correct amount."
-    override val expectedReplayContent2: String => String = (statementDate: String) => s"You can find this on their 5 $statementDate CIS statement."
+    override val expectedH1ThisContract: String = "How much did your client pay for building materials on this contract?"
+    override val expectedReplayContent1: String => String = (statementDate: String) => s"You can find this on their 5 $statementDate CIS statement."
     override val expectedTellUsTheAmountText: String => String = (statementDate: String) => s"Tell us the amount on your client’s 5 $statementDate CIS statement."
     override val expectedOnlyIncludeVATParagraph: String = "Only include VAT if your client is not VAT registered."
     override val expectedErrorNoEntry: String = "Enter the amount your client paid for materials"
@@ -157,6 +162,19 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector)
       }
 
+      "render the materials amount page with an alternative title and H1 when contractor name is None" which {
+        implicit val userSessionDataRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
+        implicit val messages: Messages = getMessages(userScenario.isWelsh)
+
+        val pageModel = aMaterialsAmountPage.copy(contractorName = None, employerRef = "some-ref", originalAmount = None)
+        implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
+
+        welshToggleCheck(userScenario.isWelsh)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitleThisContract)
+        captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
+        h1Check(userScenario.specificExpectedResults.get.expectedH1ThisContract)
+      }
+
       "render the materials amount page with non empty amount" which {
         implicit val userSessionDataRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
         implicit val messages: Messages = getMessages(userScenario.isWelsh)
@@ -169,9 +187,8 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1("some-contractor"))
-        textOnPageCheck(userScenario.specificExpectedResults.get.expectedReplayContent1("£333.33"), Selectors.paragraphTextSelector(number = 1))
-        textOnPageCheck(userScenario.specificExpectedResults.get.expectedReplayContent2(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 2))
-        textOnPageCheck(userScenario.specificExpectedResults.get.expectedOnlyIncludeVATParagraph, Selectors.paragraphTextSelector(number = 3))
+        textOnPageCheck(userScenario.specificExpectedResults.get.expectedReplayContent1(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
+        textOnPageCheck(userScenario.specificExpectedResults.get.expectedOnlyIncludeVATParagraph, Selectors.paragraphTextSelector(number = 2))
         hintTextCheck(userScenario.commonExpectedResults.expectedHintText, Selectors.hintTextSelector)
         textOnPageCheck(text = "£", Selectors.poundPrefixSelector)
         inputFieldValueCheck(AmountForm.amount, Selectors.inputFieldSelector, value = "333.33")

@@ -35,6 +35,22 @@ class AllCISDeductionsSpec extends UnitTest {
     }
   }
 
+  "allEmployerRefs" should {
+    "return an empty list when no data" in {
+      anAllCISDeductions.copy(None, None).allEmployerRefs shouldBe Seq.empty
+    }
+    "return a list when contractor data exists" in {
+      anAllCISDeductions.copy(customerCISDeductions = None).allEmployerRefs shouldBe Seq(aCisDeductions.employerRef)
+    }
+    "return a list when customer data exists" in {
+      anAllCISDeductions.copy(contractorCISDeductions = None).allEmployerRefs shouldBe Seq(aCisDeductions.employerRef)
+    }
+    "return a list when both sources of data exist" in {
+      anAllCISDeductions.copy(contractorCISDeductions = Some(
+        aCISSource.copy(cisDeductions = Seq(aCisDeductions.copy(employerRef = "4567"))))).allEmployerRefs shouldBe Seq(aCisDeductions.employerRef, "4567")
+    }
+  }
+
   ".endOfYearCisDeductions" should {
     "return customer data" in {
       val underTest = AllCISDeductions(

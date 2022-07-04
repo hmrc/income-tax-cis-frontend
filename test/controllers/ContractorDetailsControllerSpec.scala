@@ -20,6 +20,7 @@ import common.SessionValues
 import controllers.routes.{ContractorCYAController, DeductionPeriodController}
 import forms.ContractorDetailsForm
 import forms.ContractorDetailsForm.contractorName
+import models.HttpParserError
 import models.forms.ContractorDetails
 import models.mongo.{CisCYAModel, DataNotFoundError}
 import org.jsoup.Jsoup
@@ -50,6 +51,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
   ".show" should {
     "return successful response when contractor not provided" in {
       mockNotInYear(taxYearEOY)
+      mockGetPriorEmployerRefs(Right(Seq.empty))
 
       val result = underTest.show(taxYearEOY, None).apply(fakeIndividualRequest)
 
@@ -57,7 +59,18 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
       contentType(result) shouldBe Some("text/html")
     }
 
+    "return error response when failed to get employerRefs" in {
+      mockNotInYear(taxYearEOY)
+      mockGetPriorEmployerRefs(Left(HttpParserError(INTERNAL_SERVER_ERROR)))
+      mockHandleError(INTERNAL_SERVER_ERROR,InternalServerError)
+
+      val result = underTest.show(taxYearEOY, None).apply(fakeIndividualRequest)
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
+
     "return successful response when contractor provided" in {
+      mockGetPriorEmployerRefs(Right(Seq.empty))
       mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = "contractor-ref"))
 
       val result = underTest.show(taxYearEOY, Some("contractor-ref")).apply(fakeIndividualRequest)
@@ -65,11 +78,22 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
       status(result) shouldBe OK
       contentType(result) shouldBe Some("text/html")
     }
+
+    "return error response when contractor provided but fails to get employerRefs" in {
+      mockGetPriorEmployerRefs(Left(HttpParserError(INTERNAL_SERVER_ERROR)))
+      mockHandleError(INTERNAL_SERVER_ERROR,InternalServerError)
+      mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = "contractor-ref"))
+
+      val result = underTest.show(taxYearEOY, Some("contractor-ref")).apply(fakeIndividualRequest)
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
   }
 
   ".submit" should {
     "return page with error when validation fails" in {
       mockNotInYear(taxYearEOY)
+      mockGetPriorEmployerRefs(Right(Seq.empty))
 
       val result = underTest.submit(taxYear = taxYearEOY, contractor = None)(fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(contractorName -> "some-name"))
 
@@ -79,9 +103,35 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
       document.select("#error-summary-title").isEmpty shouldBe false
     }
 
+    "return error page when getting employerRefs fails" when {
+      "no contractor provided" in {
+        mockNotInYear(taxYearEOY)
+        mockGetPriorEmployerRefs(Left(HttpParserError(INTERNAL_SERVER_ERROR)))
+        mockHandleError(INTERNAL_SERVER_ERROR, InternalServerError)
+
+        val result = underTest.submit(taxYear = taxYearEOY, contractor = None)(fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(contractorName -> "some-name"))
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+      }
+
+      "contractor provided" in {
+        mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = "123/45678"))
+        mockGetPriorEmployerRefs(Left(HttpParserError(INTERNAL_SERVER_ERROR)))
+        mockHandleError(INTERNAL_SERVER_ERROR, InternalServerError)
+
+        val result = underTest.submit(taxYearEOY, contractor = Some("123/45678")).apply(fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(
+          contractorName -> "some-name",
+          ContractorDetailsForm.employerReferenceNumber -> "123/45678"
+        ))
+
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+      }
+    }
+
     "handle internal server error when save operation fails with database error when" when {
       "no contractor provided" in {
         mockNotInYear(taxYearEOY)
+        mockGetPriorEmployerRefs(Right(Seq.empty))
         mockSaveContractorDetails(taxYearEOY, aUser, None, ContractorDetails("some-name", "123/45678"), Left(DataNotFoundError))
         mockInternalError(InternalServerError)
 
@@ -94,6 +144,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
       }
 
       "contractor provided" in {
+        mockGetPriorEmployerRefs(Right(Seq.empty))
         mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = "123/45678"))
         mockSaveContractorDetails(taxYearEOY, aUser, Some(aCisUserData.copy(employerRef = "123/45678")), ContractorDetails("some-name", "123/45678"), Left(DataNotFoundError))
         mockInternalError(InternalServerError)
@@ -111,6 +162,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
       "no contractor provided" in {
         val newCisCYAModel = CisCYAModel(contractorName = Some("some-name"))
         mockNotInYear(taxYearEOY)
+        mockGetPriorEmployerRefs(Right(Seq.empty))
         mockSaveContractorDetails(taxYearEOY, aUser, None, ContractorDetails("some-name", "123/45678"), Right(aCisUserData.copy(employerRef = "123/45678", cis = newCisCYAModel)))
 
         await(underTest.submit(taxYear = taxYearEOY, contractor = None)(fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(
@@ -119,6 +171,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
       }
 
       "contractor provided" in {
+        mockGetPriorEmployerRefs(Right(Seq.empty))
         mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = "123/45678"))
         val cisUserData = aCisUserData.copy(employerRef = "123/45678")
         mockSaveContractorDetails(taxYearEOY, aUser, Some(cisUserData), ContractorDetails("some-name", "123/45678"), Right(cisUserData))

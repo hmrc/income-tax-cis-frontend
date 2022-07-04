@@ -29,12 +29,14 @@ import models.pages.ContractorDetailsPage
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.ContractorDetailsService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.ContractorDetailsView
 
 import scala.concurrent.{ExecutionContext, Future}
 
+// TODO: Refactor controller
 class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
                                             contractorDetailsView: ContractorDetailsView,
                                             contractorDetailsService: ContractorDetailsService,
@@ -42,27 +44,53 @@ class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
                                            (implicit mcc: MessagesControllerComponents, ec: ExecutionContext, appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
+  def handlePriorEmployerRefs(taxYear: Int, user: User)(implicit hc: HeaderCarrier, request: Request[_]): Future[Either[Result, Seq[String]]] = {
+    contractorDetailsService.getPriorEmployerRefs(taxYear, user).map {
+      case Left(error) => Left(errorHandler.handleError(error.status))
+      case Right(employerRefs) => Right(employerRefs)
+    }
+  }
+
+  // TODO: I think getting the employerRefs for show does not make sense
   def show(taxYear: Int, contractor: Option[String]): Action[AnyContent] = contractor match {
-    case None => actionsProvider.endOfYear(taxYear)(implicit request =>
-      Ok(contractorDetailsView(ContractorDetailsPage(taxYear, request.user.isAgent, contractorDetailsForm(request.user.isAgent), None))))
-    case Some(contractorRef) => actionsProvider.endOfYearWithSessionData(taxYear, contractorRef) { implicit request =>
-      val formData = ContractorDetails(request.cisUserData.cis.contractorName.getOrElse(""), request.cisUserData.employerRef)
-      val form = contractorDetailsForm(request.user.isAgent).fill(formData)
-      Ok(contractorDetailsView(ContractorDetailsPage(taxYear, request.user.isAgent, form, Some(request.cisUserData.employerRef))))
+    case None => actionsProvider.endOfYear(taxYear).async { implicit request =>
+      handlePriorEmployerRefs(taxYear, request.user).map {
+        case Left(result) => result
+        case Right(employerRefs) =>
+          Ok(contractorDetailsView(ContractorDetailsPage(taxYear, request.user.isAgent, contractorDetailsForm(request.user.isAgent, employerRefs), None)))
+      }
+    }
+    case Some(contractorRef) => actionsProvider.endOfYearWithSessionData(taxYear, contractorRef, redirectIfPrior = true).async { implicit request =>
+      handlePriorEmployerRefs(taxYear, request.user).map {
+        case Left(result) => result
+        case Right(employerRefs) =>
+          val formData = ContractorDetails(request.cisUserData.cis.contractorName.getOrElse(""), request.cisUserData.employerRef)
+          val form = contractorDetailsForm(request.user.isAgent, employerRefs).fill(formData)
+          Ok(contractorDetailsView(ContractorDetailsPage(taxYear, request.user.isAgent, form, Some(request.cisUserData.employerRef))))
+      }
     }
   }
 
   def submit(taxYear: Int, contractor: Option[String]): Action[AnyContent] = contractor match {
-    case None => actionsProvider.endOfYear(taxYear).async { implicit request => handleSubmitRequest(taxYear, request.user) }
-    case Some(contractorRef) => actionsProvider.endOfYearWithSessionData(taxYear, contractorRef).async { implicit request =>
-      handleSubmitRequest(taxYear, request.user, Some(request.cisUserData))
+    case None => actionsProvider.endOfYear(taxYear).async { implicit request =>
+      handlePriorEmployerRefs(taxYear, request.user).flatMap {
+        case Left(result) => Future.successful(result)
+        case Right(employerRefs) => handleSubmitRequest(taxYear, request.user, employerRefs = employerRefs)
+      }
+    }
+    case Some(contractorRef) => actionsProvider.endOfYearWithSessionData(taxYear, contractorRef, redirectIfPrior = true).async { implicit request =>
+      handlePriorEmployerRefs(taxYear, request.user).flatMap {
+        case Left(result) => Future.successful(result)
+        case Right(employerRefs) => handleSubmitRequest(taxYear, request.user, Some(request.cisUserData), employerRefs = employerRefs)
+      }
     }
   }
 
   def handleSubmitRequest(taxYear: Int,
                           user: User,
-                          optCisUserData: Option[CisUserData] = None)(implicit request: Request[_]): Future[Result] = {
-    contractorDetailsForm(user.isAgent).bindFromRequest().fold(
+                          optCisUserData: Option[CisUserData] = None,
+                          employerRefs: Seq[String])(implicit request: Request[_]): Future[Result] = {
+    contractorDetailsForm(user.isAgent, employerRefs).bindFromRequest().fold(
       formWithErrors =>
         Future(BadRequest(contractorDetailsView(ContractorDetailsPage(taxYear, user.isAgent, formWithErrors, optCisUserData.map(_.employerRef))))),
       contractorDetails => contractorDetailsService.saveContractorDetails(taxYear, user, optCisUserData, contractorDetails).map {

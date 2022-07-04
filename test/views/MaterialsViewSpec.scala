@@ -52,8 +52,10 @@ class MaterialsViewSpec extends ViewUnitTest {
 
   trait SpecificExpectedResults {
     val expectedTitle: String
+    val expectedTitleThisContract: String
     val expectedErrorTitle: String
     val expectedH1: String
+    val expectedH1ThisContract: String
     val expectedParagraph: String
     val expectedErrorText: String
 
@@ -86,8 +88,10 @@ class MaterialsViewSpec extends ViewUnitTest {
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
     override val expectedTitle: String = "Did you pay for materials for your contractor?"
+    override val expectedTitleThisContract: String = "Did you pay for building materials on this contract?"
     override val expectedErrorTitle: String = s"Error: $expectedTitle"
     override val expectedH1: String = s"$expectedTitle"
+    override val expectedH1ThisContract: String = s"$expectedTitleThisContract"
     override val expectedParagraph: String = "Materials include things you pay for as part of a construction project, for example:"
     override val expectedErrorText: String = "Select yes if you paid for materials"
 
@@ -96,8 +100,10 @@ class MaterialsViewSpec extends ViewUnitTest {
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     override val expectedTitle: String = "Did your client pay for materials for their contractor?"
+    override val expectedTitleThisContract: String = "Did your client pay for building materials on this contract?"
     override val expectedErrorTitle: String = s"Error: $expectedTitle"
     override val expectedH1: String = s"$expectedTitle"
+    override val expectedH1ThisContract: String = s"$expectedTitleThisContract"
     override val expectedParagraph: String = "Materials include things your client pays for as part of a construction project, for example:"
     override val expectedErrorText: String = "Select yes if your client paid for materials"
 
@@ -106,8 +112,10 @@ class MaterialsViewSpec extends ViewUnitTest {
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     override val expectedTitle: String = "Did you pay for materials for your contractor?"
+    override val expectedTitleThisContract: String = "Did you pay for building materials on this contract?"
     override val expectedErrorTitle: String = s"Error: $expectedTitle"
     override val expectedH1: String = s"$expectedTitle"
+    override val expectedH1ThisContract: String = s"$expectedTitleThisContract"
     override val expectedParagraph: String = "Materials include things you pay for as part of a construction project, for example:"
     override val expectedErrorText: String = "Select yes if you paid for materials"
 
@@ -116,8 +124,10 @@ class MaterialsViewSpec extends ViewUnitTest {
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     override val expectedTitle: String = "Did your client pay for materials for their contractor?"
+    override val expectedTitleThisContract: String = "Did your client pay for building materials on this contract?"
     override val expectedErrorTitle: String = s"Error: $expectedTitle"
     override val expectedH1: String = s"$expectedTitle"
+    override val expectedH1ThisContract: String = s"$expectedTitleThisContract"
     override val expectedParagraph: String = "Materials include things your client pays for as part of a construction project, for example:"
     override val expectedErrorText: String = "Select yes if your client paid for materials"
 
@@ -156,7 +166,7 @@ class MaterialsViewSpec extends ViewUnitTest {
         buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector)
       }
 
-      "render pay page with filled in form and missing contractor and selected Yes value" which {
+      "render pay page with filled in form and missing contractor name and selected Yes value" which {
         implicit val userSessionDataRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
         implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
@@ -165,9 +175,9 @@ class MaterialsViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitleThisContract)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
-        h1Check(userScenario.specificExpectedResults.get.expectedH1)
+        h1Check(userScenario.specificExpectedResults.get.expectedH1ThisContract)
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedParagraph, Selectors.paragraphTextSelector)
         textOnPageCheck(userScenario.commonExpectedResults.expectedListItemOne, Selectors.listItemSelector(number = 1))
         textOnPageCheck(userScenario.commonExpectedResults.expectedListItemTwo, Selectors.listItemSelector(number = 2))

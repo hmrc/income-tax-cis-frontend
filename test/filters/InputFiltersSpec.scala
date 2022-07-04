@@ -18,6 +18,7 @@ package filters
 
 import support.UnitTest
 
+// TODO: Should not extend InputFilters
 class InputFiltersSpec extends UnitTest with InputFilters {
 
   "Input filter" must {

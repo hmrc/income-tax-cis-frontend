@@ -16,12 +16,17 @@
 
 package services
 
+import models.HttpParserError
 import models.forms.ContractorDetails
 import models.mongo.{CisCYAModel, DataNotUpdatedError}
+import play.api.http.Status.INTERNAL_SERVER_ERROR
+import support.builders.models.CisDeductionsBuilder.aCisDeductions
+import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder._
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockCISSessionService, MockCISUserDataRepository}
 import support.{TaxYearProvider, UnitTest}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -33,6 +38,24 @@ class ContractorDetailsServiceSpec extends UnitTest
   private val formData = new ContractorDetails(contractorName = "some-name", employerReferenceNumber = "some-ref")
 
   private val underTest = new ContractorDetailsService(mockCISSessionService, mockCisUserDataRepository)
+
+  ".getPriorEmployerRefs" should {
+    "return employer refs from prior" in {
+      mockGetPriorData(taxYearEOY, aUser, Right(anIncomeTaxUserData))
+
+      await(underTest.getPriorEmployerRefs(taxYearEOY, aUser)(HeaderCarrier())) shouldBe Right(Seq(aCisDeductions.employerRef))
+    }
+    "return an empty seq when no data" in {
+      mockGetPriorData(taxYearEOY, aUser, Right(anIncomeTaxUserData.copy(cis = None)))
+
+      await(underTest.getPriorEmployerRefs(taxYearEOY, aUser)(HeaderCarrier())) shouldBe Right(Seq())
+    }
+    "return an error when call fails" in {
+      mockGetPriorData(taxYearEOY, aUser, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
+
+      await(underTest.getPriorEmployerRefs(taxYearEOY, aUser)(HeaderCarrier())) shouldBe Left(HttpParserError(INTERNAL_SERVER_ERROR))
+    }
+  }
 
   ".saveContractorDetails" should {
     "return DataNotUpdatedError when cisSessionService.createOrUpdateCISUserData returns error" in {

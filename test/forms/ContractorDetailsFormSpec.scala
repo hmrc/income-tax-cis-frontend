@@ -22,7 +22,7 @@ import support.UnitTest
 
 class ContractorDetailsFormSpec extends UnitTest {
 
-  private def theForm(isAgent: Boolean): Form[ContractorDetails] = ContractorDetailsForm.contractorDetailsForm(isAgent)
+  private def theForm(isAgent: Boolean, employerRefs: Seq[String] = Seq.empty): Form[ContractorDetails] = ContractorDetailsForm.contractorDetailsForm(isAgent, employerRefs)
 
   private val contractorName = "contractorName"
   private val employerReferenceNumber = "employerReferenceNumber"
@@ -47,6 +47,12 @@ class ContractorDetailsFormSpec extends UnitTest {
       val testInput = Map(employerReferenceNumber -> "123/AB12345")
       val actual = theForm(isAgent = false).bind(testInput)
       actual.errors should contain(FormError(contractorName, "contractor-details.name.error.noEntry.individual"))
+    }
+
+    "Invalidate when the employerRef is already used" in {
+      val testInput = Map(contractorName -> contractorName, employerReferenceNumber -> "123/AB12345")
+      val actual = theForm(isAgent = false, Seq("123/AB12345")).bind(testInput)
+      actual.errors should contain(FormError(employerReferenceNumber, "contractor-details.employer-ref.error.duplicate"))
     }
 
     "Invalidate when no contractor name provided, agent" in {

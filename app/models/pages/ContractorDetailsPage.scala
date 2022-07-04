@@ -22,7 +22,4 @@ import play.api.data.Form
 case class ContractorDetailsPage(taxYear: Int,
                                  isAgent: Boolean,
                                  form: Form[ContractorDetails],
-                                 originalEmployerRef: Option[String]) {
-
-  val isReplay: Boolean = originalEmployerRef.isDefined
-}
+                                 originalEmployerRef: Option[String])
