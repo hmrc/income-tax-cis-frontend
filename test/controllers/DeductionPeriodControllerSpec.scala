@@ -114,7 +114,7 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
 
     "submit month period when different month is passed and data not finished" in {
       mockEndOfYearWithSessionDataWithCustomerDeductionPeriod(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef), month = Some("july"))
-      mockSubmitMonth(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JUNE, Right(aCisUserData.copy(cis = aCisCYAModel.copy(contractorName = None))))
+      mockSubmitMonth(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JUNE, Right(aCisUserData.copy(cis = aCisCYAModel.copy(periodData = None))))
 
       val request = fakeIndividualRequest.withMethod(POST.method).withSession(TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june")
       val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef, Some("july")).apply(request)

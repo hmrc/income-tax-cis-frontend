@@ -38,13 +38,7 @@ class CisCYAModelSpec extends UnitTest
   private val encryptedPeriodData2 = mock[EncryptedCYAPeriodData]
 
   "CisCYAModel.isFinished" should {
-    "return false when contractorName is empty" in {
-      val underTest = aCisCYAModel.copy(periodData = None)
-
-      underTest.isFinished shouldBe false
-    }
-
-    "return false when CYAPeriodData is empty" in {
+    "return false when periodData does not exist" in {
       val underTest = aCisCYAModel.copy(periodData = None)
 
       underTest.isFinished shouldBe false
@@ -56,8 +50,8 @@ class CisCYAModelSpec extends UnitTest
       underTest.isFinished shouldBe false
     }
 
-    "return true when contractorName is not empty and CYAPeriodData is finished" in {
-      val underTest = aCisCYAModel.copy(contractorName = Some("some-name"), periodData = Some(aCYAPeriodData))
+    "return true when periodData is finished" in {
+      val underTest = aCisCYAModel.copy(periodData = Some(aCYAPeriodData))
 
       underTest.isFinished shouldBe true
     }

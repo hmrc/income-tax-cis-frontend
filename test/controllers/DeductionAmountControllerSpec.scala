@@ -84,7 +84,7 @@ class DeductionAmountControllerSpec extends ControllerUnitTest
 
     "redirect to Materials Question Page on successful submission when data collection not finished" in {
       mockEndOfYearWithSessionData(taxYearEOY, month = "may", employerRef = aCisUserData.employerRef)
-      mockSaveAmount(aUser, aCisUserData, amount = 123, result = Right(aCisUserData.copy(cis = aCisCYAModel.copy(contractorName = None))))
+      mockSaveAmount(aUser, aCisUserData, amount = 123, result = Right(aCisUserData.copy(cis = aCisCYAModel.copy(periodData = None))))
 
       val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(AmountForm.amount -> "123")
       await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(request)) shouldBe

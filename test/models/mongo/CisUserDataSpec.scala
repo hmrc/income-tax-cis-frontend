@@ -103,7 +103,7 @@ class CisUserDataSpec extends UnitTest
     }
 
     "return true when cis.isFinished returns false" in {
-      val underTest = aCisUserData.copy(cis = aCisCYAModel.copy(contractorName = None))
+      val underTest = aCisUserData.copy(cis = aCisCYAModel.copy(periodData = None))
 
       underTest.isFinished shouldBe false
     }
