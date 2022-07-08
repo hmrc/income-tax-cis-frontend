@@ -128,11 +128,11 @@ class ActionsProviderSpec extends ControllerUnitTest
     }
   }
 
-  ".tailoringEnabledFilterWithEndOfYear" should {
+  ".tailoringEnabledFilter" should {
     "redirect to UnauthorisedUserErrorController when authentication fails" in {
       mockFailToAuthenticate()
 
-      val underTest = actionsProvider.tailoringEnabledFilterWithEndOfYear(taxYearEOY)(block = anyBlock)
+      val underTest = actionsProvider.tailoringEnabledFilter(taxYearEOY)(block = anyBlock)
 
       await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
     }
@@ -140,7 +140,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     "redirect to Income Tax Submission Overview when tailoring is disabled" in {
       mockAuthAsIndividual(Some(aUser.nino))
 
-      val underTest = actionsProvider.tailoringEnabledFilterWithEndOfYear(taxYear)(block = anyBlock)
+      val underTest = actionsProvider.tailoringEnabledFilter(taxYear)(block = anyBlock)
 
       await(underTest(fakeIndividualRequest.withSession(SessionValues.TAX_YEAR -> taxYear.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe
         Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear))

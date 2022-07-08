@@ -36,11 +36,11 @@ class DeductionsFromPaymentsController @Inject()(actionsProvider: ActionsProvide
                                                 (implicit cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
-  def show(taxYear: Int): Action[AnyContent] = actionsProvider.tailoringEnabledFilterWithEndOfYear(taxYear) { implicit request =>
+  def show(taxYear: Int): Action[AnyContent] = actionsProvider.tailoringEnabledFilter(taxYear) { implicit request =>
     Ok(pageView(DeductionsFromPaymentsPage(taxYear, formsProvider.deductionsFromPaymentsForm(request.user.isAgent))))
   }
 
-  def submit(taxYear: Int): Action[AnyContent] = actionsProvider.tailoringEnabledFilterWithEndOfYear(taxYear).async { implicit request =>
+  def submit(taxYear: Int): Action[AnyContent] = actionsProvider.tailoringEnabledFilter(taxYear).async { implicit request =>
     // TODO: change the redirects once the CYA data has been refactored
     // the redirects should work as follows:
     //  1. If user answers 'Yes' and is coming from 'Change' Link and CYA model is complete then redirect to CYA controller.

@@ -39,7 +39,7 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
       .andThen(TaxYearAction.taxYearAction(taxYear)(appConfig))
       .andThen(EndOfYearFilterAction(taxYear, inYearUtil, appConfig))
 
-  def tailoringEnabledFilterWithEndOfYear(taxYear: Int): ActionBuilder[AuthorisationRequest, AnyContent] =
+  def tailoringEnabledFilter(taxYear: Int): ActionBuilder[AuthorisationRequest, AnyContent] =
     authAction
       .andThen(TailoringEnabledFilterAction(taxYear, appConfig))
 
