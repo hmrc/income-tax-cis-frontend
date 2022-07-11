@@ -84,7 +84,7 @@ class MaterialsControllerSpec extends ControllerUnitTest
 
     "redirect to Materials amount page when Yes submitted successfully and not finished" in {
       mockEndOfYearWithSessionData(taxYearEOY, month = MAY.toString.toLowerCase, employerRef = aCisUserData.employerRef)
-      mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Right(aCisUserData.copy(cis = aCisCYAModel.copy(contractorName = None))))
+      mockSaveQuestion(aUser, aCisUserData, questionValue = true, result = Right(aCisUserData.copy(cis = aCisCYAModel.copy(periodData = None))))
 
       val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(YesNoForm.yesNo -> "true")
       await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef)(request)) shouldBe

@@ -82,7 +82,7 @@ class LabourPayControllerSpec extends ControllerUnitTest
 
     "redirect to Deductions amount page on successful submission when collected data not finished" in {
       mockEndOfYearWithSessionData(taxYearEOY, month = MAY.toString.toLowerCase, aCisUserData.employerRef)
-      mockSaveLabourPay(aUser, aCisUserData, amount = 123, result = Right(aCisUserData.copy(cis = aCisCYAModel.copy(contractorName = None))))
+      mockSaveLabourPay(aUser, aCisUserData, amount = 123, result = Right(aCisUserData.copy(cis = aCisCYAModel.copy(periodData = None))))
 
       val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody("amount" -> "123")
       await(underTest.submit(taxYearEOY, MAY.toString.toLowerCase, aCisUserData.employerRef).apply(request)) shouldBe

@@ -17,13 +17,11 @@
 package actions
 
 import config.MockAppConfig
-import controllers.routes.DeductionPeriodController
 import models.UserSessionDataRequest
 import models.mongo.DataNotFoundError
 import play.api.mvc.Results.{InternalServerError, Redirect}
 import support.UnitTest
 import support.builders.models.AuthorisationRequestBuilder.anAuthorisationRequest
-import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockCISSessionService, MockErrorHandler}
 
@@ -38,19 +36,14 @@ class CisUserDataRefinerActionSpec extends UnitTest
   private val appConfig = new MockAppConfig().config()
   private val executionContext = ExecutionContext.global
 
-  private def createAction(redirectIfPrior: Boolean = false) = CisUserDataRefinerAction(
+
+  private val underTest = CisUserDataRefinerAction(
     taxYear = taxYear,
     employerRef = employerRef,
     cisSessionService = mockCISSessionService,
     errorHandler = mockErrorHandler,
-    appConfig = appConfig,
-    needsPeriodData = true,
-    redirectIfPrior = redirectIfPrior
+    appConfig = appConfig
   )(executionContext)
-
-
-  private val underTest = createAction()
-
 
   ".executionContext" should {
     "return the given execution context" in {
@@ -72,29 +65,12 @@ class CisUserDataRefinerActionSpec extends UnitTest
       await(underTest.refine(anAuthorisationRequest)) shouldBe Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }
 
-    "return a redirect to Deduction Period Page when session data has no PeriodData" in {
-      val cisUserDataWithoutPeriodData = aCisUserData.copy(cis = aCisCYAModel.copy(periodData = None), employerRef = employerRef, taxYear = taxYear)
-
-      mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(Some(cisUserDataWithoutPeriodData)))
-
-      await(underTest.refine(anAuthorisationRequest)) shouldBe Left(Redirect(DeductionPeriodController.show(taxYear, employerRef)))
-    }
-
-    "return UserSessionDataRequest when period data exists and redirectIfPrior is false" in {
+    "return UserSessionDataRequest when period data exists" in {
       val cisUserData = aCisUserData.copy(employerRef = employerRef, taxYear = taxYear)
 
       mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(Some(cisUserData)))
 
       await(underTest.refine(anAuthorisationRequest)) shouldBe Right(UserSessionDataRequest(cisUserData, anAuthorisationRequest.user, anAuthorisationRequest.request))
-    }
-
-    "return a redirect to Income Tax Overview Page when period data is a prior submission and redirectIfPrior is true" in {
-      val cisUserData = aCisUserData.copy(employerRef = employerRef, taxYear = taxYear, isPriorSubmission = true)
-      val underTest = createAction(redirectIfPrior = true)
-
-      mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(Some(cisUserData)))
-
-      await(underTest.refine(anAuthorisationRequest)) shouldBe Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }
   }
 }

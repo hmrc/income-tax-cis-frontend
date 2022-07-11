@@ -34,8 +34,7 @@ case class CisCYAModel(contractorName: Option[String] = None,
   lazy val periodDataUpdated: Boolean =
     periodData.forall(!priorPeriodData.contains(_))
 
-  lazy val isFinished: Boolean =
-    contractorName.isDefined && periodData.exists(_.isFinished)
+  lazy val isFinished: Boolean = periodData.exists(_.isFinished)
 
   lazy val cyaPeriodData: Seq[CYAPeriodData] = periodData
     .map(periodData => periodData +: priorPeriodData.filterNot(_.originallySubmittedPeriod == periodData.originallySubmittedPeriod))
