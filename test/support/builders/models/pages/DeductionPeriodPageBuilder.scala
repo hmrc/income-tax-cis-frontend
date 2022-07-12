@@ -18,8 +18,8 @@ package support.builders.models.pages
 
 import forms.DeductionPeriodFormProvider
 import models.pages.DeductionPeriodPage
+import support.TaxYearUtils
 import support.builders.models.UserBuilder.aUser
-import utils.TaxYearUtils
 
 import java.time.Month
 

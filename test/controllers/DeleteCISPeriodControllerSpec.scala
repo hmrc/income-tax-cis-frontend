@@ -69,7 +69,7 @@ class DeleteCISPeriodControllerSpec extends ControllerUnitTest
     "throw a internal server error when service returns Left" in {
       mockExclusivelyCustomerPriorDataForEOY(taxYearEOY, aCisDeductions.employerRef, month = "may", anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions)))
       mockRemoveCISDeduction(taxYearEOY, aCisDeductions.employerRef, aUser, MAY, anIncomeTaxUserData, Left(DataNotFoundError))
-      mockInternalError(InternalServerError)
+      mockInternalServerError(InternalServerError)
 
       status(underTest.submit(taxYearEOY, aCisDeductions.employerRef, month = "may").apply(fakeIndividualRequest)) shouldBe INTERNAL_SERVER_ERROR
     }

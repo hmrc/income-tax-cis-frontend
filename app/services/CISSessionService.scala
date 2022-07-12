@@ -35,13 +35,14 @@ class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
                                   clock: Clock)(implicit val ec: ExecutionContext) extends Logging {
 
   // TODO: Check why we need the tempEmployerRef. Think of a way to get rid of it.
-  def getSessionData(taxYear: Int, employerRef: String, user: User, tempEmployerRef: Option[String]): Future[Either[DatabaseError, Option[CisUserData]]] = {
-
+  def getSessionData(taxYear: Int,
+                     employerRef: String,
+                     user: User,
+                     tempEmployerRef: Option[String]): Future[Either[DatabaseError, Option[CisUserData]]] =
     cisUserDataRepository.find(taxYear, employerRef, user).flatMap {
       case Right(None) if tempEmployerRef.isDefined => cisUserDataRepository.find(taxYear, tempEmployerRef.get, user)
       case response => Future.successful(response)
     }
-  }
 
   def createOrUpdateCISUserData(user: User,
                                 taxYear: Int,

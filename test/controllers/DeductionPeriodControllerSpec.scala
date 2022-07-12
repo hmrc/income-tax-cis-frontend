@@ -82,7 +82,7 @@ class DeductionPeriodControllerSpec extends ControllerUnitTest
     "handle internal server error when save operation fails with database error" in {
       mockEndOfYearWithSessionDataWithCustomerDeductionPeriod(taxYearEOY, aCisUserData.copy(employerRef = aCisDeductions.employerRef))
       mockSubmitMonth(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JUNE, Left(DataNotUpdatedError))
-      mockInternalError(InternalServerError)
+      mockInternalServerError(InternalServerError)
 
       val request = fakeIndividualRequest.withMethod(POST.method).withSession(TAX_YEAR -> taxYearEOY.toString).withFormUrlEncodedBody("month" -> "june")
       val result = underTest.submit(taxYearEOY, aCisDeductions.employerRef).apply(request)

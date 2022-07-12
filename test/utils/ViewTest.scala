@@ -16,7 +16,7 @@
 
 package utils
 
-import config.{AppConfig, MockAppConfig}
+import config.AppConfig
 import models.AuthorisationRequest
 import org.jsoup.nodes.{Document, Element}
 import org.jsoup.select.Elements
@@ -31,6 +31,7 @@ import play.api.mvc._
 import play.api.test.Helpers
 import support.FakeRequestHelper
 import support.builders.models.UserBuilder.aUser
+import support.mocks.MockAppConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration

@@ -16,7 +16,8 @@
 
 package helpers
 
-import config.{AppConfig, MockAppConfig}
+import config.AppConfig
+import support.mocks.MockAppConfig
 
 trait AppConfigHelper {
 

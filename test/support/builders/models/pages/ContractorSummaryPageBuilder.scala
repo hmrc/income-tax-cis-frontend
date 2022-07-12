@@ -17,9 +17,9 @@
 package support.builders.models.pages
 
 import models.pages.ContractorSummaryPage
+import support.TaxYearUtils
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.PeriodDataBuilder.aPeriodData
-import utils.TaxYearUtils
 
 object ContractorSummaryPageBuilder {
 

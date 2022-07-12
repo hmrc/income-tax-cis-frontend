@@ -16,11 +16,12 @@
 
 package support
 
-import config.{AppConfig, MockAppConfig}
+import config.AppConfig
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers.stubMessagesControllerComponents
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits, Injecting}
+import support.mocks.MockAppConfig
 
 import scala.concurrent.ExecutionContext
 

@@ -20,7 +20,7 @@ import audit.AmendCisContractorAudit
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.audit.AmendedCisContractorBuilder.anAmendedCisContractor
 import support.builders.models.audit.PreviousCisContractorBuilder.aPreviousCisContractor
-import utils.TaxYearUtils.taxYearEOY
+import support.TaxYearUtils.taxYearEOY
 
 object AmendCisContractorAuditBuilder {
   val anAmendCisContractorAudit: AmendCisContractorAudit =

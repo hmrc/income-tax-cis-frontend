@@ -41,7 +41,7 @@ class MonthFilterActionSpec extends UnitTest
   ".filter" should {
     "return a redirect to errorHandler.internalServerError if Month not a valid value" in {
       val underTest = MonthFilterAction(monthValue = "wrong-month-value", errorHandler = mockErrorHandler)(executionContext)
-      mockInternalError(InternalServerError)
+      mockInternalServerError(InternalServerError)
 
       await(underTest.filter(anAuthorisationRequest)) shouldBe Some(InternalServerError)
     }

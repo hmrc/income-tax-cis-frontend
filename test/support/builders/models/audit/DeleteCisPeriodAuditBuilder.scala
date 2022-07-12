@@ -19,7 +19,7 @@ package support.builders.models.audit
 import audit.DeleteCisPeriodAudit
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.audit.DeletedCisPeriodBuilder.aDeletedCisPeriod
-import utils.TaxYearUtils.taxYearEOY
+import support.TaxYearUtils.taxYearEOY
 
 object DeleteCisPeriodAuditBuilder {
   val aDeleteCisPeriodAudit: DeleteCisPeriodAudit =
