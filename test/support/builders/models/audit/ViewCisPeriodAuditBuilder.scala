@@ -19,7 +19,7 @@ package support.builders.models.audit
 import audit.ViewCisPeriodAudit
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.audit.ContractorDetailsAndPeriodDataBuilder.aContractorDetailsAndPeriodData
-import utils.TaxYearUtils.taxYear
+import support.TaxYearUtils.taxYear
 
 object ViewCisPeriodAuditBuilder {
 

@@ -19,7 +19,7 @@ package support.builders.models.audit
 import audit.CreateNewCisContractorAudit
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.audit.CreateNewCisContractorBuilder.aCreateNewCisContractor
-import utils.TaxYearUtils.taxYearEOY
+import support.TaxYearUtils.taxYearEOY
 
 object CreateNewCisContractorAuditBuilder {
   val aCreateNewCisContractorAudit: CreateNewCisContractorAudit = CreateNewCisContractorAudit(

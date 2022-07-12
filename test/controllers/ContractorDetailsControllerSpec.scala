@@ -133,7 +133,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
         mockNotInYear(taxYearEOY)
         mockGetPriorEmployerRefs(Right(Seq.empty))
         mockSaveContractorDetails(taxYearEOY, aUser, None, ContractorDetails("some-name", "123/45678"), Left(DataNotFoundError))
-        mockInternalError(InternalServerError)
+        mockInternalServerError(InternalServerError)
 
         val result = underTest.submit(taxYearEOY, contractor = None).apply(fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(
           contractorName -> "some-name",
@@ -147,7 +147,7 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
         mockGetPriorEmployerRefs(Right(Seq.empty))
         mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = "123/45678"))
         mockSaveContractorDetails(taxYearEOY, aUser, Some(aCisUserData.copy(employerRef = "123/45678")), ContractorDetails("some-name", "123/45678"), Left(DataNotFoundError))
-        mockInternalError(InternalServerError)
+        mockInternalServerError(InternalServerError)
 
         val result = underTest.submit(taxYearEOY, contractor = Some("123/45678")).apply(fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(
           contractorName -> "some-name",

@@ -16,7 +16,6 @@
 
 package actions
 
-import config.MockAppConfig
 import play.api.mvc.Results.Redirect
 import support.UnitTest
 import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
@@ -24,6 +23,7 @@ import support.builders.models.CISSourceBuilder.aCISSource
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserPriorDataRequestBuilder.aUserPriorDataRequest
+import support.mocks.MockAppConfig
 
 import scala.concurrent.ExecutionContext
 

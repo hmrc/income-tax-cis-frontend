@@ -16,7 +16,7 @@
 
 package support
 
-import config.{AppConfig, MockAppConfig}
+import config.AppConfig
 import models.{AuthorisationRequest, UserPriorDataRequest, UserSessionDataRequest}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Messages, MessagesApi}
@@ -26,6 +26,7 @@ import support.builders.models.AuthorisationRequestBuilder.anAuthorisationReques
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
+import support.mocks.MockAppConfig
 import uk.gov.hmrc.auth.core.AffinityGroup
 
 trait ViewUnitTest extends UnitTest

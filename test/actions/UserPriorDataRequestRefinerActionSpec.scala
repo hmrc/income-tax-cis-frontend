@@ -16,33 +16,27 @@
 
 package actions
 
-import config.MockAppConfig
-import models.UserSessionDataRequest
-import models.mongo.DataNotFoundError
-import play.api.mvc.Results.{InternalServerError, Redirect}
+import models.{HttpParserError, UserPriorDataRequest}
+import play.api.http.Status.INTERNAL_SERVER_ERROR
+import play.api.mvc.Results.InternalServerError
 import support.UnitTest
 import support.builders.models.AuthorisationRequestBuilder.anAuthorisationRequest
-import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
+import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.mocks.{MockCISSessionService, MockErrorHandler}
 
 import scala.concurrent.ExecutionContext
 
-class CisUserDataRefinerActionSpec extends UnitTest
+class UserPriorDataRequestRefinerActionSpec extends UnitTest
   with MockCISSessionService
   with MockErrorHandler {
 
-  private val taxYear = 2022
-  private val employerRef = "some-employer-ref"
-  private val appConfig = new MockAppConfig().config()
+  private val anyTaxYear = 2022
   private val executionContext = ExecutionContext.global
 
-
-  private val underTest = CisUserDataRefinerAction(
-    taxYear = taxYear,
-    employerRef = employerRef,
+  private val underTest = UserPriorDataRequestRefinerAction(
+    taxYear = anyTaxYear,
     cisSessionService = mockCISSessionService,
     errorHandler = mockErrorHandler,
-    appConfig = appConfig
   )(executionContext)
 
   ".executionContext" should {
@@ -53,24 +47,16 @@ class CisUserDataRefinerActionSpec extends UnitTest
 
   ".refine" should {
     "handle InternalServerError when when getting session data result in database error" in {
-      mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Left(DataNotFoundError))
-      mockInternalError(InternalServerError)
+      mockGetPriorData(anyTaxYear, anAuthorisationRequest.user, Left(HttpParserError(INTERNAL_SERVER_ERROR)))
+      mockHandleError(INTERNAL_SERVER_ERROR, InternalServerError)
 
       await(underTest.refine(anAuthorisationRequest)) shouldBe Left(InternalServerError)
     }
 
-    "return a redirect to Income Tax Submission Overview when session data is None" in {
-      mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(None))
-
-      await(underTest.refine(anAuthorisationRequest)) shouldBe Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-    }
-
     "return UserSessionDataRequest when period data exists" in {
-      val cisUserData = aCisUserData.copy(employerRef = employerRef, taxYear = taxYear)
+      mockGetPriorData(anyTaxYear, anAuthorisationRequest.user, Right(anIncomeTaxUserData))
 
-      mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(Some(cisUserData)))
-
-      await(underTest.refine(anAuthorisationRequest)) shouldBe Right(UserSessionDataRequest(cisUserData, anAuthorisationRequest.user, anAuthorisationRequest.request))
+      await(underTest.refine(anAuthorisationRequest)) shouldBe Right(UserPriorDataRequest(anIncomeTaxUserData, anAuthorisationRequest.user, anAuthorisationRequest.request))
     }
   }
 }

@@ -25,7 +25,7 @@ import support.builders.models.audit.ContractorDetailsAndPeriodDataBuilder.aCont
 import support.builders.models.audit.ViewCisPeriodAuditBuilder.aViewCisPeriodAudit
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import utils.TaxYearUtils.{taxYear, taxYearEOY}
+import support.TaxYearUtils.{taxYear, taxYearEOY}
 
 import java.time.Month
 

@@ -17,8 +17,8 @@
 package support.builders.models.pages
 
 import models.pages.DeductionsSummaryPage
+import support.TaxYearUtils
 import support.builders.models.pages.elements.ContractorDeductionToDateBuilder.aContractorDeductionToDate
-import utils.TaxYearUtils
 
 object DeductionsSummaryPageBuilder {
 
