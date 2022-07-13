@@ -16,13 +16,13 @@
 
 package actions
 
-import config.MockAppConfig
 import controllers.routes.DeductionPeriodController
 import play.api.mvc.Results.Redirect
 import support.UnitTest
 import support.builders.models.UserSessionDataRequestBuilder.aUserSessionDataRequest
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
+import support.mocks.MockAppConfig
 
 import scala.concurrent.ExecutionContext
 

@@ -18,7 +18,7 @@ package support.builders.models.pages
 
 import forms.FormsProvider
 import models.pages.DeductionsFromPaymentsPage
-import utils.TaxYearUtils
+import support.TaxYearUtils
 
 object DeductionsFromPaymentsPageBuilder {
 

@@ -91,7 +91,7 @@ class ContractorCYAControllerSpec extends ControllerUnitTest
     "handle database error" in {
       mockCheckCyaExistsAndReturnSessionData(taxYearEOY, contractor = "12345", month = "may", aCisUserData)
       mockSubmitCisDeductionCYA(taxYearEOY, employerRef = "12345", aUser, aCisUserData, Left(DataNotUpdatedError))
-      mockInternalError(InternalServerError)
+      mockInternalServerError(InternalServerError)
 
       val result = underTest.submit(taxYearEOY, Month.MAY.toString.toLowerCase, contractor = "12345").apply(fakeIndividualRequest)
 

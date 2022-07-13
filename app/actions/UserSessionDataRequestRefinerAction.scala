@@ -25,12 +25,12 @@ import services.CISSessionService
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class CisUserDataRefinerAction(taxYear: Int,
-                                    employerRef: String,
-                                    cisSessionService: CISSessionService,
-                                    errorHandler: ErrorHandler,
-                                    appConfig: AppConfig
-                                   )(implicit ec: ExecutionContext) extends ActionRefiner[AuthorisationRequest, UserSessionDataRequest] {
+case class UserSessionDataRequestRefinerAction(taxYear: Int,
+                                               employerRef: String,
+                                               cisSessionService: CISSessionService,
+                                               errorHandler: ErrorHandler,
+                                               appConfig: AppConfig
+                                              )(implicit ec: ExecutionContext) extends ActionRefiner[AuthorisationRequest, UserSessionDataRequest] {
 
   override protected[actions] def executionContext: ExecutionContext = ec
 

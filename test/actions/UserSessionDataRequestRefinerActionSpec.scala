@@ -16,20 +16,17 @@
 
 package actions
 
-import controllers.routes.ContractorSummaryController
 import models.UserSessionDataRequest
 import models.mongo.DataNotFoundError
 import play.api.mvc.Results.{InternalServerError, Redirect}
 import support.UnitTest
 import support.builders.models.AuthorisationRequestBuilder.anAuthorisationRequest
-import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.mocks.{MockAppConfig, MockCISSessionService, MockErrorHandler}
 
-import java.time.Month
 import scala.concurrent.ExecutionContext
 
-class OptionalCisCyaRefinerActionSpec extends UnitTest
+class UserSessionDataRequestRefinerActionSpec extends UnitTest
   with MockCISSessionService
   with MockErrorHandler {
 
@@ -37,56 +34,42 @@ class OptionalCisCyaRefinerActionSpec extends UnitTest
   private val employerRef = "some-employer-ref"
   private val appConfig = new MockAppConfig().config()
   private val executionContext = ExecutionContext.global
-  private val monthValue = "may"
 
-  def underTest(monthValue: String = monthValue): OptionalCisCyaRefinerAction = OptionalCisCyaRefinerAction(
+
+  private val underTest = UserSessionDataRequestRefinerAction(
     taxYear = taxYear,
     employerRef = employerRef,
     cisSessionService = mockCISSessionService,
     errorHandler = mockErrorHandler,
-    appConfig = appConfig,
-    monthValue = monthValue
+    appConfig = appConfig
   )(executionContext)
 
   ".executionContext" should {
     "return the given execution context" in {
-      underTest().executionContext shouldBe executionContext
+      underTest.executionContext shouldBe executionContext
     }
   }
 
   ".refine" should {
     "handle InternalServerError when when getting session data result in database error" in {
-      mockCheckCyaAndReturnData(taxYear, employerRef, Month.MAY, Left(DataNotFoundError))
+      mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Left(DataNotFoundError))
       mockInternalServerError(InternalServerError)
 
-      await(underTest().refine(anAuthorisationRequest)) shouldBe Left(InternalServerError)
-    }
-    "handle invalid month" in {
-      mockInternalServerError(InternalServerError)
-
-      await(underTest("beans").refine(anAuthorisationRequest)) shouldBe Left(InternalServerError)
+      await(underTest.refine(anAuthorisationRequest)) shouldBe Left(InternalServerError)
     }
 
     "return a redirect to Income Tax Submission Overview when session data is None" in {
-      mockCheckCyaAndReturnData(taxYear, employerRef, Month.MAY, Right(None))
+      mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(None))
 
-      await(underTest().refine(anAuthorisationRequest)) shouldBe Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
-    }
-
-    "return a redirect to contractor summary Page when session data has no PeriodData" in {
-      val cisUserDataWithoutPeriodData = aCisUserData.copy(cis = aCisCYAModel.copy(periodData = None), employerRef = employerRef, taxYear = taxYear)
-
-      mockCheckCyaAndReturnData(taxYear, employerRef, Month.MAY, Right(Some(cisUserDataWithoutPeriodData)))
-
-      await(underTest().refine(anAuthorisationRequest)) shouldBe Left(Redirect(ContractorSummaryController.show(taxYear, employerRef)))
+      await(underTest.refine(anAuthorisationRequest)) shouldBe Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
     }
 
     "return UserSessionDataRequest when period data exists" in {
       val cisUserData = aCisUserData.copy(employerRef = employerRef, taxYear = taxYear)
 
-      mockCheckCyaAndReturnData(taxYear, employerRef, Month.MAY, Right(Some(cisUserData)))
+      mockGetSessionData(taxYear, anAuthorisationRequest.user, employerRef, Right(Some(cisUserData)))
 
-      await(underTest().refine(anAuthorisationRequest)) shouldBe Right(UserSessionDataRequest(cisUserData, anAuthorisationRequest.user, anAuthorisationRequest.request))
+      await(underTest.refine(anAuthorisationRequest)) shouldBe Right(UserSessionDataRequest(cisUserData, anAuthorisationRequest.user, anAuthorisationRequest.request))
     }
   }
 }

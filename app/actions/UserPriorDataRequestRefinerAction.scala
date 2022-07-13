@@ -24,10 +24,10 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendHeaderCarrierProvi
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class UserPriorDataRefinerAction(taxYear: Int,
-                                      cisSessionService: CISSessionService,
-                                      errorHandler: ErrorHandler)
-                                     (implicit ec: ExecutionContext)
+case class UserPriorDataRequestRefinerAction(taxYear: Int,
+                                             cisSessionService: CISSessionService,
+                                             errorHandler: ErrorHandler)
+                                            (implicit ec: ExecutionContext)
   extends ActionRefiner[AuthorisationRequest, UserPriorDataRequest] with FrontendHeaderCarrierProvider {
 
   override protected[actions] def executionContext: ExecutionContext = ec

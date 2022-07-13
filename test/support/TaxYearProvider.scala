@@ -16,8 +16,6 @@
 
 package support
 
-import utils.TaxYearUtils
-
 trait TaxYearProvider {
 
   protected val taxYear: Int = TaxYearUtils.taxYear

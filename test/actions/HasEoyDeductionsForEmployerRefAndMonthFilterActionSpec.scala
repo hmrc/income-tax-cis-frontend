@@ -16,7 +16,6 @@
 
 package actions
 
-import config.MockAppConfig
 import play.api.mvc.Results.{InternalServerError, Redirect}
 import support.UnitTest
 import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
@@ -25,7 +24,7 @@ import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserPriorDataRequestBuilder.aUserPriorDataRequest
-import support.mocks.MockErrorHandler
+import support.mocks.{MockAppConfig, MockErrorHandler}
 
 import java.time.Month
 import scala.concurrent.ExecutionContext
@@ -63,7 +62,7 @@ class HasEoyDeductionsForEmployerRefAndMonthFilterActionSpec extends UnitTest
         appConfig = appConfig
       )(executionContext)
 
-      mockInternalError(InternalServerError)
+      mockInternalServerError(InternalServerError)
 
       await(underTest.filter(aUserPriorDataRequest)) shouldBe Some(InternalServerError)
     }

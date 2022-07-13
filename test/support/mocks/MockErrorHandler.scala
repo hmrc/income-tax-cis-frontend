@@ -31,7 +31,7 @@ trait MockErrorHandler extends MockFactory {
       .returns(result)
   }
 
-  def mockInternalError(result: Result): Unit = {
+  def mockInternalServerError(result: Result): Unit = {
     (mockErrorHandler.internalServerError()(_: AuthorisationRequest[_]))
       .expects(*)
       .returns(result)

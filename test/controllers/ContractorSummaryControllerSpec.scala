@@ -77,7 +77,7 @@ class ContractorSummaryControllerSpec extends ControllerUnitTest
 
       mockUserPriorDataFor(taxYearEOY, contractor = "12345", anIncomeTaxUserData.copy(cis = Some(allCISDeductions)))
       mockSaveCYAForNewCisDeduction(taxYearEOY, "12345", Left(DataNotUpdatedError))
-      mockInternalError(InternalServerError)
+      mockInternalServerError(InternalServerError)
 
       val result = controller.addCisDeduction(taxYearEOY, contractor = "12345").apply(fakeIndividualRequest)
 

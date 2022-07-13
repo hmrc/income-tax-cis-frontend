@@ -18,7 +18,7 @@ package support.builders.models.pages
 
 import forms.ContractorDetailsForm.contractorDetailsForm
 import models.pages.ContractorDetailsPage
-import utils.TaxYearUtils
+import support.TaxYearUtils
 
 object ContractorDetailsPageBuilder {
 

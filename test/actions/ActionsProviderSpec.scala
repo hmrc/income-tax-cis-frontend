@@ -18,7 +18,7 @@ package actions
 
 import common.SessionValues
 import common.SessionValues.VALID_TAX_YEARS
-import config.{AppConfig, MockAppConfig, MockAuditService}
+import config.{AppConfig, MockAuditService}
 import controllers.errors.routes.UnauthorisedUserErrorController
 import models.{HttpParserError, IncomeTaxUserData}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
@@ -37,7 +37,7 @@ import support.builders.models.audit.ViewCisPeriodAuditBuilder.aViewCisPeriodAud
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.mocks.{MockAuthorisedAction, MockCISSessionService, MockErrorHandler}
+import support.mocks.{MockAppConfig, MockAuthorisedAction, MockCISSessionService, MockErrorHandler}
 import utils.InYearUtil
 
 import java.time.Month
@@ -437,7 +437,7 @@ class ActionsProviderSpec extends ControllerUnitTest
 
     "redirect to Error page when month is wrong" in {
       mockAuthAsIndividual(Some(aUser.nino))
-      mockInternalError(InternalServerError)
+      mockInternalServerError(InternalServerError)
 
       val underTest = actionsProvider.endOfYearWithSessionData(taxYear, month = "wrong-month", contractor = "any-contractor")(block = anyBlock)
 
@@ -466,7 +466,7 @@ class ActionsProviderSpec extends ControllerUnitTest
   ".endOfYearWithSessionDataWithCustomerDeductionPeriod(taxYear, contractor)" should {
     "redirect to Error page when month is wrong" in {
       mockAuthAsIndividual(Some(aUser.nino))
-      mockInternalError(InternalServerError)
+      mockInternalServerError(InternalServerError)
 
       val underTest = actionsProvider.endOfYearWithSessionDataWithCustomerDeductionPeriod(taxYear, month = Some("wrong-month"), contractor = "any-contractor")(block = anyBlock)
 

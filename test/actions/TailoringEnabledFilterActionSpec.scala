@@ -16,9 +16,9 @@
 
 package actions
 
-import config.MockAppConfig
 import play.api.mvc.Results.Redirect
 import support.builders.models.AuthorisationRequestBuilder.anAuthorisationRequest
+import support.mocks.MockAppConfig
 import support.{TaxYearProvider, UnitTest}
 
 import scala.concurrent.ExecutionContext

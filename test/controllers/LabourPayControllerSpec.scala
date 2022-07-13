@@ -72,7 +72,7 @@ class LabourPayControllerSpec extends ControllerUnitTest
     "handle internal server error when save operation fails with database error" in {
       mockEndOfYearWithSessionData(taxYearEOY, month = MAY.toString.toLowerCase, aCisUserData.employerRef)
       mockSaveLabourPay(aUser, aCisUserData, amount = 123, result = Left(DataNotFoundError))
-      mockInternalError(InternalServerError)
+      mockInternalServerError(InternalServerError)
 
       val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody("amount" -> "123")
       val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, aCisUserData.employerRef).apply(request)

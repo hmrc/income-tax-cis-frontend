@@ -18,8 +18,8 @@ package support.builders.models.mongo
 
 import models.mongo.CisUserData
 import org.joda.time.{DateTime, DateTimeZone}
+import support.TaxYearUtils
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
-import utils.TaxYearUtils
 
 object CisUserDataBuilder {
 

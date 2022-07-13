@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package config
+package support.mocks
 
+import config.AppConfig
 import org.scalamock.scalatest.MockFactory
 import play.api.mvc.RequestHeader
 import support.TaxYearProvider

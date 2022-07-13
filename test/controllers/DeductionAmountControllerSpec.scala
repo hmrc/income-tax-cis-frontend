@@ -74,7 +74,7 @@ class DeductionAmountControllerSpec extends ControllerUnitTest
     "handle internal server error when save operation fails with database error" in {
       mockEndOfYearWithSessionData(taxYearEOY, month = "may", aCisUserData.employerRef)
       mockSaveAmount(aUser, aCisUserData, amount = 123, result = Left(DataNotFoundError))
-      mockInternalError(InternalServerError)
+      mockInternalServerError(InternalServerError)
 
       val request = fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(AmountForm.amount -> "123")
       val result = underTest.submit(taxYearEOY, MAY.toString.toLowerCase, contractor = aCisUserData.employerRef).apply(request)
