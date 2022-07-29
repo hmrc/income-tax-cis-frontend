@@ -29,7 +29,7 @@ trait MockNrsService extends MockFactory {
 
   val mockNrsService: NrsService = mock[NrsService]
 
-  def verifySubmitEvent[T](event: T): CallHandler[Future[NrsSubmissionResponse]] = {
+  def mockSendNrs[T](event: T): CallHandler[Future[NrsSubmissionResponse]] = {
     (mockNrsService.submit(_: String, _: T, _: String)(_: HeaderCarrier, _: Writes[T]))
       .expects(*, event, *, *, *)
       .returning(Future.successful(Right(())))
