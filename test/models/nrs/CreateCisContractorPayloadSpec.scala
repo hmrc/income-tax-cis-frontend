@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package nrs
+package models.nrs
 
-import models.nrs.CreateCisContractorPayload
 import play.api.libs.json.Json
 import support.UnitTest
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
+
 import java.time.Month.NOVEMBER
 
 class CreateCisContractorPayloadSpec extends UnitTest {
@@ -50,7 +50,7 @@ class CreateCisContractorPayloadSpec extends UnitTest {
         priorPeriodData = Seq()
       ))
 
-      val createCisContractorPayload = CreateCisContractorPayload.mapFrom(employerRef = cisData.employerRef, cisCYAModel = cisData.cis).get
+      val createCisContractorPayload = CreateCisContractorPayload.apply(cisData.cis.contractorName, cisData.employerRef, cisData.cis.periodData.get)
       Json.toJson(createCisContractorPayload) shouldBe json
     }
   }

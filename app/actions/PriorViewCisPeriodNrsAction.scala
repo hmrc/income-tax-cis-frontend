@@ -27,10 +27,10 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendHeaderCarrierProvi
 import java.time.Month
 import scala.concurrent.{ExecutionContext, Future}
 
-case class InYearViewCisPeriodNrsAction(employerRef: String,
-                                        month: String,
-                                        nrsService: NrsService)
-                                       (implicit ec: ExecutionContext) extends ActionFilter[UserPriorDataRequest] with FrontendHeaderCarrierProvider {
+case class PriorViewCisPeriodNrsAction(employerRef: String,
+                                       month: String,
+                                       nrsService: NrsService)
+                                      (implicit ec: ExecutionContext) extends ActionFilter[UserPriorDataRequest] with FrontendHeaderCarrierProvider {
 
   override protected[actions] def executionContext: ExecutionContext = ec
 
@@ -40,14 +40,7 @@ case class InYearViewCisPeriodNrsAction(employerRef: String,
       input.incomeTaxUserData.inYearCisDeductionsWith(employerRef).foreach { cisDeductions =>
         val deductionMonth = Month.valueOf(month.toUpperCase)
         cisDeductions.periodData.find(item => item.deductionPeriod == deductionMonth).foreach { period =>
-          val nrsPayload = ViewCisPeriodPayload(cisDeductions.contractorName,
-            employerRef,
-            period.deductionPeriod.toString,
-            period.grossAmountPaid,
-            period.deductionAmount,
-            Some(period.costOfMaterials.isDefined),
-            period.costOfMaterials)
-
+          val nrsPayload = ViewCisPeriodPayload(cisDeductions.contractorName, employerRef, period)
           nrsService.submit[ViewCisPeriodPayload](input.user.nino, nrsPayload,
             input.user.mtditid)(hc(input.request), ViewCisPeriodPayload.writes)
         }

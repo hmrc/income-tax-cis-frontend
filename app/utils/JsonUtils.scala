@@ -20,5 +20,5 @@ import play.api.libs.json.{JsNull, JsObject, Json}
 
 object JsonUtils {
   def jsonObjNoNulls(fields: (String, Json.JsValueWrapper)*): JsObject =
-    JsObject(Json.obj(fields:_*).fields.filterNot(_._2 == JsNull).filterNot(_._2 == Json.obj()))
+    JsObject(Json.obj(fields:_*).fields.filterNot(field => field._2 == JsNull || field._2 == Json.obj()))
 }

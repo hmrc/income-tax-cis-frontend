@@ -25,8 +25,8 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendHeaderCarrierProvi
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class EndOfYearViewCisPeriodNrsAction(nrsService: NrsService)
-                                          (implicit ec: ExecutionContext) extends ActionFilter[UserSessionDataRequest] with FrontendHeaderCarrierProvider {
+case class SessionViewCisPeriodNrsAction(nrsService: NrsService)
+                                        (implicit ec: ExecutionContext) extends ActionFilter[UserSessionDataRequest] with FrontendHeaderCarrierProvider {
 
   override protected[actions] def executionContext: ExecutionContext = ec
 
@@ -36,13 +36,7 @@ case class EndOfYearViewCisPeriodNrsAction(nrsService: NrsService)
       val cisPeriod = cisUserData.cis
       cisPeriod.periodData.foreach{ period =>
         nrsService.submit[ViewCisPeriodPayload](input.user.nino,
-          ViewCisPeriodPayload(cisPeriod.contractorName,
-            cisUserData.employerRef,
-            period.deductionPeriod.toString,
-            period.grossAmountPaid,
-            period.deductionAmount,
-            period.costOfMaterialsQuestion,
-            period.costOfMaterials),
+          ViewCisPeriodPayload(cisPeriod.contractorName, cisUserData.employerRef, period),
           input.user.mtditid)(hc(input.request), ViewCisPeriodPayload.writes)
       }
     }

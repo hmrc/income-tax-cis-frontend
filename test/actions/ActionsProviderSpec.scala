@@ -20,7 +20,7 @@ import common.SessionValues
 import common.SessionValues.VALID_TAX_YEARS
 import config.{AppConfig, MockAuditService, MockNrsService}
 import controllers.errors.routes.UnauthorisedUserErrorController
-import models.nrs.ViewCisPeriodPayload
+import models.nrs.{ContractorDetails, DeductionPeriod, ViewCisPeriodPayload}
 import models.{HttpParserError, IncomeTaxUserData}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.mvc.Results.{InternalServerError, Ok, Redirect}
@@ -269,13 +269,13 @@ class ActionsProviderSpec extends ControllerUnitTest
       val allCISDeductions = anAllCISDeductions.copy(customerCISDeductions = None, contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(deductions))))
       val viewAudit = aViewCisPeriodAudit.copy(cisPeriod = aContractorDetailsAndPeriodData.copy(ern = "some-ref"))
       val viewNrsPayload = ViewCisPeriodPayload(
-        aCisDeductions.contractorName,
-        "some-ref",
-        viewAudit.cisPeriod.month,
-        viewAudit.cisPeriod.labour,
-        viewAudit.cisPeriod.cisDeduction,
-        Some(viewAudit.cisPeriod.materialsCost.isDefined),
-        viewAudit.cisPeriod.materialsCost,
+        ContractorDetails(aCisDeductions.contractorName, "some-ref"),
+        DeductionPeriod(
+          viewAudit.cisPeriod.month,
+          viewAudit.cisPeriod.labour,
+          viewAudit.cisPeriod.cisDeduction,
+          viewAudit.cisPeriod.materialsCost.isDefined,
+          viewAudit.cisPeriod.materialsCost)
       )
 
       mockAuthAsIndividual(Some(aUser.nino))
@@ -296,13 +296,15 @@ class ActionsProviderSpec extends ControllerUnitTest
       )
       val viewAudit = aViewCisPeriodAudit.copy(taxYear = taxYearEOY, cisPeriod = aContractorDetailsAndPeriodData.copy(ern = "some-ref"))
       val viewNrsPayload = ViewCisPeriodPayload(
-        aCisDeductions.contractorName,
-        "some-ref",
-        viewAudit.cisPeriod.month,
-        viewAudit.cisPeriod.labour,
-        viewAudit.cisPeriod.cisDeduction,
-        Some(viewAudit.cisPeriod.materialsCost.isDefined),
-        viewAudit.cisPeriod.materialsCost,
+        ContractorDetails(
+          aCisDeductions.contractorName,
+          "some-ref"),
+        DeductionPeriod(
+          viewAudit.cisPeriod.month,
+          viewAudit.cisPeriod.labour,
+          viewAudit.cisPeriod.cisDeduction,
+          viewAudit.cisPeriod.materialsCost.isDefined,
+          viewAudit.cisPeriod.materialsCost)
       )
 
 
@@ -561,13 +563,15 @@ class ActionsProviderSpec extends ControllerUnitTest
         cisPeriod = aContractorDetailsAndPeriodData.copy(labour = Some(500), materialsCost = Some(250))
       )
       val viewNrsPayload = ViewCisPeriodPayload(
-        aCisDeductions.contractorName,
-        aCisDeductions.employerRef,
-        viewAudit.cisPeriod.month,
-        viewAudit.cisPeriod.labour,
-        viewAudit.cisPeriod.cisDeduction,
-        Some(viewAudit.cisPeriod.materialsCost.isDefined),
-        viewAudit.cisPeriod.materialsCost,
+        ContractorDetails(
+          aCisDeductions.contractorName,
+          aCisDeductions.employerRef),
+        DeductionPeriod(
+          viewAudit.cisPeriod.month,
+          viewAudit.cisPeriod.labour,
+          viewAudit.cisPeriod.cisDeduction,
+          viewAudit.cisPeriod.materialsCost.isDefined,
+          viewAudit.cisPeriod.materialsCost)
       )
 
 

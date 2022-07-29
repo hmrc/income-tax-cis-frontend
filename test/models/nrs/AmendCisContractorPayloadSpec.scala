@@ -14,15 +14,36 @@
  * limitations under the License.
  */
 
-package nrs
+package models.nrs
 
-import models.nrs.AmendCisContractorPayload
 import play.api.libs.json.Json
 import support.UnitTest
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 
 class AmendCisContractorPayloadSpec extends UnitTest {
+
+  "apply" should {
+    "return an AmendCisContractorPayloadSpec" in {
+      val amendCisContractorPayload = AmendCisContractorPayload(employerRef = aCisUserData.employerRef, cisUserData = aCisUserData, incomeTaxUserData = anIncomeTaxUserData)
+
+      val previousCustomerDeductionPeriods = Seq(DeductionPeriod("MAY", Some(450),Some(100), true, Some(50)))
+      val previousCisContractor = amendCisContractorPayload.previousContractor
+      previousCisContractor.ern shouldBe aCisUserData.employerRef
+      previousCisContractor.contractorName shouldBe "ABC Steelworks"
+      previousCisContractor.customerDeductionPeriods shouldBe previousCustomerDeductionPeriods
+      previousCisContractor.deductionPeriods shouldBe previousCustomerDeductionPeriods
+
+      val newDeductionPeriods = Seq(DeductionPeriod("NOVEMBER", Some(500),Some(100), true, Some(250)))
+      val newCustomerDeductionPeriod = Some(DeductionPeriod("MAY", Some(500),Some(100), true, Some(250)))
+      val newCisContractor = amendCisContractorPayload.newContractor
+      newCisContractor.ern shouldBe aCisUserData.employerRef
+      newCisContractor.contractorName shouldBe "ABC Steelworks"
+      newCisContractor.deductionPeriods shouldBe newDeductionPeriods
+      newCisContractor.customerDeductionPeriods shouldBe newCustomerDeductionPeriod
+    }
+  }
+
   "writes" should {
     "produce valid json when passed a AmendCisContractorPayload" in {
       val json = Json.parse(

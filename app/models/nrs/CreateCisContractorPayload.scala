@@ -16,20 +16,19 @@
 
 package models.nrs
 
-import models.mongo.CisCYAModel
+import models.mongo.{CYAPeriodData, CisCYAModel}
 import play.api.libs.json.OWrites
 import utils.JsonUtils.jsonObjNoNulls
 
 case class CreateCisContractorPayload(contractorDetails: ContractorDetails, customerDeductionPeriod: DeductionPeriod)
 
 object CreateCisContractorPayload {
-  def mapFrom(employerRef: String, cisCYAModel: CisCYAModel): Option[CreateCisContractorPayload] = {
-    cisCYAModel.periodData.map { periodData =>
-      CreateCisContractorPayload(
-        contractorDetails = ContractorDetails(name = cisCYAModel.contractorName, ern = employerRef),
-        customerDeductionPeriod = DeductionPeriod(periodData)
-      )
-    }
+
+  def apply(contractorName: Option[String], employerRef: String, periodData: CYAPeriodData): CreateCisContractorPayload = {
+    CreateCisContractorPayload(
+      contractorDetails = ContractorDetails(name = contractorName, ern = employerRef),
+      customerDeductionPeriod = DeductionPeriod(periodData)
+    )
   }
 
   implicit def writes: OWrites[CreateCisContractorPayload] = (payload: CreateCisContractorPayload) => {

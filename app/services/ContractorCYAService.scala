@@ -18,12 +18,10 @@ package services
 
 import audit.{AmendCisContractorAudit, AuditService, CreateNewCisContractorAudit}
 import connectors.CISConnector
-import connectors.parsers.NrsSubmissionHttpParser.NrsSubmissionResponse
 import models.mongo.CisUserData
 import models.nrs.{AmendCisContractorPayload, CreateCisContractorPayload}
-import models.{HttpParserError, InvalidOrUnfinishedSubmission, ServiceError, User}
+import models._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,10 +42,9 @@ class ContractorCYAService @Inject()(cisSessionService: CISSessionService,
         cisConnector.submit(user.nino, taxYear, submission)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)).flatMap {
           case Left(error) => Future.successful(Left(HttpParserError(error.status)))
           case Right(_) =>
-            val handleAuditAndNrsFuture = handleAuditAndNrs(taxYear, employerRef, user, cisUserData)
+            handleAuditAndNrs(taxYear, employerRef, user, cisUserData)
             val refreshAndClearFuture = cisSessionService.refreshAndClear(user, employerRef, taxYear)
             for {
-              _ <- handleAuditAndNrsFuture
               result <- refreshAndClearFuture
             } yield result
         }
@@ -56,27 +53,46 @@ class ContractorCYAService @Inject()(cisSessionService: CISSessionService,
   }
 
   private def handleAuditAndNrs(taxYear: Int, employerRef: String, user: User, cisUserData: CisUserData)
-                               (implicit hc: HeaderCarrier): Future[Either[HttpParserError, (Future[AuditResult], Future[NrsSubmissionResponse])]] = {
-    if (cisUserData.submissionId.isEmpty) {
-      val auditModel = CreateNewCisContractorAudit.mapFrom(taxYear, employerRef, user, cisUserData).get
-      val auditResult = auditService.sendAudit[CreateNewCisContractorAudit](auditModel.toAuditModel)
-
-      val createCisContractor = CreateCisContractorPayload.mapFrom(employerRef = employerRef, cisCYAModel = cisUserData.cis).get
-      val nrsResult = nrsService.submit[CreateCisContractorPayload](user.nino, createCisContractor, user.mtditid)
-      Future.successful(Right((auditResult, nrsResult)))
+                               (implicit hc: HeaderCarrier): Unit = {
+    if (cisContractorCreated(cisUserData)) {
+      submitCisCreateAudit(taxYear, employerRef, user, cisUserData)
+      submitCisCreateNrs(employerRef, user, cisUserData)
     }
     else {
       cisSessionService.getPriorData(user, taxYear).map {
-        case Left(error) => Left(error)
-        case Right(incomeTaxUserData) => {
-          val auditModel = AmendCisContractorAudit(taxYear, employerRef, user, cisUserData, incomeTaxUserData)
-          val auditResult = auditService.sendAudit[AmendCisContractorAudit](auditModel.toAuditModel)
-
-          val amendCisContractor = AmendCisContractorPayload(employerRef, cisUserData, incomeTaxUserData)
-          val nrsResult = nrsService.submit[AmendCisContractorPayload](user.nino, amendCisContractor, user.mtditid)
-          Right((auditResult, nrsResult))
-        }
+        case Right(incomeTaxUserData) =>
+          submitAmendCisAudit(taxYear, employerRef, user, cisUserData, incomeTaxUserData)
+          submitAmendCisNrs(employerRef, user, cisUserData, incomeTaxUserData)
+        case _ => ()
       }
     }
+  }
+
+  private def submitAmendCisNrs(employerRef: String, user: User, cisUserData: CisUserData, incomeTaxUserData: IncomeTaxUserData)
+                               (implicit hc: HeaderCarrier): Unit = {
+    val amendCisContractor = AmendCisContractorPayload(employerRef, cisUserData, incomeTaxUserData)
+    nrsService.submit[AmendCisContractorPayload](user.nino, amendCisContractor, user.mtditid)
+  }
+
+  private def submitAmendCisAudit(taxYear: Int, employerRef: String, user: User, cisUserData: CisUserData, incomeTaxUserData: IncomeTaxUserData)
+                                 (implicit hc: HeaderCarrier): Unit = {
+    val auditModel = AmendCisContractorAudit(taxYear, employerRef, user, cisUserData, incomeTaxUserData)
+    auditService.sendAudit[AmendCisContractorAudit](auditModel.toAuditModel)
+  }
+
+  private def submitCisCreateNrs(employerRef: String, user: User, cisUserData: CisUserData)(implicit hc: HeaderCarrier): Unit = {
+    cisUserData.cis.periodData.map { period =>
+      val createCisContractor = CreateCisContractorPayload.apply(cisUserData.cis.contractorName, employerRef = employerRef, period)
+      nrsService.submit[CreateCisContractorPayload](user.nino, createCisContractor, user.mtditid)
+    }
+  }
+
+  private def submitCisCreateAudit(taxYear: Int, employerRef: String, user: User, cisUserData: CisUserData)(implicit hc: HeaderCarrier): Unit = {
+    val auditModel = CreateNewCisContractorAudit.mapFrom(taxYear, employerRef, user, cisUserData).get
+    auditService.sendAudit[CreateNewCisContractorAudit](auditModel.toAuditModel)
+  }
+
+  private def cisContractorCreated(cisUserData: CisUserData): Boolean = {
+    cisUserData.submissionId.isEmpty
   }
 }

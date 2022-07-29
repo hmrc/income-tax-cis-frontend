@@ -17,8 +17,8 @@
 package models.nrs
 
 
-import models.mongo.{CisCYAModel, CisUserData}
-import models.{AllCISDeductions, IncomeTaxUserData, PeriodData}
+import models.mongo.{CYAPeriodData, CisCYAModel, CisUserData}
+import models.{AllCISDeductions, CisDeductions, IncomeTaxUserData, PeriodData}
 import play.api.libs.json.{Json, OWrites}
 
 case class AmendCisContractorPayload(previousContractor: PreviousCisContractor, newContractor: NewCisContractor)
@@ -39,52 +39,38 @@ object AmendCisContractorPayload {
   private def getPreviousContractors(employerRef: String,
                                      allCISDeductions: AllCISDeductions): PreviousCisContractor = {
 
-    val deductionPeriods = allCISDeductions.contractorCisDeductionsWith(employerRef)
-      .map(_.periodData)
-      .map((item: Seq[PeriodData]) => item.map(periodData => DeductionPeriod(
-        month = periodData.deductionPeriod.toString,
-        labour = periodData.grossAmountPaid,
-        cisDeduction = periodData.deductionAmount,
-        costOfMaterialsQuestion = periodData.costOfMaterials.isDefined,
-        materialsCost = periodData.costOfMaterials
-
-      )))
-      .getOrElse(Seq.empty)
-
-    val customerDeductionPeriods = allCISDeductions.customerCisDeductionsWith(employerRef)
-      .map(_.periodData)
-      .map((item: Seq[PeriodData]) => item.map(periodData => DeductionPeriod(
-        month = periodData.deductionPeriod.toString,
-        labour = periodData.grossAmountPaid,
-        cisDeduction = periodData.deductionAmount,
-        costOfMaterialsQuestion = periodData.costOfMaterials.isDefined,
-        materialsCost = periodData.costOfMaterials
-
-      )))
-      .getOrElse(Seq.empty)
+    val deductionPeriods = getDeductionPeriods(allCISDeductions.contractorCisDeductionsWith(employerRef))
+    val customerDeductionPeriods = getDeductionPeriods(allCISDeductions.customerCisDeductionsWith(employerRef))
 
     PreviousCisContractor(contractorName = allCISDeductions.eoyCisDeductionsWith(employerRef).flatMap(_.contractorName).getOrElse(""),
       ern = employerRef, deductionPeriods, customerDeductionPeriods)
   }
 
   private def getAmendCisContractor(employerRef: String, cicCYAModel: CisCYAModel): NewCisContractor = {
-
     NewCisContractor(
       contractorName = cicCYAModel.contractorName.get,
       ern = employerRef,
-      deductionPeriods = cicCYAModel.priorPeriodData.map(periodData => DeductionPeriod(
-        month = periodData.deductionPeriod.toString,
-        labour = periodData.grossAmountPaid,
-        cisDeduction = periodData.deductionAmount,
-        costOfMaterialsQuestion = periodData.costOfMaterials.isDefined,
-        materialsCost = periodData.costOfMaterials)),
-      customerDeductionPeriods = cicCYAModel.periodData.map(periodData => DeductionPeriod(
-        month = periodData.deductionPeriod.toString,
-        labour = periodData.grossAmountPaid,
-        cisDeduction = periodData.deductionAmount,
-        costOfMaterialsQuestion = periodData.costOfMaterials.isDefined,
-        materialsCost = periodData.costOfMaterials)
-      ))
+      deductionPeriods = cicCYAModel.priorPeriodData.map(toDeductionPeriod),
+      customerDeductionPeriods = cicCYAModel.periodData.map(toDeductionPeriod)
+      )
   }
+
+  private def toDeductionPeriod(periodData: CYAPeriodData): DeductionPeriod =
+    DeductionPeriod(month = periodData.deductionPeriod.toString,
+      labour = periodData.grossAmountPaid,
+      cisDeduction = periodData.deductionAmount,
+      costOfMaterialsQuestion = periodData.costOfMaterials.isDefined,
+      materialsCost = periodData.costOfMaterials)
+
+  private def getDeductionPeriods(cisDeductions: Option[CisDeductions]): Seq[DeductionPeriod] =
+    cisDeductions.map(_.periodData)
+      .map((item: Seq[PeriodData]) => item.map(periodData => DeductionPeriod(
+        month = periodData.deductionPeriod.toString,
+        labour = periodData.grossAmountPaid,
+        cisDeduction = periodData.deductionAmount,
+        costOfMaterialsQuestion = periodData.costOfMaterials.isDefined,
+        materialsCost = periodData.costOfMaterials
+      ))).getOrElse(Seq.empty)
+
 }
 

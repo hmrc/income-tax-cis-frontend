@@ -85,7 +85,7 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
       .andThen(UserPriorDataRequestRefinerAction(taxYear, cisSessionService, errorHandler))
       .andThen(getHasMonthDataFilterActionFor(taxYear, contractor, month))
       .andThen(InYearViewCisPeriodAuditAction(taxYear, contractor, month, auditService))
-      .andThen(InYearViewCisPeriodNrsAction(contractor, month, nrsService))
+      .andThen(PriorViewCisPeriodNrsAction(contractor, month, nrsService))
   }
 
   def endOfYearWithSessionData(taxYear: Int, contractor: String, redirectIfPrior: Boolean): ActionBuilder[UserSessionDataRequest, AnyContent] =
@@ -118,7 +118,7 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
       .andThen(TaxYearAction.taxYearAction(taxYear)(appConfig))
       .andThen(OptionalCisCyaRefinerAction(taxYear, contractor, month, cisSessionService, errorHandler, appConfig))
       .andThen(EndOfYearViewCisPeriodAuditAction(taxYear, auditService))
-      .andThen(EndOfYearViewCisPeriodNrsAction(nrsService))
+      .andThen(SessionViewCisPeriodNrsAction(nrsService))
   }
 
   private def getHasPeriodDataFilterActionFor(taxYear: Int, contractor: String): ActionFilter[UserPriorDataRequest] = {

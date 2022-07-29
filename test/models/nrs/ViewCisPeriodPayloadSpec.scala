@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package nrs
+package models.nrs
 
-import models.nrs.ViewCisPeriodPayload
 import play.api.libs.json.Json
 import support.UnitTest
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
@@ -42,13 +41,16 @@ class ViewCisPeriodPayloadSpec extends UnitTest {
       val priorData = aCisUserData.cis.periodData.get
       val contractorName = aCisUserData.cis.contractorName
       val employerRef = aCisUserData.employerRef
-      val viewCisPeriodPayload = ViewCisPeriodPayload(name = contractorName,
-        ern = employerRef,
-        month = priorData.deductionPeriod.toString,
-        labour = priorData.grossAmountPaid,
-        cisDeduction = priorData.deductionAmount,
-        costOfMaterialsQuestion = priorData.costOfMaterialsQuestion,
-        materialsCost = priorData.costOfMaterials)
+      val viewCisPeriodPayload = ViewCisPeriodPayload(
+        ContractorDetails(
+          name = contractorName,
+          ern = employerRef),
+        DeductionPeriod(
+          month = priorData.deductionPeriod.toString,
+          labour = priorData.grossAmountPaid,
+          cisDeduction = priorData.deductionAmount,
+          costOfMaterialsQuestion = priorData.costOfMaterialsQuestion.get,
+          materialsCost = priorData.costOfMaterials))
 
       Json.toJson(viewCisPeriodPayload) shouldBe json
     }

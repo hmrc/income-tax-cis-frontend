@@ -16,28 +16,33 @@
 
 package models.nrs
 
-import play.api.libs.json.{Json, OWrites}
+import models.PeriodData
+import models.mongo.CYAPeriodData
+import play.api.libs.json.OWrites
 import utils.JsonUtils.jsonObjNoNulls
 
-case class ViewCisPeriodPayload(name: Option[String],
-                                ern: String,
-                                month: String,
-                                labour: Option[BigDecimal],
-                                cisDeduction: Option[BigDecimal],
-                                costOfMaterialsQuestion: Option[Boolean],
-                                materialsCost: Option[BigDecimal])
+case class ViewCisPeriodPayload(contractorDetails: ContractorDetails, customerDeductionPeriod: DeductionPeriod)
 
 object ViewCisPeriodPayload {
+
+  def apply(name: Option[String], employerRef: String, periodData: CYAPeriodData): ViewCisPeriodPayload = {
+    ViewCisPeriodPayload(ContractorDetails(name, employerRef), DeductionPeriod(periodData))
+  }
+
+  def apply(name: Option[String], employerRef: String, periodData: PeriodData): ViewCisPeriodPayload = {
+    ViewCisPeriodPayload(ContractorDetails(name, employerRef), DeductionPeriod(periodData))
+  }
+
   implicit def writes: OWrites[ViewCisPeriodPayload] = (payload: ViewCisPeriodPayload) => {
     jsonObjNoNulls(
       "cisPeriod" -> jsonObjNoNulls(
-        "name" -> payload.name,
-        "ERN" -> payload.ern,
-        "month" -> payload.month,
-        "labour" -> payload.labour,
-        "cisDeduction" -> payload.cisDeduction,
-        "costOfMaterialsQuestion" -> payload.costOfMaterialsQuestion,
-        "materialsCost" -> payload.materialsCost
+        "name" -> payload.contractorDetails.name,
+        "ERN" -> payload.contractorDetails.ern,
+        "month" -> payload.customerDeductionPeriod.month,
+        "labour" -> payload.customerDeductionPeriod.labour,
+        "cisDeduction" -> payload.customerDeductionPeriod.cisDeduction,
+        "costOfMaterialsQuestion" -> payload.customerDeductionPeriod.costOfMaterialsQuestion,
+        "materialsCost" -> payload.customerDeductionPeriod.materialsCost
       )
     )
   }

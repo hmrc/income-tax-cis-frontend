@@ -18,7 +18,7 @@ package actions
 
 import config.MockNrsService
 import models.User
-import models.nrs.ViewCisPeriodPayload
+import models.nrs.{ContractorDetails, DeductionPeriod, ViewCisPeriodPayload}
 import play.api.test.FakeRequest
 import sttp.model.Method.{GET, POST}
 import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
@@ -33,11 +33,11 @@ import support.{TaxYearProvider, UnitTest}
 
 import scala.concurrent.ExecutionContext
 
-class InYearViewCisPeriodNrsActionSpec extends UnitTest with MockNrsService with TaxYearProvider {
+class PriorViewCisPeriodNrsActionSpec extends UnitTest with MockNrsService with TaxYearProvider {
 
   private val executionContext = ExecutionContext.global
 
-  private val underTest = InYearViewCisPeriodNrsAction(employerRef = aCisDeductions.employerRef,
+  private val underTest = PriorViewCisPeriodNrsAction(employerRef = aCisDeductions.employerRef,
     nrsService = mockNrsService, month = aPeriodData.deductionPeriod.toString.toLowerCase)(executionContext)
 
   ".executionContext" should {
@@ -55,13 +55,15 @@ class InYearViewCisPeriodNrsActionSpec extends UnitTest with MockNrsService with
       val priorData = aPeriodData
       val contractorName = aCisUserData.cis.contractorName
       val employerRef = aCisUserData.employerRef
-      val nrsPayload = ViewCisPeriodPayload(name = contractorName,
-        ern = employerRef,
-        month = priorData.deductionPeriod.toString,
-        labour = priorData.grossAmountPaid,
-        cisDeduction = priorData.deductionAmount,
-        costOfMaterialsQuestion = Some(priorData.costOfMaterials.isDefined),
-        materialsCost = priorData.costOfMaterials)
+      val nrsPayload = ViewCisPeriodPayload(
+        ContractorDetails(contractorName,
+          employerRef),
+        DeductionPeriod(
+          month = priorData.deductionPeriod.toString,
+          labour = priorData.grossAmountPaid,
+          cisDeduction = priorData.deductionAmount,
+          costOfMaterialsQuestion = priorData.costOfMaterials.isDefined,
+          materialsCost = priorData.costOfMaterials))
       mockSendNrs(nrsPayload)
 
       val aUserWithIndividualAffinityGroup = User(aCisUserData.mtdItId, None, aCisUserData.nino, aCisUserData.sessionId, aUser.affinityGroup)

@@ -18,7 +18,7 @@ package actions
 
 import config.MockNrsService
 import models.User
-import models.nrs.ViewCisPeriodPayload
+import models.nrs.{ContractorDetails, DeductionPeriod, ViewCisPeriodPayload}
 import play.api.test.FakeRequest
 import sttp.model.Method.{GET, POST}
 import support.builders.models.UserBuilder.aUser
@@ -29,11 +29,11 @@ import support.{TaxYearProvider, UnitTest}
 
 import scala.concurrent.ExecutionContext
 
-class EndOfYearViewCisPeriodNrsActionSpec extends UnitTest with MockNrsService with TaxYearProvider {
+class SessionViewCisPeriodNrsActionSpec extends UnitTest with MockNrsService with TaxYearProvider {
 
   private val executionContext = ExecutionContext.global
 
-  private val underTest = EndOfYearViewCisPeriodNrsAction(nrsService = mockNrsService)(executionContext)
+  private val underTest = SessionViewCisPeriodNrsAction(nrsService = mockNrsService)(executionContext)
 
   ".executionContext" should {
     "return the given execution context" in {
@@ -50,13 +50,15 @@ class EndOfYearViewCisPeriodNrsActionSpec extends UnitTest with MockNrsService w
       val priorData = aCisUserData.cis.periodData.get
       val contractorName = aCisUserData.cis.contractorName
       val employerRef = aCisUserData.employerRef
-      val nrsPayload = ViewCisPeriodPayload(name = contractorName,
-        ern = employerRef,
-        month = priorData.deductionPeriod.toString,
-        labour = priorData.grossAmountPaid,
-        cisDeduction = priorData.deductionAmount,
-        costOfMaterialsQuestion = priorData.costOfMaterialsQuestion,
-        materialsCost = priorData.costOfMaterials)
+      val nrsPayload = ViewCisPeriodPayload(
+        ContractorDetails(name = contractorName,
+          ern = employerRef),
+        DeductionPeriod(
+          month = priorData.deductionPeriod.toString,
+          labour = priorData.grossAmountPaid,
+          cisDeduction = priorData.deductionAmount,
+          costOfMaterialsQuestion = priorData.costOfMaterialsQuestion.get,
+          materialsCost = priorData.costOfMaterials))
       mockSendNrs(nrsPayload)
 
       val aUserWithIndividualAffinityGroup = User(aCisUserData.mtdItId, None, aCisUserData.nino, aCisUserData.sessionId, aUser.affinityGroup)
@@ -68,7 +70,7 @@ class EndOfYearViewCisPeriodNrsActionSpec extends UnitTest with MockNrsService w
       val cisData = aCisUserData.copy(cis = aCisCYAModel.copy(periodData = None))
 
       val aUserWithIndividualAffinityGroup = User(aCisUserData.mtdItId, None, aCisUserData.nino, aCisUserData.sessionId, aUser.affinityGroup)
-      await(underTest.filter(aUserSessionDataRequest.copy( cisUserData = cisData,
+      await(underTest.filter(aUserSessionDataRequest.copy(cisUserData = cisData,
         request = FakeRequest.apply(GET.method, "/"), user = aUserWithIndividualAffinityGroup))) shouldBe None
     }
   }

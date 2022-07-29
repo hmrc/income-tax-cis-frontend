@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package nrs
+package models.nrs
 
-import models.nrs.{ContractorDetails, DeleteCisPeriodPayload}
 import play.api.libs.json.Json
 import support.UnitTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions

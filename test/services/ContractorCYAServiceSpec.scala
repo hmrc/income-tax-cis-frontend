@@ -88,7 +88,7 @@ class ContractorCYAServiceSpec extends UnitTest
         priorPeriodData = Seq()
       ))
       val audit = CreateNewCisContractorAudit.mapFrom(taxYearEOY, employerRef = cisData.employerRef, user = aUser, cisUserData = cisData).get
-      val createCisContractor = CreateCisContractorPayload.mapFrom(employerRef = cisData.employerRef, cisCYAModel = cisData.cis).get
+      val createCisContractor = CreateCisContractorPayload.apply(cisData.cis.contractorName, cisData.employerRef, cisData.cis.periodData.get)
 
       mockSendAudit(audit.toAuditModel)
       mockSendNrs(createCisContractor)
