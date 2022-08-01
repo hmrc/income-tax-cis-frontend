@@ -19,7 +19,9 @@ package services
 import audit.{AuditService, DeleteCisPeriodAudit}
 import connectors.CISConnector
 import connectors.parsers.CISHttpParser.CISResponse
+import connectors.parsers.NrsSubmissionHttpParser.NrsSubmissionResponse
 import models._
+import models.nrs.{ContractorDetails, DeleteCisPeriodPayload}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
@@ -29,6 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DeleteCISPeriodService @Inject()(cisSessionService: CISSessionService,
                                        auditService: AuditService,
+                                       nrsService: NrsService,
                                        cisConnector: CISConnector)(implicit val ec: ExecutionContext) {
 
   lazy val unfinishedSubmissionResponse: Future[Either[ServiceError, Unit]] = Future.successful(Left(InvalidOrUnfinishedSubmission))
@@ -41,17 +44,17 @@ class DeleteCISPeriodService @Inject()(cisSessionService: CISSessionService,
 
     val customerPeriods: Seq[PeriodData] = incomeTaxUserData.customerCisDeductionsWith(employerRef).map(_.periodData).getOrElse(Seq.empty)
 
-    if(customerPeriods.size == 1) {
+    if (customerPeriods.size == 1) {
       customerPeriods.find(_.deductionPeriod == deductionPeriod) match {
-        case Some(PeriodData(_,_,_,_,_,Some(submissionId), _)) =>
+        case Some(PeriodData(_, _, _, _, _, Some(submissionId), _)) =>
           handleAPICall(cisConnector.delete(user.nino, taxYear, submissionId)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)),
             user, employerRef, taxYear, deductionPeriod, incomeTaxUserData)
         case _ => unfinishedSubmissionResponse
       }
     } else {
-      incomeTaxUserData.toSubmissionWithoutPeriod(employerRef,deductionPeriod,taxYear) match {
+      incomeTaxUserData.toSubmissionWithoutPeriod(employerRef, deductionPeriod, taxYear) match {
         case Some(submission) =>
-          handleAPICall(cisConnector.submit(user.nino,taxYear,submission)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)),
+          handleAPICall(cisConnector.submit(user.nino, taxYear, submission)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)),
             user, employerRef, taxYear, deductionPeriod, incomeTaxUserData)
         case None => unfinishedSubmissionResponse
       }
@@ -65,6 +68,7 @@ class DeleteCISPeriodService @Inject()(cisSessionService: CISSessionService,
       case Left(error) => Future.successful(Left(HttpParserError(error.status)))
       case Right(_) =>
         handleAuditing(taxYear, employerRef, user, deductionPeriod, incomeTaxUserData)
+        handleNrs(employerRef, user, deductionPeriod, incomeTaxUserData)
         cisSessionService.refreshAndClear(user, employerRef, taxYear, clearCYA = false)
     }
   }
@@ -80,5 +84,17 @@ class DeleteCISPeriodService @Inject()(cisSessionService: CISSessionService,
 
     val auditEvent = DeleteCisPeriodAudit(taxYear, user, customerDeductions.contractorName, employerRef, auditPeriod)
     auditService.sendAudit[DeleteCisPeriodAudit](auditEvent.toAuditModel)
+  }
+
+  private def handleNrs(employerRef: String,
+                        user: User,
+                        deductionPeriod: Month,
+                        incomeTaxUserData: IncomeTaxUserData)
+                       (implicit hc: HeaderCarrier): Future[NrsSubmissionResponse] = {
+    val customerDeductions: CisDeductions = incomeTaxUserData.customerCisDeductionsWith(employerRef).get
+    val periodData = customerDeductions.periodData.find(_.deductionPeriod == deductionPeriod).get
+
+    val nrsPayload = DeleteCisPeriodPayload(ContractorDetails(customerDeductions.contractorName, employerRef), periodData)
+    nrsService.submit(user.nino, nrsPayload, user.mtditid)
   }
 }

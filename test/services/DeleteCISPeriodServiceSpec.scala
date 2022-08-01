@@ -17,18 +17,18 @@
 package services
 
 import audit.DeleteCisPeriodAudit
-import config.MockAuditService
+import config.{MockAuditService, MockNrsService}
+import models.nrs.{ContractorDetails, DeleteCisPeriodPayload}
 import models.{APIErrorBodyModel, APIErrorModel, HttpParserError, InvalidOrUnfinishedSubmission}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 import support.builders.models.CISSourceBuilder.aCISSource
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
-import support.builders.models.PeriodDataBuilder
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.builders.models.submission
+import support.builders.models.{PeriodDataBuilder, submission}
 import support.builders.models.submission.CISSubmissionBuilder.aCISSubmission
 import support.mocks.{MockCISConnector, MockCISSessionService}
 import support.{TaxYearProvider, UnitTest}
@@ -42,6 +42,7 @@ class DeleteCISPeriodServiceSpec extends UnitTest
   with MockCISSessionService
   with MockCISConnector
   with MockAuditService
+  with MockNrsService
   with TaxYearProvider {
 
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid)
@@ -57,7 +58,7 @@ class DeleteCISPeriodServiceSpec extends UnitTest
     submissionId = Some("submissionId")
   )
 
-  private val underTest = new DeleteCISPeriodService(mockCISSessionService, mockAuditService, mockCISConnector)
+  private val underTest = new DeleteCISPeriodService(mockCISSessionService, mockAuditService, mockNrsService, mockCISConnector)
 
   ".remove CISDeduction" should {
     "return invalid or unfinished submission when employerRef can't be found" in {
@@ -101,9 +102,12 @@ class DeleteCISPeriodServiceSpec extends UnitTest
     }
 
     "return Right(()) when submitted and refreshed data" in {
-      val audit = DeleteCisPeriodAudit(taxYearEOY, aUser, aCisDeductions.contractorName, aCisDeductions.employerRef, aPeriodData.copy(deductionPeriod = NOVEMBER))
+      val periodData = aPeriodData.copy(deductionPeriod = NOVEMBER)
+      val audit = DeleteCisPeriodAudit(taxYearEOY, aUser, aCisDeductions.contractorName, aCisDeductions.employerRef, periodData)
+      val nrs = DeleteCisPeriodPayload(ContractorDetails(aCisDeductions.contractorName, aCisDeductions.employerRef), periodData)
 
       mockSendAudit(audit.toAuditModel)
+      mockSendNrs(nrs)
       mockSubmit(aUser.nino, taxYearEOY, updateCisSubmission, Right(()))
       mockRefreshAndClear(taxYearEOY, aCisUserData.employerRef, result = Right(()))
 
@@ -123,9 +127,12 @@ class DeleteCISPeriodServiceSpec extends UnitTest
 
       mockDelete(aUser.nino, taxYearEOY, aCisUserData.submissionId.get, Right(()))
       mockRefreshAndClear(taxYearEOY, aCisUserData.employerRef, result = Right(()))
-      val audit = DeleteCisPeriodAudit(taxYearEOY, aUser, aCisDeductions.contractorName, aCisDeductions.employerRef, aPeriodData.copy(deductionPeriod = NOVEMBER))
+      val periodData = aPeriodData.copy(deductionPeriod = NOVEMBER)
+      val audit = DeleteCisPeriodAudit(taxYearEOY, aUser, aCisDeductions.contractorName, aCisDeductions.employerRef, periodData)
+      val nrs = DeleteCisPeriodPayload(ContractorDetails(aCisDeductions.contractorName, aCisDeductions.employerRef), periodData)
 
       mockSendAudit(audit.toAuditModel)
+      mockSendNrs(nrs)
 
       val data = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(
         contractorCISDeductions = None,
