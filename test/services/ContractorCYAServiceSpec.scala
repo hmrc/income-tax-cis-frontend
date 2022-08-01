@@ -17,8 +17,9 @@
 package services
 
 import audit.{AmendCisContractorAudit, CreateNewCisContractorAudit}
-import config.MockAuditService
+import config.{MockAuditService, MockNrsService}
 import models.mongo.DataNotUpdatedError
+import models.nrs.{AmendCisContractorPayload, CreateCisContractorPayload}
 import models.{APIErrorBodyModel, APIErrorModel, HttpParserError, InvalidOrUnfinishedSubmission}
 import play.api.http.Status.INTERNAL_SERVER_ERROR
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
@@ -40,7 +41,8 @@ class ContractorCYAServiceSpec extends UnitTest
   with MockCISSessionService
   with MockCISConnector
   with TaxYearProvider
-  with MockAuditService {
+  with MockAuditService
+  with MockNrsService {
 
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid)
 
@@ -51,13 +53,15 @@ class ContractorCYAServiceSpec extends UnitTest
     submissionId = Some("submissionId")
   )
 
-  private val underTest = new ContractorCYAService(mockCISSessionService, mockAuditService, mockCISConnector)
+  private val underTest = new ContractorCYAService(mockCISSessionService, mockAuditService, mockCISConnector, mockNrsService)
 
   ".submitCisDeductionCYA" should {
     "return right when submit and clear are successful" in {
       val audit = AmendCisContractorAudit(taxYearEOY, employerRef = aCisUserData.employerRef, user = aUser, cisUserData = aCisUserData, incomeTaxUserData = anIncomeTaxUserData)
+      val nrs = AmendCisContractorPayload(employerRef = aCisUserData.employerRef, cisUserData = aCisUserData, incomeTaxUserData = anIncomeTaxUserData)
 
       mockSendAudit(audit.toAuditModel)
+      mockSendNrs(nrs)
       mockGetPriorData(taxYearEOY, aUser, Right(anIncomeTaxUserData))
       mockSubmit(aUser.nino, taxYearEOY, updateCisSubmission, Right(()))
       mockRefreshAndClear(taxYearEOY, aCisUserData.employerRef, result = Right(()))
@@ -67,8 +71,10 @@ class ContractorCYAServiceSpec extends UnitTest
 
     "return error when clear fails" in {
       val audit = AmendCisContractorAudit(taxYearEOY, employerRef = aCisUserData.employerRef, user = aUser, cisUserData = aCisUserData, incomeTaxUserData = anIncomeTaxUserData)
+      val nrs = AmendCisContractorPayload(employerRef = aCisUserData.employerRef, cisUserData = aCisUserData, incomeTaxUserData = anIncomeTaxUserData)
 
       mockSendAudit(audit.toAuditModel)
+      mockSendNrs(nrs)
       mockGetPriorData(taxYearEOY, aUser, Right(anIncomeTaxUserData))
       mockSubmit(aUser.nino, taxYearEOY, updateCisSubmission, Right(()))
       mockRefreshAndClear(taxYearEOY, aCisUserData.employerRef, result = Left(DataNotUpdatedError))
@@ -76,14 +82,16 @@ class ContractorCYAServiceSpec extends UnitTest
       await(underTest.submitCisDeductionCYA(taxYearEOY, aCisDeductions.employerRef, aUser, aCisUserData)) shouldBe Left(DataNotUpdatedError)
     }
 
-    "send CreateNewCisContractorAudit event when a new contractor is created" in {
+    "send CreateNewCisContractorAudit event and CreateCisContractorNrs when a new contractor is created" in {
       val cisData = aCisUserData.copy(submissionId = None, cis = aCisCYAModel.copy(
         periodData = Some(aCYAPeriodData.copy(deductionPeriod = NOVEMBER)),
         priorPeriodData = Seq()
       ))
       val audit = CreateNewCisContractorAudit.mapFrom(taxYearEOY, employerRef = cisData.employerRef, user = aUser, cisUserData = cisData).get
+      val createCisContractor = CreateCisContractorPayload.apply(cisData.cis.contractorName, cisData.employerRef, cisData.cis.periodData.get)
 
       mockSendAudit(audit.toAuditModel)
+      mockSendNrs(createCisContractor)
       mockSubmit(aUser.nino, taxYearEOY, aCISSubmission.copy(
         periodData = Seq(aPeriodData.copy(deductionFromDate = "2021-10-06", deductionToDate = "2021-11-05"))
       ), Right(()))
@@ -105,15 +113,17 @@ class ContractorCYAServiceSpec extends UnitTest
       ))) shouldBe Left(InvalidOrUnfinishedSubmission)
     }
 
-    "send AmenCisContractorAudit event and clear data when an existing deduction period data is amended" in {
+    "send AmendCisContractorAudit and AmendCisContractorPayload (for NRS) events and clear data when an existing deduction period data is amended" in {
       val cisData = aCisUserData.copy(cis = aCisCYAModel.copy(
         periodData = Some(aCYAPeriodData.copy(deductionPeriod = NOVEMBER, grossAmountPaid = Some(350))),
         priorPeriodData = Seq(aCYAPeriodData.copy(deductionPeriod = JULY), aCYAPeriodData)
       ))
       val audit = AmendCisContractorAudit(taxYearEOY, employerRef = cisData.employerRef, user = aUser, cisUserData = cisData, anIncomeTaxUserData)
+      val nrs = AmendCisContractorPayload(employerRef = cisData.employerRef, cisUserData = cisData, incomeTaxUserData = anIncomeTaxUserData)
 
       mockGetPriorData(taxYearEOY, aUser, Right(anIncomeTaxUserData))
       mockSendAudit(audit.toAuditModel)
+      mockSendNrs(nrs)
       mockSubmit(aUser.nino, taxYearEOY, cisData.toSubmission.get, Right(()))
       mockRefreshAndClear(taxYearEOY, aCisUserData.employerRef, result = Right(()))
 
