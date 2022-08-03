@@ -67,8 +67,8 @@ class MaterialsViewSpec extends ViewUnitTest {
     override val expectedListItemOne: String = "bricks, piping, timber, fixings"
     override val expectedListItemTwo: String = "renting or hiring equipment or scaffolding"
     override val expectedWarning: String = "Warning"
-    override val expectedWarningText: String = "This does not include work related expenses (fuel, hotels, tools, work clothes). You will need to use the " +
-      "‘Self Assessment: Self-employment’ form to tell us about these expenses."
+    override val expectedWarningText: String = "This does not include work-related expenses, such as fuel, accommodation, tools or work clothing." +
+      " Use your software package to tell us about these types of expenses."
     override val expectedYesText: String = "Yes"
     override val expectedNoText: String = "No"
     override val expectedButtonText: String = "Continue"
@@ -79,8 +79,8 @@ class MaterialsViewSpec extends ViewUnitTest {
     override val expectedListItemOne: String = "bricks, piping, timber, fixings"
     override val expectedListItemTwo: String = "renting or hiring equipment or scaffolding"
     override val expectedWarning: String = "Warning"
-    override val expectedWarningText: String = "This does not include work related expenses (fuel, hotels, tools, work clothes). You will need to use the " +
-      "‘Self Assessment: Self-employment’ form to tell us about these expenses."
+    override val expectedWarningText: String = "This does not include work-related expenses, such as fuel, accommodation, tools or work clothing." +
+      " Use your software package to tell us about these types of expenses."
     override val expectedYesText: String = "Yes"
     override val expectedNoText: String = "No"
     override val expectedButtonText: String = "Continue"
