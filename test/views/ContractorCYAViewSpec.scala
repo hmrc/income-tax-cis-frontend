@@ -30,7 +30,7 @@ import views.html.ContractorCYAView
 class ContractorCYAViewSpec extends ViewUnitTest {
 
   object Selectors {
-    val paragraphTextSelector = "#main-content > div > div > p.govuk-body"
+    val paragraphTextSelector = "#deduction-info-id"
     val insetTextSelector = "#main-content > div > div > div.govuk-inset-text"
     val buttonSelector = "#return-to-contractor-button-id"
     val saveButtonSelector = "#save-and-continue-button-id"
@@ -154,17 +154,17 @@ class ContractorCYAViewSpec extends ViewUnitTest {
   userScenarios.foreach { userScenario =>
     s"language is ${welshTest(userScenario.isWelsh)} and request is from an ${agentTest(userScenario.isAgent)}" should {
       "render end of year version of Check your CIS deductions page" which {
-        "full model" which {
+        "when non HMRC data (isContractorDeduction is false)" which {
           implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
           implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
-          implicit val document: Document = Jsoup.parse(underTest(aContractorCYAPage.copy(isAgent = userScenario.isAgent, isInYear = false)).body)
+          implicit val document: Document = Jsoup.parse(underTest(aContractorCYAPage.copy(isAgent = userScenario.isAgent, isInYear = false, isContractorDeduction = false)).body)
 
           welshToggleCheck(userScenario.isWelsh)
           titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
           captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
           h1Check(userScenario.specificExpectedResults.get.expectedH1)
-          textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1, Selectors.paragraphTextSelector)
+          elementNotOnPageCheck(Selectors.paragraphTextSelector)
           textOnPageCheck(userScenario.commonExpectedResults.expectedContractorDetails, selector = Selectors.summaryListLabel(rowId = 1))
           val contractorNamePart = userScenario.commonExpectedResults.expectedContractorDetailsNameValue(aContractorCYAPage.contractorName.get) + " "
           val contractorRefPart = userScenario.commonExpectedResults.expectedContractorDetailsERNValue(aContractorCYAPage.employerRef)
@@ -202,11 +202,11 @@ class ContractorCYAViewSpec extends ViewUnitTest {
       }
 
       "render in year version of Check your CIS deductions page" which {
-        "full model" which {
+        "when HMRC data (isContractorDeduction is true)" which {
           implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)
           implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
-          implicit val document: Document = Jsoup.parse(underTest(aContractorCYAPage.copy(isAgent = userScenario.isAgent)).body)
+          implicit val document: Document = Jsoup.parse(underTest(aContractorCYAPage.copy(isAgent = userScenario.isAgent, isContractorDeduction = true)).body)
 
           welshToggleCheck(userScenario.isWelsh)
           titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
@@ -241,7 +241,8 @@ class ContractorCYAViewSpec extends ViewUnitTest {
             labourAmount = None,
             deductionAmount = None,
             costOfMaterials = None,
-            isAgent = userScenario.isAgent
+            isAgent = userScenario.isAgent,
+            isContractorDeduction = true
           )
 
           implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
