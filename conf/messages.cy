@@ -182,7 +182,7 @@ materialsPage.paragraph.agent = Materials include things your client pays for as
 materialsPage.paragraph.individual = Materials include things you pay for as part of a construction project, for example:
 materialsPage.bullet.one = bricks, piping, timber, fixings
 materialsPage.bullet.two = renting or hiring equipment or scaffolding
-materialsPage.warning = This does not include work related expenses (fuel, hotels, tools, work clothes). You will need to use the ‘Self Assessment: Self-employment’ form to tell us about these expenses.
+materialsPage.warning = This does not include work-related expenses, such as fuel, accommodation, tools or work clothing. Use your software package to tell us about these types of expenses.
 materialsPage.error.agent = Select yes if your client paid for materials
 materialsPage.error.individual = Select yes if you paid for materials
 
