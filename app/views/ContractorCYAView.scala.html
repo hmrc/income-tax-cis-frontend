@@ -43,7 +43,9 @@
 
     @heading(titleText, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
 
-    <p class="govuk-body govuk-!-margin-bottom-0">@messages(s"cis.deductionsInfo.p1.${if(pageModel.isAgent) "agent" else "individual"}")</p>
+    @if(pageModel.isContractorDeduction){
+        <p id="deduction-info-id" class="govuk-body govuk-!-margin-bottom-0">@messages(s"cis.deductionsInfo.p1.${if(pageModel.isAgent) "agent" else "individual"}")</p>
+    }
 
     @if(pageModel.isInYear){
         @govukInsetText(InsetText(content = Text(messages(s"cis.insetText.${if(pageModel.isAgent) "agent" else "individual"}", pageModel.taxYear.toString))))
