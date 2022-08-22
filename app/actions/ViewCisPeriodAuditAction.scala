@@ -24,9 +24,9 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendHeaderCarrierProvi
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class EndOfYearViewCisPeriodAuditAction(taxYear: Int,
-                                             auditService: AuditService)
-                                            (implicit ec: ExecutionContext) extends ActionFilter[UserSessionDataRequest] with FrontendHeaderCarrierProvider {
+case class ViewCisPeriodAuditAction(taxYear: Int,
+                                    auditService: AuditService)
+                                   (implicit ec: ExecutionContext) extends ActionFilter[UserSessionDataRequest] with FrontendHeaderCarrierProvider {
 
   override protected[actions] def executionContext: ExecutionContext = ec
 
