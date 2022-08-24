@@ -147,7 +147,7 @@ class LabourPayViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1("some-contractor"))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1("5 " + translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
@@ -167,7 +167,7 @@ class LabourPayViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitleNoContractorName)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitleNoContractorName, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1NoContractorName)
       }
@@ -193,7 +193,7 @@ class LabourPayViewSpec extends ViewUnitTest {
         val pageModel = aLabourPayPage.copy(form = form)
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         errorSummaryCheck(userScenario.specificExpectedResults.get.expectedEmptyErrorText, Selectors.expectedErrorHref)
         inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "")
       }
@@ -206,7 +206,7 @@ class LabourPayViewSpec extends ViewUnitTest {
         val pageModel = aLabourPayPage.copy(form = form)
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         errorSummaryCheck(userScenario.specificExpectedResults.get.expectedWrongFormatErrorText, Selectors.expectedErrorHref)
         inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "wrong-format")
       }
@@ -219,7 +219,7 @@ class LabourPayViewSpec extends ViewUnitTest {
         val pageModel = aLabourPayPage.copy(form = form)
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         errorSummaryCheck(userScenario.specificExpectedResults.get.expectedMaxAmountErrorText, Selectors.expectedErrorHref)
         inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "100,000,000,000")
       }

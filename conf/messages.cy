@@ -1,11 +1,11 @@
 #################       Service messages       ########################################
 
-betaBar.banner.message.1 = This is a new service – your
-betaBar.banner.message.2 = feedback
-betaBar.banner.message.3 = will help us to improve it.
+betaBar.banner.message.1 = Gwasanaeth newydd yw hwn – bydd eich
+betaBar.banner.message.2 = adborth
+betaBar.banner.message.3 = yn ein helpu i’w wella.
 betaBar.beta = beta
 service.govUkExtension = GOV.UK
-service.name = Update and submit an Income Tax Return
+service.name = Diweddaru a chyflwyno Ffurflen Dreth Incwm
 
 #################       Common messages        ########################################
 

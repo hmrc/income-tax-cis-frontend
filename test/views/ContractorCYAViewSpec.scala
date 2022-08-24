@@ -161,7 +161,7 @@ class ContractorCYAViewSpec extends ViewUnitTest {
           implicit val document: Document = Jsoup.parse(underTest(aContractorCYAPage.copy(isAgent = userScenario.isAgent, isInYear = false, isContractorDeduction = false)).body)
 
           welshToggleCheck(userScenario.isWelsh)
-          titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+          titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
           captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
           h1Check(userScenario.specificExpectedResults.get.expectedH1)
           elementNotOnPageCheck(Selectors.paragraphTextSelector)
@@ -209,7 +209,7 @@ class ContractorCYAViewSpec extends ViewUnitTest {
           implicit val document: Document = Jsoup.parse(underTest(aContractorCYAPage.copy(isAgent = userScenario.isAgent, isContractorDeduction = true)).body)
 
           welshToggleCheck(userScenario.isWelsh)
-          titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+          titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
           captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
           h1Check(userScenario.specificExpectedResults.get.expectedH1)
           textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1, Selectors.paragraphTextSelector)
@@ -248,7 +248,7 @@ class ContractorCYAViewSpec extends ViewUnitTest {
           implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
           welshToggleCheck(userScenario.isWelsh)
-          titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+          titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
           captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
           h1Check(userScenario.specificExpectedResults.get.expectedH1)
           textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1, Selectors.paragraphTextSelector)

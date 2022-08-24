@@ -98,7 +98,7 @@ class DeleteCISPeriodViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(aDeleteCISPeriodPage).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.commonExpectedResults.expectedH1)
         textOnPageCheck(userScenario.commonExpectedResults.expectedP1(aDeleteCISPeriodPage.month, aDeleteCISPeriodPage.taxYear), Selectors.paragraphTextSelector(number = 1))

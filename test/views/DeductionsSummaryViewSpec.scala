@@ -133,7 +133,7 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
         h1Check(userScenario.commonExpectedResults.expectedH1)
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1, Selectors.paragraphTextSelector)
@@ -160,7 +160,7 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(isInYear = false)).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
         h1Check(userScenario.commonExpectedResults.expectedH1)
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1, Selectors.paragraphTextSelector)
@@ -187,7 +187,7 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(isInYear = true, deductions = Seq.empty)).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
         h1Check(userScenario.commonExpectedResults.expectedH1)
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedInsetText(taxYear), Selectors.insetTextSelector)
@@ -202,7 +202,7 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(isInYear = false, deductions = Seq.empty)).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
         h1Check(userScenario.commonExpectedResults.expectedH1)
         linkCheck(userScenario.commonExpectedResults.expectedAddContractorLink, Selectors.addContractorSelector, controllers.routes.ContractorDetailsController.show(taxYear, None).url)

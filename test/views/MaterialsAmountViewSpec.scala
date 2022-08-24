@@ -150,7 +150,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1("some-contractor"))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedTellUsTheAmountText(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
@@ -170,7 +170,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitleThisContract)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitleThisContract, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1ThisContract)
       }
@@ -184,7 +184,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1("some-contractor"))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedReplayContent1(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
@@ -205,7 +205,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1("some-contractor"))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedTellUsTheAmountText(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 2))
@@ -226,7 +226,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         val pageModel = aMaterialsAmountPage.copy(form = form)
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         errorSummaryCheck(userScenario.specificExpectedResults.get.expectedErrorIncorrectFormat, Selectors.expectedErrorHref)
         inputFieldValueCheck(AmountForm.amount, Selectors.inputFieldSelector, value = "wrong-format")
       }
@@ -239,7 +239,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         val pageModel = aMaterialsAmountPage.copy(form = form)
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         errorSummaryCheck(userScenario.specificExpectedResults.get.expectedErrorOverMaximum, Selectors.expectedErrorHref)
         inputFieldValueCheck(AmountForm.amount, Selectors.inputFieldSelector, value = "100,000,000,000")
       }

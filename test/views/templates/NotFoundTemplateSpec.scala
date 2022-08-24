@@ -52,7 +52,7 @@ class NotFoundTemplateSpec extends ViewTest {
       lazy val view: HtmlFormat.Appendable = notFoundTemplate()(fakeRequest, messages, mockAppConfig)
       implicit lazy val document: Document = Jsoup.parse(view.body)
 
-      titleCheck(h1Expected)
+      titleCheck(h1Expected, isWelsh = false)
       welshToggleCheck("English")
       h1Check(h1Expected, "xl")
 
@@ -71,7 +71,7 @@ class NotFoundTemplateSpec extends ViewTest {
       lazy val view: HtmlFormat.Appendable = notFoundTemplate()(fakeRequest, welshMessages, mockAppConfig)
       implicit lazy val document: Document = Jsoup.parse(view.body)
 
-      titleCheck(h1Expected)
+      titleCheck(h1Expected, isWelsh = true)
       welshToggleCheck("Welsh")
       h1Check(h1Expected, "xl")
 

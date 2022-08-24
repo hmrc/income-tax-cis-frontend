@@ -47,7 +47,7 @@ class AgentAuthErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOne
       lazy val view: Html = agentAuthErrorPageView()(fakeRequest, messages, mockAppConfig)
       lazy implicit val document: Document = Jsoup.parse(view.body)
 
-      titleCheck(h1Expected)
+      titleCheck(h1Expected, isWelsh = false)
       welshMessages("English")
       h1Check(h1Expected, "xl")
       textOnPageCheck(s"$youCannotViewText $authoriseYouAsText $beforeYouCanTryText", p1Selector)
@@ -62,7 +62,7 @@ class AgentAuthErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOne
       lazy val view: Html = agentAuthErrorPageView()(fakeRequest, welshMessages, mockAppConfig)
       lazy implicit val document: Document = Jsoup.parse(view.body)
 
-      titleCheck(h1Expected)
+      titleCheck(h1Expected, isWelsh = true)
       welshMessages("Welsh")
       h1Check(h1Expected, "xl")
       textOnPageCheck(s"$youCannotViewText $authoriseYouAsText $beforeYouCanTryText", p1Selector)

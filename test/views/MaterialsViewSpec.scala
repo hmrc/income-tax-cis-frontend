@@ -153,7 +153,7 @@ class MaterialsViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1(contractorName = "some-contractor"))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedParagraph, Selectors.paragraphTextSelector)
@@ -175,7 +175,7 @@ class MaterialsViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitleThisContract)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitleThisContract, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1ThisContract)
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedParagraph, Selectors.paragraphTextSelector)
@@ -197,7 +197,7 @@ class MaterialsViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1(contractorName = "some-contractor"))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedParagraph, Selectors.paragraphTextSelector)

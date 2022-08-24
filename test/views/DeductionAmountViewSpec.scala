@@ -135,7 +135,7 @@ class DeductionAmountViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.commonExpectedResults.expectedH1(contractorName = "some-contractor"))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1("5 " + translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
@@ -154,7 +154,7 @@ class DeductionAmountViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.commonExpectedResults.expectedH1)
 
@@ -169,7 +169,7 @@ class DeductionAmountViewSpec extends ViewUnitTest {
           implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
           welshToggleCheck(userScenario.isWelsh)
-          titleCheck(userScenario.commonExpectedResults.expectedTitle)
+          titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
           captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
           h1Check(userScenario.commonExpectedResults.expectedH1)
           textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1Replay(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
@@ -189,7 +189,7 @@ class DeductionAmountViewSpec extends ViewUnitTest {
           implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
           welshToggleCheck(userScenario.isWelsh)
-          titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+          titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
           captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
           h1Check(userScenario.commonExpectedResults.expectedH1(contractorName = "some-contractor"))
           textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1("5 " + translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 2))
@@ -209,7 +209,7 @@ class DeductionAmountViewSpec extends ViewUnitTest {
           val pageModel = aDeductionAmountPage.copy(form = form)
           implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-          titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+          titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
           errorSummaryCheck(userScenario.commonExpectedResults.expectedWrongFormatErrorText, Selectors.expectedErrorHref)
           inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "wrong-format")
         }
@@ -222,7 +222,7 @@ class DeductionAmountViewSpec extends ViewUnitTest {
           val pageModel = aDeductionAmountPage.copy(form = form)
           implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-          titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+          titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
           errorSummaryCheck(userScenario.commonExpectedResults.expectedMaxAmountErrorText, Selectors.expectedErrorHref)
           inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "100,000,000,000")
         }

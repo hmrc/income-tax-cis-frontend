@@ -160,7 +160,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
           implicit val document: Document = Jsoup.parse(page(pageModel).body)
 
           welshToggleCheck(userScenario.isWelsh)
-          titleCheck(userScenario.commonExpectedResults.expectedTitle)
+          titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
           captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
           h1Check(userScenario.commonExpectedResults.expectedHeading)
           textOnPageCheck(userScenario.specificExpectedResults.get.expectedParagraphText, Selectors.paragraphTextSelector)
@@ -192,7 +192,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
           implicit val document: Document = Jsoup.parse(page(pageModel).body)
 
           welshToggleCheck(userScenario.isWelsh)
-          titleCheck(userScenario.commonExpectedResults.expectedTitle)
+          titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
           captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
           h1Check(userScenario.commonExpectedResults.expectedHeading)
           textOnPageCheck(userScenario.specificExpectedResults.get.expectedEOYInsetText, Selectors.insetTextSelector)
@@ -225,7 +225,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
           implicit val document: Document = Jsoup.parse(page(pageModel).body)
 
           welshToggleCheck(userScenario.isWelsh)
-          titleCheck(userScenario.commonExpectedResults.expectedTitle)
+          titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
           captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
           h1Check(userScenario.commonExpectedResults.expectedAlternativeHeading(employerRef))
           buttonCheck(userScenario.commonExpectedResults.buttonText, Selectors.buttonSelector, Some(DeductionsSummaryController.show(taxYear).url))
@@ -240,7 +240,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
           implicit val document: Document = Jsoup.parse(page(pageModel).body)
 
           welshToggleCheck(userScenario.isWelsh)
-          titleCheck(userScenario.commonExpectedResults.expectedTitle)
+          titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
           captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
           h1Check(userScenario.commonExpectedResults.expectedAlternativeHeading(employerRef))
           buttonCheck(userScenario.commonExpectedResults.buttonText, Selectors.buttonSelector, Some(DeductionsSummaryController.show(taxYearEOY).url))
