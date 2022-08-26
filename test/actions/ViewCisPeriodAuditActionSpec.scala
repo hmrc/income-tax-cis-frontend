@@ -30,11 +30,11 @@ import support.{TaxYearProvider, UnitTest}
 
 import scala.concurrent.ExecutionContext
 
-class EndOfYearViewCisPeriodAuditActionSpec extends UnitTest with MockAuditService with TaxYearProvider {
+class ViewCisPeriodAuditActionSpec extends UnitTest with MockAuditService with TaxYearProvider {
 
   private val executionContext = ExecutionContext.global
 
-  private val underTest = EndOfYearViewCisPeriodAuditAction(taxYear = taxYearEOY, auditService = mockAuditService)(executionContext)
+  private val underTest = ViewCisPeriodAuditAction(taxYear = taxYearEOY, auditService = mockAuditService)(executionContext)
 
   ".executionContext" should {
     "return the given execution context" in {

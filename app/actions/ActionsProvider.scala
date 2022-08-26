@@ -117,7 +117,8 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
     authAction
       .andThen(TaxYearAction.taxYearAction(taxYear)(appConfig))
       .andThen(OptionalCisCyaRefinerAction(taxYear, contractor, month, cisSessionService, errorHandler, appConfig))
-      .andThen(EndOfYearViewCisPeriodAuditAction(taxYear, auditService))
+      .andThen(ViewCisPeriodAuditAction(taxYear, auditService))
+      .andThen(CisUserDataFinishedFilterAction(taxYear))
       .andThen(SessionViewCisPeriodNrsAction(nrsService))
   }
 
