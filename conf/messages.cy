@@ -172,19 +172,19 @@ contractor-details.employer-ref.error.wrongFormat = Enter the Employer Reference
 contractor-details.employer-ref.error.duplicate = You cannot add this Employer Reference Number again. Enter a new Employer Reference Number
 
 #################       Materials Page       #######################################
-materialsPage.title.agent = Did your client pay for building materials on this contract?
-materialsPage.title.individual = Did you pay for building materials on this contract?
-materialsPage.title.agent.named = Did your client pay for materials for their contractor?
-materialsPage.title.individual.named = Did you pay for materials for your contractor?
-materialsPage.heading.agent = Did your client pay for materials at {0}?
-materialsPage.heading.individual = Did you pay for materials at {0}?
-materialsPage.paragraph.agent = Materials include things your client pays for as part of a construction project, for example:
-materialsPage.paragraph.individual = Materials include things you pay for as part of a construction project, for example:
-materialsPage.bullet.one = bricks, piping, timber, fixings
-materialsPage.bullet.two = renting or hiring equipment or scaffolding
-materialsPage.warning = This does not include work-related expenses, such as fuel, accommodation, tools or work clothing. Use your software package to tell us about these types of expenses.
-materialsPage.error.agent = Select yes if your client paid for materials
-materialsPage.error.individual = Select yes if you paid for materials
+materialsPage.title.agent = A wnaeth eich cleient dalu am ddeunyddiau adeiladu ar y contract hwn?
+materialsPage.title.individual = A wnaethoch dalu am ddeunyddiau adeiladu ar y contract hwn?
+materialsPage.title.agent.named = A wnaeth eich cleient dalu am ddeunyddiau ar gyfer ei gontractwr?
+materialsPage.title.individual.named = A wnaethoch dalu am ddeunyddiau ar gyfer eich contractwr?
+materialsPage.heading.agent = A wnaeth eich cleient dalu am ddeunyddiau yn {0}?
+materialsPage.heading.individual = A wnaethoch dalu am ddeunyddiau yn {0}?
+materialsPage.paragraph.agent = Mae deunyddiau’n cynnwys pethau y mae’ch cleient yn talu amdanynt fel rhan o brosiect adeiladu, er enghraifft:
+materialsPage.paragraph.individual = Mae deunyddiau’n cynnwys pethau rydych yn talu amdanynt fel rhan o brosiect adeiladu, er enghraifft:
+materialsPage.bullet.one = briciau, pibellau, pren, gosodiadau
+materialsPage.bullet.two = rhentu neu logi offer neu sgaffaldwaith
+materialsPage.warning = Nid yw hyn yn cynnwys treuliau sy’n gysylltiedig â gwaith, er enghraifft tanwydd, llety, offer neu ddillad gwaith. Defnyddiwch eich pecyn meddalwedd i ddweud wrthym am y mathau hyn o dreuliau.
+materialsPage.error.agent = Dewiswch ‘Iawn’ os gwnaeth eich cleient dalu am ddeunyddiau
+materialsPage.error.individual = Dewiswch ‘Iawn’ os gwnaethoch dalu am ddeunyddiau
 
 #################   Materials Amount Page   ############################
 
