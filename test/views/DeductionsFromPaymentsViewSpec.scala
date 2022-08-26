@@ -62,12 +62,12 @@ class DeductionsFromPaymentsViewSpec extends ViewUnitTest {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
     override val expectedTitleText: String = "A ydych wedi cael didyniadau CIS a gymerwyd o’ch taliadau gan gontractwyr?"
     override val expectedParagraphText: String = "Cewch hyd i’r didyniadau mewn datganiadau a roddwyd i chi gan gontractwyr."
-    override val expectedYesText: String = "Yes"
-    override val expectedNoText: String = "No"
-    override val expectedButtonText: String = "Continue"
+    override val expectedYesText: String = "Iawn"
+    override val expectedNoText: String = "Na"
+    override val expectedButtonText: String = "Yn eich blaen"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -86,14 +86,14 @@ class DeductionsFromPaymentsViewSpec extends ViewUnitTest {
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     override val expectedTitleText: String = "A ydych wedi cael didyniadau CIS a gymerwyd o’ch taliadau gan gontractwyr?"
-    override val expectedErrorTitleText: String = s"Error: $expectedTitleText"
+    override val expectedErrorTitleText: String = s"Gwall: $expectedTitleText"
     override val expectedParagraphText: String = "Cewch hyd i’r didyniadau mewn datganiadau a roddwyd i chi gan gontractwyr."
     override val expectedErrorText: String = "Dewiswch ‘Iawn’ os oedd gennych ddidyniadau CIS wedi'u cymryd o'ch taliadau gan gontractwyr."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     override val expectedTitleText: String = "A yw’ch cleient wedi cael didyniadau CIS o’i daliadau gan gontractwyr?"
-    override val expectedErrorTitleText: String = s"Error: $expectedTitleText"
+    override val expectedErrorTitleText: String = s"Gwall: $expectedTitleText"
     override val expectedParagraphText: String = "Cewch hyd i’r didyniadau mewn datganiadau a roddwyd i’ch cleient gan gontractwyr."
     override val expectedErrorText: String = "Dewiswch ‘Iawn’ os oedd gan eich cleient ddidyniadau CIS wedi'u cymryd o'i daliadau gan gontractwyr."
   }

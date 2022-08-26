@@ -70,9 +70,9 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
-    override val expectedButtonText: String = "Continue"
-    override val expectedHintText: String = "For example, £193.52"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    override val expectedButtonText: String = "Yn eich blaen"
+    override val expectedHintText: String = "Er enghraifft, £193.52"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -92,7 +92,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
   object ExpectedIndividualCY extends SpecificExpectedResults {
     override val expectedTitle: String = "Faint gwnaethoch ei dalu am ddeunyddiau adeiladu ar gyfer eich contractwr?"
     override val expectedTitleThisContract: String = "Faint gwnaethoch ei dalu am ddeunyddiau adeiladu ar y contract hwn?"
-    override val expectedErrorTitle: String = s"Error: $expectedTitle"
+    override val expectedErrorTitle: String = s"Gwall: $expectedTitle"
     override val expectedH1: String => String = (contractorName: String) => s"Faint gwnaethoch ei dalu am ddeunyddiau adeiladu yn $contractorName?"
     override val expectedH1ThisContract: String = "Faint gwnaethoch ei dalu am ddeunyddiau adeiladu ar y contract hwn?"
     override val expectedReplayContent1: String => String = (statementDate: String) => s"Gallwch ddod o hyd i hyn ar eich datganiad CIS 5 $statementDate."
@@ -120,7 +120,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
   object ExpectedAgentCY extends SpecificExpectedResults {
     override val expectedTitle: String = "Faint gwnaeth eich cleient ei dalu am ddeunyddiau adeiladu ar gyfer y contractwr?"
     override val expectedTitleThisContract: String = "Faint gwnaeth eich cleient ei dalu am ddeunyddiau adeiladu ar y contract hwn?"
-    override val expectedErrorTitle: String = s"Error: $expectedTitle"
+    override val expectedErrorTitle: String = s"Gwall: $expectedTitle"
     override val expectedH1: String => String = (contractorName: String) => s"Faint gwnaeth eich cleient dalu am ddeunyddiau adeiladu yn $contractorName?"
     override val expectedH1ThisContract: String = "Faint gwnaeth eich cleient ei dalu am ddeunyddiau adeiladu ar y contract hwn?"
     override val expectedReplayContent1: String => String = (statementDate: String) => s"Gallwch ddod o hyd i hyn ar ei ddatganiad CIS 5 $statementDate."

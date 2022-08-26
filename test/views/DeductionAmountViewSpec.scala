@@ -76,16 +76,16 @@ class DeductionAmountViewSpec extends ViewUnitTest {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    override val expectedTitle: String = "How much was taken by this contractor in CIS deductions?"
-    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
-    override val expectedH1: String = "How much was taken by this contractor in CIS deductions?"
-    override val expectedEmptyErrorText: String = "Enter the CIS deduction amount"
-    override val expectedWrongFormatErrorText: String = "Enter the CIS deduction in the correct format"
-    override val expectedMaxAmountErrorText: String = "The CIS deduction must be less than £100,000,000,000"
-    override val expectedButtonText: String = "Continue"
-    override val expectedHintText: String = "For example, £193.52"
+    override val expectedTitle: String = "Faint a gymerwyd gan y contractwr hwn mewn didyniadau CIS?"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    override val expectedH1: String = "Faint a gymerwyd gan y contractwr hwn mewn didyniadau CIS?"
+    override val expectedEmptyErrorText: String = "Nodwch swm y didyniad CIS"
+    override val expectedWrongFormatErrorText: String = "Nodwch y didyniad CIS yn y fformat cywir"
+    override val expectedMaxAmountErrorText: String = "Mae’n rhaid i’r didyniad CIS fod yn llai na £100,000,000,000"
+    override val expectedButtonText: String = "Yn eich blaen"
+    override val expectedHintText: String = "Er enghraifft, £193.52"
 
-    override def expectedH1(contractorName: String): String = s"How much was taken by $contractorName in CIS deductions?"
+    override def expectedH1(contractorName: String): String = s"Faint a gymerwyd gan $contractorName mewn didyniadau CIS?"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -103,17 +103,17 @@ class DeductionAmountViewSpec extends ViewUnitTest {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    override val expectedTitle: String = "How much was taken by your contractor in CIS deductions?"
-    override val expectedErrorTitle: String = s"Error: $expectedTitle"
-    override val expectedP1: String => String = (statementDate: String) => s"Tell us the amount on your $statementDate CIS statement."
-    override val expectedP1Replay: String => String = (statementDate: String) => s"You can find this on your 5 $statementDate CIS statement."
+    override val expectedTitle: String = "Faint a gymerwyd gan eich contractwr mewn didyniadau CIS?"
+    override val expectedErrorTitle: String = s"Gwall: $expectedTitle"
+    override val expectedP1: String => String = (statementDate: String) => s"Rhowch wybod i ni y swm ar eich datganiad CIS $statementDate."
+    override val expectedP1Replay: String => String = (statementDate: String) => s"Mae hwn i’w weld ar eich datganiad CIS 5 $statementDate."
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    override val expectedTitle: String = "How much was taken by the contractor in CIS deductions?"
-    override val expectedErrorTitle: String = s"Error: $expectedTitle"
-    override val expectedP1: String => String = (statementDate: String) => s"Tell us the amount on your client’s $statementDate CIS statement."
-    override val expectedP1Replay: String => String = (statementDate: String) => s"You can find this on your client’s 5 $statementDate CIS statement."
+    override val expectedTitle: String = "Faint a gymerwyd gan y contractwr mewn didyniadau CIS?"
+    override val expectedErrorTitle: String = s"Gwall: $expectedTitle"
+    override val expectedP1: String => String = (statementDate: String) => s"Rhowch wybod i ni y swm ar ddatganiad CIS $statementDate eich cleient."
+    override val expectedP1Replay: String => String = (statementDate: String) => s"Mae hwn i’w weld ar ddatganiad CIS 5 $statementDate eich cleient."
   }
 
   override protected val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = Seq(

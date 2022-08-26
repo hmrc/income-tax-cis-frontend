@@ -53,12 +53,12 @@ class ServiceUnavailableTemplateSpec extends ViewTest {
     val h1Expected = "Sorry, the service is unavailable"
     val p1Expected = "You will be able to use this service later."
     val p2Expected = "You can also:"
-    val bulletPoint1Expected = "go to the Income Tax home page (opens in new tab) for more information"
+    val bulletPoint1Expected = "go to the Income Tax home page (yn agor tab newydd) for more information"
     val bulletPoint1Link = "https://www.gov.uk/income-tax"
-    val bulletPoint1LinkText = "Income Tax home page (opens in new tab)"
-    val bulletPoint2Expected = "use Self Assessment: general enquiries (opens in new tab) to speak to someone about your income tax"
+    val bulletPoint1LinkText = "Income Tax home page (yn agor tab newydd)"
+    val bulletPoint2Expected = "defnyddio Self Assessment: general enquiries (yn agor tab newydd) to speak to someone about your income tax"
     val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
-    val bulletPoint2LinkText = "Self Assessment: general enquiries (opens in new tab)"
+    val bulletPoint2LinkText = "Self Assessment: general enquiries (yn agor tab newydd)"
   }
 
   lazy val serviceUnavailableTemplate: ServiceUnavailableTemplate = app.injector.instanceOf[ServiceUnavailableTemplate]

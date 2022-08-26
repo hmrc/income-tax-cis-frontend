@@ -65,12 +65,12 @@ class DeleteCISPeriodViewSpec extends ViewUnitTest {
 
   object CommonExpectedCY extends CommonExpectedResults {
     override val expectedTitle: String = "Are you sure you want to remove this CIS deduction?"
-    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
     override val expectedH1: String = "Are you sure you want to remove this CIS deduction?"
     override val expectedP1: (Month, Int) => String = (month: Month, year: Int) =>
       s"You will remove the CIS deduction for the tax month ending 5 ${translatedMonthAndTaxYear(month, year)(getMessages(isWelsh = true))}."
-    override val expectedButtonText: String = "Remove"
-    override val expectedLinkText: String = "Cancel"
+    override val expectedButtonText: String = "Tynnu"
+    override val expectedLinkText: String = "Canslo"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults

@@ -37,22 +37,36 @@ class InternalServerErrorTemplateSpec extends ViewTest {
 
   }
 
-  val h1Expected = "Sorry, there is a problem with the service"
-  val p1Expected = "Try again later."
-  val p2Expected = "You can also:"
-  val bulletPoint1Expected = "go to the Income Tax home page (opens in new tab) for more information"
-  val bulletPoint1Link = "https://www.gov.uk/income-tax"
-  val bulletPoint1LinkText = "Income Tax home page (opens in new tab)"
-  val bulletPoint2Expected = "use Self Assessment: general enquiries (opens in new tab) to speak to someone about your income tax"
-  val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
-  val bulletPoint2LinkText = "Self Assessment: general enquiries (opens in new tab)"
+  object CommonExpectedEN {
+    val h1Expected = "Sorry, there is a problem with the service"
+    val p1Expected = "Try again later."
+    val p2Expected = "You can also:"
+    val bulletPoint1Expected = "go to the Income Tax home page (opens in new tab) for more information"
+    val bulletPoint1Link = "https://www.gov.uk/income-tax"
+    val bulletPoint1LinkText = "Income Tax home page (opens in new tab)"
+    val bulletPoint2Expected = "use Self Assessment: general enquiries (opens in new tab) to speak to someone about your income tax"
+    val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
+    val bulletPoint2LinkText = "Self Assessment: general enquiries (opens in new tab)"
+  }
+
+  object CommonExpectedCY {
+    val h1Expected = "Sorry, there is a problem with the service"
+    val p1Expected = "Try again later."
+    val p2Expected = "You can also:"
+    val bulletPoint1Expected = "go to the Income Tax home page (yn agor tab newydd) for more information"
+    val bulletPoint1Link = "https://www.gov.uk/income-tax"
+    val bulletPoint1LinkText = "Income Tax home page (yn agor tab newydd)"
+    val bulletPoint2Expected = "defnyddio Self Assessment: general enquiries (yn agor tab newydd) to speak to someone about your income tax"
+    val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
+    val bulletPoint2LinkText = "Self Assessment: general enquiries (yn agor tab newydd)"
+  }
 
 
   lazy val internalServerErrorTemplate: InternalServerErrorTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
   lazy val appConfig: AppConfig = mockAppConfig
 
   "UnauthorisedTemplate in English" should {
-
+     import CommonExpectedEN._
     "render the page correctly" which {
 
       lazy val view: HtmlFormat.Appendable = internalServerErrorTemplate()(fakeRequest, messages, appConfig)
@@ -74,7 +88,7 @@ class InternalServerErrorTemplateSpec extends ViewTest {
   }
 
   "UnauthorisedTemplate in Welsh" should {
-
+    import CommonExpectedCY._
     "render the page correctly" which {
 
       lazy val view: HtmlFormat.Appendable = internalServerErrorTemplate()(fakeRequest, welshMessages, appConfig)

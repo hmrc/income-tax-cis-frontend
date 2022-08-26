@@ -31,18 +31,30 @@ class AgentAuthErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOne
   private val authoriseAsAnAgentLinkSelector = "#client_auth_link"
   private val anotherClientDetailsButtonSelector = "#main-content > div > div > a"
 
-  private val h1Expected = "There’s a problem"
-  private val youCannotViewText: String = "You cannot view this client’s information. Your client needs to"
-  private val authoriseYouAsText = "authorise you as their agent (opens in new tab)"
-  private val beforeYouCanTryText = "before you can sign in to this service."
-  private val tryAnotherClientText = "Try another client’s details"
+  object expectedResultsEN {
+    val h1Expected = "There’s a problem"
+    val youCannotViewText: String = "You cannot view this client’s information. Your client needs to"
+    val authoriseYouAsText = "authorise you as their agent (opens in new tab)"
+    val beforeYouCanTryText = "before you can sign in to this service."
+    val tryAnotherClientText = "Try another client’s details"
+  }
+
+  object expectedResultsCY {
+    val h1Expected = "There’s a problem"
+    val youCannotViewText: String = "You cannot view this client’s information. Your client needs to"
+    val authoriseYouAsText = "authorise you as their agent (yn agor tab newydd)"
+    val beforeYouCanTryText = "before you can sign in to this service."
+    val tryAnotherClientText = "Try another client’s details"
+  }
+
   private val tryAnotherClientExpectedHref = "/report-quarterly/income-and-expenses/view/agents/client-utr"
   private val authoriseAsAnAgentLink = "https://www.gov.uk/guidance/client-authorisation-an-overview"
+
 
   private val agentAuthErrorPageView: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]
 
   "AgentAuthErrorPageView in English" should {
-
+    import expectedResultsEN._
     "Render correctly" which {
       lazy val view: Html = agentAuthErrorPageView()(fakeRequest, messages, mockAppConfig)
       lazy implicit val document: Document = Jsoup.parse(view.body)
@@ -57,7 +69,7 @@ class AgentAuthErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOne
   }
 
   "AgentAuthErrorPageView in Welsh" should {
-
+    import expectedResultsCY._
     "Render correctly" which {
       lazy val view: Html = agentAuthErrorPageView()(fakeRequest, welshMessages, mockAppConfig)
       lazy implicit val document: Document = Jsoup.parse(view.body)

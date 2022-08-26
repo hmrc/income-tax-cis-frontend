@@ -69,8 +69,8 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    override val expectedTitle: String = "Contractor details"
-    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
+    override val expectedTitle: String = "Manylion y contractwr"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
     override val expectedH1: String = "CIS deductions"
     override val contractorName: String = "Enw’r contractwr"
     override val contractorNameHint: String = "Er enghraifft, ABC Steelworks."
