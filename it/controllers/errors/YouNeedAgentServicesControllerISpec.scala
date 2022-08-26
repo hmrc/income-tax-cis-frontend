@@ -30,7 +30,7 @@ class YouNeedAgentServicesControllerISpec extends IntegrationTest with ViewHelpe
     val createAnAgentLinkSelector = "#create_agent_services_link"
   }
 
-  val url = s"$appUrl/error/you-need-agent-services-account"
+  private val url = s"$appUrl/error/you-need-agent-services-account"
 
   trait CommonExpectedResults {
     val h1Expected: String
@@ -49,26 +49,24 @@ class YouNeedAgentServicesControllerISpec extends IntegrationTest with ViewHelpe
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val h1Expected = "You cannot view this page"
-    val youNeedText = "You need to"
-    val createAnAgentText = "create an agent services account"
-    val beforeYouCanText = "before you can view this page."
+    val h1Expected = "Ni allwch fwrw golwg dros y dudalen hon"
+    val youNeedText = "Mae angen"
+    val createAnAgentText = "creu cyfrif gwasanaethau asiant"
+    val beforeYouCanText = "cyn i chi allu bwrw golwg dros y dudalen hon."
     val createAnAgentLink = "https://www.gov.uk/guidance/get-an-hmrc-agent-services-account"
   }
 
-  val userScenarios: Seq[UserScenario[CommonExpectedResults, CommonExpectedResults]] = {
-    Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN),
-      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY))
-  }
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, CommonExpectedResults]] = Seq(
+    UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN),
+    UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY)
+  )
 
   ".show" when {
     import Selectors._
 
     userScenarios.foreach { user =>
       s"language is ${welshTest(user.isWelsh)} and request is from an ${agentTest(user.isAgent)}" should {
-
         "render the page with the right content" which {
-
           implicit lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
             urlGet(url, welsh = user.isWelsh)
@@ -82,7 +80,7 @@ class YouNeedAgentServicesControllerISpec extends IntegrationTest with ViewHelpe
 
           import user.commonExpectedResults._
 
-          titleCheck(h1Expected)
+          titleCheck(h1Expected, user.isWelsh)
           welshToggleCheck(user.isWelsh)
           h1Check(h1Expected, "xl")
           textOnPageCheck(s"$youNeedText $createAnAgentText $beforeYouCanText", p1Selector)

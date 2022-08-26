@@ -75,15 +75,15 @@ class MaterialsViewSpec extends ViewUnitTest {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
-    override val expectedListItemOne: String = "bricks, piping, timber, fixings"
-    override val expectedListItemTwo: String = "renting or hiring equipment or scaffolding"
-    override val expectedWarning: String = "Warning"
-    override val expectedWarningText: String = "This does not include work-related expenses, such as fuel, accommodation, tools or work clothing." +
-      " Use your software package to tell us about these types of expenses."
-    override val expectedYesText: String = "Yes"
-    override val expectedNoText: String = "No"
-    override val expectedButtonText: String = "Continue"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    override val expectedListItemOne: String = "briciau, pibellau, pren, gosodiadau"
+    override val expectedListItemTwo: String = "rhentu neu logi offer neu sgaffaldwaith"
+    override val expectedWarning: String = "Rhybudd"
+    override val expectedWarningText: String =
+      "Nid yw hyn yn cynnwys treuliau sy’n gysylltiedig â gwaith, er enghraifft tanwydd, llety, offer neu ddillad gwaith. Defnyddiwch eich pecyn meddalwedd i ddweud wrthym am y mathau hyn o dreuliau."
+    override val expectedYesText: String = "Iawn"
+    override val expectedNoText: String = "Na"
+    override val expectedButtonText: String = "Yn eich blaen"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -111,27 +111,27 @@ class MaterialsViewSpec extends ViewUnitTest {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    override val expectedTitle: String = "Did you pay for materials for your contractor?"
-    override val expectedTitleThisContract: String = "Did you pay for building materials on this contract?"
-    override val expectedErrorTitle: String = s"Error: $expectedTitle"
+    override val expectedTitle: String = "A wnaethoch dalu am ddeunyddiau ar gyfer eich contractwr?"
+    override val expectedTitleThisContract: String = "A wnaethoch dalu am ddeunyddiau adeiladu ar y contract hwn?"
+    override val expectedErrorTitle: String = s"Gwall: $expectedTitle"
     override val expectedH1: String = s"$expectedTitle"
     override val expectedH1ThisContract: String = s"$expectedTitleThisContract"
-    override val expectedParagraph: String = "Materials include things you pay for as part of a construction project, for example:"
-    override val expectedErrorText: String = "Select yes if you paid for materials"
+    override val expectedParagraph: String = "Mae deunyddiau’n cynnwys pethau rydych yn talu amdanynt fel rhan o brosiect adeiladu, er enghraifft:"
+    override val expectedErrorText: String = "Dewiswch ‘Iawn’ os gwnaethoch dalu am ddeunyddiau"
 
-    override def expectedH1(contractorName: String): String = s"Did you pay for materials at $contractorName?"
+    override def expectedH1(contractorName: String): String = s"A wnaethoch dalu am ddeunyddiau yn $contractorName?"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    override val expectedTitle: String = "Did your client pay for materials for their contractor?"
-    override val expectedTitleThisContract: String = "Did your client pay for building materials on this contract?"
-    override val expectedErrorTitle: String = s"Error: $expectedTitle"
+    override val expectedTitle: String = "A wnaeth eich cleient dalu am ddeunyddiau ar gyfer ei gontractwr?"
+    override val expectedTitleThisContract: String = "A wnaeth eich cleient dalu am ddeunyddiau adeiladu ar y contract hwn?"
+    override val expectedErrorTitle: String = s"Gwall: $expectedTitle"
     override val expectedH1: String = s"$expectedTitle"
     override val expectedH1ThisContract: String = s"$expectedTitleThisContract"
-    override val expectedParagraph: String = "Materials include things your client pays for as part of a construction project, for example:"
-    override val expectedErrorText: String = "Select yes if your client paid for materials"
+    override val expectedParagraph: String = "Mae deunyddiau’n cynnwys pethau y mae’ch cleient yn talu amdanynt fel rhan o brosiect adeiladu, er enghraifft:"
+    override val expectedErrorText: String = "Dewiswch ‘Iawn’ os gwnaeth eich cleient dalu am ddeunyddiau"
 
-    override def expectedH1(contractorName: String): String = s"Did your client pay for materials at $contractorName?"
+    override def expectedH1(contractorName: String): String = s"A wnaeth eich cleient dalu am ddeunyddiau yn $contractorName?"
   }
 
   override protected val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = Seq(
@@ -153,7 +153,7 @@ class MaterialsViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1(contractorName = "some-contractor"))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedParagraph, Selectors.paragraphTextSelector)
@@ -175,7 +175,7 @@ class MaterialsViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitleThisContract)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitleThisContract, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1ThisContract)
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedParagraph, Selectors.paragraphTextSelector)
@@ -197,7 +197,7 @@ class MaterialsViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1(contractorName = "some-contractor"))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedParagraph, Selectors.paragraphTextSelector)
