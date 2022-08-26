@@ -188,24 +188,24 @@ materialsPage.error.individual = Select yes if you paid for materials
 
 #################   Materials Amount Page   ############################
 
-materialsAmountPage.title.individual.named = How much did you pay for building materials for your contractor?
-materialsAmountPage.title.agent.named = How much did your client pay for building materials for the contractor?
-materialsAmountPage.title.individual = How much did you pay for building materials on this contract?
-materialsAmountPage.title.agent = How much did your client pay for building materials on this contract?
-materialsAmountPage.heading.individual = How much did you pay for building materials at {0}?
-materialsAmountPage.heading.agent = How much did your client pay for building materials at {0}?
-materialsAmountPage.replayContent.p1.individual = You can find this on your 5 {0} CIS statement.
-materialsAmountPage.replayContent.p1.agent = You can find this on their 5 {0} CIS statement.
-materialsAmountPage.p1.individual = Tell us the amount on your 5 {0} CIS statement.
-materialsAmountPage.p1.agent = Tell us the amount on your client’s 5 {0} CIS statement.
-materialsAmountPage.vatParagraph.individual = Only include VAT if you are not VAT registered.
-materialsAmountPage.vatParagraph.agent = Only include VAT if your client is not VAT registered.
-materialsAmountPage.error.noEntry.individual = Enter the amount you paid for materials
-materialsAmountPage.error.noEntry.agent = Enter the amount your client paid for materials
-materialsAmountPage.error.incorrectFormat.individual = Enter the amount you paid for materials in the correct format
-materialsAmountPage.error.incorrectFormat.agent = Enter the amount your client paid for materials in the correct format
-materialsAmountPage.error.overMaximum.individual = The amount you paid for materials must be less than £100,000,000,000
-materialsAmountPage.error.overMaximum.agent = The amount your client paid for materials must be less than £100,000,000,000
+materialsAmountPage.title.individual.named = Faint gwnaethoch ei dalu am ddeunyddiau adeiladu ar gyfer eich contractwr?
+materialsAmountPage.title.agent.named = Faint gwnaeth eich cleient ei dalu am ddeunyddiau adeiladu ar gyfer y contractwr?
+materialsAmountPage.title.individual = Faint gwnaethoch ei dalu am ddeunyddiau adeiladu ar y contract hwn?
+materialsAmountPage.title.agent = Faint gwnaeth eich cleient ei dalu am ddeunyddiau adeiladu ar y contract hwn?
+materialsAmountPage.heading.individual = Faint gwnaethoch ei dalu am ddeunyddiau adeiladu yn {0}?
+materialsAmountPage.heading.agent = Faint gwnaeth eich cleient dalu am ddeunyddiau adeiladu yn {0}?
+materialsAmountPage.replayContent.p1.individual = Gallwch ddod o hyd i hyn ar eich datganiad CIS 5 {0}.
+materialsAmountPage.replayContent.p1.agent = Gallwch ddod o hyd i hyn ar ei ddatganiad CIS 5 {0}.
+materialsAmountPage.p1.individual = Rhowch wybod i ni y swm ar eich datganiad CIS 5 {0}.
+materialsAmountPage.p1.agent = Rhowch wybod i ni y swm ar ddatganiad CIS 5 {0} eich cleient.
+materialsAmountPage.vatParagraph.individual = Dylech gynnwys TAW dim ond os nad ydych wedi’ch cofrestru ar gyfer TAW.
+materialsAmountPage.vatParagraph.agent = Dylech gynnwys TAW dim ond os nad yw’ch cleient wedi’i gofrestru ar gyfer TAW.
+materialsAmountPage.error.noEntry.individual = Nodwch y swm a dalwyd gennych am ddeunyddiau
+materialsAmountPage.error.noEntry.agent = Nodwch y swm a dalwyd gan eich cleient am ddeunyddiau
+materialsAmountPage.error.incorrectFormat.individual = Nodwch y swm a dalwyd gennych am ddeunyddiau yn y fformat cywir
+materialsAmountPage.error.incorrectFormat.agent = Nodwch y swm a dalwyd gan eich cleient am ddeunyddiau yn y fformat cywir
+materialsAmountPage.error.overMaximum.individual = Mae’n rhaid i’r swm a dalwyd gennych am ddeunyddiau fod yn llai na £100,000,000,000
+materialsAmountPage.error.overMaximum.agent = Mae’n rhaid i’r swm a dalwyd gan eich cleient am ddeunyddiau fod yn llai na £100,000,000,000
 
 #################       Error messages        ########################################
 
