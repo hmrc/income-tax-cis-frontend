@@ -76,7 +76,7 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
     override val contractorNameHint: String = "Er enghraifft, ABC Steelworks."
     override val employerRef: String = "Cyfeirnod y Cyflogwr (ERN)"
     override val employerRefHint: String = "Er enghraifft, 123/AB12345."
-    override val buttonText: String = "Continue"
+    override val buttonText: String = "Yn eich blaen"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {

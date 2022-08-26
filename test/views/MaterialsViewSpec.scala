@@ -75,7 +75,7 @@ class MaterialsViewSpec extends ViewUnitTest {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
     override val expectedListItemOne: String = "briciau, pibellau, pren, gosodiadau"
     override val expectedListItemTwo: String = "rhentu neu logi offer neu sgaffaldwaith"
     override val expectedWarning: String = "Rhybudd"
