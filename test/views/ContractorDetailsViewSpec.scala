@@ -72,10 +72,10 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
     override val expectedTitle: String = "Contractor details"
     override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
     override val expectedH1: String = "CIS deductions"
-    override val contractorName: String = "Contractor name"
-    override val contractorNameHint: String = "For example, ABC Steelworks."
-    override val employerRef: String = "Employer Reference Number (ERN)"
-    override val employerRefHint: String = "For example, 123/AB12345."
+    override val contractorName: String = "Enw’r contractwr"
+    override val contractorNameHint: String = "Er enghraifft, ABC Steelworks."
+    override val employerRef: String = "Cyfeirnod y Cyflogwr (ERN)"
+    override val employerRefHint: String = "Er enghraifft, 123/AB12345."
     override val buttonText: String = "Continue"
   }
 

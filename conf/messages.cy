@@ -159,17 +159,17 @@ deductionsFromPaymentsPage.error.individual = Dewiswch ‘Iawn’ os oedd gennyc
 
 #################       Contractor Details messages        ########################################
 
-contractor-details.name = Contractor name
-contractor-details.name.hint = For example, ABC Steelworks.
-contractor-details.name.error.noEntry.individual = Enter your contractor name
-contractor-details.name.error.noEntry.agent = Enter your client’s contractor name
-contractor-details.name.error.notCharLimit = Contractor name must be 105 characters or fewer
-contractor-details.name.error.wrongFormat = Contractor name can only include letters a to z, numbers 0 to 9, and the symbols - , . & ; /
-contractor-details.employer-ref = Employer Reference Number (ERN)
-contractor-details.employer-ref.hint = For example, 123/AB12345.
-contractor-details.employer-ref.error.noEntry = Enter the Employer Reference Number
-contractor-details.employer-ref.error.wrongFormat = Enter the Employer Reference Number in the correct format
-contractor-details.employer-ref.error.duplicate = You cannot add this Employer Reference Number again. Enter a new Employer Reference Number
+contractor-details.name = Enw’r contractwr
+contractor-details.name.hint = Er enghraifft, ABC Steelworks.
+contractor-details.name.error.noEntry.individual = Nodwch enw’ch contractwr
+contractor-details.name.error.noEntry.agent = Nodwch enw contractwr eich cleient
+contractor-details.name.error.notCharLimit = Mae’n rhaid i enw’r contractwr fod yn 105 o gymeriadau neu lai
+contractor-details.name.error.wrongFormat = Gall enw’r contractwr ond cynnwys llythrennau a i z, rhifau 0 i 9 a’r symbolau - , . & ; /
+contractor-details.employer-ref = Cyfeirnod y Cyflogwr (ERN)
+contractor-details.employer-ref.hint = Er enghraifft, 123/AB12345.
+contractor-details.employer-ref.error.noEntry = Nodwch Gyfeirnod y Cyflogwr
+contractor-details.employer-ref.error.wrongFormat = Nodwch Gyfeirnod y Cyflogwr yn y fformat cywir
+contractor-details.employer-ref.error.duplicate = Ni allwch ychwanegu Cyfeirnod y Cyflogwr hwn eto. Nodwch Gyfeirnod y Cyflogwr newydd
 
 #################       Materials Page       #######################################
 materialsPage.title.agent = A wnaeth eich cleient dalu am ddeunyddiau adeiladu ar y contract hwn?
