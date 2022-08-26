@@ -210,13 +210,13 @@ materialsAmountPage.error.overMaximum.agent = Mae’n rhaid i’r swm a dalwyd g
 #################       Error messages        ########################################
 
 common.error.self-assessment.paragraph.1.1 = If the web address is correct or you selected a link or button, you can use
-common.error.self-assessment.paragraph.1.2 = Self Assessment: general enquiries
+common.error.self-assessment.paragraph.1.2 = Hunanasesiad: ymholiadau cyffredinol
 common.error.self-assessment.paragraph.1.3 = to speak to someone about your income tax
 common.error.self-assessment.paragraph.1.3a = to speak to someone about your income tax.
 error-template.paragraph.1.1 = You can also:
 error-template.paragraph.1.1a = You can:
 error-template.paragraph.1.2 = go to the
-error-template.paragraph.1.3 = Income Tax home page
+error-template.paragraph.1.3 = hafan Treth Incwm
 error-template.paragraph.1.4 = for more information
 error.agent.paragraph1 = You cannot view this client’s information. Your client needs to
 error.agent.paragraph2 = authorise you as their agent
@@ -229,7 +229,7 @@ error.unauthorised.1 = You need to
 error.unauthorised.2 = create an agent services account
 error.unauthorised.2a = sign up for Making Tax Digital for Income Tax
 error.unauthorised.3 = before you can view this page.
-error.unauthorised.title = You cannot view this page
+error.unauthorised.title = Ni allwch fwrw golwg dros y dudalen hon
 internal-server-error-template.heading = Sorry, there is a problem with the service
 internal-server-error-template.paragraph.1 = Try again later.
 not-found-template.heading = Page not found

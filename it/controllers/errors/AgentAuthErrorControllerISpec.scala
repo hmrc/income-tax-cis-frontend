@@ -59,7 +59,7 @@ class AgentAuthErrorControllerISpec extends IntegrationTest with ViewHelpers {
     val heading: String = "There’s a problem"
     val title = "There’s a problem"
     val youCannotViewText: String = "You cannot view this client’s information. Your client needs to"
-    val authoriseYouAsText = "authorise you as their agent (opens in new tab)"
+    val authoriseYouAsText = "authorise you as their agent (yn agor tab newydd)"
     val beforeYouCanTryText = "before you can sign in to this service."
     val tryAnother = "Try another client’s details"
     val authoriseAsAnAgentLink = "https://www.gov.uk/guidance/client-authorisation-an-overview"
@@ -92,8 +92,8 @@ class AgentAuthErrorControllerISpec extends IntegrationTest with ViewHelpers {
 
           import user.commonExpectedResults._
 
-          titleCheck(title)
-          h1Check(heading,"xl")
+          titleCheck(title, user.isWelsh)
+          h1Check(heading, "xl")
           textOnPageCheck(s"$youCannotViewText $authoriseYouAsText $beforeYouCanTryText", youCan)
           linkCheck(authoriseYouAsText, authoriseAsAnAgentLinkSelector, authoriseAsAnAgentLink)
           buttonCheck(tryAnother, Selectors.tryAnother, Some(tryAnotherExpectedHref))
