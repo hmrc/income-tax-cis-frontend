@@ -44,11 +44,11 @@ class NotFoundTemplateSpec extends ViewTest {
   }
 
   object expectedResultsCY {
-    val h1Expected = "Page not found"
-    val p1Expected = "If you typed the web address, check it is correct."
-    val p2Expected = "If you used ‘copy and paste’ to enter the web address, check you copied the full address."
-    val p3Expected: String =
-      "If the web address is correct or you selected a link or button, you can use Hunanasesiad: ymholiadau cyffredinol (yn agor tab newydd) to speak to someone about your income tax."
+    val h1Expected = "Heb ddod o hyd i’r dudalen"
+    val p1Expected = "Os gwnaethoch deipio’r cyfeiriad gwe, gwiriwch ei fod yn gywir."
+    val p2Expected = "Os gwnaethoch ddefnyddio ‘copïo a gludo’ er mwyn nodi’r cyfeiriad gwe, gwiriwch eich bod wedi copïo’r cyfeiriad llawn."
+    val p3Expected: String = "Os yw’r cyfeiriad gwe yn gywir neu os ydych wedi dewis cysylltiad neu fotwm, gallwch ddefnyddio Hunanasesiad: ymholiadau cyffredinol (yn agor tab newydd) " +
+      "i siarad â rhywun am eich treth incwm."
     val p3ExpectedLink = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
     val p3ExpectedLinkText = "Hunanasesiad: ymholiadau cyffredinol (yn agor tab newydd)"
   }
@@ -57,8 +57,8 @@ class NotFoundTemplateSpec extends ViewTest {
 
   "NotFoundTemplate in English" should {
     import expectedResultsEN._
-    "render the page correctly" which {
 
+    "render the page correctly" which {
       lazy val view: HtmlFormat.Appendable = notFoundTemplate()(fakeRequest, messages, mockAppConfig)
       implicit lazy val document: Document = Jsoup.parse(view.body)
 

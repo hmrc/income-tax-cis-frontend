@@ -106,7 +106,7 @@ contractorCYAPage.lineItem.endOfTaxMonth = Diwedd mis treth
 contractorCYAPage.lineItem.endOfTaxMonth.hiddenText = Newidiwch ddiwedd mis treth
 contractorCYAPage.lineItem.labour = Llafur
 contractorCYAPage.lineItem.labour.hiddenText = Newidiwch y swm a dalwyd am lafur
-contractorCYAPage.lineItem.cisDeduction = CIS deduction
+contractorCYAPage.lineItem.cisDeduction = Didyniadau CIS
 contractorCYAPage.lineItem.cisDeduction.hiddenText = Newidiwch ddidyniad CIS
 contractorCYAPage.lineItem.paidForMaterials = Wedi talu am ddeunyddiau
 contractorCYAPage.lineItem.paidForMaterials.hiddenText = Newidiwch os yw wedi talu am ddeunyddiau
@@ -114,8 +114,8 @@ contractorCYAPage.lineItem.costOfMaterials = Cost deunyddiau
 contractorCYAPage.lineItem.costOfMaterials.hiddenText = Newidiwch gost deunyddiau
 
 #################       Delete CIS Period Page       #######################################
-deleteCISPeriodPage.title = Are you sure you want to remove this CIS deduction?
-deleteCISPeriodPage.p1 = You will remove the CIS deduction for the tax month ending 5 {0}.
+deleteCISPeriodPage.title = A ydych yn siŵr eich bod am dynnu’r didyniad CIS hwn?
+deleteCISPeriodPage.p1 = Byddwch yn tynnu’r didyniad CIS ar gyfer y mis treth sy’n dod i ben ar 5 {0}.
 
 #################       Labour Pay Page       #######################################
 labourPayPage.title.agent = Faint gwnaeth y contractwr hwn dalu’ch cleient am lafur?
@@ -209,40 +209,40 @@ materialsAmountPage.error.overMaximum.agent = Mae’n rhaid i’r swm a dalwyd g
 
 #################       Error messages        ########################################
 
-common.error.self-assessment.paragraph.1.1 = If the web address is correct or you selected a link or button, you can use
+common.error.self-assessment.paragraph.1.1 = Os yw’r cyfeiriad gwe yn gywir neu os ydych wedi dewis cysylltiad neu fotwm, gallwch ddefnyddio
 common.error.self-assessment.paragraph.1.2 = Hunanasesiad: ymholiadau cyffredinol
-common.error.self-assessment.paragraph.1.3 = to speak to someone about your income tax
-common.error.self-assessment.paragraph.1.3a = to speak to someone about your income tax.
-error-template.paragraph.1.1 = You can also:
-error-template.paragraph.1.1a = You can:
-error-template.paragraph.1.2 = go to the
+common.error.self-assessment.paragraph.1.3 = i siarad â rhywun am eich treth incwm
+common.error.self-assessment.paragraph.1.3a = i siarad â rhywun am eich treth incwm.
+error-template.paragraph.1.1 = Gallwch hefyd wneud y canlynol:
+error-template.paragraph.1.1a = Gallwch wneud y canlynol:
+error-template.paragraph.1.2 = mynd i’r
 error-template.paragraph.1.3 = hafan Treth Incwm
-error-template.paragraph.1.4 = for more information
-error.agent.paragraph1 = You cannot view this client’s information. Your client needs to
-error.agent.paragraph2 = authorise you as their agent
-error.agent.paragraph3 = before you can sign in to this service.
-error.agent.paragraph4 = Try another client’s details
-error.agent.title = There’s a problem
-error.summary.title = There is a problem
-error.unauthorised-user.heading = You are not authorised to use this service
-error.unauthorised.1 = You need to
-error.unauthorised.2 = create an agent services account
-error.unauthorised.2a = sign up for Making Tax Digital for Income Tax
-error.unauthorised.3 = before you can view this page.
+error-template.paragraph.1.4 = am ragor o wybodaeth
+error.agent.paragraph1 = Ni allwch fwrw golwg dros wybodaeth y cleient hwn. Mae angen i’ch cleient
+error.agent.paragraph2 = eich awdurdodi fel ei asiant
+error.agent.paragraph3 = cyn y gallwch fewngofnodi i’r gwasanaeth hwn.
+error.agent.paragraph4 = Rhowch gynnig ar fanylion cleient arall
+error.agent.title = Mae problem wedi codi
+error.summary.title = Mae problem wedi codi
+error.unauthorised-user.heading = Nid ydych wedi’ch awdurdodi i ddefnyddio’r gwasanaeth hwn
+error.unauthorised.1 = Mae angen
+error.unauthorised.2 = creu cyfrif gwasanaethau asiant
+error.unauthorised.2a = cofrestru ar gyfer y cynllun Troi Treth yn Ddigidol ar gyfer Treth Incwm
+error.unauthorised.3 = cyn i chi allu bwrw golwg dros y dudalen hon.
 error.unauthorised.title = Ni allwch fwrw golwg dros y dudalen hon
-internal-server-error-template.heading = Sorry, there is a problem with the service
-internal-server-error-template.paragraph.1 = Try again later.
-not-found-template.heading = Page not found
-not-found-template.paragraph.1 = If you typed the web address, check it is correct.
-not-found-template.paragraph.2 = If you used ‘copy and paste’ to enter the web address, check you copied the full address.
-service-unavailable-error-template.heading = Sorry, the service is unavailable
-service-unavailable-error-template.paragraph.1 = You will be able to use this service later.
+internal-server-error-template.heading = Mae’n ddrwg gennym, mae problem gyda’r gwasanaeth
+internal-server-error-template.paragraph.1 = Rhowch gynnig arall arni yn nes ymlaen.
+not-found-template.heading = Heb ddod o hyd i’r dudalen
+not-found-template.paragraph.1 = Os gwnaethoch deipio’r cyfeiriad gwe, gwiriwch ei fod yn gywir.
+not-found-template.paragraph.2 = Os gwnaethoch ddefnyddio ‘copïo a gludo’ er mwyn nodi’r cyfeiriad gwe, gwiriwch eich bod wedi copïo’r cyfeiriad llawn.
+service-unavailable-error-template.heading = Mae’n ddrwg gennym – nid yw’r gwasanaeth ar gael
+service-unavailable-error-template.paragraph.1 = Byddwch yn gallu defnyddio’r gwasanaeth hwn yn nes ymlaen.
 taxYear-error-template.paragraph.1 = Dim ond gwybodaeth ar gyfer y blynyddoedd treth {0} i {1} y gallwch ei nodi.
 taxYear-error-template.paragraph.1.single = Dim ond gwybodaeth ar gyfer blwyddyn dreth ddilys y gallwch ei nodi.
-taxYear-error-template.paragraph.2 = Check that you’ve entered the correct web address.
+taxYear-error-template.paragraph.2 = Gwiriwch eich bod wedi nodi’r cyfeiriad gwe cywir.
 
 #################       Timeout messages        ########################################
 
-timeout.button = Sign in
-timeout.heading = For your security, we signed you out
-timeout.p1 = We did not save your answers.
+timeout.button = Mewngofnodi
+timeout.heading = Er eich diogelwch, gwnaethom eich allgofnodi
+timeout.p1 = Ni wnaethom gadw’ch atebion.

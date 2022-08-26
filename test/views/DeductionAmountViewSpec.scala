@@ -160,72 +160,72 @@ class DeductionAmountViewSpec extends ViewUnitTest {
 
       }
 
-        "render pay page with filled in form" which {
-          implicit val userSessionDataRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
-          implicit val messages: Messages = getMessages(userScenario.isWelsh)
+      "render pay page with filled in form" which {
+        implicit val userSessionDataRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
+        implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
-          val form = new FormsProvider().deductionAmountForm()
-          val pageModel = aDeductionAmountPage.copy(contractorName = None, form = form.fill(value = 123.01), originalAmount = Some(123.01))
-          implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
+        val form = new FormsProvider().deductionAmountForm()
+        val pageModel = aDeductionAmountPage.copy(contractorName = None, form = form.fill(value = 123.01), originalAmount = Some(123.01))
+        implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-          welshToggleCheck(userScenario.isWelsh)
-          titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
-          captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
-          h1Check(userScenario.commonExpectedResults.expectedH1)
-          textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1Replay(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
-          textOnPageCheck(userScenario.commonExpectedResults.expectedHintText, Selectors.hintTextSelector)
-          textOnPageCheck(text = "£", Selectors.poundPrefixSelector)
-          inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "123.01")
-          formPostLinkCheck(DeductionAmountController.submit(taxYearEOY, pageModel.month.toString.toLowerCase, pageModel.employerRef).url, Selectors.continueButtonFormSelector)
-          buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector)
-        }
+        welshToggleCheck(userScenario.isWelsh)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
+        captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
+        h1Check(userScenario.commonExpectedResults.expectedH1)
+        textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1Replay(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
+        textOnPageCheck(userScenario.commonExpectedResults.expectedHintText, Selectors.hintTextSelector)
+        textOnPageCheck(text = "£", Selectors.poundPrefixSelector)
+        inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "123.01")
+        formPostLinkCheck(DeductionAmountController.submit(taxYearEOY, pageModel.month.toString.toLowerCase, pageModel.employerRef).url, Selectors.continueButtonFormSelector)
+        buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector)
+      }
 
-        "render page with form containing empty form error" which {
-          implicit val userSessionDataRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
-          implicit val messages: Messages = getMessages(userScenario.isWelsh)
+      "render page with form containing empty form error" which {
+        implicit val userSessionDataRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
+        implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
-          val form = new FormsProvider().deductionAmountForm().bind(Map("amount" -> ""))
-          val pageModel = aDeductionAmountPage.copy(contractorName = Some("some-contractor"), form = form)
-          implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
+        val form = new FormsProvider().deductionAmountForm().bind(Map("amount" -> ""))
+        val pageModel = aDeductionAmountPage.copy(contractorName = Some("some-contractor"), form = form)
+        implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-          welshToggleCheck(userScenario.isWelsh)
-          titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
-          captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
-          h1Check(userScenario.commonExpectedResults.expectedH1(contractorName = "some-contractor"))
-          textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1("5 " + translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 2))
-          textOnPageCheck(userScenario.commonExpectedResults.expectedHintText, Selectors.hintTextSelector)
-          textOnPageCheck(text = "£", Selectors.poundPrefixSelector)
-          errorSummaryCheck(userScenario.commonExpectedResults.expectedEmptyErrorText, Selectors.expectedErrorHref)
-          inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "")
-          formPostLinkCheck(DeductionAmountController.submit(taxYearEOY, pageModel.month.toString.toLowerCase, pageModel.employerRef).url, Selectors.continueButtonFormSelector)
-          buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector)
-        }
+        welshToggleCheck(userScenario.isWelsh)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
+        captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
+        h1Check(userScenario.commonExpectedResults.expectedH1(contractorName = "some-contractor"))
+        textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1("5 " + translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 2))
+        textOnPageCheck(userScenario.commonExpectedResults.expectedHintText, Selectors.hintTextSelector)
+        textOnPageCheck(text = "£", Selectors.poundPrefixSelector)
+        errorSummaryCheck(userScenario.commonExpectedResults.expectedEmptyErrorText, Selectors.expectedErrorHref)
+        inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "")
+        formPostLinkCheck(DeductionAmountController.submit(taxYearEOY, pageModel.month.toString.toLowerCase, pageModel.employerRef).url, Selectors.continueButtonFormSelector)
+        buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector)
+      }
 
-        "render page with form containing wrong format form error" which {
-          implicit val userSessionDataRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
-          implicit val messages: Messages = getMessages(userScenario.isWelsh)
+      "render page with form containing wrong format form error" which {
+        implicit val userSessionDataRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
+        implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
-          val form = new FormsProvider().deductionAmountForm().bind(Map("amount" -> "wrong-format"))
-          val pageModel = aDeductionAmountPage.copy(form = form)
-          implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
+        val form = new FormsProvider().deductionAmountForm().bind(Map("amount" -> "wrong-format"))
+        val pageModel = aDeductionAmountPage.copy(form = form)
+        implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-          titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
-          errorSummaryCheck(userScenario.commonExpectedResults.expectedWrongFormatErrorText, Selectors.expectedErrorHref)
-          inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "wrong-format")
-        }
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
+        errorSummaryCheck(userScenario.commonExpectedResults.expectedWrongFormatErrorText, Selectors.expectedErrorHref)
+        inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "wrong-format")
+      }
 
-        "render page with form containing max amount form error" which {
-          implicit val userSessionDataRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
-          implicit val messages: Messages = getMessages(userScenario.isWelsh)
+      "render page with form containing max amount form error" which {
+        implicit val userSessionDataRequest: UserSessionDataRequest[AnyContent] = getUserSessionDataRequest(userScenario.isAgent)
+        implicit val messages: Messages = getMessages(userScenario.isWelsh)
 
-          val form = new FormsProvider().deductionAmountForm().bind(Map("amount" -> "100,000,000,000"))
-          val pageModel = aDeductionAmountPage.copy(form = form)
-          implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
+        val form = new FormsProvider().deductionAmountForm().bind(Map("amount" -> "100,000,000,000"))
+        val pageModel = aDeductionAmountPage.copy(form = form)
+        implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-          titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
-          errorSummaryCheck(userScenario.commonExpectedResults.expectedMaxAmountErrorText, Selectors.expectedErrorHref)
-          inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "100,000,000,000")
-        }
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
+        errorSummaryCheck(userScenario.commonExpectedResults.expectedMaxAmountErrorText, Selectors.expectedErrorHref)
+        inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "100,000,000,000")
       }
     }
   }
+}

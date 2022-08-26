@@ -49,13 +49,13 @@ class ServiceUnavailableTemplateSpec extends ViewTest {
   }
 
   object expectedResultsCY {
-    val h1Expected = "Sorry, the service is unavailable"
-    val p1Expected = "You will be able to use this service later."
-    val p2Expected = "You can also:"
-    val bulletPoint1Expected = "go to the hafan Treth Incwm (yn agor tab newydd) for more information"
+    val h1Expected = "Mae’n ddrwg gennym – nid yw’r gwasanaeth ar gael"
+    val p1Expected = "Byddwch yn gallu defnyddio’r gwasanaeth hwn yn nes ymlaen."
+    val p2Expected = "Gallwch hefyd wneud y canlynol:"
+    val bulletPoint1Expected = "mynd i’r hafan Treth Incwm (yn agor tab newydd) am ragor o wybodaeth"
     val bulletPoint1Link = "https://www.gov.uk/income-tax"
     val bulletPoint1LinkText = "hafan Treth Incwm (yn agor tab newydd)"
-    val bulletPoint2Expected = "defnyddio Hunanasesiad: ymholiadau cyffredinol (yn agor tab newydd) to speak to someone about your income tax"
+    val bulletPoint2Expected = "defnyddio Hunanasesiad: ymholiadau cyffredinol (yn agor tab newydd) i siarad â rhywun am eich treth incwm"
     val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
     val bulletPoint2LinkText = "Hunanasesiad: ymholiadau cyffredinol (yn agor tab newydd)"
   }
@@ -65,8 +65,8 @@ class ServiceUnavailableTemplateSpec extends ViewTest {
 
   "ServiceUnavailableTemplate in English" should {
     import expectedResultsEN._
-    "render the page correct" which {
 
+    "render the page correct" which {
       lazy val view: HtmlFormat.Appendable = serviceUnavailableTemplate()(fakeRequest, messages, appConfig)
       implicit lazy val document: Document = Jsoup.parse(view.body)
 
@@ -74,13 +74,13 @@ class ServiceUnavailableTemplateSpec extends ViewTest {
       welshToggleCheck("English")
       h1Check(h1Expected, "xl")
 
-      textOnPageCheck(p1Expected,Selectors.p1Selector)
-      textOnPageCheck(p2Expected,Selectors.p2Selector)
+      textOnPageCheck(p1Expected, Selectors.p1Selector)
+      textOnPageCheck(p2Expected, Selectors.p2Selector)
 
-      textOnPageCheck(bulletPoint1Expected,Selectors.bulletPoint1)
+      textOnPageCheck(bulletPoint1Expected, Selectors.bulletPoint1)
       linkCheck(bulletPoint1LinkText, Selectors.bulletPointLinkSelector1, bulletPoint1Link)
 
-      textOnPageCheck(bulletPoint2Expected,Selectors.bulletPoint2)
+      textOnPageCheck(bulletPoint2Expected, Selectors.bulletPoint2)
       linkCheck(bulletPoint2LinkText, Selectors.bulletPointLinkSelector2, bulletPoint2Link)
 
 
@@ -98,13 +98,13 @@ class ServiceUnavailableTemplateSpec extends ViewTest {
       welshToggleCheck("Welsh")
       h1Check(h1Expected, "xl")
 
-      textOnPageCheck(p1Expected,Selectors.p1Selector)
-      textOnPageCheck(p2Expected,Selectors.p2Selector)
+      textOnPageCheck(p1Expected, Selectors.p1Selector)
+      textOnPageCheck(p2Expected, Selectors.p2Selector)
 
-      textOnPageCheck(bulletPoint1Expected,Selectors.bulletPoint1)
+      textOnPageCheck(bulletPoint1Expected, Selectors.bulletPoint1)
       linkCheck(bulletPoint1LinkText, Selectors.bulletPointLinkSelector1, bulletPoint1Link)
 
-      textOnPageCheck(bulletPoint2Expected,Selectors.bulletPoint2)
+      textOnPageCheck(bulletPoint2Expected, Selectors.bulletPoint2)
       linkCheck(bulletPoint2LinkText, Selectors.bulletPointLinkSelector2, bulletPoint2Link)
 
 

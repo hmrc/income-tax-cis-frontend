@@ -40,16 +40,15 @@ class AgentAuthErrorPageViewSpec extends AnyWordSpec with Matchers with GuiceOne
   }
 
   object expectedResultsCY {
-    val h1Expected = "There’s a problem"
-    val youCannotViewText: String = "You cannot view this client’s information. Your client needs to"
-    val authoriseYouAsText = "authorise you as their agent (yn agor tab newydd)"
-    val beforeYouCanTryText = "before you can sign in to this service."
-    val tryAnotherClientText = "Try another client’s details"
+    val h1Expected = "Mae problem wedi codi"
+    val youCannotViewText: String = "Ni allwch fwrw golwg dros wybodaeth y cleient hwn. Mae angen i’ch cleient"
+    val authoriseYouAsText = "eich awdurdodi fel ei asiant (yn agor tab newydd)"
+    val beforeYouCanTryText = "cyn y gallwch fewngofnodi i’r gwasanaeth hwn."
+    val tryAnotherClientText = "Rhowch gynnig ar fanylion cleient arall"
   }
 
   private val tryAnotherClientExpectedHref = "/report-quarterly/income-and-expenses/view/agents/client-utr"
   private val authoriseAsAnAgentLink = "https://www.gov.uk/guidance/client-authorisation-an-overview"
-
 
   private val agentAuthErrorPageView: AgentAuthErrorPageView = app.injector.instanceOf[AgentAuthErrorPageView]
 

@@ -106,7 +106,7 @@ class ContractorCYAViewSpec extends ViewUnitTest {
     override val expectedContractorDetailsERNValue: String => String = (contractorERN: String) => s"ERN: $contractorERN"
     override val expectedEndOfTaxMonth: String = "Diwedd mis treth"
     override val expectedLabour: String = "Llafur"
-    override val expectedCISDeduction: String = "CIS deduction"
+    override val expectedCISDeduction: String = "Didyniadau CIS"
     override val expectedPaidForMaterials: String = "Wedi talu am ddeunyddiau"
     override val expectedCostOfMaterials: String = "Cost deunyddiau"
     override val expectedButtonText: String = "Yn ôl i’r contractwr"

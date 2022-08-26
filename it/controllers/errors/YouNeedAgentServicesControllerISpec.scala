@@ -50,9 +50,9 @@ class YouNeedAgentServicesControllerISpec extends IntegrationTest with ViewHelpe
 
   object CommonExpectedCY extends CommonExpectedResults {
     val h1Expected = "Ni allwch fwrw golwg dros y dudalen hon"
-    val youNeedText = "You need to"
-    val createAnAgentText = "create an agent services account"
-    val beforeYouCanText = "before you can view this page."
+    val youNeedText = "Mae angen"
+    val createAnAgentText = "creu cyfrif gwasanaethau asiant"
+    val beforeYouCanText = "cyn i chi allu bwrw golwg dros y dudalen hon."
     val createAnAgentLink = "https://www.gov.uk/guidance/get-an-hmrc-agent-services-account"
   }
 

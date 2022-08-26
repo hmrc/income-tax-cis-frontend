@@ -58,11 +58,12 @@ class TaxYearErrorControllerISpec extends IntegrationTest with ViewHelpers {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val h1Expected = "Page not found"
+    val h1Expected = "Heb ddod o hyd i’r dudalen"
     val p1Expected = s"Dim ond gwybodaeth ar gyfer y blynyddoedd treth $taxYearEndOfYearMinusOne i $taxYear y gallwch ei nodi."
     val p1ExpectedSingle = "Dim ond gwybodaeth ar gyfer blwyddyn dreth ddilys y gallwch ei nodi."
-    val p2Expected = "Check that you’ve entered the correct web address."
-    val p3Expected: String = "If the web address is correct or you selected a link or button, you can use Hunanasesiad: ymholiadau cyffredinol to speak to someone about your income tax."
+    val p2Expected = "Gwiriwch eich bod wedi nodi’r cyfeiriad gwe cywir."
+    val p3Expected: String =
+      "Os yw’r cyfeiriad gwe yn gywir neu os ydych wedi dewis cysylltiad neu fotwm, gallwch ddefnyddio Hunanasesiad: ymholiadau cyffredinol i siarad â rhywun am eich treth incwm."
     val p3ExpectedLink = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
     val p3ExpectedLinkText = "Hunanasesiad: ymholiadau cyffredinol"
   }
