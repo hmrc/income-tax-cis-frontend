@@ -37,59 +37,72 @@ class InternalServerErrorTemplateSpec extends ViewTest {
 
   }
 
-  val h1Expected = "Sorry, there is a problem with the service"
-  val p1Expected = "Try again later."
-  val p2Expected = "You can also:"
-  val bulletPoint1Expected = "go to the Income Tax home page (opens in new tab) for more information"
-  val bulletPoint1Link = "https://www.gov.uk/income-tax"
-  val bulletPoint1LinkText = "Income Tax home page (opens in new tab)"
-  val bulletPoint2Expected = "use Self Assessment: general enquiries (opens in new tab) to speak to someone about your income tax"
-  val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
-  val bulletPoint2LinkText = "Self Assessment: general enquiries (opens in new tab)"
+  object CommonExpectedEN {
+    val h1Expected = "Sorry, there is a problem with the service"
+    val p1Expected = "Try again later."
+    val p2Expected = "You can also:"
+    val bulletPoint1Expected = "go to the Income Tax home page (opens in new tab) for more information"
+    val bulletPoint1Link = "https://www.gov.uk/income-tax"
+    val bulletPoint1LinkText = "Income Tax home page (opens in new tab)"
+    val bulletPoint2Expected = "use Self Assessment: general enquiries (opens in new tab) to speak to someone about your income tax"
+    val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
+    val bulletPoint2LinkText = "Self Assessment: general enquiries (opens in new tab)"
+  }
 
+  object CommonExpectedCY {
+    val h1Expected = "Mae’n ddrwg gennym, mae problem gyda’r gwasanaeth"
+    val p1Expected = "Rhowch gynnig arall arni yn nes ymlaen."
+    val p2Expected = "Gallwch hefyd wneud y canlynol:"
+    val bulletPoint1Expected = "mynd i’r hafan Treth Incwm (yn agor tab newydd) am ragor o wybodaeth"
+    val bulletPoint1Link = "https://www.gov.uk/income-tax"
+    val bulletPoint1LinkText = "hafan Treth Incwm (yn agor tab newydd)"
+    val bulletPoint2Expected = "defnyddio Hunanasesiad: ymholiadau cyffredinol (yn agor tab newydd) i siarad â rhywun am eich treth incwm"
+    val bulletPoint2Link = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
+    val bulletPoint2LinkText = "Hunanasesiad: ymholiadau cyffredinol (yn agor tab newydd)"
+  }
 
-  lazy val internalServerErrorTemplate: InternalServerErrorTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
-  lazy val appConfig: AppConfig = mockAppConfig
+  private lazy val internalServerErrorTemplate: InternalServerErrorTemplate = app.injector.instanceOf[InternalServerErrorTemplate]
+  private lazy val appConfig: AppConfig = mockAppConfig
 
   "UnauthorisedTemplate in English" should {
+    import CommonExpectedEN._
 
     "render the page correctly" which {
-
       lazy val view: HtmlFormat.Appendable = internalServerErrorTemplate()(fakeRequest, messages, appConfig)
       implicit lazy val document: Document = Jsoup.parse(view.body)
 
-      titleCheck(h1Expected)
+      titleCheck(h1Expected, isWelsh = false)
       welshToggleCheck("English")
       h1Check(h1Expected, "xl")
       textOnPageCheck(p1Expected, Selectors.p1Selector)
       textOnPageCheck(p2Expected, Selectors.p2Selector)
 
-      textOnPageCheck(bulletPoint1Expected,Selectors.bulletPoint1)
+      textOnPageCheck(bulletPoint1Expected, Selectors.bulletPoint1)
       linkCheck(bulletPoint1LinkText, Selectors.bulletPointLinkSelector1, bulletPoint1Link)
 
-      textOnPageCheck(bulletPoint2Expected,Selectors.bulletPoint2)
+      textOnPageCheck(bulletPoint2Expected, Selectors.bulletPoint2)
       linkCheck(bulletPoint2LinkText, Selectors.bulletPointLinkSelector2, bulletPoint2Link)
 
     }
   }
 
   "UnauthorisedTemplate in Welsh" should {
-
+    import CommonExpectedCY._
     "render the page correctly" which {
 
       lazy val view: HtmlFormat.Appendable = internalServerErrorTemplate()(fakeRequest, welshMessages, appConfig)
       implicit lazy val document: Document = Jsoup.parse(view.body)
 
-      titleCheck(h1Expected)
+      titleCheck(h1Expected, isWelsh = true)
       welshToggleCheck("Welsh")
       h1Check(h1Expected, "xl")
       textOnPageCheck(p1Expected, Selectors.p1Selector)
       textOnPageCheck(p2Expected, Selectors.p2Selector)
 
-      textOnPageCheck(bulletPoint1Expected,Selectors.bulletPoint1)
+      textOnPageCheck(bulletPoint1Expected, Selectors.bulletPoint1)
       linkCheck(bulletPoint1LinkText, Selectors.bulletPointLinkSelector1, bulletPoint1Link)
 
-      textOnPageCheck(bulletPoint2Expected,Selectors.bulletPoint2)
+      textOnPageCheck(bulletPoint2Expected, Selectors.bulletPoint2)
       linkCheck(bulletPoint2LinkText, Selectors.bulletPointLinkSelector2, bulletPoint2Link)
 
     }

@@ -75,16 +75,16 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    override val expectedTitle: String = "CIS deductions"
-    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
-    override val expectedH1: String = "CIS deductions"
-    override val expectedTableCaption: String = "Contractors and CIS deductions to date"
-    override val expectedTableHeadContractor: String = "Contractor"
-    override val expectedTableHeadDeductionsToDate: String = "CIS deductions to date"
-    override val expectedTableRowEmployerRef: String => String = (employerRef: String) => s"Contractor: $employerRef"
-    override val expectedButtonText: String = "Return to overview"
-    val expectedAddContractorLink: String = "Add a contractor"
-    val expectedAddAnotherContractorLink: String = "Add another contractor"
+    override val expectedTitle: String = "Didyniadau CIS"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    override val expectedH1: String = "Didyniadau CIS"
+    override val expectedTableCaption: String = "Contractwyr a didyniadau CIS hyd yma"
+    override val expectedTableHeadContractor: String = "Contractwr"
+    override val expectedTableHeadDeductionsToDate: String = "Didyniadau CIS hyd yma"
+    override val expectedTableRowEmployerRef: String => String = (employerRef: String) => s"Contractwr: $employerRef"
+    override val expectedButtonText: String = "Yn ôl i’r trosolwg"
+    val expectedAddContractorLink: String = "Ychwanegwch gontractwr"
+    val expectedAddAnotherContractorLink: String = "Ychwanegwch gontractwr arall"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -93,8 +93,8 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    override val expectedP1: String = "Your CIS deductions are based on the information we already hold about you."
-    override val expectedInsetText: Int => String = (taxYear: Int) => s"You cannot update your CIS information until 6 April $taxYear."
+    override val expectedP1: String = "Bydd eich didyniadau CIS yn seiliedig ar yr wybodaeth sydd eisoes gennym amdanoch."
+    override val expectedInsetText: Int => String = (taxYear: Int) => s"Ni allwch ddiweddaru’ch manylion CIS tan 6 Ebrill $taxYear."
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
@@ -103,8 +103,8 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    override val expectedP1: String = "Your client’s CIS deductions are based on the information we already hold about them."
-    override val expectedInsetText: Int => String = (taxYear: Int) => s"You cannot update your client’s CIS information until 6 April $taxYear."
+    override val expectedP1: String = "Mae didyniadau CIS eich cleient yn seiliedig ar yr wybodaeth sydd eisoes gennym amdano."
+    override val expectedInsetText: Int => String = (taxYear: Int) => s"Ni allwch ddiweddaru manylion CIS eich cleient tan 6 Ebrill $taxYear."
   }
 
   override protected val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = Seq(
@@ -133,7 +133,7 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
         h1Check(userScenario.commonExpectedResults.expectedH1)
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1, Selectors.paragraphTextSelector)
@@ -160,7 +160,7 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(isInYear = false)).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
         h1Check(userScenario.commonExpectedResults.expectedH1)
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1, Selectors.paragraphTextSelector)
@@ -187,7 +187,7 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(isInYear = true, deductions = Seq.empty)).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
         h1Check(userScenario.commonExpectedResults.expectedH1)
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedInsetText(taxYear), Selectors.insetTextSelector)
@@ -202,7 +202,7 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel.copy(isInYear = false, deductions = Seq.empty)).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYear))
         h1Check(userScenario.commonExpectedResults.expectedH1)
         linkCheck(userScenario.commonExpectedResults.expectedAddContractorLink, Selectors.addContractorSelector, controllers.routes.ContractorDetailsController.show(taxYear, None).url)

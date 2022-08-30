@@ -70,9 +70,9 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
-    override val expectedButtonText: String = "Continue"
-    override val expectedHintText: String = "For example, £193.52"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    override val expectedButtonText: String = "Yn eich blaen"
+    override val expectedHintText: String = "Er enghraifft, £193.52"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -90,17 +90,17 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    override val expectedTitle: String = "How much did you pay for building materials for your contractor?"
-    override val expectedTitleThisContract: String = "How much did you pay for building materials on this contract?"
-    override val expectedErrorTitle: String = s"Error: $expectedTitle"
-    override val expectedH1: String => String = (contractorName: String) => s"How much did you pay for building materials at $contractorName?"
-    override val expectedH1ThisContract: String = "How much did you pay for building materials on this contract?"
-    override val expectedReplayContent1: String => String = (statementDate: String) => s"You can find this on your 5 $statementDate CIS statement."
-    override val expectedTellUsTheAmountText: String => String = (statementDate: String) => s"Tell us the amount on your 5 $statementDate CIS statement."
-    override val expectedOnlyIncludeVATParagraph: String = "Only include VAT if you are not VAT registered."
-    override val expectedErrorNoEntry: String = "Enter the amount you paid for materials"
-    override val expectedErrorIncorrectFormat: String = "Enter the amount you paid for materials in the correct format"
-    override val expectedErrorOverMaximum: String = "The amount you paid for materials must be less than £100,000,000,000"
+    override val expectedTitle: String = "Faint gwnaethoch ei dalu am ddeunyddiau adeiladu ar gyfer eich contractwr?"
+    override val expectedTitleThisContract: String = "Faint gwnaethoch ei dalu am ddeunyddiau adeiladu ar y contract hwn?"
+    override val expectedErrorTitle: String = s"Gwall: $expectedTitle"
+    override val expectedH1: String => String = (contractorName: String) => s"Faint gwnaethoch ei dalu am ddeunyddiau adeiladu yn $contractorName?"
+    override val expectedH1ThisContract: String = "Faint gwnaethoch ei dalu am ddeunyddiau adeiladu ar y contract hwn?"
+    override val expectedReplayContent1: String => String = (statementDate: String) => s"Gallwch ddod o hyd i hyn ar eich datganiad CIS 5 $statementDate."
+    override val expectedTellUsTheAmountText: String => String = (statementDate: String) => s"Rhowch wybod i ni y swm ar eich datganiad CIS 5 $statementDate."
+    override val expectedOnlyIncludeVATParagraph: String = "Dylech gynnwys TAW dim ond os nad ydych wedi’ch cofrestru ar gyfer TAW."
+    override val expectedErrorNoEntry: String = "Nodwch y swm a dalwyd gennych am ddeunyddiau"
+    override val expectedErrorIncorrectFormat: String = "Nodwch y swm a dalwyd gennych am ddeunyddiau yn y fformat cywir"
+    override val expectedErrorOverMaximum: String = "Mae’n rhaid i’r swm a dalwyd gennych am ddeunyddiau fod yn llai na £100,000,000,000"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
@@ -118,17 +118,17 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    override val expectedTitle: String = "How much did your client pay for building materials for the contractor?"
-    override val expectedTitleThisContract: String = "How much did your client pay for building materials on this contract?"
-    override val expectedErrorTitle: String = s"Error: $expectedTitle"
-    override val expectedH1: String => String = (contractorName: String) => s"How much did your client pay for building materials at $contractorName?"
-    override val expectedH1ThisContract: String = "How much did your client pay for building materials on this contract?"
-    override val expectedReplayContent1: String => String = (statementDate: String) => s"You can find this on their 5 $statementDate CIS statement."
-    override val expectedTellUsTheAmountText: String => String = (statementDate: String) => s"Tell us the amount on your client’s 5 $statementDate CIS statement."
-    override val expectedOnlyIncludeVATParagraph: String = "Only include VAT if your client is not VAT registered."
-    override val expectedErrorNoEntry: String = "Enter the amount your client paid for materials"
-    override val expectedErrorIncorrectFormat: String = "Enter the amount your client paid for materials in the correct format"
-    override val expectedErrorOverMaximum: String = "The amount your client paid for materials must be less than £100,000,000,000"
+    override val expectedTitle: String = "Faint gwnaeth eich cleient ei dalu am ddeunyddiau adeiladu ar gyfer y contractwr?"
+    override val expectedTitleThisContract: String = "Faint gwnaeth eich cleient ei dalu am ddeunyddiau adeiladu ar y contract hwn?"
+    override val expectedErrorTitle: String = s"Gwall: $expectedTitle"
+    override val expectedH1: String => String = (contractorName: String) => s"Faint gwnaeth eich cleient dalu am ddeunyddiau adeiladu yn $contractorName?"
+    override val expectedH1ThisContract: String = "Faint gwnaeth eich cleient ei dalu am ddeunyddiau adeiladu ar y contract hwn?"
+    override val expectedReplayContent1: String => String = (statementDate: String) => s"Gallwch ddod o hyd i hyn ar ei ddatganiad CIS 5 $statementDate."
+    override val expectedTellUsTheAmountText: String => String = (statementDate: String) => s"Rhowch wybod i ni y swm ar ddatganiad CIS 5 $statementDate eich cleient."
+    override val expectedOnlyIncludeVATParagraph: String = "Dylech gynnwys TAW dim ond os nad yw’ch cleient wedi’i gofrestru ar gyfer TAW."
+    override val expectedErrorNoEntry: String = "Nodwch y swm a dalwyd gan eich cleient am ddeunyddiau"
+    override val expectedErrorIncorrectFormat: String = "Nodwch y swm a dalwyd gan eich cleient am ddeunyddiau yn y fformat cywir"
+    override val expectedErrorOverMaximum: String = "Mae’n rhaid i’r swm a dalwyd gan eich cleient am ddeunyddiau fod yn llai na £100,000,000,000"
   }
 
   override protected val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = Seq(
@@ -150,7 +150,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1("some-contractor"))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedTellUsTheAmountText(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
@@ -170,7 +170,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitleThisContract)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitleThisContract, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1ThisContract)
       }
@@ -184,7 +184,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1("some-contractor"))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedReplayContent1(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
@@ -205,7 +205,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1("some-contractor"))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedTellUsTheAmountText(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 2))
@@ -226,7 +226,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         val pageModel = aMaterialsAmountPage.copy(form = form)
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         errorSummaryCheck(userScenario.specificExpectedResults.get.expectedErrorIncorrectFormat, Selectors.expectedErrorHref)
         inputFieldValueCheck(AmountForm.amount, Selectors.inputFieldSelector, value = "wrong-format")
       }
@@ -239,7 +239,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         val pageModel = aMaterialsAmountPage.copy(form = form)
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         errorSummaryCheck(userScenario.specificExpectedResults.get.expectedErrorOverMaximum, Selectors.expectedErrorHref)
         inputFieldValueCheck(AmountForm.amount, Selectors.inputFieldSelector, value = "100,000,000,000")
       }

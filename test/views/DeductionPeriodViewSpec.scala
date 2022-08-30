@@ -66,9 +66,9 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    override val expectedLabel: String = "Tax month ending"
-    override val expectedHeading: String = "When did Michele Lamy Paving Ltd make CIS deductions?"
-    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
+    override val expectedLabel: String = "Mis treth yn dod i ben"
+    override val expectedHeading: String = "Pryd gwnaeth Michele Lamy Paving Ltd wneud didyniadau CIS?"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -82,13 +82,13 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    override val expectedTitle: String = "When did your contractor make CIS deductions?"
-    override val expectedTitleNoContractorName: String = "When did this contractor make CIS deductions?"
-    override val expectedErrorTitle: String = "Error: When did your contractor make CIS deductions?"
-    override val expectingHeadingNoContractorName: String = "When did this contractor make CIS deductions?"
-    override val expectedP1: String = "Tell us the end date on your CIS statement."
-    override val expectedError: String = "You cannot select a date you already have information for"
-    override val expectedButtonText: String = "Continue"
+    override val expectedTitle: String = "Pryd gwnaeth eich contractwr wneud didyniadau CIS?"
+    override val expectedTitleNoContractorName: String = "Pryd gwnaeth y contractwr hwn wneud didyniadau CIS?"
+    override val expectedErrorTitle: String = "Gwall: Pryd gwnaeth eich contractwr wneud didyniadau CIS?"
+    override val expectingHeadingNoContractorName: String = "Pryd gwnaeth y contractwr hwn wneud didyniadau CIS?"
+    override val expectedP1: String = "Rhowch wybod i ni y dyddiad dod i ben ar eich datganiad CIS."
+    override val expectedError: String = "Ni allwch ddewis dyddiad y mae gennych wybodaeth eisoes ar ei gyfer"
+    override val expectedButtonText: String = "Yn eich blaen"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
@@ -102,13 +102,13 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    override val expectedTitle: String = "When did your client’s contractor make CIS deductions?"
-    override val expectedTitleNoContractorName: String = "When did this contractor make CIS deductions?"
-    override val expectedErrorTitle: String = "Error: When did your client’s contractor make CIS deductions?"
-    override val expectingHeadingNoContractorName: String = "When did this contractor make CIS deductions?"
-    override val expectedP1: String = "Tell us the end date on your client’s CIS statement."
-    override val expectedError: String = "You cannot select a date your client already has information for"
-    override val expectedButtonText: String = "Continue"
+    override val expectedTitle: String = "Pryd gwnaeth contractwr eich cleient wneud didyniadau CIS?"
+    override val expectedTitleNoContractorName: String = "Pryd gwnaeth y contractwr hwn wneud didyniadau CIS?"
+    override val expectedErrorTitle: String = "Gwall: Pryd gwnaeth contractwr eich cleient wneud didyniadau CIS?"
+    override val expectingHeadingNoContractorName: String = "Pryd gwnaeth y contractwr hwn wneud didyniadau CIS?"
+    override val expectedP1: String = "Rhowch wybod i ni y dyddiad dod i ben ar ddatganiad CIS eich cleient."
+    override val expectedError: String = "Ni allwch ddewis dyddiad y mae gan eich cleient wybodaeth eisoes ar ei gyfer"
+    override val expectedButtonText: String = "Yn eich blaen"
   }
 
   override protected val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = Seq(
@@ -131,7 +131,7 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(aDeductionPeriodPage).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.commonExpectedResults.expectedHeading)
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1, Selectors.paragraphTextSelector)
@@ -147,7 +147,7 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitleNoContractorName)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitleNoContractorName, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectingHeadingNoContractorName)
       }
@@ -163,7 +163,7 @@ class DeductionPeriodViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.commonExpectedResults.expectedHeading)
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1, Selectors.paragraphTextSelector)

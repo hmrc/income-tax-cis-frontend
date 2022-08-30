@@ -64,13 +64,13 @@ class DeleteCISPeriodViewSpec extends ViewUnitTest {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    override val expectedTitle: String = "Are you sure you want to remove this CIS deduction?"
-    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
-    override val expectedH1: String = "Are you sure you want to remove this CIS deduction?"
+    override val expectedTitle: String = "A ydych yn siŵr eich bod am dynnu’r didyniad CIS hwn?"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    override val expectedH1: String = "A ydych yn siŵr eich bod am dynnu’r didyniad CIS hwn?"
     override val expectedP1: (Month, Int) => String = (month: Month, year: Int) =>
-      s"You will remove the CIS deduction for the tax month ending 5 ${translatedMonthAndTaxYear(month, year)(getMessages(isWelsh = true))}."
-    override val expectedButtonText: String = "Remove"
-    override val expectedLinkText: String = "Cancel"
+      s"Byddwch yn tynnu’r didyniad CIS ar gyfer y mis treth sy’n dod i ben ar 5 ${translatedMonthAndTaxYear(month, year)(getMessages(isWelsh = true))}."
+    override val expectedButtonText: String = "Tynnu"
+    override val expectedLinkText: String = "Canslo"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults
@@ -98,7 +98,7 @@ class DeleteCISPeriodViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(aDeleteCISPeriodPage).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.commonExpectedResults.expectedTitle)
+        titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.commonExpectedResults.expectedH1)
         textOnPageCheck(userScenario.commonExpectedResults.expectedP1(aDeleteCISPeriodPage.month, aDeleteCISPeriodPage.taxYear), Selectors.paragraphTextSelector(number = 1))

@@ -62,22 +62,22 @@ class UnauthorisedUserErrorControllerISpec extends IntegrationTest with ViewHelp
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val h1Expected = "You are not authorised to use this service"
-    val youCanText = "You can:"
-    val goToTheText = "go to the"
-    val incomeTaxHomePageText = "Income Tax home page (opens in new tab)"
-    val forMoreInformationText = "for more information"
-    val useText = "use"
-    val selfAssessmentText = "Self Assessment: general enquiries (opens in new tab)"
-    val toSpeakText = "to speak to someone about your income tax"
+    val h1Expected = "Nid ydych wedi’ch awdurdodi i ddefnyddio’r gwasanaeth hwn"
+    val youCanText = "Gallwch wneud y canlynol:"
+    val goToTheText = "mynd i’r"
+    val incomeTaxHomePageText = "hafan Treth Incwm (yn agor tab newydd)"
+    val forMoreInformationText = "am ragor o wybodaeth"
+    val useText = "defnyddio"
+    val selfAssessmentText = "Hunanasesiad: ymholiadau cyffredinol (yn agor tab newydd)"
+    val toSpeakText = "i siarad â rhywun am eich treth incwm"
     val incomeTaxHomePageLink = "https://www.gov.uk/income-tax"
     val selfAssessmentLink = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
   }
 
-  val userScenarios: Seq[UserScenario[CommonExpectedResults, CommonExpectedResults]] = {
-    Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN),
-      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY))
-  }
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, CommonExpectedResults]] = Seq(
+    UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN),
+    UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY)
+  )
 
   ".show" when {
     import Selectors._
@@ -100,11 +100,11 @@ class UnauthorisedUserErrorControllerISpec extends IntegrationTest with ViewHelp
 
           import user.commonExpectedResults._
 
-          titleCheck(h1Expected)
+          titleCheck(h1Expected, user.isWelsh)
           welshToggleCheck(user.isWelsh)
           h1Check(h1Expected, "xl")
           textOnPageCheck(youCanText, p1Selector)
-          textOnPageCheck(s"$goToTheText $incomeTaxHomePageText $forMoreInformationText",p2Selector)
+          textOnPageCheck(s"$goToTheText $incomeTaxHomePageText $forMoreInformationText", p2Selector)
           linkCheck(incomeTaxHomePageText, incomeTaxHomePageLinkSelector, incomeTaxHomePageLink)
           textOnPageCheck(s"$useText $selfAssessmentText $toSpeakText", p3Selector)
           linkCheck(selfAssessmentText, selfAssessmentLinkSelector, selfAssessmentLink)

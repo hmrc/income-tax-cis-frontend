@@ -58,20 +58,20 @@ class TaxYearErrorControllerISpec extends IntegrationTest with ViewHelpers {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    val h1Expected = "Page not found"
+    val h1Expected = "Heb ddod o hyd i’r dudalen"
     val p1Expected = s"Dim ond gwybodaeth ar gyfer y blynyddoedd treth $taxYearEndOfYearMinusOne i $taxYear y gallwch ei nodi."
     val p1ExpectedSingle = "Dim ond gwybodaeth ar gyfer blwyddyn dreth ddilys y gallwch ei nodi."
-    val p2Expected = "Check that you’ve entered the correct web address."
-    val p3Expected: String = "If the web address is correct or you selected a link or button, you can use Self Assessment: " +
-      "general enquiries to speak to someone about your income tax."
+    val p2Expected = "Gwiriwch eich bod wedi nodi’r cyfeiriad gwe cywir."
+    val p3Expected: String =
+      "Os yw’r cyfeiriad gwe yn gywir neu os ydych wedi dewis cysylltiad neu fotwm, gallwch ddefnyddio Hunanasesiad: ymholiadau cyffredinol i siarad â rhywun am eich treth incwm."
     val p3ExpectedLink = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment"
-    val p3ExpectedLinkText = "Self Assessment: general enquiries"
+    val p3ExpectedLinkText = "Hunanasesiad: ymholiadau cyffredinol"
   }
 
-  val userScenarios: Seq[UserScenario[CommonExpectedResults, CommonExpectedResults]] = {
-    Seq(UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN),
-      UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY))
-  }
+  val userScenarios: Seq[UserScenario[CommonExpectedResults, CommonExpectedResults]] = Seq(
+    UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN),
+    UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY)
+  )
 
   ".show" when {
     import Selectors._
@@ -100,7 +100,7 @@ class TaxYearErrorControllerISpec extends IntegrationTest with ViewHelpers {
 
           import user.commonExpectedResults._
 
-          titleCheck(h1Expected)
+          titleCheck(h1Expected, user.isWelsh)
           welshToggleCheck(user.isWelsh)
           h1Check(h1Expected, "xl")
           textOnPageCheck(p1Expected, p1Selector)
@@ -110,7 +110,6 @@ class TaxYearErrorControllerISpec extends IntegrationTest with ViewHelpers {
         }
 
         "render the page with an invalid tax year outside the valid tax year list which contains a single year" which {
-
           implicit lazy val result: WSResponse = {
             authoriseAgentOrIndividual(user.isAgent)
             urlGet(
@@ -128,7 +127,7 @@ class TaxYearErrorControllerISpec extends IntegrationTest with ViewHelpers {
 
           import user.commonExpectedResults._
 
-          titleCheck(h1Expected)
+          titleCheck(h1Expected, user.isWelsh)
           welshToggleCheck(user.isWelsh)
           h1Check(h1Expected, "xl")
           textOnPageCheck(p1ExpectedSingle, p1Selector)

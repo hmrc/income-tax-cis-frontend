@@ -70,10 +70,10 @@ class LabourPayViewSpec extends ViewUnitTest {
   }
 
   object CommonExpectedCY extends CommonExpectedResults {
-    override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
-    override val expectedNoVATParagraph: String = "Do not include VAT or cost of materials."
-    override val expectedButtonText: String = "Continue"
-    override val expectedHintText: String = "For example, £193.52"
+    override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
+    override val expectedNoVATParagraph: String = "Peidiwch â chynnwys TAW na chost deunyddiau."
+    override val expectedButtonText: String = "Yn eich blaen"
+    override val expectedHintText: String = "Er enghraifft, £193.52"
   }
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
@@ -103,29 +103,29 @@ class LabourPayViewSpec extends ViewUnitTest {
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
-    override val expectedTitle: String = "How much did your contractor pay you for labour?"
-    override val expectedTitleNoContractorName: String = "How much did this contractor pay you for labour?"
-    override val expectedErrorTitle: String = "Error: How much did your contractor pay you for labour?"
-    override val expectedH1: String => String = (contractor: String) => s"How much did $contractor pay you for labour?"
-    override val expectedH1NoContractorName: String = "How much did this contractor pay you for labour?"
-    override val expectedP1: String => String = (statementDate: String) => s"Tell us the amount on your $statementDate CIS statement, before any deductions were made."
-    override val expectedP1Replay: String => String = (statementDate: String) => s"It’s the amount on your $statementDate CIS statement, before any deductions were made."
-    override val expectedEmptyErrorText: String = "Enter the amount you were paid for labour"
-    override val expectedWrongFormatErrorText: String = "Enter the amount you were paid for labour in the correct format"
-    override val expectedMaxAmountErrorText: String = "The amount you were paid for labour must be less than £100,000,000,000"
+    override val expectedTitle: String = "Faint gwnaeth eich contractwr eich dalu am lafur?"
+    override val expectedTitleNoContractorName: String = "Faint gwnaeth y contractwr hwn eich dalu am lafur?"
+    override val expectedErrorTitle: String = "Gwall: Faint gwnaeth eich contractwr eich dalu am lafur?"
+    override val expectedH1: String => String = (contractor: String) => s"Faint gwnaeth $contractor eich dalu am lafur?"
+    override val expectedH1NoContractorName: String = "Faint gwnaeth y contractwr hwn eich dalu am lafur?"
+    override val expectedP1: String => String = (statementDate: String) => s"Rhowch wybod i ni y swm ar eich datganiad CIS $statementDate, cyn i unrhyw ddidyniadau gael eu gwneud."
+    override val expectedP1Replay: String => String = (statementDate: String) => s"Dyma’r swm ar eich datganiad CIS $statementDate, cyn i unrhyw ddidyniadau gael eu gwneud."
+    override val expectedEmptyErrorText: String = "Nodwch swm a dalwyd i chi am lafur"
+    override val expectedWrongFormatErrorText: String = "Nodwch y swm a dalwyd i chi am lafur yn y fformat cywir"
+    override val expectedMaxAmountErrorText: String = "Mae’n rhaid i’r swm a dalwyd i chi am lafur fod yn llai na £100,000,000,000"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
-    override val expectedTitle: String = "How much did the contractor pay your client for labour?"
-    override val expectedTitleNoContractorName: String = "How much did this contractor pay your client for labour?"
-    override val expectedErrorTitle: String = "Error: How much did the contractor pay your client for labour?"
-    override val expectedH1: String => String = (contractor: String) => s"How much did $contractor pay your client for labour?"
-    override val expectedH1NoContractorName: String = "How much did this contractor pay your client for labour?"
-    override val expectedP1: String => String = (statementDate: String) => s"Tell us the amount on your client’s $statementDate CIS statement, before any deductions were made."
-    override val expectedP1Replay: String => String = (statementDate: String) => s"It’s the amount on their $statementDate CIS statement, before any deductions were made."
-    override val expectedEmptyErrorText: String = "Enter the amount your client was paid for labour"
-    override val expectedWrongFormatErrorText: String = "Enter the amount your client was paid for labour in the correct format"
-    override val expectedMaxAmountErrorText: String = "The amount your client was paid for labour must be less than £100,000,000,000"
+    override val expectedTitle: String = "Faint gwnaeth y contractwr dalu’ch cleient am lafur?"
+    override val expectedTitleNoContractorName: String = "Faint gwnaeth y contractwr hwn dalu’ch cleient am lafur?"
+    override val expectedErrorTitle: String = "Gwall: Faint gwnaeth y contractwr dalu’ch cleient am lafur?"
+    override val expectedH1: String => String = (contractor: String) => s"Faint gwnaeth $contractor ei dalu i’ch cleient am lafur?"
+    override val expectedH1NoContractorName: String = "Faint gwnaeth y contractwr hwn ei dalu i’ch cleient am lafur?"
+    override val expectedP1: String => String = (statementDate: String) => s"Rhowch wybod i ni y swm ar ddatganiad CIS $statementDate eich cleient, cyn i unrhyw ddidyniadau gael eu gwneud."
+    override val expectedP1Replay: String => String = (statementDate: String) => s"Dyma’r swm ar ei ddatganiad CIS $statementDate, cyn i unrhyw ddidyniadau gael eu gwneud."
+    override val expectedEmptyErrorText: String = "Nodwch y swm a dalwyd i’ch cleient am lafur"
+    override val expectedWrongFormatErrorText: String = "Nodwch y swm a dalwyd i’ch cleient am lafur yn y fformat cywir"
+    override val expectedMaxAmountErrorText: String = "Mae’n rhaid i’r swm a dalwyd i’ch cleient am lafur fod yn llai na £100,000,000,000"
   }
 
   override protected val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = Seq(
@@ -147,7 +147,7 @@ class LabourPayViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1("some-contractor"))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1("5 " + translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
@@ -167,7 +167,7 @@ class LabourPayViewSpec extends ViewUnitTest {
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
         welshToggleCheck(userScenario.isWelsh)
-        titleCheck(userScenario.specificExpectedResults.get.expectedTitleNoContractorName)
+        titleCheck(userScenario.specificExpectedResults.get.expectedTitleNoContractorName, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1NoContractorName)
       }
@@ -193,7 +193,7 @@ class LabourPayViewSpec extends ViewUnitTest {
         val pageModel = aLabourPayPage.copy(form = form)
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         errorSummaryCheck(userScenario.specificExpectedResults.get.expectedEmptyErrorText, Selectors.expectedErrorHref)
         inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "")
       }
@@ -206,7 +206,7 @@ class LabourPayViewSpec extends ViewUnitTest {
         val pageModel = aLabourPayPage.copy(form = form)
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         errorSummaryCheck(userScenario.specificExpectedResults.get.expectedWrongFormatErrorText, Selectors.expectedErrorHref)
         inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "wrong-format")
       }
@@ -219,7 +219,7 @@ class LabourPayViewSpec extends ViewUnitTest {
         val pageModel = aLabourPayPage.copy(form = form)
         implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
 
-        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle)
+        titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         errorSummaryCheck(userScenario.specificExpectedResults.get.expectedMaxAmountErrorText, Selectors.expectedErrorHref)
         inputFieldValueCheck(AmountForm.amount, Selectors.inputAmountField, value = "100,000,000,000")
       }
