@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import models.nrs.ViewCisPeriodPayload
 import play.api.mvc.{ActionFilter, Result}
 import services.NrsService
 import sttp.model.Method.GET
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendHeaderCarrierProvider
 
 import java.time.Month
@@ -35,7 +34,6 @@ case class PriorViewCisPeriodNrsAction(employerRef: String,
   override protected[actions] def executionContext: ExecutionContext = ec
 
   override protected[actions] def filter[A](input: UserPriorDataRequest[A]): Future[Option[Result]] = Future.successful {
-    implicit val headerCarrier: HeaderCarrier = hc(input.request)
     if (GET.method == input.request.method) {
       input.incomeTaxUserData.inYearCisDeductionsWith(employerRef).foreach { cisDeductions =>
         val deductionMonth = Month.valueOf(month.toUpperCase)
