@@ -73,7 +73,7 @@ class ActionsProviderSpec extends ControllerUnitTest
 
       val underTest = actionsProvider.priorCisDeductionsData(taxYear)(block = anyBlock)
 
-      await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show())
+      await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show)
     }
 
     "handle internal server error when getPriorData result in error" in {
@@ -111,7 +111,7 @@ class ActionsProviderSpec extends ControllerUnitTest
 
       val underTest = actionsProvider.endOfYear(taxYearEOY)(block = anyBlock)
 
-      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
+      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show)
     }
 
     "redirect to Income Tax Submission Overview when not in year" in {
@@ -138,7 +138,7 @@ class ActionsProviderSpec extends ControllerUnitTest
 
       val underTest = actionsProvider.tailoringEnabledFilter(taxYearEOY)(block = anyBlock)
 
-      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
+      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show)
     }
 
     "redirect to Income Tax Submission Overview when tailoring is disabled" in {
@@ -165,7 +165,7 @@ class ActionsProviderSpec extends ControllerUnitTest
 
       val underTest = actionsProvider.inYearWithPreviousDataFor(taxYearEOY, contractor = "any-contractor")(block = anyBlock)
 
-      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
+      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show)
     }
 
     "redirect to Income Tax Submission Overview when not in year" in {
@@ -206,7 +206,7 @@ class ActionsProviderSpec extends ControllerUnitTest
 
       val underTest = actionsProvider.userPriorDataFor(taxYearEOY, contractor = "any-contractor")(block = anyBlock)
 
-      await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show())
+      await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show)
     }
 
     "handle internal server error when getPriorData result in error" in {
@@ -251,7 +251,7 @@ class ActionsProviderSpec extends ControllerUnitTest
       val underTest = actionsProvider.userPriorDataFor(taxYearEOY, contractor = "any-contractor", "may")(block = anyBlock)
 
       await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString,
-        VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
+        VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show)
     }
 
     "handle internal server error when getPriorData result in error" in {
@@ -298,7 +298,7 @@ class ActionsProviderSpec extends ControllerUnitTest
 
       val underTest = actionsProvider.exclusivelyCustomerPriorDataForEOY(taxYearEOY, contractor = "any-contractor", month = "may")(block = anyBlock)
 
-      await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show())
+      await(underTest(fakeIndividualRequest)) shouldBe Redirect(UnauthorisedUserErrorController.show)
     }
 
     "redirect to Income Tax Submission Overview when in year" in {
@@ -339,7 +339,7 @@ class ActionsProviderSpec extends ControllerUnitTest
 
       val underTest = actionsProvider.inYearWithPreviousDataFor(taxYearEOY, month = "may", contractor = "any-contractor")(block = anyBlock)
 
-      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
+      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show)
     }
 
     "redirect to Income Tax Submission Overview when not in year" in {
@@ -393,7 +393,7 @@ class ActionsProviderSpec extends ControllerUnitTest
 
       val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, contractor = "any-contractor", redirectIfPrior = false)(block = anyBlock)
 
-      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
+      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show)
     }
 
     "redirect to Income Tax Submission Overview when in year" in {
@@ -431,7 +431,7 @@ class ActionsProviderSpec extends ControllerUnitTest
 
       val underTest = actionsProvider.endOfYearWithSessionData(taxYearEOY, month = "May", contractor = "any-contractor")(block = anyBlock)
 
-      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
+      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show)
     }
 
     "redirect to Error page when month is wrong" in {
@@ -477,7 +477,7 @@ class ActionsProviderSpec extends ControllerUnitTest
 
       val underTest = actionsProvider.endOfYearWithSessionDataWithCustomerDeductionPeriod(taxYearEOY, contractor = "any-contractor")(block = anyBlock)
 
-      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
+      await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show)
     }
 
     "redirect to Income Tax Submission Overview when in year" in {
@@ -528,7 +528,7 @@ class ActionsProviderSpec extends ControllerUnitTest
       val underTest = actionsProvider.checkCyaExistsAndReturnSessionData(taxYearEOY, aCisDeductions.employerRef, "may")(block = anyBlock)
 
       await(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString,
-        VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show())
+        VALID_TAX_YEARS -> validTaxYears))) shouldBe Redirect(UnauthorisedUserErrorController.show)
     }
 
     "redirect to Income Tax Submission Overview when Session data is None" in {

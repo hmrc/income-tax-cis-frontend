@@ -27,7 +27,7 @@ import support.builders.models.pages.ContractorSummaryPageBuilder.aContractorSum
 import views.html.ContractorSummaryView
 
 import java.time.Month
-import java.time.Month.{APRIL, AUGUST, DECEMBER, FEBRUARY, JANUARY, JULY, JUNE, MARCH, MAY, NOVEMBER, OCTOBER, SEPTEMBER}
+import java.time.Month.{APRIL, FEBRUARY, MAY}
 
 class ContractorSummaryViewSpec extends ViewUnitTest {
 
@@ -213,7 +213,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
             ContractorCYAController.show(taxYearEOY, FEBRUARY.toString.toLowerCase, employerRef).url, additionalTestText = "(second row)")
           elementNotOnPageCheck(Selectors.summaryListValueSelector(row = 2, cell = 3))
           linkCheck(userScenario.commonExpectedResults.expectedAddAnotherLinkText, Selectors.addAnotherLink,
-            href = controllers.routes.ContractorSummaryController.addCisDeduction(taxYearEOY,employerRef).url)
+            href = controllers.routes.ContractorSummaryController.addCisDeduction(taxYearEOY, employerRef).url)
         }
 
         "render the in year contractor summary page with an alternative heading when there's no contractor name" which {

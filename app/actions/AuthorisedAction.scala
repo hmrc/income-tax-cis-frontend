@@ -18,6 +18,7 @@ package actions
 
 import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
 import config.AppConfig
+import controllers.errors.routes.{AgentAuthErrorController, IndividualAuthErrorController, UnauthorisedUserErrorController, YouNeedAgentServicesController}
 import models.AuthorisationRequest
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -49,7 +50,7 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
   override def invokeBlock[A](request: Request[A], block: AuthorisationRequest[A] => Future[Result]): Future[Result] = {
     implicit lazy val headerCarrier: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authService.authorised.retrieve(affinityGroup) {
+    authService.authorised().retrieve(affinityGroup) {
       case Some(AffinityGroup.Agent) => agentAuthentication(block)(request, headerCarrier)
       case Some(affinityGroup) => individualAuthentication(block, affinityGroup)(request, headerCarrier)
       case _ => logger.info(s"[AuthorisedAction][invokeBlock] - User failed to authenticate")
@@ -60,7 +61,7 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
         Redirect(appConfig.signInUrl)
       case _: AuthorisationException =>
         logger.info(s"[AuthorisedAction][invokeBlock] - User failed to authenticate")
-        Redirect(controllers.errors.routes.UnauthorisedUserErrorController.show())
+        Redirect(UnauthorisedUserErrorController.show)
     }
   }
 
@@ -77,7 +78,7 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
 
   def individualAuthentication[A](block: AuthorisationRequest[A] => Future[Result], affinityGroup: AffinityGroup)
                                  (implicit request: Request[A], hc: HeaderCarrier): Future[Result] = {
-    authService.authorised.retrieve(allEnrolments and confidenceLevel) {
+    authService.authorised().retrieve(allEnrolments and confidenceLevel) {
       case enrolments ~ userConfidence if userConfidence.level >= minimumConfidenceLevel =>
         val optionalMtdItId: Option[String] = enrolmentGetIdentifierValue(EnrolmentKeys.Individual, EnrolmentIdentifiers.individualId, enrolments)
         val optionalNino: Option[String] = enrolmentGetIdentifierValue(EnrolmentKeys.nino, EnrolmentIdentifiers.nino, enrolments)
@@ -97,7 +98,7 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
             Future.successful(Redirect(appConfig.signInUrl))
           case (None, _) =>
             logger.info(s"[AuthorisedAction][individualAuthentication] - User has no MTD IT enrolment. Redirecting user to sign up for MTD.")
-            Future.successful(Redirect(controllers.errors.routes.IndividualAuthErrorController.show()))
+            Future.successful(Redirect(IndividualAuthErrorController.show))
         }
       case _ =>
         logger.info("[AuthorisedAction][individualAuthentication] User has confidence level below 250, routing user to IV uplift.")
@@ -133,7 +134,7 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
 
               case None =>
                 logger.info("[AuthorisedAction][agentAuthentication] Agent with no HMRC-AS-AGENT enrolment. Rendering unauthorised view.")
-                Future.successful(Redirect(controllers.errors.routes.YouNeedAgentServicesController.show()))
+                Future.successful(Redirect(YouNeedAgentServicesController.show))
             }
           } recover {
           case _: NoActiveSession =>
@@ -141,7 +142,7 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
             Redirect(appConfig.signInUrl)
           case _: AuthorisationException =>
             logger.info(s"[AuthorisedAction][agentAuthentication] - Agent does not have delegated authority for Client.")
-            Redirect(controllers.errors.routes.AgentAuthErrorController.show())
+            Redirect(AgentAuthErrorController.show)
         }
       case (mtditid, nino) =>
         logger.info(s"[AuthorisedAction][agentAuthentication] - Agent does not have session key values. " +

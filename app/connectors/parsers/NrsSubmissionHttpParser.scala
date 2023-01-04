@@ -16,12 +16,10 @@
 
 package connectors.parsers
 
-import connectors.parsers.IncomeTaxUserDataHttpParser.{handleAPIError, logMessage}
 import models.APIErrorModel
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
-import utils.PagerDutyHelper.PagerDutyKeys.{FOURXX_RESPONSE_FROM_API, INTERNAL_SERVER_ERROR_FROM_API,
-  SERVICE_UNAVAILABLE_FROM_API, UNEXPECTED_RESPONSE_FROM_API}
+import utils.PagerDutyHelper.PagerDutyKeys._
 import utils.PagerDutyHelper.pagerDutyLog
 
 object NrsSubmissionHttpParser extends APIParser {

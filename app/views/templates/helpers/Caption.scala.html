@@ -14,16 +14,8 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.html.components._
+@this()
 
-@this(govukButton : GovukButton)
+@(caption: String, size: String = "l")(implicit messages: Messages)
 
-@(alternativeText: String = "common.continue", classes: Option[String] = None, attributes: Map[String, String] = Map("id" -> "continue"), href: Option[String] = None)(implicit messages: Messages)
-
-@govukButton(Button(
-    attributes = attributes,
-    preventDoubleClick = Some(true),
-    content = Text(messages(alternativeText)),
-    classes = classes.getOrElse(""),
-    href = href
-))
+<span class="govuk-caption-@{size} hmrc-caption-xl">@messages(caption)</span>

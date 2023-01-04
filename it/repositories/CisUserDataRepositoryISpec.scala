@@ -111,7 +111,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       await(underTest.createOrUpdate(userDataOne)) mustBe Right(())
       count mustBe 1
 
-      await(underTest.createOrUpdate(userDataOne.copy(sessionId = "1234567890"))).left.get.message must include("Command failed with error 11000 (DuplicateKey)")
+      await(underTest.createOrUpdate(userDataOne.copy(sessionId = "1234567890"))).left.toOption.get.message must include("Command failed with error 11000 (DuplicateKey)")
       count mustBe 1
     }
 
@@ -154,10 +154,10 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       await(underTest.createOrUpdate(data)) mustBe Right(())
       count mustBe 1
 
-      private val findResult = await(underTest.find(data.taxYear, userDataOne.employerRef, userOne.user))
+      private val findResult: Either[DatabaseError, Option[CisUserData]] = await(underTest.find(data.taxYear, userDataOne.employerRef, userOne.user))
 
-      findResult.right.get.map(_.copy(lastUpdated = data.lastUpdated)) mustBe Some(data)
-      findResult.right.get.map(_.lastUpdated.isAfter(data.lastUpdated)) mustBe Some(true)
+      findResult.map(_.get.copy(lastUpdated = data.lastUpdated)) shouldBe Right(data)
+      findResult.map(_.get.lastUpdated.isAfter(data.lastUpdated)) shouldBe Right(true)
     }
 
     "find a document in collection with all fields present" in new EmptyDatabase {
@@ -167,7 +167,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       val findResult: Either[DatabaseError, Option[CisUserData]] =
         await(underTest.find(userDataFull.taxYear, userDataOne.employerRef, userOne.user))
 
-      findResult mustBe Right(Some(userDataFull.copy(lastUpdated = findResult.right.get.get.lastUpdated)))
+      findResult mustBe Right(Some(userDataFull.copy(lastUpdated = findResult.toOption.get.get.lastUpdated)))
     }
 
     "return None when find operation succeeds but no data is found for the given inputs" in new EmptyDatabase {

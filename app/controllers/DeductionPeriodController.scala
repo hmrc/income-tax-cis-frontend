@@ -59,7 +59,7 @@ class DeductionPeriodController @Inject()(actionsProvider: ActionsProvider,
       deductionPeriodForm.bindFromRequest().fold(
         formWithErrors => Future.successful(BadRequest(pageView(DeductionPeriodPage(taxYear, request.cisUserData, formWithErrors)))),
         deductionPeriod => deductionPeriodService.submitDeductionPeriod(taxYear, contractor, request.user, deductionPeriod.month, tempEmployerRef).map {
-          case Left(_) => errorHandler.internalServerError
+          case Left(_) => errorHandler.internalServerError()
           case Right(cisUserData) => Redirect(getRedirectCall(taxYear, contractor, deductionPeriod, cisUserData))
         }
       )
