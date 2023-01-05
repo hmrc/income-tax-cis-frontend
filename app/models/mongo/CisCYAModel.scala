@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ case class CisCYAModel(contractorName: Option[String] = None,
   def isAnUpdateFor(month: Month): Boolean =
     periodData.exists(_.isAnUpdateFor(month))
 
-  def encrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCisCYAModel = EncryptedCisCYAModel(
+  def encrypted(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCisCYAModel = EncryptedCisCYAModel(
     contractorName = contractorName.map(_.encrypted),
     periodData = periodData.map(_.encrypted),
     priorPeriodData = priorPeriodData.map(_.encrypted)
@@ -61,7 +61,7 @@ case class EncryptedCisCYAModel(contractorName: Option[EncryptedValue] = None,
                                 periodData: Option[EncryptedCYAPeriodData] = None,
                                 priorPeriodData: Seq[EncryptedCYAPeriodData] = Seq()) {
 
-  def decrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CisCYAModel = CisCYAModel(
+  def decrypted(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CisCYAModel = CisCYAModel(
     contractorName = contractorName.map(_.decrypted[String]),
     periodData = periodData.map(_.decrypted),
     priorPeriodData = priorPeriodData.map(_.decrypted)

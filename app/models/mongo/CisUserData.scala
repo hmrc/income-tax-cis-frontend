@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ case class CisUserData(sessionId: String,
 
   lazy val hasPeriodData: Boolean = cis.periodData.nonEmpty
 
-  def encrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCisUserData = EncryptedCisUserData(
+  def encrypted(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCisUserData = EncryptedCisUserData(
     sessionId = sessionId,
     mtdItId = mtdItId,
     nino = nino,
@@ -59,7 +59,7 @@ case class CisUserData(sessionId: String,
     employerRef = employerRef,
     submissionId = submissionId,
     isPriorSubmission = isPriorSubmission,
-    cis = cis.encrypted(),
+    cis = cis.encrypted,
     lastUpdated = lastUpdated
   )
 }
@@ -99,7 +99,7 @@ case class EncryptedCisUserData(sessionId: String,
                                 cis: EncryptedCisCYAModel,
                                 lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)) {
 
-  def decrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CisUserData = CisUserData(
+  def decrypted(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CisUserData = CisUserData(
     sessionId = sessionId,
     mtdItId = mtdItId,
     nino = nino,
@@ -107,7 +107,7 @@ case class EncryptedCisUserData(sessionId: String,
     employerRef = employerRef,
     submissionId = submissionId,
     isPriorSubmission = isPriorSubmission,
-    cis = cis.decrypted(),
+    cis = cis.decrypted,
     lastUpdated = lastUpdated
   )
 }

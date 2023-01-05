@@ -1,5 +1,5 @@
 @*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,13 @@
  * limitations under the License.
  *@
 
-@this()
+@this(caption: Caption)
 
-@(heading: String, subheading: Option[String], extraClasses: String = "", size: String = "l")(implicit messages: Messages)
+@(heading: String, captionOption: Option[String], extraClasses: String = "", size: String = "l")(implicit messages: Messages)
 
-<header class="hmrc-page-heading govuk-!-margin-0 @extraClasses">
-
-    <h1 class="govuk-heading-@{size} govuk-!-margin-0 @extraClasses">@messages(heading)</h1>
-    @subheading.map{ subheading =>
-        <p class="govuk-caption-@{size} hmrc-caption-xl">@messages(subheading)</p>
+<h1 class="govuk-heading-@{size} @extraClasses">
+    @captionOption.map{ captionText =>
+        @caption(captionText, size)
     }
-
-
-</header>
+    @messages(heading)
+</h1>

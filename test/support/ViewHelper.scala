@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,9 @@ trait ViewHelper {
 
   def h1Check(header: String, size: String = "l")(implicit document: Document): Unit = {
     s"have a page heading of '$header'" in {
-      document.select(s".govuk-heading-$size").text() shouldBe header
+      val headingAndCaption = document.select(s"h1.govuk-heading-$size").text()
+      val caption = document.select(s"h1 > span.govuk-caption-$size").text()
+      headingAndCaption.replace(caption, "").trim shouldBe header
     }
   }
 

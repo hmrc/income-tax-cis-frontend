@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ object ViewUtils {
 
   def summaryListRow(key: HtmlContent,
                      value: HtmlContent,
+                     classes: String = "",
                      keyClasses: String = "govuk-!-width-one-third",
                      valueClasses: String = "govuk-!-width-one-third",
                      actionClasses: String = "govuk-!-width-one-third",
@@ -68,6 +69,7 @@ object ViewUtils {
     SummaryListRow(
       key = Key(content = key, classes = keyClasses),
       value = Value(content = value, classes = valueClasses),
+      classes = classes,
       actions = Some(Actions(
         items = actions.map { case (call, linkText, visuallyHiddenText) => ActionItem(
           href = call.url,

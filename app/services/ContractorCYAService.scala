@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package services
 
 import audit.{AmendCisContractorAudit, AuditService, CreateNewCisContractorAudit}
 import connectors.CISConnector
+import models._
 import models.mongo.CisUserData
 import models.nrs.{AmendCisContractorPayload, CreateCisContractorPayload}
-import models._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
@@ -58,9 +58,8 @@ class ContractorCYAService @Inject()(cisSessionService: CISSessionService,
     if (cisContractorCreated(cisUserData)) {
       submitCisCreateAudit(taxYear, employerRef, user, cisUserData)
       submitCisCreateNrs(employerRef, user, cisUserData)
-      Future.successful()
-    }
-    else {
+      Future.successful(())
+    } else {
       cisSessionService.getPriorData(user, taxYear).map {
         case Right(incomeTaxUserData) =>
           submitAmendCisAudit(taxYear, employerRef, user, cisUserData, incomeTaxUserData)

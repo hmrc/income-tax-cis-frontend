@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,9 +114,9 @@ class CisUserDataSpec extends UnitTest
       val encryptedCisCYAModel = EncryptedCisCYAModel()
       val underTest = aCisUserData.copy(cis = cisCYAModel)
 
-      (cisCYAModel.encrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(secureGCMCipher, textAndKey).returning(encryptedCisCYAModel)
+      (cisCYAModel.encrypted(_: SecureGCMCipher, _: TextAndKey)).expects(secureGCMCipher, textAndKey).returning(encryptedCisCYAModel)
 
-      underTest.encrypted() shouldBe EncryptedCisUserData(
+      underTest.encrypted shouldBe EncryptedCisUserData(
         sessionId = underTest.sessionId,
         mtdItId = underTest.mtdItId,
         nino = underTest.nino,
@@ -162,7 +162,7 @@ class CisUserDataSpec extends UnitTest
         lastUpdated = DateTime.now
       )
 
-      (encryptedCisCYAModel.decrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(secureGCMCipher, textAndKey).returning(aCisCYAModel)
+      (encryptedCisCYAModel.decrypted(_: SecureGCMCipher, _: TextAndKey)).expects(secureGCMCipher, textAndKey).returning(aCisCYAModel)
 
       underTest.decrypted shouldBe CisUserData(
         sessionId = underTest.sessionId,

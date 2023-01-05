@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,11 +33,11 @@ class SessionIdFilter(override val mat: Materializer,
                      ) extends Filter {
 
   @Inject
-  def this(mat: Materializer, ec: ExecutionContext, cb: SessionCookieBaker, cookieHeaderEncoding: CookieHeaderEncoding) {
+  def this(mat: Materializer, ec: ExecutionContext, cb: SessionCookieBaker, cookieHeaderEncoding: CookieHeaderEncoding) = {
     this(mat, UUID.randomUUID(), ec, cb, cookieHeaderEncoding)
   }
 
-  override def apply(requestToResult: (RequestHeader) => Future[Result])(request: RequestHeader): Future[Result] = {
+  override def apply(requestToResult: RequestHeader => Future[Result])(request: RequestHeader): Future[Result] = {
 
     lazy val sessionId: String = s"session-$uuid"
 
@@ -45,7 +45,7 @@ class SessionIdFilter(override val mat: Materializer,
 
       val cookies: String = {
         val session: Session = request.session + (SessionKeys.sessionId -> sessionId)
-        val cookies: Traversable[Cookie] = request.cookies ++ Seq(cookieBaker.encodeAsCookie(session))
+        val cookies = request.cookies ++ Seq(cookieBaker.encodeAsCookie(session))
         cookieHeaderEncoding.encodeCookieHeader(cookies.toSeq)
       }
 

@@ -1,5 +1,5 @@
 @*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +70,7 @@
                 summaryListRow(
                     key = HtmlContent(messages("contractorSummary.lineItem", translatedMonthAndTaxYear(deductionPeriod, pageModel.taxYear))),
                     value = HtmlContent(viewOrChangeLink),
+                    classes = if (actions.isEmpty) "govuk-summary-list__row--no-actions" else "",
                     keyClasses = "govuk-!-width-two-thirds",
                     valueClasses = "govuk-!-width-one-third right-align",
                     actions = actions

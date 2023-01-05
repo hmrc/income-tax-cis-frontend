@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ case class CYAPeriodData(deductionPeriod: Month,
   def isAnUpdateFor(month: Month): Boolean =
     originallySubmittedPeriod.contains(month)
 
-  def encrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCYAPeriodData = EncryptedCYAPeriodData(
+  def encrypted(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCYAPeriodData = EncryptedCYAPeriodData(
     deductionPeriod = deductionPeriod.encrypted,
     grossAmountPaid = grossAmountPaid.map(_.encrypted),
     deductionAmount = deductionAmount.map(_.encrypted),
@@ -84,7 +84,7 @@ case class EncryptedCYAPeriodData(deductionPeriod: EncryptedValue,
                                   contractorSubmitted: EncryptedValue,
                                   originallySubmittedPeriod: Option[EncryptedValue] = None) {
 
-  def decrypted()(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CYAPeriodData = CYAPeriodData(
+  def decrypted(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CYAPeriodData = CYAPeriodData(
     deductionPeriod = deductionPeriod.decrypted[Month],
     grossAmountPaid = grossAmountPaid.map(_.decrypted[BigDecimal]),
     deductionAmount = deductionAmount.map(_.decrypted[BigDecimal]),

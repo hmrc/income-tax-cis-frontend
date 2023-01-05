@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,25 @@ import sbt._
 
 object AppDependencies {
 
-  private val bootstrapPlay28Version = "7.1.0"
-  private val mongoPlay28Version = "0.71.0"
+  private val bootstrapPlay28Version = "7.12.0"
+  private val mongoPlay28Version = "0.74.0"
 
   val compile: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"                   %% "bootstrap-frontend-play-28"   % bootstrapPlay28Version,
-    "uk.gov.hmrc"                   %% "play-frontend-hmrc"           % "3.8.0-play-28",
+    "uk.gov.hmrc"                   %% "play-frontend-hmrc"           % "5.5.0-play-28",
     "uk.gov.hmrc.mongo"             %% "hmrc-mongo-play-28"           % mongoPlay28Version,
-    "com.fasterxml.jackson.module"  %% "jackson-module-scala"         % "2.12.2"
+    "com.fasterxml.jackson.module"  %% "jackson-module-scala"         % "2.14.1"
   )
 
   val test: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"               %% "bootstrap-test-play-28"     % bootstrapPlay28Version    % Test,
-    "uk.gov.hmrc.mongo"         %% "hmrc-mongo-test-play-28"    % mongoPlay28Version                  % Test,
-    "org.scalatest"             %% "scalatest"                  % "3.2.9"                   % Test,
-    "org.jsoup"                 %  "jsoup"                      % "1.13.1"                  % Test,
+    "uk.gov.hmrc.mongo"         %% "hmrc-mongo-test-play-28"    % mongoPlay28Version        % Test,
+    "org.scalatest"             %% "scalatest"                  % "3.2.14"                  % Test,
+    "org.jsoup"                 %  "jsoup"                      % "1.15.3"                  % Test,
     "com.typesafe.play"         %% "play-test"                  % current                   % Test,
     "org.scalatestplus.play"    %% "scalatestplus-play"         % "5.1.0"                   % "test, it",
-    "com.github.tomakehurst"    %  "wiremock-jre8"              % "2.28.0"                  % "test, it",
-    "org.scalamock"             %% "scalamock"                  % "5.1.0"                   % Test,
-    "com.vladsch.flexmark"      %  "flexmark-all"               % "0.36.8"                  % "test, it"
+    "com.github.tomakehurst"    %  "wiremock-jre8"              % "2.35.0"                  % "test, it",
+    "org.scalamock"             %% "scalamock"                  % "5.2.0"                   % Test,
+    "com.vladsch.flexmark"      %  "flexmark-all"               % "0.62.2"                  % "test, it"
   )
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,9 +146,9 @@ class CisCYAModelSpec extends UnitTest
       val underTest = CisCYAModel(Some("some-contractor-name"), Some(cyaPeriodData1), Seq(cyaPeriodData1, cyaPeriodData2))
 
       (secureGCMCipher.encrypt(_: String)(_: TextAndKey)).expects(underTest.contractorName.get, textAndKey).returning(encryptedContractorName)
-      (cyaPeriodData1.encrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(encryptedPeriodData1)
-      (cyaPeriodData1.encrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(encryptedPeriodData1)
-      (cyaPeriodData2.encrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(encryptedPeriodData2)
+      (cyaPeriodData1.encrypted(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(encryptedPeriodData1)
+      (cyaPeriodData1.encrypted(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(encryptedPeriodData1)
+      (cyaPeriodData2.encrypted(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(encryptedPeriodData2)
 
       underTest.encrypted shouldBe EncryptedCisCYAModel(
         contractorName = Some(encryptedContractorName),
@@ -162,9 +162,9 @@ class CisCYAModelSpec extends UnitTest
     "return CisCYAModel" in {
       (secureGCMCipher.decrypt[String](_: String, _: String)(_: TextAndKey, _: Converter[String]))
         .expects(encryptedContractorName.value, encryptedContractorName.nonce, textAndKey, *).returning(value = "contractor-name")
-      (encryptedPeriodData1.decrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData1)
-      (encryptedPeriodData1.decrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData1)
-      (encryptedPeriodData2.decrypted()(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData2)
+      (encryptedPeriodData1.decrypted(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData1)
+      (encryptedPeriodData1.decrypted(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData1)
+      (encryptedPeriodData2.decrypted(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData2)
 
       EncryptedCisCYAModel(Some(encryptedContractorName),
         Some(encryptedPeriodData1),

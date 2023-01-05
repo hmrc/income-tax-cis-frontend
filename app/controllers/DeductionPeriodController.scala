@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ class DeductionPeriodController @Inject()(actionsProvider: ActionsProvider,
       deductionPeriodForm.bindFromRequest().fold(
         formWithErrors => Future.successful(BadRequest(pageView(DeductionPeriodPage(taxYear, request.cisUserData, formWithErrors)))),
         deductionPeriod => deductionPeriodService.submitDeductionPeriod(taxYear, contractor, request.user, deductionPeriod.month, tempEmployerRef).map {
-          case Left(_) => errorHandler.internalServerError
+          case Left(_) => errorHandler.internalServerError()
           case Right(cisUserData) => Redirect(getRedirectCall(taxYear, contractor, deductionPeriod, cisUserData))
         }
       )

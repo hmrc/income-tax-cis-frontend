@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ class MaterialsControllerSpec extends ControllerUnitTest
       status(result) shouldBe BAD_REQUEST
       contentType(result) shouldBe Some("text/html")
       val document = Jsoup.parse(contentAsString(result))
-      document.select("#error-summary-title").isEmpty shouldBe false
+      document.select(".govuk-error-summary").isEmpty shouldBe false
     }
 
     "handle internal server error when save operation fails with database error" in {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,14 @@ import play.api.mvc._
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class TaxYearAction @Inject()(taxYear: Int)
-                             (implicit val appConfig: AppConfig)
+// TODO: Refactor
+class TaxYearAction @Inject()(taxYear: Int,
+                              appConfig: AppConfig,
+                              ec: ExecutionContext)
   extends ActionRefiner[AuthorisationRequest, AuthorisationRequest] {
 
-  implicit val executionContext: ExecutionContext = ExecutionContext.global
+  implicit val executionContext: ExecutionContext = ec
+
   lazy val logger: Logger = Logger.apply(this.getClass)
 
   override def refine[A](request: AuthorisationRequest[A]): Future[Either[Result, AuthorisationRequest[A]]] = {
@@ -65,6 +68,8 @@ class TaxYearAction @Inject()(taxYear: Int)
 }
 
 object TaxYearAction {
-  def taxYearAction(taxYear: Int)(implicit appConfig: AppConfig): TaxYearAction =
-    new TaxYearAction(taxYear)
+  def taxYearAction(taxYear: Int,
+                    appConfig: AppConfig,
+                    ec: ExecutionContext): TaxYearAction =
+    new TaxYearAction(taxYear, appConfig, ec)
 }

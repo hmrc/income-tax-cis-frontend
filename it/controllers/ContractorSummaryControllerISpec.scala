@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ class ContractorSummaryControllerISpec extends IntegrationTest with ViewHelpers 
       result.status shouldBe SEE_OTHER
       result.headers("Location").head shouldBe controllers.routes.DeductionPeriodController.show(taxYearEOY, aCisDeductions.employerRef).url
       val response = await(repoUnderTest.find(taxYearEOY, aCisDeductions.employerRef, aUser))
-      val responseTime = response.right.get.get.lastUpdated
+      val responseTime = response.toOption.get.get.lastUpdated
 
       response shouldBe Right(Some(aCisUserData.copy(cis = updatedCya, lastUpdated = responseTime)))
     }
