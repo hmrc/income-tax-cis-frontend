@@ -41,7 +41,8 @@ object ContractorSummaryPage {
 
     val cisDeductions = if (isInYear) incomeTaxUserData.inYearCisDeductionsWith(employerRef).get else incomeTaxUserData.eoyCisDeductionsWith(employerRef).get
     val deductionPeriods = cisDeductions.periodData.map(_.deductionPeriod)
-    val monthsOrdered: Seq[Month] = Month.values().drop(APRIL.getValue) ++ Month.values().take(APRIL.getValue)
+    val months = Month.values().toIndexedSeq
+    val monthsOrdered: Seq[Month] = months.drop(APRIL.getValue) ++ months.take(APRIL.getValue)
     val orderedDeductionPeriods = monthsOrdered.foldLeft(Seq[Month]())((list, h) => if (deductionPeriods.contains(h)) h +: list else list).reverse
     val customerDeductionPeriods = if (isInYear) Seq.empty else getCustomerDeductionPeriods(employerRef, incomeTaxUserData)
 

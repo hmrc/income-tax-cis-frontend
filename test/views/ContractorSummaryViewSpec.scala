@@ -231,7 +231,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
           buttonCheck(userScenario.commonExpectedResults.buttonText, Selectors.buttonSelector, Some(DeductionsSummaryController.show(taxYear).url))
         }
         "render the end of year contractor summary page with out the add another link" which {
-          val pageModel = aContractorSummaryPage.copy(taxYear = taxYearEOY, isInYear = false, contractorName = None, employerRef = employerRef, deductionPeriods = Month.values())
+          val pageModel = aContractorSummaryPage.copy(taxYear = taxYearEOY, isInYear = false, contractorName = None, employerRef = employerRef, deductionPeriods = Month.values().toIndexedSeq)
 
 
           implicit val userPriorDataRequest: UserPriorDataRequest[AnyContent] = getUserPriorDataRequest(userScenario.isAgent)

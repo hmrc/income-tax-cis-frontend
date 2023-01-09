@@ -19,7 +19,8 @@ package models
 import play.api.libs.json.{JsObject, Json}
 import support.UnitTest
 import support.builders.models.PeriodDataBuilder.aPeriodData
-import utils.{LogCapturing, PagerDutyHelper}
+import uk.gov.hmrc.play.bootstrap.tools.LogCapturing
+import utils.PagerDutyHelper
 
 import java.time.Month
 

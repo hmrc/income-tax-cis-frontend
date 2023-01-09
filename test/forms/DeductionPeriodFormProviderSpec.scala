@@ -37,13 +37,15 @@ class DeductionPeriodFormProviderSpec extends UnitTest {
       val anyBoolean = true
       val correctData = Map("month" -> "may")
 
-      underTest.deductionPeriodForm(isAgent = anyBoolean, Month.values().filterNot(_ == Month.MAY)).bind(correctData).errors shouldBe Seq.empty
+      val months = Month.values().toIndexedSeq
+      underTest.deductionPeriodForm(isAgent = anyBoolean, months.filterNot(_ == Month.MAY)).bind(correctData).errors shouldBe Seq.empty
     }
 
     "return a form that contains agent error" which {
       "when isAgent is true and month is already submitted" in {
         val invalidData = Map("month" -> "may")
-        underTest.deductionPeriodForm(isAgent = true, Month.values()).bind(invalidData).errors shouldBe Seq(
+        val months = Month.values().toIndexedSeq
+        underTest.deductionPeriodForm(isAgent = true, months).bind(invalidData).errors shouldBe Seq(
           FormError("month", Seq("deductionPeriod.error.agent"), Seq())
         )
       }
@@ -61,7 +63,8 @@ class DeductionPeriodFormProviderSpec extends UnitTest {
       }
       "when isAgent is true and key is invalid" in {
         val invalidData = Map("key" -> "")
-        underTest.deductionPeriodForm(isAgent = true, Month.values()).bind(invalidData).errors shouldBe Seq(
+        val months = Month.values().toIndexedSeq
+        underTest.deductionPeriodForm(isAgent = true, months).bind(invalidData).errors shouldBe Seq(
           FormError("month", Seq("deductionPeriod.error.agent"), Seq())
         )
       }
@@ -70,7 +73,8 @@ class DeductionPeriodFormProviderSpec extends UnitTest {
     "return a form that contains individual error" which {
       "when isAgent is false and month is already submitted" in {
         val invalidData = Map("month" -> "may")
-        underTest.deductionPeriodForm(isAgent = false, Month.values()).bind(invalidData).errors shouldBe Seq(
+        val months = Month.values().toIndexedSeq
+        underTest.deductionPeriodForm(isAgent = false, months).bind(invalidData).errors shouldBe Seq(
           FormError("month", Seq("deductionPeriod.error.individual"), Seq())
         )
       }
@@ -88,7 +92,8 @@ class DeductionPeriodFormProviderSpec extends UnitTest {
       }
       "when isAgent is false and key is invalid" in {
         val invalidData = Map("key" -> "")
-        underTest.deductionPeriodForm(isAgent = false, Month.values()).bind(invalidData).errors shouldBe Seq(
+        val months = Month.values().toIndexedSeq
+        underTest.deductionPeriodForm(isAgent = false, months).bind(invalidData).errors shouldBe Seq(
           FormError("month", Seq("deductionPeriod.error.individual"), Seq())
         )
       }
