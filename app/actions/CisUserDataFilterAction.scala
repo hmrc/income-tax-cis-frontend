@@ -34,7 +34,8 @@ case class CisUserDataFilterAction(taxYear: Int,
   override protected[actions] def executionContext: ExecutionContext = ec
 
   override protected[actions] def filter[A](input: UserSessionDataRequest[A]): Future[Option[Result]] = {
-    val result = input.cisUserData match {
+    // TODO: the compiler complains this match may not be exhaustive - refactor
+    val result = (input.cisUserData: @unchecked) match {
       case data if data.isPriorSubmission && redirectIfPrior => Some(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       case data if data.hasPeriodData || !needsPeriodData => None
       case data if !data.hasPeriodData => Some(Redirect(DeductionPeriodController.show(taxYear, employerRef)))

@@ -108,7 +108,8 @@ object ViewUtils {
 
   private def allMonthsSelectItems(taxYear: Int, prefillMonth: Option[Month])(implicit messages: Messages): Seq[SelectItem] = {
     val upToApril = Month.APRIL.getValue
-    val monthsOrdered: Seq[Month] = Month.values().drop(upToApril) ++ Month.values().take(upToApril)
+    val months = Month.values().toIndexedSeq
+    val monthsOrdered: Seq[Month] = months.drop(upToApril) ++ months.take(upToApril)
 
     monthsOrdered.map(month => mapToSelectItem(taxYear, messages, month, prefillMonth.contains(month)))
   }

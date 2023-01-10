@@ -43,7 +43,7 @@ class CustomerDeductionPeriodFilterActionSpec extends UnitTest {
 
   ".filter" should {
     "return a redirect to Income Tax Submission Overview when has no more deduction periods to submit for" in {
-      val fullPeriodDataList = Month.values().map(month => aCYAPeriodData.copy(deductionPeriod = month))
+      val fullPeriodDataList = Month.values().map(month => aCYAPeriodData.copy(deductionPeriod = month)).toIndexedSeq
       val cisUserData = aCisUserData.copy(cis = aCisCYAModel.copy(priorPeriodData = fullPeriodDataList))
 
       await(underTest.filter(aUserSessionDataRequest.copy(cisUserData = cisUserData))) shouldBe Some(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(anyTaxYear)))

@@ -21,7 +21,7 @@ import java.util.regex.Pattern._
 import scala.annotation.tailrec
 
 trait InputFilters {
-  val filters: Seq[Pattern] = Seq(
+  val filters: List[Pattern] = List(
     compile("<script>(.*?)</script>", CASE_INSENSITIVE),
     compile("src[\r\n]*=[\r\n]*\\\'(.*?)\\\'", CASE_INSENSITIVE | MULTILINE | DOTALL),
     compile("src[\r\n]*=[\r\n]*\\\"(.*?)\\\"", CASE_INSENSITIVE | MULTILINE | DOTALL),
@@ -36,9 +36,9 @@ trait InputFilters {
 
   def filter(input: String): String = {
     @tailrec
-    def applyFilters(filters: Seq[Pattern], sanitizedOuput: String): String = filters match {
-      case Nil => sanitizedOuput.filterNot(_ == '|')
-      case filter :: tail => applyFilters(tail, filter.matcher(sanitizedOuput).replaceAll(""))
+    def applyFilters(filters: List[Pattern], sanitizedOutput: String): String = filters match {
+      case Nil => sanitizedOutput.filterNot(_ == '|')
+      case filter :: tail => applyFilters(tail, filter.matcher(sanitizedOutput).replaceAll(""))
     }
 
     applyFilters(filters, input)
