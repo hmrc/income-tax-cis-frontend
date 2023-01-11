@@ -24,15 +24,15 @@ import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import utils.{SecureGCMCipher, TestingClock}
+import utils.{AesGcmAdCrypto, TestingClock}
 
 import java.time.Month
 
 class CisUserDataSpec extends UnitTest
   with MockFactory {
 
-  private implicit val secureGCMCipher: SecureGCMCipher = mock[SecureGCMCipher]
-  private implicit val textAndKey: TextAndKey = TextAndKey("some-associated-text", "some-aes-key")
+  private implicit val aesGcmAdCrypto: AesGcmAdCrypto = mock[AesGcmAdCrypto]
+  private implicit val associatedText: String = "some-associated-text"
 
   private val cisCYAModel = mock[CisCYAModel]
   private val encryptedCisCYAModel = mock[EncryptedCisCYAModel]
@@ -114,7 +114,7 @@ class CisUserDataSpec extends UnitTest
       val encryptedCisCYAModel = EncryptedCisCYAModel()
       val underTest = aCisUserData.copy(cis = cisCYAModel)
 
-      (cisCYAModel.encrypted(_: SecureGCMCipher, _: TextAndKey)).expects(secureGCMCipher, textAndKey).returning(encryptedCisCYAModel)
+      (cisCYAModel.encrypted(_: AesGcmAdCrypto, _: String)).expects(aesGcmAdCrypto, associatedText).returning(encryptedCisCYAModel)
 
       underTest.encrypted shouldBe EncryptedCisUserData(
         sessionId = underTest.sessionId,
@@ -162,7 +162,7 @@ class CisUserDataSpec extends UnitTest
         lastUpdated = DateTime.now
       )
 
-      (encryptedCisCYAModel.decrypted(_: SecureGCMCipher, _: TextAndKey)).expects(secureGCMCipher, textAndKey).returning(aCisCYAModel)
+      (encryptedCisCYAModel.decrypted(_: AesGcmAdCrypto, _: String)).expects(aesGcmAdCrypto, associatedText).returning(aCisCYAModel)
 
       underTest.decrypted shouldBe CisUserData(
         sessionId = underTest.sessionId,

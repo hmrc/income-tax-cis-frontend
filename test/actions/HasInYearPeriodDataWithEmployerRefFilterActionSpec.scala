@@ -23,7 +23,7 @@ import support.builders.models.CISSourceBuilder.aCISSource
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserPriorDataRequestBuilder.aUserPriorDataRequest
-import support.mocks.MockAppConfig
+import support.stubs.AppConfigStub
 
 import scala.concurrent.ExecutionContext
 
@@ -31,7 +31,7 @@ class HasInYearPeriodDataWithEmployerRefFilterActionSpec extends UnitTest {
 
   private val taxYear = 2022
   private val employerRef = "some-employer-ref"
-  private val appConfig = new MockAppConfig().config()
+  private val appConfig = new AppConfigStub().config()
   private val executionContext = ExecutionContext.global
 
   private val underTest = HasInYearPeriodDataWithEmployerRefFilterAction(

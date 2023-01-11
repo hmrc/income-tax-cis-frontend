@@ -23,6 +23,7 @@ import org.scalamock.scalatest.MockFactory
 import play.api.test.Helpers.stubMessagesControllerComponents
 import services.AuthService
 import support.builders.models.UserBuilder.aUser
+import support.stubs.AppConfigStub
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
@@ -34,7 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait MockAuthorisedAction extends MockFactory {
 
-  private val mockAppConfig = new MockAppConfig().config()
+  private val mockAppConfig = new AppConfigStub().config()
   private val mockAuthConnector = mock[AuthConnector]
   private val mockAuthService = new AuthService(mockAuthConnector)
 

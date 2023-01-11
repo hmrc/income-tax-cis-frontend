@@ -30,9 +30,9 @@ import uk.gov.hmrc.mongo.play.json.Codecs.toBson
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
 import uk.gov.hmrc.play.http.logging.Mdc
+import utils.AesGcmAdCrypto
 import utils.PagerDutyHelper.PagerDutyKeys.{FAILED_TO_CREATE_UPDATE_CIS_DATA, FAILED_TO_ClEAR_CIS_DATA, FAILED_TO_FIND_CIS_DATA}
 import utils.PagerDutyHelper.{PagerDutyKeys, pagerDutyLog}
-import utils.SecureGCMCipher
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,7 +40,7 @@ import scala.util.Try
 
 @Singleton
 class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppConfig)
-                                         (implicit secureGCMCipher: SecureGCMCipher, ec: ExecutionContext) extends PlayMongoRepository[EncryptedCisUserData](
+                                         (implicit aesGcmAdCrypto: AesGcmAdCrypto, ec: ExecutionContext) extends PlayMongoRepository[EncryptedCisUserData](
   mongoComponent = mongo,
   collectionName = "cisUserData",
   domainFormat = EncryptedCisUserData.formats,
@@ -77,7 +77,7 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
       case Right(encryptedData) =>
         Try {
           encryptedData.map { encryptedCisUserData: EncryptedCisUserData =>
-            implicit val textAndKey: TextAndKey = TextAndKey(encryptedCisUserData.mtdItId, appConfig.encryptionKey)
+            implicit val associatedText: String = encryptedCisUserData.mtdItId
             encryptedCisUserData.decrypted
           }
         }.toEither match {
@@ -91,7 +91,7 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
     lazy val start = "[CisUserDataRepositoryImpl][update]"
 
     Try {
-      implicit val textAndKey: TextAndKey = TextAndKey(cisUserData.mtdItId, appConfig.encryptionKey)
+      implicit val associatedText: String = cisUserData.mtdItId
       cisUserData.encrypted
     }.toEither match {
       case Left(t: Throwable) => Future.successful(handleEncryptionDecryptionException(t.asInstanceOf[Exception], start))

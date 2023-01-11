@@ -18,7 +18,7 @@ package actions
 
 import play.api.mvc.Results.Redirect
 import support.builders.models.AuthorisationRequestBuilder.anAuthorisationRequest
-import support.mocks.MockAppConfig
+import support.stubs.AppConfigStub
 import support.{TaxYearProvider, UnitTest}
 import utils.InYearUtil
 
@@ -28,7 +28,7 @@ class InYearFilterActionSpec extends UnitTest
   with TaxYearProvider {
 
   private val inYearUtil = new InYearUtil()
-  private val appConfig = new MockAppConfig().config()
+  private val appConfig = new AppConfigStub().config()
   private val executionContext = ExecutionContext.global
 
   ".executionContext" should {

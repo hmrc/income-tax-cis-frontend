@@ -20,16 +20,16 @@ import org.scalamock.scalatest.MockFactory
 import support.UnitTest
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
-import utils.TypeCaster.Converter
-import utils.{EncryptedValue, SecureGCMCipher}
+import uk.gov.hmrc.crypto.EncryptedValue
+import utils.AesGcmAdCrypto
 
 import java.time.Month
 
 class CisCYAModelSpec extends UnitTest
   with MockFactory {
 
-  private implicit val secureGCMCipher: SecureGCMCipher = mock[SecureGCMCipher]
-  private implicit val textAndKey: TextAndKey = TextAndKey("some-associated-text", "some-aes-key")
+  private implicit val aesGcmAdCrypto: AesGcmAdCrypto = mock[AesGcmAdCrypto]
+  private implicit val associatedText: String = "some-associated-text"
 
   private val encryptedContractorName = EncryptedValue("encryptedContractorName", "some-nonce")
   private val cyaPeriodData1 = mock[CYAPeriodData]
@@ -145,10 +145,10 @@ class CisCYAModelSpec extends UnitTest
     "return EncryptedCisCYAModel" in {
       val underTest = CisCYAModel(Some("some-contractor-name"), Some(cyaPeriodData1), Seq(cyaPeriodData1, cyaPeriodData2))
 
-      (secureGCMCipher.encrypt(_: String)(_: TextAndKey)).expects(underTest.contractorName.get, textAndKey).returning(encryptedContractorName)
-      (cyaPeriodData1.encrypted(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(encryptedPeriodData1)
-      (cyaPeriodData1.encrypted(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(encryptedPeriodData1)
-      (cyaPeriodData2.encrypted(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(encryptedPeriodData2)
+      (aesGcmAdCrypto.encrypt(_: String)(_: String)).expects(underTest.contractorName.get, associatedText).returning(encryptedContractorName)
+      (cyaPeriodData1.encrypted(_: AesGcmAdCrypto, _: String)).expects(*, *).returning(encryptedPeriodData1)
+      (cyaPeriodData1.encrypted(_: AesGcmAdCrypto, _: String)).expects(*, *).returning(encryptedPeriodData1)
+      (cyaPeriodData2.encrypted(_: AesGcmAdCrypto, _: String)).expects(*, *).returning(encryptedPeriodData2)
 
       underTest.encrypted shouldBe EncryptedCisCYAModel(
         contractorName = Some(encryptedContractorName),
@@ -160,11 +160,11 @@ class CisCYAModelSpec extends UnitTest
 
   "EncryptedCisCYAModel.decrypted" should {
     "return CisCYAModel" in {
-      (secureGCMCipher.decrypt[String](_: String, _: String)(_: TextAndKey, _: Converter[String]))
-        .expects(encryptedContractorName.value, encryptedContractorName.nonce, textAndKey, *).returning(value = "contractor-name")
-      (encryptedPeriodData1.decrypted(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData1)
-      (encryptedPeriodData1.decrypted(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData1)
-      (encryptedPeriodData2.decrypted(_: SecureGCMCipher, _: TextAndKey)).expects(*, *).returning(cyaPeriodData2)
+      (aesGcmAdCrypto.decrypt(_: EncryptedValue)(_: String))
+        .expects(encryptedContractorName, associatedText).returning(value = "contractor-name")
+      (encryptedPeriodData1.decrypted(_: AesGcmAdCrypto, _: String)).expects(*, *).returning(cyaPeriodData1)
+      (encryptedPeriodData1.decrypted(_: AesGcmAdCrypto, _: String)).expects(*, *).returning(cyaPeriodData1)
+      (encryptedPeriodData2.decrypted(_: AesGcmAdCrypto, _: String)).expects(*, *).returning(cyaPeriodData2)
 
       EncryptedCisCYAModel(Some(encryptedContractorName),
         Some(encryptedPeriodData1),

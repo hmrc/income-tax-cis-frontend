@@ -16,18 +16,15 @@
 
 package utils
 
-import java.time.Month
+import config.AppConfig
+import uk.gov.hmrc.crypto.{AdDecrypter, AdEncrypter, SymmetricCryptoFactory}
 
-object TypeCaster {
+import javax.inject.{Inject, Singleton}
 
-  trait Converter[T] { self =>
-    def convert(v: String): T
-  }
+@Singleton
+class AesGcmAdCryptoFactory @Inject()(appConfig: AppConfig) {
 
-  object Converter {
-    implicit val stringLoader: Converter[String] = (v: String) => v
-    implicit val booleanLoader: Converter[Boolean] = (v: String) => v.toBoolean
-    implicit val bigDecimalLoader: Converter[BigDecimal] = (v: String) => BigDecimal(v)
-    implicit val monthLoader: Converter[Month] = (v: String) => Month.valueOf(v)
-  }
+  private lazy val aesGcmAdCrypto = SymmetricCryptoFactory.aesGcmAdCrypto(appConfig.encryptionKey)
+
+  def instance(): AdEncrypter with AdDecrypter = aesGcmAdCrypto
 }

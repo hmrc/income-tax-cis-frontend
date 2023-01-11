@@ -19,12 +19,10 @@ package models.mongo
 import models.submission.PeriodData
 import org.joda.time.DateTime
 import play.api.libs.json._
+import uk.gov.hmrc.crypto.EncryptedValue
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
-import utils.DecryptableSyntax.DecryptableOps
-import utils.DecryptorInstances.{bigDecimalDecryptor, booleanDecryptor, monthDecryptor}
-import utils.EncryptableSyntax.EncryptableOps
-import utils.EncryptorInstances.{bigDecimalEncryptor, booleanEncryptor, monthEncryptor}
-import utils.{EncryptedValue, SecureGCMCipher}
+import utils.AesGcmAdCrypto
+import utils.CypherSyntax.{DecryptableOps, EncryptableOps}
 
 import java.time.Month
 
@@ -45,7 +43,7 @@ case class CYAPeriodData(deductionPeriod: Month,
   def isAnUpdateFor(month: Month): Boolean =
     originallySubmittedPeriod.contains(month)
 
-  def encrypted(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCYAPeriodData = EncryptedCYAPeriodData(
+  def encrypted(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): EncryptedCYAPeriodData = EncryptedCYAPeriodData(
     deductionPeriod = deductionPeriod.encrypted,
     grossAmountPaid = grossAmountPaid.map(_.encrypted),
     deductionAmount = deductionAmount.map(_.encrypted),
@@ -84,7 +82,7 @@ case class EncryptedCYAPeriodData(deductionPeriod: EncryptedValue,
                                   contractorSubmitted: EncryptedValue,
                                   originallySubmittedPeriod: Option[EncryptedValue] = None) {
 
-  def decrypted(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CYAPeriodData = CYAPeriodData(
+  def decrypted(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): CYAPeriodData = CYAPeriodData(
     deductionPeriod = deductionPeriod.decrypted[Month],
     grossAmountPaid = grossAmountPaid.map(_.decrypted[BigDecimal]),
     deductionAmount = deductionAmount.map(_.decrypted[BigDecimal]),
@@ -97,7 +95,7 @@ case class EncryptedCYAPeriodData(deductionPeriod: EncryptedValue,
 
 object EncryptedCYAPeriodData extends MongoJodaFormats {
   implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
-
+  implicit lazy val encryptedValueOFormat: OFormat[EncryptedValue] = Json.format[EncryptedValue]
   implicit val formats: Format[EncryptedCYAPeriodData] = Json.format[EncryptedCYAPeriodData]
 }
 
