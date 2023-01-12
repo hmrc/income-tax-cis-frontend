@@ -26,7 +26,7 @@ import support.builders.models.AuthorisationRequestBuilder.anAuthorisationReques
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.mocks.MockAppConfig
+import support.stubs.AppConfigStub
 import uk.gov.hmrc.auth.core.AffinityGroup
 
 trait ViewUnitTest extends UnitTest
@@ -37,7 +37,7 @@ trait ViewUnitTest extends UnitTest
   with TaxYearProvider
   with FakeRequestHelper {
 
-  protected implicit val mockAppConfig: AppConfig = new MockAppConfig().config()
+  protected implicit val mockAppConfig: AppConfig = new AppConfigStub().config()
   protected implicit lazy val messagesApi: MessagesApi = inject[MessagesApi]
 
   protected lazy val defaultMessages: Messages = messagesApi.preferred(fakeRequest)

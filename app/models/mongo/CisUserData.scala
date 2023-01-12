@@ -21,7 +21,7 @@ import models.submission.CISSubmission
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
-import utils.SecureGCMCipher
+import utils.AesGcmAdCrypto
 import utils.SubmissionUtil.validateDataAndCreateSubmission
 
 import java.time.Month
@@ -51,7 +51,7 @@ case class CisUserData(sessionId: String,
 
   lazy val hasPeriodData: Boolean = cis.periodData.nonEmpty
 
-  def encrypted(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCisUserData = EncryptedCisUserData(
+  def encrypted(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): EncryptedCisUserData = EncryptedCisUserData(
     sessionId = sessionId,
     mtdItId = mtdItId,
     nino = nino,
@@ -99,7 +99,7 @@ case class EncryptedCisUserData(sessionId: String,
                                 cis: EncryptedCisCYAModel,
                                 lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)) {
 
-  def decrypted(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CisUserData = CisUserData(
+  def decrypted(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): CisUserData = CisUserData(
     sessionId = sessionId,
     mtdItId = mtdItId,
     nino = nino,

@@ -22,7 +22,7 @@ import support.builders.models.UserSessionDataRequestBuilder.aUserSessionDataReq
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.mocks.MockAppConfig
+import support.stubs.AppConfigStub
 
 import java.time.Month
 import scala.concurrent.ExecutionContext
@@ -30,7 +30,7 @@ import scala.concurrent.ExecutionContext
 class CustomerDeductionPeriodFilterActionSpec extends UnitTest {
 
   private val anyTaxYear = 2022
-  private val appConfig = new MockAppConfig().config()
+  private val appConfig = new AppConfigStub().config()
   private val executionContext = ExecutionContext.global
 
   private val underTest = CustomerDeductionPeriodFilterAction(taxYear = anyTaxYear, appConfig = appConfig)(executionContext)

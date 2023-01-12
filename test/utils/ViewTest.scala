@@ -31,7 +31,7 @@ import play.api.mvc._
 import play.api.test.Helpers
 import support.FakeRequestHelper
 import support.builders.models.UserBuilder.aUser
-import support.mocks.MockAppConfig
+import support.stubs.AppConfigStub
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
@@ -46,7 +46,7 @@ trait ViewTest extends AnyWordSpec
   with FakeRequestHelper {
 
   implicit lazy val authorisationRequest: AuthorisationRequest[AnyContent] = new AuthorisationRequest[AnyContent](aUser, fakeRequest)
-  implicit val mockAppConfig: AppConfig = new MockAppConfig().config()
+  implicit val mockAppConfig: AppConfig = new AppConfigStub().config()
 
   implicit lazy val mockMessagesControllerComponents: MessagesControllerComponents = Helpers.stubMessagesControllerComponents()
 
@@ -96,7 +96,7 @@ trait ViewTest extends AnyWordSpec
 
   def titleCheck(title: String, isWelsh: Boolean)(implicit document: Document): Unit = {
     s"has a title of $title" in {
-      document.title() shouldBe s"$title - ${if(isWelsh) serviceNameWelsh else serviceName} - $govUkExtension"
+      document.title() shouldBe s"$title - ${if (isWelsh) serviceNameWelsh else serviceName} - $govUkExtension"
     }
   }
 

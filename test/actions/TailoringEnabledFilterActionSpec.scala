@@ -18,7 +18,7 @@ package actions
 
 import play.api.mvc.Results.Redirect
 import support.builders.models.AuthorisationRequestBuilder.anAuthorisationRequest
-import support.mocks.MockAppConfig
+import support.stubs.AppConfigStub
 import support.{TaxYearProvider, UnitTest}
 
 import scala.concurrent.ExecutionContext
@@ -26,8 +26,8 @@ import scala.concurrent.ExecutionContext
 class TailoringEnabledFilterActionSpec extends UnitTest
   with TaxYearProvider {
 
-  private val appConfig = new MockAppConfig().config()
-  private val appConfigWithTailoringEnabled = new MockAppConfig().config(enableTailoring = true)
+  private val appConfig = new AppConfigStub().config()
+  private val appConfigWithTailoringEnabled = new AppConfigStub().config(enableTailoring = true)
   private val executionContext = ExecutionContext.global
 
   ".executionContext" should {

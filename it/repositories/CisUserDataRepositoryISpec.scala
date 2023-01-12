@@ -33,8 +33,8 @@ import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.mongo.MongoUtils
+import utils.AesGcmAdCrypto
 import utils.PagerDutyHelper.PagerDutyKeys.FAILED_TO_CREATE_UPDATE_CIS_DATA
-import utils.SecureGCMCipher
 
 import scala.concurrent.Future
 
@@ -45,7 +45,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
   private val userDataFull = aCisUserData.copy(sessionId = sessionIdOne)
   private val userDataOne = aCisUserData.copy(sessionId = sessionIdOne, taxYear = taxYear, lastUpdated = now)
   private val userOne = anAuthorisationRequest.copy(aUser.copy(userDataOne.mtdItId, None, userDataOne.nino, userDataOne.sessionId, Individual.toString))
-  private implicit val secureGCMCipher: SecureGCMCipher = app.injector.instanceOf[SecureGCMCipher]
+  protected implicit val aesGcmAdCrypto: AesGcmAdCrypto = app.injector.instanceOf[AesGcmAdCrypto]
   private val repoWithInvalidEncryption = GuiceApplicationBuilder().configure(config + ("mongodb.encryption.key" -> "key")).build()
     .injector.instanceOf[CisUserDataRepositoryImpl]
 
@@ -65,19 +65,19 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
     "fail to add data" in new EmptyDatabase {
       countFromOtherDatabase mustBe 0
       val res: Either[DatabaseError, Unit] = await(repoWithInvalidEncryption.createOrUpdate(userDataOne))
-      res mustBe Left(EncryptionDecryptionError(
-        "Key being used is not valid. It could be due to invalid encoding, wrong length or uninitialized for encrypt Invalid AES key length: 2 bytes"))
+
+      res mustBe Left(EncryptionDecryptionError("Failed encrypting data"))
     }
   }
 
   "find with invalid encryption" should {
     "fail to find data" in new EmptyDatabase {
-      implicit val textAndKey: TextAndKey = TextAndKey(userDataOne.mtdItId, appConfig.encryptionKey)
+      implicit val associatedText: String = userDataOne.mtdItId
       countFromOtherDatabase mustBe 0
       await(repoWithInvalidEncryption.collection.insertOne(userDataOne.encrypted).toFuture())
       countFromOtherDatabase mustBe 1
       await(repoWithInvalidEncryption.find(userDataOne.taxYear, userDataOne.employerRef, userOne.user)) mustBe
-        Left(EncryptionDecryptionError("Key being used is not valid. It could be due to invalid encoding, wrong length or uninitialized for decrypt Invalid AES key length: 2 bytes"))
+        Left(EncryptionDecryptionError("Failed encrypting data"))
     }
   }
 
@@ -178,7 +178,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
 
   "the set indexes" should {
     "enforce uniqueness" in new EmptyDatabase {
-      implicit val textAndKey: TextAndKey = TextAndKey(userDataOne.mtdItId, appConfig.encryptionKey)
+      implicit val associatedText: String = userDataOne.mtdItId
       await(underTest.createOrUpdate(userDataOne)) mustBe Right(())
       count mustBe 1
 

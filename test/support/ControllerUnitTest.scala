@@ -21,7 +21,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers.stubMessagesControllerComponents
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits, Injecting}
-import support.mocks.MockAppConfig
+import support.stubs.AppConfigStub
 
 import scala.concurrent.ExecutionContext
 
@@ -33,6 +33,6 @@ trait ControllerUnitTest extends UnitTest
   with FakeRequestHelper {
 
   protected implicit val cc: MessagesControllerComponents = stubMessagesControllerComponents()
-  protected implicit val appConfig: AppConfig = new MockAppConfig().config()
+  protected implicit val appConfig: AppConfig = new AppConfigStub().config()
   protected implicit lazy val ec: ExecutionContext = ExecutionContext.Implicits.global
 }

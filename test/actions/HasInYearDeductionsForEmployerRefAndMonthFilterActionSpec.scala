@@ -24,7 +24,8 @@ import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserPriorDataRequestBuilder.aUserPriorDataRequest
-import support.mocks.{MockAppConfig, MockErrorHandler}
+import support.mocks.MockErrorHandler
+import support.stubs.AppConfigStub
 
 import java.time.Month
 import scala.concurrent.ExecutionContext
@@ -35,7 +36,7 @@ class HasInYearDeductionsForEmployerRefAndMonthFilterActionSpec extends UnitTest
   private val anyTaxYear = 2022
   private val employerRef = "some-employer-ref"
   private val monthValue = "may"
-  private val appConfig = new MockAppConfig().config()
+  private val appConfig = new AppConfigStub().config()
   private val executionContext = ExecutionContext.global
 
   private val underTest = HasInYearDeductionsForEmployerRefAndMonthFilterAction(

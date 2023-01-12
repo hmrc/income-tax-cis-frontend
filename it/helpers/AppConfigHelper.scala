@@ -17,9 +17,9 @@
 package helpers
 
 import config.AppConfig
-import support.mocks.MockAppConfig
+import support.stubs.AppConfigStub
 
 trait AppConfigHelper {
 
-  val appConfig: AppConfig = new MockAppConfig().config()
+  val appConfig: AppConfig = new AppConfigStub().config()
 }

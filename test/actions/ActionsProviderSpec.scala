@@ -39,7 +39,8 @@ import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.builders.models.nrs.DeductionPeriodBuilder.aDeductionPeriod
 import support.builders.models.nrs.ViewCisPeriodPayloadBuilder.aViewCisPeriodPayload
-import support.mocks.{MockAppConfig, MockAuthorisedAction, MockCISSessionService, MockErrorHandler}
+import support.mocks.{MockAuthorisedAction, MockCISSessionService, MockErrorHandler}
+import support.stubs.AppConfigStub
 import utils.InYearUtil
 
 import java.time.Month
@@ -153,7 +154,7 @@ class ActionsProviderSpec extends ControllerUnitTest
     "return successful response when tailoring is enabled" in {
       mockAuthAsIndividual(Some(aUser.nino))
 
-      val underTest = createActionsProvider(new MockAppConfig().config(enableTailoring = true)).endOfYear(taxYearEOY)(block = anyBlock)
+      val underTest = createActionsProvider(new AppConfigStub().config(enableTailoring = true)).endOfYear(taxYearEOY)(block = anyBlock)
 
       status(underTest(fakeIndividualRequest.withSession(TAX_YEAR -> taxYearEOY.toString, VALID_TAX_YEARS -> validTaxYears))) shouldBe OK
     }

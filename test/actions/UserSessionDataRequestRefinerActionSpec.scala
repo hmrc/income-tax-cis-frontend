@@ -22,7 +22,8 @@ import play.api.mvc.Results.{InternalServerError, Redirect}
 import support.UnitTest
 import support.builders.models.AuthorisationRequestBuilder.anAuthorisationRequest
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.mocks.{MockAppConfig, MockCISSessionService, MockErrorHandler}
+import support.mocks.{MockCISSessionService, MockErrorHandler}
+import support.stubs.AppConfigStub
 
 import scala.concurrent.ExecutionContext
 
@@ -32,7 +33,7 @@ class UserSessionDataRequestRefinerActionSpec extends UnitTest
 
   private val taxYear = 2022
   private val employerRef = "some-employer-ref"
-  private val appConfig = new MockAppConfig().config()
+  private val appConfig = new AppConfigStub().config()
   private val executionContext = ExecutionContext.global
 
 

@@ -20,8 +20,8 @@ import org.scalamock.scalatest.MockFactory
 import play.api.libs.json.{JsObject, Json}
 import support.UnitTest
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
-import utils.TypeCaster.Converter
-import utils.{EncryptedValue, SecureGCMCipher}
+import uk.gov.hmrc.crypto.EncryptedValue
+import utils.AesGcmAdCrypto
 
 import java.time.Month
 
@@ -38,8 +38,8 @@ class CYAPeriodDataSpec extends UnitTest
     "originallySubmittedPeriod" -> Some(Month.MAY.toString)
   )
 
-  private implicit val secureGCMCipher: SecureGCMCipher = mock[SecureGCMCipher]
-  private implicit val textAndKey: TextAndKey = TextAndKey("some-associated-text", "some-aes-key")
+  private implicit val aesGcmAdCrypto: AesGcmAdCrypto = mock[AesGcmAdCrypto]
+  private implicit val associatedText: String = "some-associated-text"
 
   private val encryptedDeductionPeriod = EncryptedValue("encryptedDeductionPeriod", "some-nonce")
   private val encryptedContractorSubmitted = EncryptedValue("encryptedContractorSubmitted", "some-nonce")
@@ -107,13 +107,13 @@ class CYAPeriodDataSpec extends UnitTest
 
   "CYAPeriodData.encrypted" should {
     "return EncryptedCYAPeriodData" in {
-      (secureGCMCipher.encrypt(_: Month)(_: TextAndKey)).expects(aCYAPeriodData.deductionPeriod, textAndKey).returning(encryptedDeductionPeriod)
-      (secureGCMCipher.encrypt(_: BigDecimal)(_: TextAndKey)).expects(aCYAPeriodData.grossAmountPaid.get, textAndKey).returning(encryptedGrossAmountPaid)
-      (secureGCMCipher.encrypt(_: BigDecimal)(_: TextAndKey)).expects(aCYAPeriodData.deductionAmount.get, textAndKey).returning(encryptedDeductionAmount)
-      (secureGCMCipher.encrypt(_: Boolean)(_: TextAndKey)).expects(aCYAPeriodData.costOfMaterialsQuestion.get, textAndKey).returning(encryptedCostOfMaterialsQuestion)
-      (secureGCMCipher.encrypt(_: BigDecimal)(_: TextAndKey)).expects(aCYAPeriodData.costOfMaterials.get, textAndKey).returning(encryptedCostOfMaterials)
-      (secureGCMCipher.encrypt(_: Boolean)(_: TextAndKey)).expects(aCYAPeriodData.contractorSubmitted, textAndKey).returning(encryptedContractorSubmitted)
-      (secureGCMCipher.encrypt(_: Month)(_: TextAndKey)).expects(aCYAPeriodData.originallySubmittedPeriod.get, textAndKey).returning(encryptedOriginallySubmittedPeriod)
+      (aesGcmAdCrypto.encrypt(_: String)(_: String)).expects(aCYAPeriodData.deductionPeriod.toString, associatedText).returning(encryptedDeductionPeriod)
+      (aesGcmAdCrypto.encrypt(_: String)(_: String)).expects(aCYAPeriodData.grossAmountPaid.get.toString, associatedText).returning(encryptedGrossAmountPaid)
+      (aesGcmAdCrypto.encrypt(_: String)(_: String)).expects(aCYAPeriodData.deductionAmount.get.toString, associatedText).returning(encryptedDeductionAmount)
+      (aesGcmAdCrypto.encrypt(_: String)(_: String)).expects(aCYAPeriodData.costOfMaterialsQuestion.get.toString, associatedText).returning(encryptedCostOfMaterialsQuestion)
+      (aesGcmAdCrypto.encrypt(_: String)(_: String)).expects(aCYAPeriodData.costOfMaterials.get.toString, associatedText).returning(encryptedCostOfMaterials)
+      (aesGcmAdCrypto.encrypt(_: String)(_: String)).expects(aCYAPeriodData.contractorSubmitted.toString, associatedText).returning(encryptedContractorSubmitted)
+      (aesGcmAdCrypto.encrypt(_: String)(_: String)).expects(aCYAPeriodData.originallySubmittedPeriod.get.toString, associatedText).returning(encryptedOriginallySubmittedPeriod)
 
 
       aCYAPeriodData.encrypted shouldBe EncryptedCYAPeriodData(
@@ -130,21 +130,20 @@ class CYAPeriodDataSpec extends UnitTest
 
   "EncryptedCYAPeriodData.decrypted" should {
     "return CYAPeriodData" in {
-      (secureGCMCipher.decrypt[Month](_: String, _: String)(_: TextAndKey, _: Converter[Month]))
-        .expects(encryptedDeductionPeriod.value, encryptedDeductionPeriod.nonce, textAndKey, *).returning(Month.JULY)
-      (secureGCMCipher.decrypt[Month](_: String, _: String)(_: TextAndKey, _: Converter[Month]))
-        .expects(encryptedOriginallySubmittedPeriod.value, encryptedOriginallySubmittedPeriod.nonce, textAndKey, *).returning(Month.MAY)
-      (secureGCMCipher.decrypt[BigDecimal](_: String, _: String)(_: TextAndKey, _: Converter[BigDecimal]))
-        .expects(encryptedGrossAmountPaid.value, encryptedGrossAmountPaid.nonce, textAndKey, *).returning(value = 100.0)
-      (secureGCMCipher.decrypt[BigDecimal](_: String, _: String)(_: TextAndKey, _: Converter[BigDecimal]))
-        .expects(encryptedDeductionAmount.value, encryptedDeductionAmount.nonce, textAndKey, *).returning(value = 200.0)
-      (secureGCMCipher.decrypt[Boolean](_: String, _: String)(_: TextAndKey, _: Converter[Boolean]))
-        .expects(encryptedCostOfMaterialsQuestion.value, encryptedCostOfMaterialsQuestion.nonce, textAndKey, *).returning(value = true)
-      (secureGCMCipher.decrypt[Boolean](_: String, _: String)(_: TextAndKey, _: Converter[Boolean]))
-        .expects(encryptedContractorSubmitted.value, encryptedContractorSubmitted.nonce, textAndKey, *).returning(value = false)
-      (secureGCMCipher.decrypt[BigDecimal](_: String, _: String)(_: TextAndKey, _: Converter[BigDecimal]))
-        .expects(encryptedCostOfMaterials.value, encryptedCostOfMaterials.nonce, textAndKey, *).returning(value = 300.0)
-
+      (aesGcmAdCrypto.decrypt(_: EncryptedValue)(_: String))
+        .expects(encryptedDeductionPeriod, associatedText).returning(Month.JULY.toString)
+      (aesGcmAdCrypto.decrypt(_: EncryptedValue)(_: String))
+        .expects(encryptedOriginallySubmittedPeriod, associatedText).returning(Month.MAY.toString)
+      (aesGcmAdCrypto.decrypt(_: EncryptedValue)(_: String))
+        .expects(encryptedGrossAmountPaid, associatedText).returning(value = 100.0.toString)
+      (aesGcmAdCrypto.decrypt(_: EncryptedValue)(_: String))
+        .expects(encryptedDeductionAmount, associatedText).returning(value = 200.0.toString)
+      (aesGcmAdCrypto.decrypt(_: EncryptedValue)(_: String))
+        .expects(encryptedCostOfMaterialsQuestion, associatedText).returning(value = true.toString)
+      (aesGcmAdCrypto.decrypt(_: EncryptedValue)(_: String))
+        .expects(encryptedContractorSubmitted, associatedText).returning(value = false.toString)
+      (aesGcmAdCrypto.decrypt(_: EncryptedValue)(_: String))
+        .expects(encryptedCostOfMaterials, associatedText).returning(value = 300.0.toString)
 
       val encryptedData = EncryptedCYAPeriodData(
         deductionPeriod = encryptedDeductionPeriod,

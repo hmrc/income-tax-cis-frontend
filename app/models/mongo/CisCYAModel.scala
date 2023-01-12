@@ -18,12 +18,10 @@ package models.mongo
 
 import org.joda.time.DateTime
 import play.api.libs.json.{Format, Json, OFormat}
+import uk.gov.hmrc.crypto.EncryptedValue
 import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
-import utils.DecryptableSyntax.DecryptableOps
-import utils.DecryptorInstances.stringDecryptor
-import utils.EncryptableSyntax.EncryptableOps
-import utils.EncryptorInstances.stringEncryptor
-import utils.{EncryptedValue, SecureGCMCipher}
+import utils.AesGcmAdCrypto
+import utils.CypherSyntax.{DecryptableOps, EncryptableOps}
 
 import java.time.Month
 
@@ -46,7 +44,7 @@ case class CisCYAModel(contractorName: Option[String] = None,
   def isAnUpdateFor(month: Month): Boolean =
     periodData.exists(_.isAnUpdateFor(month))
 
-  def encrypted(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): EncryptedCisCYAModel = EncryptedCisCYAModel(
+  def encrypted(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): EncryptedCisCYAModel = EncryptedCisCYAModel(
     contractorName = contractorName.map(_.encrypted),
     periodData = periodData.map(_.encrypted),
     priorPeriodData = priorPeriodData.map(_.encrypted)
@@ -61,7 +59,7 @@ case class EncryptedCisCYAModel(contractorName: Option[EncryptedValue] = None,
                                 periodData: Option[EncryptedCYAPeriodData] = None,
                                 priorPeriodData: Seq[EncryptedCYAPeriodData] = Seq()) {
 
-  def decrypted(implicit secureGCMCipher: SecureGCMCipher, textAndKey: TextAndKey): CisCYAModel = CisCYAModel(
+  def decrypted(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): CisCYAModel = CisCYAModel(
     contractorName = contractorName.map(_.decrypted[String]),
     periodData = periodData.map(_.decrypted),
     priorPeriodData = priorPeriodData.map(_.decrypted)
@@ -70,6 +68,6 @@ case class EncryptedCisCYAModel(contractorName: Option[EncryptedValue] = None,
 
 object EncryptedCisCYAModel extends MongoJodaFormats {
   implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
-
+  implicit lazy val encryptedValueOFormat: OFormat[EncryptedValue] = Json.format[EncryptedValue]
   implicit val formats: Format[EncryptedCisCYAModel] = Json.format[EncryptedCisCYAModel]
 }

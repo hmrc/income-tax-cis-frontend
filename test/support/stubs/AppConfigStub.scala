@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package support.mocks
+package support.stubs
 
 import config.AppConfig
 import org.scalamock.scalatest.MockFactory
@@ -22,7 +22,7 @@ import play.api.mvc.RequestHeader
 import support.TaxYearProvider
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-class MockAppConfig extends MockFactory with TaxYearProvider {
+class AppConfigStub extends MockFactory with TaxYearProvider {
 
   def config(encrypt: Boolean = true, _taxYearErrorFeature: Boolean = false, enableTailoring: Boolean = false): AppConfig = new AppConfig(mock[ServicesConfig]) {
     override lazy val signInUrl: String = "/signIn"

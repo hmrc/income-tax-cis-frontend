@@ -22,7 +22,7 @@ import support.UnitTest
 import support.builders.models.UserSessionDataRequestBuilder.aUserSessionDataRequest
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.mocks.MockAppConfig
+import support.stubs.AppConfigStub
 
 import scala.concurrent.ExecutionContext
 
@@ -30,7 +30,7 @@ class CisUserDataFilterActionSpec extends UnitTest {
 
   private val taxYear = 2022
   private val employerRef = "some-employer-ref"
-  private val appConfig = new MockAppConfig().config()
+  private val appConfig = new AppConfigStub().config()
   private val executionContext = ExecutionContext.global
 
   private def createAction(redirectIfPrior: Boolean = false) = CisUserDataFilterAction(

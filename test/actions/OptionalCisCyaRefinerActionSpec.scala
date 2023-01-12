@@ -24,7 +24,8 @@ import support.UnitTest
 import support.builders.models.AuthorisationRequestBuilder.anAuthorisationRequest
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.mocks.{MockAppConfig, MockCISSessionService, MockErrorHandler}
+import support.mocks.{MockCISSessionService, MockErrorHandler}
+import support.stubs.AppConfigStub
 
 import java.time.Month
 import scala.concurrent.ExecutionContext
@@ -35,7 +36,7 @@ class OptionalCisCyaRefinerActionSpec extends UnitTest
 
   private val taxYear = 2022
   private val employerRef = "some-employer-ref"
-  private val appConfig = new MockAppConfig().config()
+  private val appConfig = new AppConfigStub().config()
   private val executionContext = ExecutionContext.global
   private val monthValue = "may"
 

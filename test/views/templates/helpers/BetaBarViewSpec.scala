@@ -19,7 +19,7 @@ package views.templates.helpers
 import config.AppConfig
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import support.mocks.MockAppConfig
+import support.stubs.AppConfigStub
 import utils.ViewTest
 import views.html.templates.helpers.BetaBar
 
@@ -35,7 +35,7 @@ class BetaBarViewSpec extends ViewTest {
 
       "use appConfig.feedbackUrl in the beta banner link" which {
 
-        implicit val appConfig: AppConfig = new MockAppConfig().config()
+        implicit val appConfig: AppConfig = new AppConfigStub().config()
         implicit val isAgent: Boolean = false
         lazy val view = betaBar(isAgent)(fakeRequest, messages, appConfig)
 
