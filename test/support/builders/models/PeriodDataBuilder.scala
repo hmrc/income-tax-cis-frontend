@@ -50,5 +50,4 @@ object PeriodDataBuilder {
       "source" -> periodData.source
     )
   }
-
 }
