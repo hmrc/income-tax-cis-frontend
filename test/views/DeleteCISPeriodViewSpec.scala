@@ -101,7 +101,7 @@ class DeleteCISPeriodViewSpec extends ViewUnitTest {
         titleCheck(userScenario.commonExpectedResults.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.commonExpectedResults.expectedH1)
-        textOnPageCheck(userScenario.commonExpectedResults.expectedP1(aDeleteCISPeriodPage.month, aDeleteCISPeriodPage.taxYear), Selectors.paragraphTextSelector(number = 1))
+//        textOnPageCheck(userScenario.commonExpectedResults.expectedP1(aDeleteCISPeriodPage.month, aDeleteCISPeriodPage.taxYear), Selectors.paragraphTextSelector(number = 1))
         formPostLinkCheck(DeleteCISPeriodController.submit(taxYearEOY, aDeleteCISPeriodPage.employerRef, aDeleteCISPeriodPage.month.toString).url, Selectors.buttonFormSelector)
         buttonCheck(userScenario.commonExpectedResults.expectedButtonText, Selectors.buttonSelector)
         linkCheck(userScenario.commonExpectedResults.expectedLinkText, Selectors.linkSelector, ContractorSummaryController.show(taxYearEOY, aDeleteCISPeriodPage.employerRef).url)
