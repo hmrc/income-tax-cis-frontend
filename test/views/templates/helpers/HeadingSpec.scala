@@ -28,7 +28,7 @@ class HeadingSpec extends ViewUnitTest {
 
   private val underTest = inject[Heading]
 
-  "Heading template" ignore {
+  "Heading template" should {
     implicit val messages: Messages = getMessages(false)
 
     val heading = "heading"
