@@ -30,7 +30,7 @@ import views.html.DeductionsSummaryView
 class DeductionsSummaryViewSpec extends ViewUnitTest {
 
   object Selectors {
-    val paragraphTextSelector = "#main-content > div > div > p:nth-child(2)"
+    val paragraphTextSelector = "#main-content > div > div > p:nth-of-type(1)"
     val addContractorSelector = "#add-contractor"
     val insetTextSelector = "#main-content > div > div > div.govuk-inset-text"
     val tableCaption = ".govuk-table__caption"

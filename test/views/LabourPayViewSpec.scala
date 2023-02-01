@@ -37,7 +37,7 @@ class LabourPayViewSpec extends ViewUnitTest {
     val inputAmountField: String = "#amount"
     val buttonSelector: String = "#continue"
 
-    def paragraphTextSelector(number: Int): String = s"p.govuk-body:nth-child(${number + 1})"
+    def paragraphTextSelector(number: Int): String = s"p.govuk-body:nth-of-type($number)"
   }
 
   trait CommonExpectedResults {
