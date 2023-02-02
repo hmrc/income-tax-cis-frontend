@@ -55,9 +55,7 @@ trait ViewHelper {
 
   def h1Check(header: String, size: String = "l")(implicit document: Document): Unit = {
     s"have a page heading of '$header'" in {
-      val headingAndCaption = document.select(s"h1.govuk-heading-$size").text()
-      val caption = document.select(s"h1 > span.govuk-caption-$size").text()
-      headingAndCaption.replace(caption, "").trim shouldBe header
+      document.select(s"h1.govuk-heading-$size").text() shouldBe header
     }
   }
 

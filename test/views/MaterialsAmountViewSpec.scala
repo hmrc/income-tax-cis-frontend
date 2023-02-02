@@ -40,7 +40,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
     val buttonSelector = "#continue"
     val formSelector = "#main-content > div > div > form"
 
-    def paragraphTextSelector(number: Int): String = s"p.govuk-body:nth-child(${number + 1})"
+    def paragraphTextSelector(number: Int): String = s"p.govuk-body:nth-of-type($number)"
   }
 
   trait CommonExpectedResults {
@@ -152,7 +152,7 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         welshToggleCheck(userScenario.isWelsh)
         titleCheck(userScenario.specificExpectedResults.get.expectedTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
-        h1Check(userScenario.specificExpectedResults.get.expectedH1("some-contractor"))
+        h1Check(userScenario.specificExpectedResults.get.expectedH1("some-contractor"))//#main-content > div > div > p:nth-child(3)
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedTellUsTheAmountText(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
         textOnPageCheck(userScenario.specificExpectedResults.get.expectedOnlyIncludeVATParagraph, Selectors.paragraphTextSelector(number = 2))
         hintTextCheck(userScenario.commonExpectedResults.expectedHintText, Selectors.hintTextSelector)
@@ -208,8 +208,8 @@ class MaterialsAmountViewSpec extends ViewUnitTest {
         titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.specificExpectedResults.get.expectedH1("some-contractor"))
-        textOnPageCheck(userScenario.specificExpectedResults.get.expectedTellUsTheAmountText(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 2))
-        textOnPageCheck(userScenario.specificExpectedResults.get.expectedOnlyIncludeVATParagraph, Selectors.paragraphTextSelector(number = 3))
+        textOnPageCheck(userScenario.specificExpectedResults.get.expectedTellUsTheAmountText(translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
+        textOnPageCheck(userScenario.specificExpectedResults.get.expectedOnlyIncludeVATParagraph, Selectors.paragraphTextSelector(number = 2))
         hintTextCheck(userScenario.commonExpectedResults.expectedHintText, Selectors.hintTextSelector)
         textOnPageCheck(text = "£", Selectors.poundPrefixSelector)
         errorSummaryCheck(userScenario.specificExpectedResults.get.expectedErrorNoEntry, Selectors.expectedErrorHref)

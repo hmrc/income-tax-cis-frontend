@@ -38,7 +38,7 @@ class DeductionAmountViewSpec extends ViewUnitTest {
     val inputAmountField: String = "#amount"
     val buttonSelector: String = "#continue"
 
-    def paragraphTextSelector(number: Int): String = s"p.govuk-body:nth-child(${number + 1})"
+    def paragraphTextSelector(number: Int): String = s"p.govuk-body:nth-of-type($number)"
   }
 
   trait CommonExpectedResults {
@@ -192,7 +192,7 @@ class DeductionAmountViewSpec extends ViewUnitTest {
         titleCheck(userScenario.specificExpectedResults.get.expectedErrorTitle, userScenario.isWelsh)
         captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
         h1Check(userScenario.commonExpectedResults.expectedH1(contractorName = "some-contractor"))
-        textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1("5 " + translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 2))
+        textOnPageCheck(userScenario.specificExpectedResults.get.expectedP1("5 " + translatedMonthAndTaxYear(pageModel.month, taxYearEOY)), Selectors.paragraphTextSelector(number = 1))
         textOnPageCheck(userScenario.commonExpectedResults.expectedHintText, Selectors.hintTextSelector)
         textOnPageCheck(text = "£", Selectors.poundPrefixSelector)
         errorSummaryCheck(userScenario.commonExpectedResults.expectedEmptyErrorText, Selectors.expectedErrorHref)

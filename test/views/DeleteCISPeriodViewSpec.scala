@@ -36,7 +36,7 @@ class DeleteCISPeriodViewSpec extends ViewUnitTest {
     val buttonSelector: String = "#remove-period-button-id"
     val linkSelector: String = "#cancel-link-id"
 
-    def paragraphTextSelector(number: Int): String = s"p.govuk-body:nth-child(${number + 1})"
+    def paragraphTextSelector(number: Int): String = s"p.govuk-body:nth-of-type($number)"
   }
 
   trait CommonExpectedResults {
