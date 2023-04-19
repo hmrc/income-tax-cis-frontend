@@ -88,7 +88,7 @@ class DeleteCISPeriodControllerISpec extends IntegrationTest
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = None))), aUser.nino, taxYearEOY)
-        stubDeleteWithoutResponseBody("/income-tax-cis/income-tax/nino/AA123456A/sources/submissionId\\?taxYear=2022",NO_CONTENT)
+        stubDeleteWithoutResponseBody(s"/income-tax-cis/income-tax/nino/AA123456A/sources/submissionId\\?taxYear=$taxYearEOY", NO_CONTENT)
         urlPost(fullUrl(url(taxYearEOY, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
           headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = Json.obj())
       }

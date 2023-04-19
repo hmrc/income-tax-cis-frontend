@@ -21,6 +21,7 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.test.Helpers.OK
 import support.ConnectorIntegrationTest
+import support.TaxYearUtils.taxYearEOY
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
@@ -29,7 +30,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
 
-  private val taxYear = 2022
   private implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid, "X-Session-ID" -> aUser.sessionId)
 
   private lazy val underTest = new IncomeTaxUserDataConnector(httpClient, appConfig)
@@ -37,78 +37,78 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
   "IncomeTaxUserDataConnector" should {
     "Return a success result" when {
       "submission returns a 204" in {
-        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", NO_CONTENT, responseBody = "{}")
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYearEOY", NO_CONTENT, responseBody = "{}")
 
-        await(underTest.getUserData(aUser.nino, taxYear)) shouldBe Right(IncomeTaxUserData())
+        await(underTest.getUserData(aUser.nino, taxYearEOY)) shouldBe Right(IncomeTaxUserData())
       }
 
       "submission returns a 200" in {
         val expectedResponse =
-          """{
-            |  "cis": {
-            |    "customerCISDeductions": {
-            |      "totalDeductionAmount": 100.00,
-            |      "totalCostOfMaterials": 50.00,
-            |      "totalGrossAmountPaid": 450.00,
-            |      "cisDeductions": [
-            |        {
-            |          "fromDate": "2020-04-06",
-            |          "toDate": "2021-04-05",
-            |          "contractorName": "ABC Steelworks",
-            |          "employerRef": "123/AB123456",
-            |          "totalDeductionAmount": 100.00,
-            |          "totalCostOfMaterials": 50.00,
-            |          "totalGrossAmountPaid": 450.00,
-            |          "periodData": [
-            |            {
-            |              "deductionFromDate": "2020-04-06",
-            |              "deductionToDate": "2020-05-05",
-            |              "deductionAmount": 100,
-            |              "costOfMaterials": 50,
-            |              "grossAmountPaid": 450,
-            |              "submissionDate": "2020-05-11T16:38:57.489Z",
-            |              "submissionId": "submissionId",
-            |              "source": "customer"
-            |            }
-            |          ]
-            |        }
-            |      ]
-            |    },
-            |    "contractorCISDeductions": {
-            |      "totalDeductionAmount": 100,
-            |      "totalCostOfMaterials": 50,
-            |      "totalGrossAmountPaid": 450,
-            |      "cisDeductions": [
-            |        {
-            |          "fromDate": "2020-04-06",
-            |          "toDate": "2021-04-05",
-            |          "contractorName": "ABC Steelworks",
-            |          "employerRef": "123/AB123456",
-            |          "totalDeductionAmount": 100,
-            |          "totalCostOfMaterials": 50,
-            |          "totalGrossAmountPaid": 450,
-            |          "periodData": [
-            |            {
-            |              "deductionFromDate": "2020-04-06",
-            |              "deductionToDate": "2020-05-05",
-            |              "deductionAmount": 100,
-            |              "costOfMaterials": 50,
-            |              "grossAmountPaid": 450,
-            |              "submissionDate": "2020-05-11T16:38:57.489Z",
-            |              "submissionId": "submissionId",
-            |              "source": "customer"
-            |            }
-            |          ]
-            |        }
-            |      ]
-            |    }
-            |  }
-            |}""".stripMargin
+          s"""{
+             |  "cis": {
+             |    "customerCISDeductions": {
+             |      "totalDeductionAmount": 100.00,
+             |      "totalCostOfMaterials": 50.00,
+             |      "totalGrossAmountPaid": 450.00,
+             |      "cisDeductions": [
+             |        {
+             |          "fromDate": "${taxYearEOY - 3}-04-06",
+             |          "toDate": "${taxYearEOY - 2}-04-05",
+             |          "contractorName": "ABC Steelworks",
+             |          "employerRef": "123/AB123456",
+             |          "totalDeductionAmount": 100.00,
+             |          "totalCostOfMaterials": 50.00,
+             |          "totalGrossAmountPaid": 450.00,
+             |          "periodData": [
+             |            {
+             |              "deductionFromDate": "${taxYearEOY - 3}-04-06",
+             |              "deductionToDate": "${taxYearEOY - 3}-05-05",
+             |              "deductionAmount": 100,
+             |              "costOfMaterials": 50,
+             |              "grossAmountPaid": 450,
+             |              "submissionDate": "${taxYearEOY - 2}-05-11T16:38:57.489Z",
+             |              "submissionId": "submissionId",
+             |              "source": "customer"
+             |            }
+             |          ]
+             |        }
+             |      ]
+             |    },
+             |    "contractorCISDeductions": {
+             |      "totalDeductionAmount": 100,
+             |      "totalCostOfMaterials": 50,
+             |      "totalGrossAmountPaid": 450,
+             |      "cisDeductions": [
+             |        {
+             |          "fromDate": "${taxYearEOY - 3}-04-06",
+             |          "toDate": "${taxYearEOY - 2}-04-05",
+             |          "contractorName": "ABC Steelworks",
+             |          "employerRef": "123/AB123456",
+             |          "totalDeductionAmount": 100,
+             |          "totalCostOfMaterials": 50,
+             |          "totalGrossAmountPaid": 450,
+             |          "periodData": [
+             |            {
+             |              "deductionFromDate": "${taxYearEOY - 3}-04-06",
+             |              "deductionToDate": "${taxYearEOY - 3}-05-05",
+             |              "deductionAmount": 100,
+             |              "costOfMaterials": 50,
+             |              "grossAmountPaid": 450,
+             |              "submissionDate": "${taxYearEOY - 2}-05-11T16:38:57.489Z",
+             |              "submissionId": "submissionId",
+             |              "source": "customer"
+             |            }
+             |          ]
+             |        }
+             |      ]
+             |    }
+             |  }
+             |}""".stripMargin
 
-        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", OK,
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYearEOY", OK,
           expectedResponse, "X-Session-ID" -> aUser.sessionId, "mtditid" -> aUser.mtditid)
 
-        await(underTest.getUserData(aUser.nino, taxYear)) shouldBe Right(anIncomeTaxUserData)
+        await(underTest.getUserData(aUser.nino, taxYearEOY)) shouldBe Right(anIncomeTaxUserData)
       }
     }
 
@@ -116,38 +116,38 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
       "the header carrier not as expected" in {
         val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId("sessionIdValue"))).withExtraHeaders("mtditid" -> aUser.mtditid)
 
-        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", OK,
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYearEOY", OK,
           Json.toJson(anIncomeTaxUserData).toString(), "X-Session-ID" -> aUser.sessionId, "mtditid" -> aUser.mtditid)
 
-        await(underTest.getUserData(aUser.nino, taxYear)(hc)) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError))
+        await(underTest.getUserData(aUser.nino, taxYearEOY)(hc)) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError))
       }
 
       "submission returns a 200 but invalid json" in {
-        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", OK,
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYearEOY", OK,
           Json.toJson("""{"invalid": true}""").toString())
 
-        await(underTest.getUserData(aUser.nino, taxYear)) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError))
+        await(underTest.getUserData(aUser.nino, taxYearEOY)) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError))
       }
 
       "submission returns a 500" in {
-        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", INTERNAL_SERVER_ERROR,
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYearEOY", INTERNAL_SERVER_ERROR,
           """{"code": "FAILED", "reason": "failed"}""")
 
-        await(underTest.getUserData(aUser.nino, taxYear)) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("FAILED", "failed")))
+        await(underTest.getUserData(aUser.nino, taxYearEOY)) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("FAILED", "failed")))
       }
 
       "submission returns a 503" in {
-        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", SERVICE_UNAVAILABLE,
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYearEOY", SERVICE_UNAVAILABLE,
           """{"code": "FAILED", "reason": "failed"}""")
 
-        await(underTest.getUserData(aUser.nino, taxYear)) shouldBe Left(APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("FAILED", "failed")))
+        await(underTest.getUserData(aUser.nino, taxYearEOY)) shouldBe Left(APIErrorModel(SERVICE_UNAVAILABLE, APIErrorBodyModel("FAILED", "failed")))
       }
 
       "submission returns an unexpected result" in {
-        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYear", BAD_REQUEST,
+        stubGetWithHeadersCheck(s"/income-tax/nino/${aUser.nino}/sources/session\\?taxYear=$taxYearEOY", BAD_REQUEST,
           """{"code": "FAILED", "reason": "failed"}""")
 
-        await(underTest.getUserData(aUser.nino, taxYear)) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("FAILED", "failed")))
+        await(underTest.getUserData(aUser.nino, taxYearEOY)) shouldBe Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel("FAILED", "failed")))
       }
     }
   }

@@ -23,7 +23,6 @@ import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
 import repositories.CisUserDataRepositoryImpl
 import support.IntegrationTest
-import support.builders.models.submission.CISSubmissionBuilder.aCISSubmission
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.PeriodDataBuilder.aPeriodData
@@ -31,6 +30,7 @@ import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import support.builders.models.submission
+import support.builders.models.submission.CISSubmissionBuilder.aCISSubmission
 import utils.ViewHelpers
 
 class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
@@ -67,7 +67,7 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
-        val cisUrl = "/income-tax-cis/income-tax/nino/AA123456A/sources?taxYear=2022"
+        val cisUrl = s"/income-tax-cis/income-tax/nino/AA123456A/sources?taxYear=$taxYearEOY"
         val requestBody = Json.toJson(anUpdateCISSubmission.copy(
           periodData = Seq(submission.PeriodDataBuilder.aPeriodData)
         )).toString()
@@ -86,7 +86,7 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         insertCyaData(aCisUserData.copy(submissionId = None, isPriorSubmission = false, cis = aCisCYAModel.copy(priorPeriodData = Seq())))
-        val cisUrl = "/income-tax-cis/income-tax/nino/AA123456A/sources?taxYear=2022"
+        val cisUrl = s"/income-tax-cis/income-tax/nino/AA123456A/sources?taxYear=$taxYearEOY"
         val requestBody = Json.toJson(aCISSubmission).toString()
         stubPostWithoutResponseBody(cisUrl, OK, requestBody)
         urlPost(fullUrl(url(taxYearEOY, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),

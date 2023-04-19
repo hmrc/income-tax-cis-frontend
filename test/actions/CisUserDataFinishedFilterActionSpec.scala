@@ -19,6 +19,7 @@ package actions
 import controllers.routes.{ContractorDetailsController, DeductionPeriodController, LabourPayController}
 import models.mongo.CisUserData
 import play.api.mvc.Results.Redirect
+import support.TaxYearUtils.taxYearEOY
 import support.UnitTest
 import support.builders.models.UserSessionDataRequestBuilder.aUserSessionDataRequest
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
@@ -29,10 +30,9 @@ import scala.concurrent.ExecutionContext
 
 class CisUserDataFinishedFilterActionSpec extends UnitTest {
 
-  private val taxYear = 2022
   private val executionContext = ExecutionContext.global
 
-  private val underTest = CisUserDataFinishedFilterAction(taxYear)(executionContext)
+  private val underTest = CisUserDataFinishedFilterAction(taxYearEOY)(executionContext)
 
   ".executionContext" should {
     "return the given execution context" in {
@@ -51,7 +51,7 @@ class CisUserDataFinishedFilterActionSpec extends UnitTest {
         .copy(cis = aCisCYAModel.copy(periodData = Some(aCYAPeriodData.copy(costOfMaterials = None))))
 
       await(underTest.filter(aUserSessionDataRequest.copy(cisUserData = cisUserData))) shouldBe
-        Some(Redirect(ContractorDetailsController.show(cisUserData.taxYear, Some(cisUserData.employerRef)).url))
+        Some(Redirect(ContractorDetailsController.show(taxYearEOY, Some(cisUserData.employerRef)).url))
     }
 
     "return a redirect to Deduction Period page when contractorSubmitted is false and any of the data is missing" in {
@@ -59,7 +59,7 @@ class CisUserDataFinishedFilterActionSpec extends UnitTest {
         .copy(cis = aCisCYAModel.copy(periodData = Some(aCYAPeriodData.copy(contractorSubmitted = false, costOfMaterials = None))))
 
       await(underTest.filter(aUserSessionDataRequest.copy(cisUserData = cisUserData))) shouldBe
-        Some(Redirect(DeductionPeriodController.show(taxYear, cisUserData.employerRef).url))
+        Some(Redirect(DeductionPeriodController.show(taxYearEOY, cisUserData.employerRef).url))
     }
 
     "return a redirect to Labour pay page when contractorSubmitted is true and any of the data is missing" in {
@@ -68,7 +68,7 @@ class CisUserDataFinishedFilterActionSpec extends UnitTest {
       val month = cisUserData.cis.periodData.get.deductionPeriod.toString.toLowerCase()
 
       await(underTest.filter(aUserSessionDataRequest.copy(cisUserData = cisUserData))) shouldBe
-        Some(Redirect(LabourPayController.show(taxYear, month, cisUserData.employerRef).url))
+        Some(Redirect(LabourPayController.show(taxYearEOY, month, cisUserData.employerRef).url))
     }
   }
 }
