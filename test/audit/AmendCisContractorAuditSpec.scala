@@ -17,6 +17,7 @@
 package audit
 
 import play.api.libs.json.Json
+import support.TaxYearUtils.taxYearEOY
 import support.UnitTest
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
@@ -33,53 +34,53 @@ class AmendCisContractorAuditSpec extends UnitTest {
   "writes" should {
     "produce valid json when passed a AmendCisContractorAudit" in {
       val json = Json.parse(
-        """
-          |{
-          |  "taxYear": 2022,
-          |  "userType": "individual",
-          |  "nino": "AA123456A",
-          |  "mtditid": "1234567890",
-          |  "previousContractor": {
-          |    "contractorName": "ABC Steelworks",
-          |    "ern": "123/AB123456",
-          |    "deductionPeriods": [
-          |      {
-          |        "month": "MAY",
-          |        "labour": 450,
-          |        "cisDeduction": 100,
-          |        "paidForMaterials": true,
-          |        "materialsCost": 50
-          |      }
-          |    ],
-          |    "customerDeductionPeriods": [{
-          |        "month": "JUNE",
-          |        "labour": 300,
-          |        "cisDeduction": 200,
-          |        "paidForMaterials": true,
-          |        "materialsCost": 100
-          |      }]
-          |  },
-          |  "newContractor": {
-          |    "contractorName": "ABC Steelworks",
-          |    "ern": "123/AB123456",
-          |    "deductionPeriods": [
-          |      {
-          |        "month": "MAY",
-          |        "labour": 500,
-          |        "cisDeduction": 100,
-          |        "paidForMaterials": true,
-          |        "materialsCost": 250
-          |      }
-          |    ],
-          |    "customerDeductionPeriods": {
-          |        "month": "JULY",
-          |        "labour": 500,
-          |        "cisDeduction": 100,
-          |        "paidForMaterials": false
-          |      }
-          |  }
-          |}
-          |""".stripMargin)
+        s"""
+           |{
+           |  "taxYear": $taxYearEOY,
+           |  "userType": "individual",
+           |  "nino": "AA123456A",
+           |  "mtditid": "1234567890",
+           |  "previousContractor": {
+           |    "contractorName": "ABC Steelworks",
+           |    "ern": "123/AB123456",
+           |    "deductionPeriods": [
+           |      {
+           |        "month": "MAY",
+           |        "labour": 450,
+           |        "cisDeduction": 100,
+           |        "paidForMaterials": true,
+           |        "materialsCost": 50
+           |      }
+           |    ],
+           |    "customerDeductionPeriods": [{
+           |        "month": "JUNE",
+           |        "labour": 300,
+           |        "cisDeduction": 200,
+           |        "paidForMaterials": true,
+           |        "materialsCost": 100
+           |      }]
+           |  },
+           |  "newContractor": {
+           |    "contractorName": "ABC Steelworks",
+           |    "ern": "123/AB123456",
+           |    "deductionPeriods": [
+           |      {
+           |        "month": "MAY",
+           |        "labour": 500,
+           |        "cisDeduction": 100,
+           |        "paidForMaterials": true,
+           |        "materialsCost": 250
+           |      }
+           |    ],
+           |    "customerDeductionPeriods": {
+           |        "month": "JULY",
+           |        "labour": 500,
+           |        "cisDeduction": 100,
+           |        "paidForMaterials": false
+           |      }
+           |  }
+           |}
+           |""".stripMargin)
 
       val audit = anAmendCisContractorAudit.copy(
         previousContractor = aPreviousCisContractor.copy(
@@ -99,7 +100,7 @@ class AmendCisContractorAuditSpec extends UnitTest {
   ".apply" should {
     "return an AmendCisContractorAudit case class" in {
       AmendCisContractorAudit.apply(
-        taxYear = 2022,
+        taxYear = taxYearEOY,
         employerRef = aCisUserData.employerRef,
         user = aUser,
         cisUserData = aCisUserData,

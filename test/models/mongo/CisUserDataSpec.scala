@@ -19,6 +19,7 @@ package models.mongo
 import models.submission.{CISSubmission, PeriodData}
 import org.joda.time.DateTime
 import org.scalamock.scalatest.MockFactory
+import support.TaxYearUtils.taxYearEOY
 import support.UnitTest
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
@@ -50,15 +51,15 @@ class CisUserDataSpec extends UnitTest
       underTest.toSubmission shouldBe Some(
         CISSubmission(None, None, List(
           PeriodData(
-            deductionFromDate = "2021-04-06",
-            deductionToDate = "2021-05-05",
+            deductionFromDate = s"${taxYearEOY - 1}-04-06",
+            deductionToDate = s"${taxYearEOY - 1}-05-05",
             grossAmountPaid = Some(500.0),
             deductionAmount = 100.0,
             costOfMaterials = Some(250.0)
           ),
           PeriodData(
-            deductionFromDate = "2021-10-06",
-            deductionToDate = "2021-11-05",
+            deductionFromDate = s"${taxYearEOY - 1}-10-06",
+            deductionToDate = s"${taxYearEOY - 1}-11-05",
             grossAmountPaid = Some(500.0),
             deductionAmount = 100.0,
             costOfMaterials = Some(250.0)

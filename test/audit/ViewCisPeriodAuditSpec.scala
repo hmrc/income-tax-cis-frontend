@@ -17,6 +17,7 @@
 package audit
 
 import play.api.libs.json.Json
+import support.TaxYearUtils.{taxYear, taxYearEOY}
 import support.UnitTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.PeriodDataBuilder.aPeriodData
@@ -25,7 +26,6 @@ import support.builders.models.audit.ContractorDetailsAndPeriodDataBuilder.aCont
 import support.builders.models.audit.ViewCisPeriodAuditBuilder.aViewCisPeriodAudit
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.TaxYearUtils.{taxYear, taxYearEOY}
 
 import java.time.Month
 
@@ -39,7 +39,7 @@ class ViewCisPeriodAuditSpec extends UnitTest {
         deductions = aCisDeductions,
         deductionMonth = aPeriodData.deductionPeriod) shouldBe Some(aViewCisPeriodAudit)
     }
-    "return None when cisPeriod is None" in{
+    "return None when cisPeriod is None" in {
       ViewCisPeriodAudit.mapFrom(
         taxYear = taxYear,
         user = aUser,
@@ -48,47 +48,47 @@ class ViewCisPeriodAuditSpec extends UnitTest {
     }
   }
 
-    ".mapFrom(taxYear, user, cisUserData)" should {
-      "return a ViewCisPeriodAudit case class when cisPeriod is defined" in {
-        ViewCisPeriodAudit.mapFrom(
-          taxYear = taxYearEOY,
-          user = aUser,
-          cisUserData = aCisUserData) shouldBe Some(aViewCisPeriodAudit.copy(taxYear = taxYearEOY,
-            cisPeriod = aContractorDetailsAndPeriodData.copy(labour = Some(500), materialsCost = Some(250))
-        ))
-      }
-      "return None when cisPeriod is None" in {
-        ViewCisPeriodAudit.mapFrom(
-          taxYear = taxYearEOY,
-          user = aUser,
-          cisUserData = aCisUserData.copy(cis = aCisCYAModel.copy(periodData = None))) shouldBe None
-      }
+  ".mapFrom(taxYear, user, cisUserData)" should {
+    "return a ViewCisPeriodAudit case class when cisPeriod is defined" in {
+      ViewCisPeriodAudit.mapFrom(
+        taxYear = taxYearEOY,
+        user = aUser,
+        cisUserData = aCisUserData) shouldBe Some(aViewCisPeriodAudit.copy(taxYear = taxYearEOY,
+        cisPeriod = aContractorDetailsAndPeriodData.copy(labour = Some(500), materialsCost = Some(250))
+      ))
     }
+    "return None when cisPeriod is None" in {
+      ViewCisPeriodAudit.mapFrom(
+        taxYear = taxYearEOY,
+        user = aUser,
+        cisUserData = aCisUserData.copy(cis = aCisCYAModel.copy(periodData = None))) shouldBe None
+    }
+  }
 
   "writes" should {
     "produce valid json when passed a ViewCisPeriodAudit" in {
       val cisPeriodJson = Json.parse(
-        """
-          |{
-          |  "taxYear": 2023,
-          |  "userType": "individual",
-          |  "nino": "AA123456A",
-          |  "mtditid": "1234567890",
-          |  "cisPeriod": {
-          |    "name": "ABC Steelworks",
-          |    "ern": "123/AB123456",
-          |    "month": "MAY",
-          |    "labour": 100,
-          |    "cisDeduction": 200,
-          |    "paidForMaterials": true,
-          |    "materialsCost": 300
-          |  }
-          |}
-          |""".stripMargin
+        s"""
+           |{
+           |  "taxYear": $taxYear,
+           |  "userType": "individual",
+           |  "nino": "AA123456A",
+           |  "mtditid": "1234567890",
+           |  "cisPeriod": {
+           |    "name": "ABC Steelworks",
+           |    "ern": "123/AB123456",
+           |    "month": "MAY",
+           |    "labour": 100,
+           |    "cisDeduction": 200,
+           |    "paidForMaterials": true,
+           |    "materialsCost": 300
+           |  }
+           |}
+           |""".stripMargin
       )
 
       val audit = ViewCisPeriodAudit.mapFrom(
-        taxYear = 2023,
+        taxYear = taxYear,
         user = aUser,
         deductions = aCisDeductions.copy(periodData = Seq(aPeriodData.copy(
           grossAmountPaid = Some(100),

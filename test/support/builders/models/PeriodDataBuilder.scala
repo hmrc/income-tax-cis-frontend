@@ -18,6 +18,7 @@ package support.builders.models
 
 import models.PeriodData
 import play.api.libs.json.{JsObject, Json}
+import support.TaxYearUtils.taxYearEOY
 
 import java.time.{LocalDate, Month}
 
@@ -28,7 +29,7 @@ object PeriodDataBuilder {
     deductionAmount = Some(100.00),
     costOfMaterials = Some(50.00),
     grossAmountPaid = Some(450.00),
-    submissionDate = "2020-05-11T16:38:57.489Z",
+    submissionDate = s"${taxYearEOY - 2}-05-11T16:38:57.489Z",
     submissionId = Some("submissionId"),
     source = "customer"
   )

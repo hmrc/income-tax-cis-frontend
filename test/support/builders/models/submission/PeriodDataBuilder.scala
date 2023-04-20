@@ -17,11 +17,12 @@
 package support.builders.models.submission
 
 import models.submission.PeriodData
+import support.TaxYearUtils.taxYearEOY
 
 object PeriodDataBuilder {
   val aPeriodData: PeriodData = PeriodData(
-    deductionFromDate = "2021-04-06",
-    deductionToDate = "2021-05-05",
+    deductionFromDate = s"${taxYearEOY - 1}-04-06",
+    deductionToDate = s"${taxYearEOY - 1}-05-05",
     grossAmountPaid = Some(500),
     deductionAmount = 100,
     costOfMaterials = Some(250)

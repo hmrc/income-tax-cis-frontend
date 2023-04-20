@@ -17,12 +17,12 @@
 package models
 
 import models.submission.CISSubmission
-import support.{TaxYearProvider, UnitTest}
 import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions
 import support.builders.models.CISSourceBuilder.aCISSource
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.PeriodDataBuilder.aPeriodData
+import support.{TaxYearProvider, UnitTest}
 
 import java.time.Month
 
@@ -32,18 +32,18 @@ class IncomeTaxUserDataSpec extends UnitTest with TaxYearProvider {
     "return false when no data" in {
       val underTest = anIncomeTaxUserData.copy(cis = None)
 
-      underTest.hasExclusivelyCustomerEoyCisDeductionsWith(aCisDeductions.employerRef,aPeriodData.deductionPeriod) shouldBe false
+      underTest.hasExclusivelyCustomerEoyCisDeductionsWith(aCisDeductions.employerRef, aPeriodData.deductionPeriod) shouldBe false
     }
     "return false when only contractor data" in {
       val underTest = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(customerCISDeductions = None)))
 
-      underTest.hasExclusivelyCustomerEoyCisDeductionsWith(aCisDeductions.employerRef,aPeriodData.deductionPeriod) shouldBe false
+      underTest.hasExclusivelyCustomerEoyCisDeductionsWith(aCisDeductions.employerRef, aPeriodData.deductionPeriod) shouldBe false
     }
 
     "return true when only customer data" in {
       val underTest = anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = None)))
 
-      underTest.hasExclusivelyCustomerEoyCisDeductionsWith(aCisDeductions.employerRef,aPeriodData.deductionPeriod) shouldBe true
+      underTest.hasExclusivelyCustomerEoyCisDeductionsWith(aCisDeductions.employerRef, aPeriodData.deductionPeriod) shouldBe true
     }
   }
 
@@ -60,7 +60,7 @@ class IncomeTaxUserDataSpec extends UnitTest with TaxYearProvider {
     "return none when no data" in {
       val underTest = anIncomeTaxUserData.copy(cis = None)
 
-      underTest.toSubmissionWithoutPeriod(aCisDeductions.employerRef,aPeriodData.deductionPeriod, taxYearEOY) shouldBe None
+      underTest.toSubmissionWithoutPeriod(aCisDeductions.employerRef, aPeriodData.deductionPeriod, taxYearEOY) shouldBe None
     }
     "return a submission model without the selected month" in {
 
@@ -74,15 +74,15 @@ class IncomeTaxUserDataSpec extends UnitTest with TaxYearProvider {
         cis = Some(allCISDeductions)
       )
 
-      underTest.toSubmissionWithoutPeriod("ref-2",Month.MAY, taxYearEOY) shouldBe Some(
+      underTest.toSubmissionWithoutPeriod("ref-2", Month.MAY, taxYearEOY) shouldBe Some(
         CISSubmission(
-          None,None,List(submission.PeriodData(
-            deductionFromDate = "2021-06-06",
-            deductionToDate = "2021-07-05",
+          None, None, List(submission.PeriodData(
+            deductionFromDate = s"${taxYearEOY - 1}-06-06",
+            deductionToDate = s"${taxYearEOY - 1}-07-05",
             grossAmountPaid = Some(450.0),
             deductionAmount = 100.0,
             costOfMaterials = Some(50.0)
-          )),Some("submissionId")
+          )), Some("submissionId")
         )
       )
     }
@@ -295,7 +295,7 @@ class IncomeTaxUserDataSpec extends UnitTest with TaxYearProvider {
           contractorCISDeductions = Some(aCISSource.copy(
             cisDeductions = Seq(
               aCisDeductions.copy(
-                periodData = Seq(aPeriodData, aPeriodData.copy(deductionPeriod = Month.DECEMBER, submissionDate = "2021-05-11T16:38:57.489Z"))
+                periodData = Seq(aPeriodData, aPeriodData.copy(deductionPeriod = Month.DECEMBER, submissionDate = s"${taxYearEOY - 1}-05-11T16:38:57.489Z"))
               )
             )
           ))
@@ -306,7 +306,7 @@ class IncomeTaxUserDataSpec extends UnitTest with TaxYearProvider {
         totalDeductionAmount = Some(200.00),
         totalCostOfMaterials = Some(100.00),
         totalGrossAmountPaid = Some(900.00),
-        periodData = Seq(aPeriodData, aPeriodData.copy(deductionPeriod = Month.DECEMBER, submissionDate = "2021-05-11T16:38:57.489Z"))
+        periodData = Seq(aPeriodData, aPeriodData.copy(deductionPeriod = Month.DECEMBER, submissionDate = s"${taxYearEOY - 1}-05-11T16:38:57.489Z"))
       ))
     }
 
