@@ -71,6 +71,11 @@ POST      /:taxYear/materials-amount                                            
 GET        /:taxYear/materials                                                      controllers.MaterialsController.show(taxYear: Int, month: String, contractor: String)
 POST       /:taxYear/materials                                                      controllers.MaterialsController.submit(taxYear: Int, month: String, contractor: String)
 
+###########################     Materials Question pages           ########################
+
+GET        /:taxYear/remove-all-cis                                                 controllers.TailorCisWarningController.show(taxYear: Int)
+POST       /:taxYear/remove-all-cis                                                 controllers.TailorCisWarningController.submit(taxYear: Int)
+
 
 ###########################     Error pages     ####################################
 

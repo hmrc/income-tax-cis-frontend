@@ -171,6 +171,14 @@ contractor-details.employer-ref.error.noEntry = Nodwch Gyfeirnod y Cyflogwr
 contractor-details.employer-ref.error.wrongFormat = Nodwch Gyfeirnod y Cyflogwr yn y fformat cywir
 contractor-details.employer-ref.error.duplicate = Ni allwch ychwanegu Cyfeirnod y Cyflogwr hwn eto. Nodwch Gyfeirnod y Cyflogwr newydd
 
+#################       Tailor cis messages        ########################################
+
+tailorCis.title = A ydych yn siŵr eich bod am newid didyniadau CIS ar gyfer y flwyddyn dreth?
+tailorCis.p1 = Os ydych yn gwneud newid, bydd yr wybodaeth rydych wedi’i nodi’n cael ei dileu.
+tailorCis.p2 = Ni allwch ddileu gwybodaeth sydd eisoes gennym. Ni fyddwn yn defnyddio’r manylion hyn i gyfrifo’ch Ffurflen Dreth Incwm ar gyfer y flwyddyn dreth hon.
+tailorCis.p3 = Byddwch yn dal i weld rhywfaint o fanylion, ond bydd yr holl symiau’n cael eu gosod i £0.
+tailorCis.button = Cadarnhau
+
 #################       Materials Page       #######################################
 materialsPage.title.agent = A wnaeth eich cleient dalu am ddeunyddiau adeiladu ar y contract hwn?
 materialsPage.title.individual = A wnaethoch dalu am ddeunyddiau adeiladu ar y contract hwn?

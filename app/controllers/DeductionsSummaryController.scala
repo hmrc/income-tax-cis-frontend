@@ -17,23 +17,35 @@
 package controllers
 
 import actions.ActionsProvider
-import config.AppConfig
+import config.{AppConfig, ErrorHandler}
 import models.pages.DeductionsSummaryPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.TailoringService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.{InYearUtil, SessionHelper}
 import views.html.DeductionsSummaryView
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class DeductionsSummaryController @Inject()(actionsProvider: ActionsProvider,
                                             inYearUtil: InYearUtil,
-                                            pageView: DeductionsSummaryView)
-                                           (implicit cc: MessagesControllerComponents, appConfig: AppConfig)
+                                            pageView: DeductionsSummaryView,
+                                            tailoringService: TailoringService,
+                                            errorHandler: ErrorHandler)
+                                           (implicit cc: MessagesControllerComponents, appConfig: AppConfig, executionContext: ExecutionContext)
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
-  def show(taxYear: Int): Action[AnyContent] = actionsProvider.priorCisDeductionsData(taxYear) { implicit request =>
-    Ok(pageView(DeductionsSummaryPage(taxYear, inYearUtil.inYear(taxYear), request.incomeTaxUserData)))
+  def show(taxYear: Int): Action[AnyContent] = actionsProvider.priorCisDeductionsData(taxYear).async { implicit request =>
+    if (appConfig.tailoringEnabled){
+      tailoringService.getExcludedJourneys(taxYear = taxYear, request.user.nino, request.user.mtditid).map {
+        case Left(_) => errorHandler.internalServerError()
+        case Right(result) =>
+          Ok(pageView(DeductionsSummaryPage(taxYear, inYearUtil.inYear(taxYear), !result.journeys.map(_.journey).contains("cis"), request.incomeTaxUserData)))
+      }
+    } else{
+      Future.successful(Ok(pageView(DeductionsSummaryPage(taxYear, inYearUtil.inYear(taxYear), gateway = false, request.incomeTaxUserData))))
+    }
   }
 }

@@ -20,17 +20,18 @@ import play.api.http.Status.OK
 import play.api.test.Helpers.{contentType, status}
 import support.ControllerUnitTest
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
-import support.mocks.{MockActionsProvider, MockErrorHandler}
+import support.mocks.{MockActionsProvider, MockErrorHandler, MockTailoringService}
 import utils.InYearUtil
 import views.html.DeductionsSummaryView
 
 class DeductionsSummaryControllerSpec extends ControllerUnitTest
   with MockActionsProvider
+  with MockTailoringService
   with MockErrorHandler {
 
   private val pageView = inject[DeductionsSummaryView]
 
-  private val underTest = new DeductionsSummaryController(mockActionsProvider, new InYearUtil(), pageView)
+  private val underTest = new DeductionsSummaryController(mockActionsProvider, new InYearUtil(), pageView, mockTailoringService, mockErrorHandler)
 
   ".show" should {
     "return successful response when in year" in {

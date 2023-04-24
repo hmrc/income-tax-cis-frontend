@@ -21,6 +21,7 @@ import connectors.CISConnector
 import models._
 import models.mongo.CisUserData
 import models.nrs.{AmendCisContractorPayload, CreateCisContractorPayload}
+import models.submission.CISSubmission
 import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
@@ -51,6 +52,20 @@ class ContractorCYAService @Inject()(cisSessionService: CISSessionService,
         }
       case None => Future.successful(Left(InvalidOrUnfinishedSubmission))
     }
+  }
+
+  def submitZeroCisDeductionTailor(taxYear: Int,
+                            employerRef: String,
+                            user: User,
+                            cisData: CISSubmission)(implicit hc: HeaderCarrier): Future[Either[ServiceError, Unit]] = {
+        cisConnector.submit(user.nino, taxYear, cisData)(hc.withExtraHeaders(headers = "mtditid" -> user.mtditid)).flatMap {
+          case Left(error) => Future.successful(Left(HttpParserError(error.status)))
+          case Right(_) =>
+            val refreshAndClearFuture = cisSessionService.refreshAndClear(user, employerRef, taxYear)
+            for {
+              result <- refreshAndClearFuture
+            } yield result
+        }
   }
 
   private def handleAuditAndNrs(taxYear: Int, employerRef: String, user: User, cisUserData: CisUserData)

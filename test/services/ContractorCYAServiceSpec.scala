@@ -49,7 +49,7 @@ class ContractorCYAServiceSpec extends UnitTest
   private val updateCisSubmission = aCISSubmission.copy(
     employerRef = None,
     contractorName = None,
-    periodData = Seq(aPeriodData, aPeriodData.copy(deductionFromDate = s"${taxYearEOY - 1}-10-06", deductionToDate = s"${taxYearEOY - 1}-11-05")),
+    periodData = Seq(aPeriodData, aPeriodData.copy(deductionFromDate = s"$taxYearEndOfYearMinusOne-10-06", deductionToDate = s"$taxYearEndOfYearMinusOne-11-05")),
     submissionId = Some("submissionId")
   )
 
@@ -93,7 +93,7 @@ class ContractorCYAServiceSpec extends UnitTest
       mockSendAudit(audit.toAuditModel)
       mockSendNrs(createCisContractor)
       mockSubmit(aUser.nino, taxYearEOY, aCISSubmission.copy(
-        periodData = Seq(aPeriodData.copy(deductionFromDate = s"${taxYearEOY - 1}-10-06", deductionToDate = s"${taxYearEOY - 1}-11-05"))
+        periodData = Seq(aPeriodData.copy(deductionFromDate = s"$taxYearEndOfYearMinusOne-10-06", deductionToDate = s"$taxYearEndOfYearMinusOne-11-05"))
       ), Right(()))
       mockRefreshAndClear(taxYearEOY, aCisUserData.employerRef, result = Right(()))
 

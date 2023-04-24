@@ -30,24 +30,24 @@ class CreateNewCisContractorAuditSpec extends UnitTest {
     "produce valid json when passed a CreateNewCisContractorAudit" in {
       val json = Json.parse(
         s"""
-           |{
-           |  "taxYear": $taxYearEOY,
-           |  "userType": "individual",
-           |  "nino": "AA123456A",
-           |  "mtditid": "1234567890",
-           |  "contractor": {
-           |    "contractorName": "ABC Steelworks",
-           |    "ern": "123/AB123456",
-           |    "customerDeductionPeriod": {
-           |        "month": "MAY",
-           |        "labour": 500,
-           |        "cisDeduction": 100,
-           |        "paidForMaterials": true,
-           |        "materialsCost": 250
-           |      }
-           |  }
-           |}
-           |""".stripMargin
+          |{
+          |  "taxYear": $taxYearEOY,
+          |  "userType": "individual",
+          |  "nino": "AA123456A",
+          |  "mtditid": "1234567890",
+          |  "contractor": {
+          |    "contractorName": "ABC Steelworks",
+          |    "ern": "123/AB123456",
+          |    "customerDeductionPeriod": {
+          |        "month": "MAY",
+          |        "labour": 500,
+          |        "cisDeduction": 100,
+          |        "paidForMaterials": true,
+          |        "materialsCost": 250
+          |      }
+          |  }
+          |}
+          |""".stripMargin
       )
 
       Json.toJson(aCreateNewCisContractorAudit) shouldBe json

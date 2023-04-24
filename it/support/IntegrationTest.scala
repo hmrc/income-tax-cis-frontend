@@ -22,11 +22,14 @@ import common.SessionValues
 import config.AppConfig
 import helpers.{PlaySessionCookieBaker, WireMockHelper, WiremockStubHelpers}
 import models.IncomeTaxUserData
+import models.tailoring.ExcludedJourneysResponseModel
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.http.Status.NO_CONTENT
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc.Result
 import play.api.test.Helpers.OK
@@ -68,12 +71,20 @@ trait IntegrationTest extends AnyWordSpec
     "microservice.services.income-tax-nrs-proxy.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
     "taxYearErrorFeatureSwitch" -> "false",
-    "useEncryption" -> "true"
+    "useEncryption" -> "true",
+    "feature-switch.tailoringEnabled" -> "false"
   )
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
     .in(Environment.simple(mode = Mode.Dev))
     .configure(config)
+    .build()
+
+  protected val configWithTailoringEnabled: Map[String, String] = config ++ Map("feature-switch.tailoringEnabled" -> "true")
+
+  lazy val appWithTailoring: Application = new GuiceApplicationBuilder()
+    .in(Environment.simple(mode = Mode.Dev))
+    .configure(configWithTailoringEnabled)
     .build()
 
   override def beforeAll(): Unit = {
@@ -111,6 +122,30 @@ trait IntegrationTest extends AnyWordSpec
       responseBody = IncomeTaxUserDataBuilder.mapToJsonWrite(userData)(taxYear).toString(),
       sessionHeader = "X-Session-ID" -> aUser.sessionId,
       mtdidHeader = "mtditid" -> aUser.mtditid
+    )
+  }
+
+  protected def excludeStub(userData: ExcludedJourneysResponseModel, nino: String, taxYear: Int): StubMapping = {
+    stubGetWithHeadersCheck(
+      url = s"/income-tax-submission-service/income-tax/nino/$nino/sources/excluded-journeys/$taxYear",
+      status = OK,
+      responseBody = Json.toJson(userData).toString(),
+      sessionHeader = "X-Session-ID" -> aUser.sessionId,
+      mtdidHeader = "mtditid" -> aUser.mtditid
+    )
+  }
+
+  protected def excludeClearStub(nino: String, taxYear: Int): StubMapping = {
+    stubPostWithoutResponseAndRequestBody(
+      url = s"/income-tax-submission-service/income-tax/nino/$nino/sources/clear-excluded-journeys/$taxYear",
+      status = NO_CONTENT,
+    )
+  }
+
+  protected def excludePostStub(nino: String, taxYear: Int): StubMapping = {
+    stubPostWithoutResponseAndRequestBody(
+      url = s"/income-tax-submission-service/income-tax/nino/$nino/sources/exclude-journey/$taxYear",
+      status = NO_CONTENT,
     )
   }
 }

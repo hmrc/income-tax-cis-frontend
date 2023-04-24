@@ -41,24 +41,24 @@ class DeleteCisPeriodAuditSpec extends UnitTest {
     "produce valid json when passed a DeleteCisPeriodAudit" in {
       val json = Json.parse(
         s"""
-           |{
-           |  "taxYear": $taxYearEOY,
-           |  "userType": "individual",
-           |  "nino": "AA123456A",
-           |  "mtditid": "1234567890",
-           |  "deletedCisPeriod": {
-           |    "contractorDetails": {
-           |      "name": "ABC Steelworks",
-           |      "ern": "123/AB123456"
-           |    },
-           |    "month": "MAY",
-           |    "labour": 450,
-           |    "cisDeduction" : 100,
-           |    "paidForMaterials": true,
-           |    "materialsCost": 50
-           |  }
-           |}
-           |""".stripMargin
+          |{
+          |  "taxYear": $taxYearEOY,
+          |  "userType": "individual",
+          |  "nino": "AA123456A",
+          |  "mtditid": "1234567890",
+          |  "deletedCisPeriod": {
+          |    "contractorDetails": {
+          |      "name": "ABC Steelworks",
+          |      "ern": "123/AB123456"
+          |    },
+          |    "month": "MAY",
+          |    "labour": 450,
+          |    "cisDeduction" : 100,
+          |    "paidForMaterials": true,
+          |    "materialsCost": 50
+          |  }
+          |}
+          |""".stripMargin
       )
 
       Json.toJson(aDeleteCisPeriodAudit) shouldBe json

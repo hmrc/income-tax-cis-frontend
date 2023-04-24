@@ -30,8 +30,8 @@ class DeductionsSummaryPageSpec extends UnitTest {
 
   ".apply(...)" should {
     "return page with empty deductions when cis is None" in {
-      DeductionsSummaryPage.apply(anyTaxYear, isInYear = anyBoolean, anIncomeTaxUserData.copy(cis = None)) shouldBe
-        DeductionsSummaryPage(anyTaxYear, isInYear = anyBoolean, Seq.empty)
+      DeductionsSummaryPage.apply(anyTaxYear, isInYear = anyBoolean, gateway = true, anIncomeTaxUserData.copy(cis = None)) shouldBe
+        DeductionsSummaryPage(anyTaxYear, isInYear = anyBoolean, gateway = true, Seq.empty)
     }
 
     "return a page with in year deductions only when in year" in {
@@ -42,9 +42,10 @@ class DeductionsSummaryPageSpec extends UnitTest {
         contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(aCisDeductions1, aCisDeductions2)))
       )
 
-      DeductionsSummaryPage.apply(anyTaxYear, isInYear = true, anIncomeTaxUserData.copy(cis = Some(allCISDeductions))) shouldBe DeductionsSummaryPage(
+      DeductionsSummaryPage.apply(anyTaxYear, isInYear = true, gateway = true, anIncomeTaxUserData.copy(cis = Some(allCISDeductions))) shouldBe DeductionsSummaryPage(
         anyTaxYear,
         isInYear = true,
+        gateway = true,
         deductions = Seq(
           aContractorDeductionToDate.copy(aCisDeductions1.contractorName, aCisDeductions1.employerRef, aCisDeductions1.totalDeductionAmount),
           aContractorDeductionToDate.copy(aCisDeductions2.contractorName, aCisDeductions2.employerRef, aCisDeductions2.totalDeductionAmount)
@@ -60,9 +61,10 @@ class DeductionsSummaryPageSpec extends UnitTest {
         contractorCISDeductions = Some(aCISSource.copy(cisDeductions = Seq(aCisDeductions1, aCisDeductions2)))
       )
 
-      DeductionsSummaryPage.apply(anyTaxYear, isInYear = false, anIncomeTaxUserData.copy(cis = Some(allCISDeductions))) shouldBe DeductionsSummaryPage(
+      DeductionsSummaryPage.apply(anyTaxYear, isInYear = false, gateway = true, anIncomeTaxUserData.copy(cis = Some(allCISDeductions))) shouldBe DeductionsSummaryPage(
         anyTaxYear,
         isInYear = false,
+        gateway = true,
         deductions = Seq(
           aContractorDeductionToDate.copy(aCisDeductions.contractorName, aCisDeductions.employerRef, aCisDeductions.totalDeductionAmount),
           aContractorDeductionToDate.copy(aCisDeductions1.contractorName, aCisDeductions1.employerRef, aCisDeductions1.totalDeductionAmount),

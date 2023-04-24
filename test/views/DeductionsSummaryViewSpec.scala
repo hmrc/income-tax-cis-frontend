@@ -120,7 +120,7 @@ class DeductionsSummaryViewSpec extends ViewUnitTest {
     ContractorDeductionToDate(Some("Contractor-3"), "ref-3", None),
   )
 
-  private val pageModel = DeductionsSummaryPage(taxYear, isInYear = true, deductions)
+  private val pageModel = DeductionsSummaryPage(taxYear, isInYear = true, gateway =  true, deductions )
 
   private lazy val underTest = inject[DeductionsSummaryView]
 

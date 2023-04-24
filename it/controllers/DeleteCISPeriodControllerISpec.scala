@@ -18,6 +18,7 @@ package controllers
 
 import controllers.routes.ContractorSummaryController
 import forms.AmountForm
+import models.tailoring.ExcludedJourneysResponseModel
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
 import play.api.http.Status.{NO_CONTENT, OK, SEE_OTHER}
@@ -88,7 +89,8 @@ class DeleteCISPeriodControllerISpec extends IntegrationTest
       lazy val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData.copy(cis = Some(anAllCISDeductions.copy(contractorCISDeductions = None))), aUser.nino, taxYearEOY)
-        stubDeleteWithoutResponseBody(s"/income-tax-cis/income-tax/nino/AA123456A/sources/submissionId\\?taxYear=$taxYearEOY", NO_CONTENT)
+        excludeStub(ExcludedJourneysResponseModel(Seq()),aUser.nino, taxYearEOY)
+        stubDeleteWithoutResponseBody(s"/income-tax-cis/income-tax/nino/AA123456A/sources/submissionId\\?taxYear=$taxYearEOY",NO_CONTENT)
         urlPost(fullUrl(url(taxYearEOY, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
           headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = Json.obj())
       }
