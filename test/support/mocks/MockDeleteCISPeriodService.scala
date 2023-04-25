@@ -39,4 +39,12 @@ trait MockDeleteCISPeriodService extends MockFactory {
       .expects(taxYear, employerRef, user, deductionPeriod, incomeTaxUserData, *)
       .returns(Future.successful(result))
   }
+  def mockRemoveCISDeductionTailoring(taxYear: Int,
+                             user: User,
+                             incomeTaxUserData: IncomeTaxUserData,
+                             result: Either[ServiceError, Unit]): CallHandler6[Int, String, User, Month, IncomeTaxUserData, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
+    (mockService.removeCisDeduction(_: Int, _: String, _: User, _: Month, _: IncomeTaxUserData)(_: HeaderCarrier))
+      .expects(taxYear, *, user, *, incomeTaxUserData, *)
+      .returns(Future.successful(result)).anyNumberOfTimes()
+  }
 }

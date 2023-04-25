@@ -25,6 +25,7 @@ object DeductionsSummaryPageBuilder {
   val aDeductionsSummaryPage: DeductionsSummaryPage = DeductionsSummaryPage(
     taxYear = TaxYearUtils.taxYear,
     isInYear = true,
+    gateway = true,
     deductions = Seq(
       aContractorDeductionToDate.copy(contractorName = Some("contractor-name-1"), employerRef = "ref-1", amount = Some(100.0)),
       aContractorDeductionToDate.copy(contractorName = Some("contractor-name-2"), employerRef = "ref-2", amount = Some(200.0))

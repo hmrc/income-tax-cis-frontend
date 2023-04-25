@@ -16,7 +16,8 @@
 
 package models
 
-import models.mongo.{CYAPeriodData, CisCYAModel}
+import models.mongo.{CYAPeriodData, CisCYAModel, CisUserData}
+import models.submission.CISSubmission
 import play.api.libs.json.{Json, OFormat}
 
 import java.time.Month
@@ -29,6 +30,14 @@ case class CisDeductions(fromDate: String,
                          totalCostOfMaterials: Option[BigDecimal],
                          totalGrossAmountPaid: Option[BigDecimal],
                          periodData: Seq[PeriodData]) {
+  def toCISSubmission(taxYear: Int): CISSubmission = {
+    CISSubmission(
+      employerRef = Some(employerRef),
+      contractorName = contractorName,
+      periodData = this.periodData.map(_.toZeroSubmissionPeriodData(taxYear)),
+      submissionId = this.periodData.map(_.submissionId).head
+    )
+  }
 
   private def isLaterInTaxYear(p: PeriodData): Boolean = p.deductionPeriod == Month.JANUARY ||
     p.deductionPeriod == Month.FEBRUARY ||

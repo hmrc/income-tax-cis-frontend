@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package models
+package models.tailoring
 
-trait ServiceError
+import play.api.libs.json.{Json, OFormat}
 
-case class HttpParserError(status: Int) extends ServiceError
-case object EmptyPriorCisDataError extends ServiceError
-case object InvalidOrUnfinishedSubmission extends ServiceError
-case object FailedTailoringRemoveDeductionError extends ServiceError
-case object FailedTailoringOverrideDeductionError extends ServiceError
+
+case class ExcludeJourneyModel(journey: String, hash: Option[String])
+
+object ExcludeJourneyModel {
+  implicit val formats: OFormat[ExcludeJourneyModel] = Json.format[ExcludeJourneyModel]
+}

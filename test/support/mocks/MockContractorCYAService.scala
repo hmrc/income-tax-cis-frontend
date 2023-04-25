@@ -17,6 +17,7 @@
 package support.mocks
 
 import models.mongo.CisUserData
+import models.submission.CISSubmission
 import models.{ServiceError, User}
 import org.scalamock.handlers.CallHandler5
 import org.scalamock.scalatest.MockFactory
@@ -37,5 +38,12 @@ trait MockContractorCYAService extends MockFactory {
     (mockContractorCYAService.submitCisDeductionCYA(_: Int, _: String, _: User, _: CisUserData)(_: HeaderCarrier))
       .expects(taxYear, employerRef, user, cisUserData, *)
       .returns(Future.successful(result))
+  }
+  def mockSubmitCisDeductionCYATailoring(taxYear: Int,
+                                user: User,
+                                result: Either[ServiceError, Unit]): CallHandler5[Int, String, User, CISSubmission, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
+    (mockContractorCYAService.submitZeroCisDeductionTailor(_: Int, _: String, _: User, _: CISSubmission)(_: HeaderCarrier))
+      .expects(taxYear, *, user, *, *)
+      .returns(Future.successful(result)).anyNumberOfTimes()
   }
 }

@@ -17,6 +17,7 @@
 package controllers
 
 import models.submission.CISSubmission
+import models.tailoring.ExcludedJourneysResponseModel
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.json.Json
@@ -54,6 +55,7 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
       val result: WSResponse = {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYear)
+        excludeStub(ExcludedJourneysResponseModel(Seq()),aUser.nino, taxYear)
         urlGet(fullUrl(url(taxYear, month = aPeriodData.deductionPeriod.toString, employerRef = aCisDeductions.employerRef)),
           headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYear)))
       }

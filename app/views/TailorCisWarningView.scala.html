@@ -1,0 +1,64 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import java.time.LocalDate
+@import controllers.routes.TailorCisWarningController
+@import controllers.routes.DeductionsSummaryController
+@import views.html.templates.Layout
+@import views.html.templates.helpers.{Heading, Link}
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukInsetText
+
+@this(
+    layout: Layout,
+    heading: Heading,
+    link: Link,
+    formWithCsrf: FormWithCSRF,
+    govukInsetText: GovukInsetText,
+    govUkButton: GovukButton
+)
+@(taxYear: Int)(implicit request: AuthorisationRequest[_], messages: Messages, appConfig: AppConfig)
+
+@titleForUse = @{
+    messages("tailorCis.title")
+}
+
+@headingForUse = @{
+    messages("tailorCis.title")
+}
+
+@layout(pageTitle = titleForUse, taxYear = Some(taxYear), isAgent = request.user.isAgent) {
+    @formWithCsrf(action = TailorCisWarningController.submit(taxYear)) {
+        @heading(headingForUse, Some(messages("cis.caption", (taxYear - 1).toString, taxYear.toString)), "govuk-!-margin-bottom-3")
+
+        <p id="remove-info-id1" class="govuk-body">@messages("tailorCis.p1")</p>
+        <p id="remove-info-id2" class="govuk-body">@messages("tailorCis.p2")</p>
+        <p id="remove-info-id3" class="govuk-body">@messages("tailorCis.p3")</p>
+
+        <div class="govuk-button-group">
+            @govUkButton(Button(
+                attributes = Map("data-module" -> "govuk-button", "id" -> "remove-cis-button-id"),
+                preventDoubleClick = Some(true),
+                content = Text(messages("tailorCis.button")),
+                classes = "govuk-button--warning"
+            ))
+            @link(DeductionsSummaryController.show(taxYear).url, messages("common.cancel"), id = Some("cancel-link-id"))
+        </div>
+    }
+}
+
+@{
+    // $COVERAGE-OFF$
+}

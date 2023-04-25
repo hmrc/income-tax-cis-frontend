@@ -22,6 +22,7 @@ import forms.FormsProvider
 import models.pages.DeductionsFromPaymentsPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.TailoringService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SessionHelper
 import views.html.DeductionsFromPaymentsView
@@ -32,27 +33,40 @@ import scala.concurrent.{ExecutionContext, Future}
 class DeductionsFromPaymentsController @Inject()(actionsProvider: ActionsProvider,
                                                  formsProvider: FormsProvider,
                                                  pageView: DeductionsFromPaymentsView,
+                                                 tailoringService: TailoringService,
                                                  errorHandler: ErrorHandler)
                                                 (implicit cc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
-  def show(taxYear: Int): Action[AnyContent] = actionsProvider.tailoringEnabledFilter(taxYear) { implicit request =>
-    Ok(pageView(DeductionsFromPaymentsPage(taxYear, formsProvider.deductionsFromPaymentsForm(request.user.isAgent))))
+  def show(taxYear: Int): Action[AnyContent] = actionsProvider.tailoringEnabledFilter(taxYear).async { implicit request =>
+    tailoringService.getExcludedJourneys(taxYear, request.user.mtditid, request.user.mtditid).map {
+      case Left(error) => errorHandler.handleError(error.status)
+      case Right(result) =>
+        Ok(pageView(DeductionsFromPaymentsPage(taxYear,
+          formsProvider.deductionsFromPaymentsForm(request.user.isAgent).fill(!result.journeys.map(_.journey).contains("cis")))))
+    }
   }
 
   def submit(taxYear: Int): Action[AnyContent] = actionsProvider.tailoringEnabledFilter(taxYear).async { implicit request =>
-    // TODO: change the redirects once the CYA data has been refactored
-    // the redirects should work as follows:
-    //  1. If user answers 'Yes' and is coming from 'Change' Link and CYA model is complete then redirect to CYA controller.
-    //  2. If user answers 'Yes' and is not coming from 'Change' Link and CYA model is not complete then redirect to deductions summary controller.
-    //  3. If user answers 'No' then redirect to CYA controller with a fully zeroed out model.
     formsProvider.deductionsFromPaymentsForm(request.user.isAgent).bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(pageView(DeductionsFromPaymentsPage(taxYear, formWithErrors)))),
       yesNoAnswer =>
         if (yesNoAnswer) {
-          Future(Redirect(controllers.routes.DeductionsSummaryController.show(taxYear)))
+          tailoringService.clearExcludedJourney(taxYear, request.user.nino, request.user.mtditid).map {
+            case Left(_) => errorHandler.internalServerError()
+            case Right(_) => Redirect(controllers.routes.DeductionsSummaryController.show(taxYear))
+          }
         } else {
-          Future(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
+          tailoringService.getExcludedJourneys(taxYear, request.user.mtditid, request.user.mtditid).map {
+            case Left(error) => errorHandler.handleError(error.status)
+            case Right(result) =>
+              if (result.journeys.map(_.journey).contains("cis")) {
+                Redirect(controllers.routes.DeductionsSummaryController.show(taxYear))
+              }
+              else {
+                Redirect(controllers.routes.TailorCisWarningController.show(taxYear))
+              }
+          }
         }
     )
   }

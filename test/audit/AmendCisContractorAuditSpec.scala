@@ -35,52 +35,52 @@ class AmendCisContractorAuditSpec extends UnitTest {
     "produce valid json when passed a AmendCisContractorAudit" in {
       val json = Json.parse(
         s"""
-           |{
-           |  "taxYear": $taxYearEOY,
-           |  "userType": "individual",
-           |  "nino": "AA123456A",
-           |  "mtditid": "1234567890",
-           |  "previousContractor": {
-           |    "contractorName": "ABC Steelworks",
-           |    "ern": "123/AB123456",
-           |    "deductionPeriods": [
-           |      {
-           |        "month": "MAY",
-           |        "labour": 450,
-           |        "cisDeduction": 100,
-           |        "paidForMaterials": true,
-           |        "materialsCost": 50
-           |      }
-           |    ],
-           |    "customerDeductionPeriods": [{
-           |        "month": "JUNE",
-           |        "labour": 300,
-           |        "cisDeduction": 200,
-           |        "paidForMaterials": true,
-           |        "materialsCost": 100
-           |      }]
-           |  },
-           |  "newContractor": {
-           |    "contractorName": "ABC Steelworks",
-           |    "ern": "123/AB123456",
-           |    "deductionPeriods": [
-           |      {
-           |        "month": "MAY",
-           |        "labour": 500,
-           |        "cisDeduction": 100,
-           |        "paidForMaterials": true,
-           |        "materialsCost": 250
-           |      }
-           |    ],
-           |    "customerDeductionPeriods": {
-           |        "month": "JULY",
-           |        "labour": 500,
-           |        "cisDeduction": 100,
-           |        "paidForMaterials": false
-           |      }
-           |  }
-           |}
-           |""".stripMargin)
+          |{
+          |  "taxYear": $taxYearEOY,
+          |  "userType": "individual",
+          |  "nino": "AA123456A",
+          |  "mtditid": "1234567890",
+          |  "previousContractor": {
+          |    "contractorName": "ABC Steelworks",
+          |    "ern": "123/AB123456",
+          |    "deductionPeriods": [
+          |      {
+          |        "month": "MAY",
+          |        "labour": 450,
+          |        "cisDeduction": 100,
+          |        "paidForMaterials": true,
+          |        "materialsCost": 50
+          |      }
+          |    ],
+          |    "customerDeductionPeriods": [{
+          |        "month": "JUNE",
+          |        "labour": 300,
+          |        "cisDeduction": 200,
+          |        "paidForMaterials": true,
+          |        "materialsCost": 100
+          |      }]
+          |  },
+          |  "newContractor": {
+          |    "contractorName": "ABC Steelworks",
+          |    "ern": "123/AB123456",
+          |    "deductionPeriods": [
+          |      {
+          |        "month": "MAY",
+          |        "labour": 500,
+          |        "cisDeduction": 100,
+          |        "paidForMaterials": true,
+          |        "materialsCost": 250
+          |      }
+          |    ],
+          |    "customerDeductionPeriods": {
+          |        "month": "JULY",
+          |        "labour": 500,
+          |        "cisDeduction": 100,
+          |        "paidForMaterials": false
+          |      }
+          |  }
+          |}
+          |""".stripMargin)
 
       val audit = anAmendCisContractorAudit.copy(
         previousContractor = aPreviousCisContractor.copy(

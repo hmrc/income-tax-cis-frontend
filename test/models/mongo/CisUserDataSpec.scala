@@ -19,8 +19,7 @@ package models.mongo
 import models.submission.{CISSubmission, PeriodData}
 import org.joda.time.DateTime
 import org.scalamock.scalatest.MockFactory
-import support.TaxYearUtils.taxYearEOY
-import support.UnitTest
+import support.{TaxYearProvider, UnitTest}
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
@@ -30,7 +29,7 @@ import utils.{AesGcmAdCrypto, TestingClock}
 import java.time.Month
 
 class CisUserDataSpec extends UnitTest
-  with MockFactory {
+  with MockFactory with TaxYearProvider {
 
   private implicit val aesGcmAdCrypto: AesGcmAdCrypto = mock[AesGcmAdCrypto]
   private implicit val associatedText: String = "some-associated-text"
@@ -51,15 +50,15 @@ class CisUserDataSpec extends UnitTest
       underTest.toSubmission shouldBe Some(
         CISSubmission(None, None, List(
           PeriodData(
-            deductionFromDate = s"${taxYearEOY - 1}-04-06",
-            deductionToDate = s"${taxYearEOY - 1}-05-05",
+            deductionFromDate = s"$taxYearEndOfYearMinusOne-04-06",
+            deductionToDate = s"$taxYearEndOfYearMinusOne-05-05",
             grossAmountPaid = Some(500.0),
             deductionAmount = 100.0,
             costOfMaterials = Some(250.0)
           ),
           PeriodData(
-            deductionFromDate = s"${taxYearEOY - 1}-10-06",
-            deductionToDate = s"${taxYearEOY - 1}-11-05",
+            deductionFromDate = s"$taxYearEndOfYearMinusOne-10-06",
+            deductionToDate = s"$taxYearEndOfYearMinusOne-11-05",
             grossAmountPaid = Some(500.0),
             deductionAmount = 100.0,
             costOfMaterials = Some(250.0)

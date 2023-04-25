@@ -21,15 +21,18 @@ import models.pages.elements.ContractorDeductionToDate
 
 case class DeductionsSummaryPage(taxYear: Int,
                                  isInYear: Boolean,
+                                 gateway: Boolean,
                                  deductions: Seq[ContractorDeductionToDate])
 
 object DeductionsSummaryPage {
 
   def apply(taxYear: Int,
             isInYear: Boolean,
+            gateway: Boolean,
             incomeTaxUserData: IncomeTaxUserData): DeductionsSummaryPage = DeductionsSummaryPage(
     taxYear = taxYear,
     isInYear = isInYear,
+    gateway = gateway,
     deductions(incomeTaxUserData, inYear = isInYear)
   )
 

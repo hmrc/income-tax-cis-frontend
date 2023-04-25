@@ -171,6 +171,15 @@ contractor-details.employer-ref.error.noEntry = Enter the Employer Reference Num
 contractor-details.employer-ref.error.wrongFormat = Enter the Employer Reference Number in the correct format
 contractor-details.employer-ref.error.duplicate = You cannot add this Employer Reference Number again. Enter a new Employer Reference Number
 
+#################       Tailor cis messages        ########################################
+
+tailorCis.title = Are you sure you want to change CIS deductions for the tax year?
+tailorCis.p1 = If you make a change, the information you have entered will be deleted.
+tailorCis.p2 = You can’t delete information we already hold. We will not use these details to calculate your Income Tax Return for this tax year.
+tailorCis.p3 = You’ll still see some details, but all amounts are set to £0.
+tailorCis.button = Confirm
+
+
 #################       Materials Page       #######################################
 materialsPage.title.agent = Did your client pay for building materials on this contract?
 materialsPage.title.individual = Did you pay for building materials on this contract?

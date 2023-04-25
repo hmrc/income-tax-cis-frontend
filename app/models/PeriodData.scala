@@ -37,6 +37,14 @@ case class PeriodData(deductionPeriod: Month,
       submission.PeriodData(taxYear, deductionPeriod, grossAmountPaid, deductionAmount, costOfMaterials)
     }
   }
+  def toZeroSubmissionPeriodData(taxYear: Int): submission.PeriodData = {
+    submission.PeriodData(taxYear = taxYear,
+      deductionPeriod = deductionPeriod,
+      grossAmountPaid = this.grossAmountPaid.map(_ => 0),
+      deductionAmount = 0,
+      costOfMaterials = this.costOfMaterials.map(_ => 0)
+    )
+  }
 }
 
 object PeriodData extends Logging {
