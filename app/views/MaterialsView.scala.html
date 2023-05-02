@@ -62,7 +62,6 @@
     @formWithCsrf(action = MaterialsController.submit(pageModel.taxYear, pageModel.month.toString.toLowerCase, pageModel.employerRef)) {
         @inputRadio(
             legendHeading = Some(Html(headingForUse)),
-            legendHidden = true,
             form = pageModel.form,
             inline = true
         )
