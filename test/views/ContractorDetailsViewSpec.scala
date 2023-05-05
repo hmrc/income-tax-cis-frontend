@@ -43,8 +43,10 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
 
   trait CommonExpectedResults {
     val expectedTitle: String
+    val expectedErrorTitle: String
     val expectedCaption: Int => String
     val expectedH1: String
+    val expectedEmployerRefError: String
     val contractorName: String
     val contractorNameHint: String
     val employerRef: String
@@ -55,12 +57,15 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
   trait SpecificExpectedResults {
     val expectedP1: String
     val expectedInsetText: Int => String
+    val expectedContractorNameError: String
   }
 
   object CommonExpectedEN extends CommonExpectedResults {
     override val expectedTitle: String = "Contractor details"
+    override val expectedErrorTitle: String = s"Error: $expectedTitle"
     override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
     override val expectedH1: String = "CIS deductions"
+    override val expectedEmployerRefError: String = "Enter the Employer Reference Number in the correct format"
     override val contractorName: String = "Contractor name"
     override val contractorNameHint: String = "For example, ABC Steelworks."
     override val employerRef: String = "Employer Reference Number (ERN)"
@@ -70,8 +75,10 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
 
   object CommonExpectedCY extends CommonExpectedResults {
     override val expectedTitle: String = "Manylion y contractwr"
+    override val expectedErrorTitle: String = s"Gwall: $expectedTitle"
     override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
     override val expectedH1: String = "CIS deductions"
+    override val expectedEmployerRefError: String = "Nodwch Gyfeirnod y Cyflogwr yn y fformat cywir"
     override val contractorName: String = "Enw’r contractwr"
     override val contractorNameHint: String = "Er enghraifft, ABC Steelworks."
     override val employerRef: String = "Cyfeirnod y Cyflogwr (ERN)"
@@ -82,21 +89,25 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
   object ExpectedIndividualEN extends SpecificExpectedResults {
     override val expectedP1: String = "Your CIS deductions are based on the information we already hold about you."
     override val expectedInsetText: Int => String = (taxYear: Int) => s"You cannot update your CIS information until 6 April $taxYear."
+    override val expectedContractorNameError: String = "Enter your contractor name"
   }
 
   object ExpectedIndividualCY extends SpecificExpectedResults {
     override val expectedP1: String = "Your CIS deductions are based on the information we already hold about you."
     override val expectedInsetText: Int => String = (taxYear: Int) => s"You cannot update your CIS information until 6 April $taxYear."
+    override val expectedContractorNameError: String = "Nodwch enw’ch contractwr"
   }
 
   object ExpectedAgentEN extends SpecificExpectedResults {
     override val expectedP1: String = "Your client’s CIS deductions are based on the information we already hold about them."
     override val expectedInsetText: Int => String = (taxYear: Int) => s"You cannot update your client’s CIS information until 6 April $taxYear."
+    override val expectedContractorNameError: String = "Enter your client’s contractor name"
   }
 
   object ExpectedAgentCY extends SpecificExpectedResults {
     override val expectedP1: String = "Your client’s CIS deductions are based on the information we already hold about them."
     override val expectedInsetText: Int => String = (taxYear: Int) => s"You cannot update your client’s CIS information until 6 April $taxYear."
+    override val expectedContractorNameError: String = "Nodwch enw contractwr eich cleient"
   }
 
   override protected val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = Seq(
@@ -151,6 +162,46 @@ class ContractorDetailsViewSpec extends ViewUnitTest {
         inputFieldValueCheck("employerReferenceNumber", Selectors.ernFieldBox, "123/AB12345")
         formPostLinkCheck(controllers.routes.ContractorDetailsController.submit(taxYearEOY, Some("123/AB12345")).url, Selectors.formSelector)
         buttonCheck(userScenario.commonExpectedResults.buttonText, Selectors.buttonSelector)
+      }
+
+      "render page with form containing empty contractor name error" which {
+        implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(userScenario.isAgent)
+        implicit val messages: Messages = getMessages(userScenario.isWelsh)
+        val form = contractorDetailsForm(userScenario.isAgent, Seq.empty).bind(Map("contractorName" -> "", "employerReferenceNumber" -> "123/AB12345"))
+        val pageModel = aContractorDetailsPage.copy(isAgent = userScenario.isAgent, form = form)
+        implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
+
+        welshToggleCheck(userScenario.isWelsh)
+        titleCheck(userScenario.commonExpectedResults.expectedErrorTitle, userScenario.isWelsh)
+        captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
+        h1Check(userScenario.commonExpectedResults.expectedTitle)
+        textOnPageCheck(userScenario.commonExpectedResults.contractorName, Selectors.contractorNameFieldHead)
+        hintTextCheck(userScenario.commonExpectedResults.contractorNameHint, Selectors.contractorNameFieldHint)
+        inputFieldValueCheck("contractorName", Selectors.contractorNameFieldBox, "")
+        textOnPageCheck(userScenario.commonExpectedResults.employerRef, Selectors.ernFieldHead)
+        hintTextCheck(userScenario.commonExpectedResults.employerRefHint, Selectors.ernFieldHint)
+        inputFieldValueCheck("employerReferenceNumber", Selectors.ernFieldBox, "123/AB12345")
+        errorSummaryCheck(userScenario.specificExpectedResults.get.expectedContractorNameError, Selectors.contractorNameFieldBox)
+      }
+
+      "render page with form containing wrong Employer Ref format error" which {
+        implicit val authRequest: AuthorisationRequest[AnyContent] = getAuthRequest(userScenario.isAgent)
+        implicit val messages: Messages = getMessages(userScenario.isWelsh)
+        val form = contractorDetailsForm(userScenario.isAgent, Seq.empty).bind(Map("contractorName" -> "ABC Steelworks", "employerReferenceNumber" -> "123/AB12345xxxx"))
+        val pageModel = aContractorDetailsPage.copy(isAgent = userScenario.isAgent, form = form)
+        implicit val document: Document = Jsoup.parse(underTest(pageModel).body)
+
+        welshToggleCheck(userScenario.isWelsh)
+        titleCheck(userScenario.commonExpectedResults.expectedErrorTitle, userScenario.isWelsh)
+        captionCheck(userScenario.commonExpectedResults.expectedCaption(taxYearEOY))
+        h1Check(userScenario.commonExpectedResults.expectedTitle)
+        textOnPageCheck(userScenario.commonExpectedResults.contractorName, Selectors.contractorNameFieldHead)
+        hintTextCheck(userScenario.commonExpectedResults.contractorNameHint, Selectors.contractorNameFieldHint)
+        inputFieldValueCheck("contractorName", Selectors.contractorNameFieldBox, "ABC Steelworks")
+        textOnPageCheck(userScenario.commonExpectedResults.employerRef, Selectors.ernFieldHead)
+        hintTextCheck(userScenario.commonExpectedResults.employerRefHint, Selectors.ernFieldHint)
+        inputFieldValueCheck("employerReferenceNumber", Selectors.ernFieldBox, "123/AB12345xxxx")
+        errorSummaryCheck(userScenario.commonExpectedResults.expectedEmployerRefError, Selectors.ernFieldBox)
       }
     }
   }
