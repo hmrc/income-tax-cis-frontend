@@ -16,7 +16,6 @@
 
 package actions
 
-import common.SessionValues.TEMP_EMPLOYER_REF
 import config.{AppConfig, ErrorHandler}
 import models.{AuthorisationRequest, UserSessionDataRequest}
 import play.api.mvc.Results.Redirect
@@ -35,9 +34,7 @@ case class UserSessionDataRequestRefinerAction(taxYear: Int,
   override protected[actions] def executionContext: ExecutionContext = ec
 
   override protected[actions] def refine[A](input: AuthorisationRequest[A]): Future[Either[Result, UserSessionDataRequest[A]]] = {
-    val tempEmployerRef = input.session.get(TEMP_EMPLOYER_REF)
-
-    cisSessionService.getSessionData(taxYear, employerRef, input.user, tempEmployerRef).map {
+    cisSessionService.getSessionData(taxYear, employerRef, input.user).map {
       case Left(_) => Left(errorHandler.internalServerError()(input))
       case Right(None) => Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))
       case Right(Some(cisUserData)) => Right(UserSessionDataRequest(cisUserData, input.user, input.request))

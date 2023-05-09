@@ -21,7 +21,7 @@ import forms.validation.StringConstraints.{validateChar, validateSize}
 import forms.validation.mappings.MappingUtil.{spacesRemovedText, trimmedText}
 import forms.validation.utils.ConstraintUtil.{ConstraintUtil, constraint}
 import models.forms.ContractorDetails
-import play.api.data.{Form, Mapping}
+import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.validation.Constraints.nonEmpty
 import play.api.data.validation.{Constraint, Invalid, Valid}

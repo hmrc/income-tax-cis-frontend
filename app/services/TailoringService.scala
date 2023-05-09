@@ -76,7 +76,7 @@ class TailoringService @Inject()(deleteCISPeriodService: DeleteCISPeriodService,
       case Left(customerError) => Future.successful(Left(customerError))
       case Right(_) => tailorContractorData(taxYear, user, incomeTaxUserData).map {
         case Left(contractorError) => Left(contractorError)
-        case Right(_) => Right()
+        case Right(_) => Right(())
       }
     }
 

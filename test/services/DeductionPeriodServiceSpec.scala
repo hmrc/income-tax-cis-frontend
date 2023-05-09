@@ -43,13 +43,13 @@ class DeductionPeriodServiceSpec extends UnitTest
       mockGetSessionData(taxYearEOY, aUser, aCisDeductions.employerRef, Right(Some(aCisUserData)))
       mockCreateOrUpdateCISUserData(taxYearEOY, aUser, aCisDeductions.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Right(aCisUserData))
 
-      await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY, None)) shouldBe Right(aCisUserData)
+      await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY)) shouldBe Right(aCisUserData)
     }
 
     "handle not getting data" in {
       mockGetSessionData(taxYearEOY, aUser, aCisDeductions.employerRef, Right(None))
 
-      await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY, None)) shouldBe Left(DataNotFoundError)
+      await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY)) shouldBe Left(DataNotFoundError)
     }
 
     "handle not saving the data" in {
@@ -61,7 +61,7 @@ class DeductionPeriodServiceSpec extends UnitTest
       mockGetSessionData(taxYearEOY, aUser, aCisDeductions.employerRef, Right(Some(aCisUserData)))
       mockCreateOrUpdateCISUserData(taxYearEOY, aUser, aCisDeductions.employerRef, aCisUserData.submissionId, aCisUserData.isPriorSubmission, updatedCYA, Left(DataNotUpdatedError))
 
-      await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY, None)) shouldBe Left(DataNotUpdatedError)
+      await(underTest.submitDeductionPeriod(taxYearEOY, aCisDeductions.employerRef, aUser, Month.JANUARY)) shouldBe Left(DataNotUpdatedError)
     }
   }
 }

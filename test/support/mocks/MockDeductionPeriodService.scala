@@ -18,7 +18,7 @@ package support.mocks
 
 import models.mongo.CisUserData
 import models.{ServiceError, User}
-import org.scalamock.handlers.CallHandler5
+import org.scalamock.handlers.CallHandler4
 import org.scalamock.scalatest.MockFactory
 import services.DeductionPeriodService
 
@@ -30,13 +30,13 @@ trait MockDeductionPeriodService extends MockFactory {
   protected val mockDeductionPeriodService: DeductionPeriodService = mock[DeductionPeriodService]
 
   def mockSubmitMonth(taxYear: Int,
-                       employerRef: String,
-                       user: User,
-                       month: Month,
-                       result: Either[ServiceError, CisUserData]
-                      ): CallHandler5[Int, String, User, Month, Option[String], Future[Either[ServiceError, CisUserData]]] = {
-    (mockDeductionPeriodService.submitDeductionPeriod(_: Int, _: String, _: User, _: Month, _: Option[String]))
-      .expects(taxYear, employerRef, user, month, *)
+                      employerRef: String,
+                      user: User,
+                      month: Month,
+                      result: Either[ServiceError, CisUserData]
+                     ): CallHandler4[Int, String, User, Month, Future[Either[ServiceError, CisUserData]]] = {
+    (mockDeductionPeriodService.submitDeductionPeriod(_: Int, _: String, _: User, _: Month))
+      .expects(taxYear, employerRef, user, month)
       .returns(Future.successful(result))
   }
 

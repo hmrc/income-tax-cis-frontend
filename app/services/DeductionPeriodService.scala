@@ -25,10 +25,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DeductionPeriodService @Inject()(cisSessionService: CISSessionService)(implicit val ec: ExecutionContext) {
 
-  def submitDeductionPeriod(taxYear: Int, employerRef: String, user: User, deductionPeriod: Month,
-                            tempEmployerRef: Option[String]): Future[Either[ServiceError, CisUserData]] = {
+  def submitDeductionPeriod(taxYear: Int, employerRef: String, user: User, deductionPeriod: Month): Future[Either[ServiceError, CisUserData]] = {
 
-    cisSessionService.getSessionData(taxYear, employerRef, user, tempEmployerRef).flatMap {
+    cisSessionService.getSessionData(taxYear, employerRef, user).flatMap {
       case Right(Some(cisUserData)) =>
 
         lazy val default = CYAPeriodData(deductionPeriod = deductionPeriod, contractorSubmitted = false, originallySubmittedPeriod = None)
