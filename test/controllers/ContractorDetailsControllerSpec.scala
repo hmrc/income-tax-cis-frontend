@@ -170,6 +170,17 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
           Redirect(DeductionPeriodController.show(taxYearEOY, contractor = "123/45678")).addingToSession(SessionValues.TEMP_EMPLOYER_REF -> "123/45678")(fakeIndividualRequest)
       }
 
+      "no contractor provided and using employer ref with spaces" in {
+        val newCisCYAModel = CisCYAModel(contractorName = Some("some-name"))
+        mockNotInYear(taxYearEOY)
+        mockGetPriorEmployerRefs(Right(Seq.empty))
+        mockSaveContractorDetails(taxYearEOY, aUser, None, ContractorDetails("some-name", "123/45678"), Right(aCisUserData.copy(employerRef = "123/45678", cis = newCisCYAModel)))
+
+        await(underTest.submit(taxYear = taxYearEOY, contractor = None)(fakeIndividualRequest.withMethod(POST.method).withFormUrlEncodedBody(
+          contractorName -> "some-name", ContractorDetailsForm.employerReferenceNumber -> " 1 2 3 / 4 5 6 7 8"))) shouldBe
+          Redirect(DeductionPeriodController.show(taxYearEOY, contractor = "123/45678")).addingToSession(SessionValues.TEMP_EMPLOYER_REF -> "123/45678")(fakeIndividualRequest)
+      }
+
       "contractor provided" in {
         mockGetPriorEmployerRefs(Right(Seq.empty))
         mockEndOfYearWithSessionData(taxYearEOY, aCisUserData.copy(employerRef = "123/45678"))

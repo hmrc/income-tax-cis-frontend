@@ -18,10 +18,10 @@ package forms
 
 import filters.InputFilters
 import forms.validation.StringConstraints.{validateChar, validateSize}
-import forms.validation.mappings.MappingUtil.trimmedText
+import forms.validation.mappings.MappingUtil.{spacesRemovedText, trimmedText}
 import forms.validation.utils.ConstraintUtil.{ConstraintUtil, constraint}
 import models.forms.ContractorDetails
-import play.api.data.Form
+import play.api.data.{Form, Mapping}
 import play.api.data.Forms.mapping
 import play.api.data.validation.Constraints.nonEmpty
 import play.api.data.validation.{Constraint, Invalid, Valid}
@@ -53,11 +53,11 @@ object ContractorDetailsForm extends InputFilters {
     Form(
       mapping(
         contractorName -> trimmedText.verifying(nameNotEmpty andThen nameNotCharLimit andThen validateNameFormat),
-        employerReferenceNumber -> trimmedText.verifying(refNotEmpty andThen validateRefFormat andThen notDuplicateEmployerRef(employerRefs))
+        employerReferenceNumber -> spacesRemovedText.verifying(refNotEmpty andThen validateRefFormat andThen notDuplicateEmployerRef(employerRefs))
       )(ContractorDetails.apply)(ContractorDetails.unapply).transform[ContractorDetails](
         details => details.copy(
           contractorName = filter(details.contractorName),
-          employerReferenceNumber = filter(details.employerReferenceNumber)
+          employerReferenceNumber = filter(details.employerReferenceNumber.replaceAll(" ", ""))
         ), x => x
       )
     )

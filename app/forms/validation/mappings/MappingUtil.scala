@@ -24,6 +24,8 @@ object MappingUtil extends Formatters {
 
   val trimmedText: Mapping[String] = default(text, "").transform(_.trim, identity)
 
+  val spacesRemovedText: Mapping[String] = default(text, "").transform(_.replace(" ", ""), identity)
+
   val oText: Mapping[Option[String]] = optional(text)
 
   implicit class OTextUtil(mapping: Mapping[Option[String]]) {
