@@ -16,7 +16,7 @@
 
 package models
 
-import models.mongo.{CYAPeriodData, CisCYAModel, CisUserData}
+import models.mongo.{CYAPeriodData, CisCYAModel}
 import models.submission.CISSubmission
 import play.api.libs.json.{Json, OFormat}
 
