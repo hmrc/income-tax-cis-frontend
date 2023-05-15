@@ -16,13 +16,14 @@
 
 package utils
 
+import config.AppConfig
 import play.api.Logger
 
 import java.time.{LocalDateTime, ZoneId}
 import javax.inject.{Inject, Singleton}
 
 @Singleton
-class InYearUtil @Inject()() {
+class InYearUtil @Inject()(implicit appConfig: AppConfig) {
 
   lazy val logger: Logger = Logger.apply(this.getClass)
 
@@ -43,6 +44,10 @@ class InYearUtil @Inject()() {
       logger.info(s"[InYearAction][inYear] CIS pages for this request will not be in year.")
     }
 
-    isNowBefore
+    if (appConfig.alwaysEOY) {
+      false
+    } else {
+      isNowBefore
+    }
   }
 }

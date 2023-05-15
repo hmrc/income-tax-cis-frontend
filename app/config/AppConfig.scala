@@ -46,6 +46,7 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   lazy val signInUrl: String = s"$signInBaseUrl?continue=$signInContinueUrlRedirect&origin=$signInOrigin"
 
   def defaultTaxYear: Int = servicesConfig.getInt("defaultTaxYear")
+  lazy val alwaysEOY: Boolean = servicesConfig.getBoolean("alwaysEOY")
 
   lazy val incomeTaxSubmissionBEBaseUrl: String = servicesConfig.getString(incomeTaxSubmissionUrlKey) + "/income-tax-submission-service"
 
