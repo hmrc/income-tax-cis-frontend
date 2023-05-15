@@ -19,7 +19,7 @@ package controllers
 import common.SessionValues
 import controllers.routes.{ContractorCYAController, DeductionPeriodController}
 import forms.ContractorDetailsForm
-import forms.ContractorDetailsForm.contractorName
+import forms.ContractorDetailsForm.{contractorName, employerReferenceNumber}
 import models.HttpParserError
 import models.forms.ContractorDetails
 import models.mongo.{CisCYAModel, DataNotFoundError}
@@ -57,6 +57,9 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
 
       status(result) shouldBe OK
       contentType(result) shouldBe Some("text/html")
+      val document = Jsoup.parse(contentAsString(result))
+      document.getElementById(contractorName).attr("value") shouldBe ""
+      document.getElementById(employerReferenceNumber).attr("value") shouldBe ""
     }
 
     "return error response when failed to get employerRefs" in {
@@ -77,6 +80,9 @@ class ContractorDetailsControllerSpec extends ControllerUnitTest
 
       status(result) shouldBe OK
       contentType(result) shouldBe Some("text/html")
+      val document = Jsoup.parse(contentAsString(result))
+      document.getElementById(contractorName).attr("value") shouldBe aCisUserData.cis.contractorName.get
+      document.getElementById(employerReferenceNumber).attr("value") shouldBe "contractor-ref"
     }
 
     "return error response when contractor provided but fails to get employerRefs" in {

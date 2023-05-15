@@ -19,7 +19,6 @@ package connectors
 import config.AppConfig
 import connectors.parsers.CISHttpParser.CISResponse
 import models.submission.CISSubmission
-import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import javax.inject.Inject
@@ -30,7 +29,7 @@ class CISConnector @Inject()(val http: HttpClient, val config: AppConfig)(implic
   def submit(nino: String, taxYear: Int, submission: CISSubmission)(implicit hc: HeaderCarrier): Future[CISResponse] = {
     import connectors.parsers.CISHttpParser.{CISHttpReads, CISResponse}
     val cisUrl: String = config.incomeTaxCISBEUrl + s"/income-tax/nino/$nino/sources?taxYear=$taxYear"
-    http.POST[CISSubmission,CISResponse](cisUrl, submission)
+    http.POST[CISSubmission, CISResponse](cisUrl, submission)
   }
 
   def delete(nino: String, taxYear: Int, submissionId: String)(implicit hc: HeaderCarrier): Future[CISResponse] = {
