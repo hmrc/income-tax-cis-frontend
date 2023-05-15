@@ -27,8 +27,8 @@ import scala.concurrent.ExecutionContext
 class InYearFilterActionSpec extends UnitTest
   with TaxYearProvider {
 
-  private val inYearUtil = new InYearUtil()
   private val appConfig = new AppConfigStub().config()
+  private val inYearUtil = new InYearUtil()(appConfig)
   private val executionContext = ExecutionContext.global
 
   ".executionContext" should {

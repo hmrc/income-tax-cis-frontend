@@ -58,7 +58,7 @@ class ActionsProviderSpec extends ControllerUnitTest
 
   private val validTaxYears = validTaxYearList.mkString(",")
 
-  private def createActionsProvider(appConfig: AppConfig) = new ActionsProvider(
+  private def createActionsProvider(implicit appConfig: AppConfig) = new ActionsProvider(
     mockAuthorisedAction,
     mockCISSessionService,
     mockAuditService,

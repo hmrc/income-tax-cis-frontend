@@ -16,8 +16,10 @@
 
 package utils
 
+import config.AppConfig
 import org.scalamock.scalatest.MockFactory
 import support.UnitTest
+import support.stubs.AppConfigStub
 
 import java.time.LocalDateTime
 
@@ -33,6 +35,7 @@ class InYearUtilSpec extends UnitTest
 
   private def newDate(year: Int, month: Int, day: Int): LocalDateTime = LocalDateTime.of(year, month, day, 0, 0)
 
+  implicit val mockAppConfig: AppConfig = new AppConfigStub().config()
   private val underTest = new InYearUtil()
 
   "InYearAction.inYear" when {

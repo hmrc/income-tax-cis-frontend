@@ -53,6 +53,8 @@ class AppConfigStub extends MockFactory with TaxYearProvider {
 
     override lazy val nrsEnabled: Boolean = true
 
+    override lazy val alwaysEOY: Boolean = false
+
     override lazy val tailoringEnabled: Boolean = enableTailoring
 
     override def viewAndChangeEnterUtrUrl: String = "/report-quarterly/income-and-expenses/view/agents/client-utr"
