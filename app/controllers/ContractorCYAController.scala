@@ -43,8 +43,7 @@ class ContractorCYAController @Inject()(actionsProvider: ActionsProvider,
 
   def show(taxYear: Int,
            month: String,
-           contractor: String): Action[AnyContent] =
-    if (inYearUtil.inYear(taxYear)) inYear(taxYear, month, contractor) else endOfYear(taxYear, month, contractor)
+           contractor: String): Action[AnyContent] = inYear(taxYear, month, contractor)
 
   def submit(taxYear: Int, month: String, contractor: String): Action[AnyContent] =
     actionsProvider.checkCyaExistsAndReturnSessionData(taxYear, contractor, month).async { implicit request =>

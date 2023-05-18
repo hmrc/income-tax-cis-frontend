@@ -1,0 +1,95 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.templates.Layout
+@import views.html.templates.helpers.Heading
+@import views.html.templates.helpers.Button
+@import utils.ViewUtils._
+@import java.time.Month
+@import models.pages.ContractorSummaryPage
+@import views.html.templates.helpers.Link
+@import views.html.templates.helpers.CustomHmrcAddToAList
+@import controllers.routes.ContractorCYAController
+@import controllers.routes.ContractorSummaryController
+@import controllers.routes.DeductionsSummaryController
+@import controllers.routes.DeleteCISPeriodController
+@import uk.gov.hmrc.hmrcfrontend.views.html.components._
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.addtoalist.ListItem
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.addtoalist.ItemType
+@this(
+    layout: Layout,
+    heading: Heading,
+    govukSummaryList: GovukSummaryList,
+    govukInsetText: GovukInsetText,
+    link: Link,
+    button: Button,
+    customHmrcAddToAList : CustomHmrcAddToAList
+)
+
+@(pageModel: ContractorSummaryPage)(implicit request: Request[_], messages: Messages, appConfig: AppConfig, requestHeader: RequestHeader)
+
+@titleText = @{ messages("contractorSummary.title") }
+
+@headingToUse = @{pageModel.contractorName.getOrElse(messages("common.contractor.employerRef", pageModel.employerRef))}
+
+@insetContent = @{
+    val isAgent = false //request.user.isAgent
+    if (pageModel.isInYear) {
+        Text(messages(s"cis.insetText.${if(isAgent) "agent" else "individual"}", pageModel.taxYear.toString))
+    } else {
+        val eoyInsetContent = messages(s"contractorSummary.insetText.eoy.${if(isAgent) "agent" else "individual"}") + link("https://www.gov.uk/government/organisations/hm-revenue-customs/contact/construction-industry-scheme", "contractorSummary.insetText.eoy.link", Some("cis-helpline-link"), true, fullStop=true)
+        HtmlContent(eoyInsetContent)
+    }
+}
+
+@layout(pageTitle = titleText, taxYear = Some(pageModel.taxYear), isAgent = true) {
+
+    @heading(headingToUse, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
+
+    @if(pageModel.isInYear) {
+        <p class="govuk-body">@messages(s"cis.deductionsInfo.p1.${if(true) "agent" else "individual"}")</p>
+    }
+
+    @if(pageModel.deductionPeriods.nonEmpty) {
+        @govukInsetText(InsetText(content = insetContent))
+
+        @{
+            def mapToSummaryListRow(isInYear: Boolean, deductionPeriod: Month): ListItem = {
+                val removeLink = if (isInYear || !pageModel.isCustomerDeductionPeriod(deductionPeriod)) ""
+                              else DeleteCISPeriodController.show(pageModel.taxYear, deductionPeriod.toString.toLowerCase, pageModel.employerRef).url
+                ListItem(messages("contractorSummary.lineItem", translatedMonthAndTaxYear(deductionPeriod, pageModel.taxYear)),
+                        ContractorCYAController.show(pageModel.taxYear, deductionPeriod.toString.toLowerCase, pageModel.employerRef).url,
+                        removeLink
+                        )
+            }
+            customHmrcAddToAList(AddToAList(pageModel.deductionPeriods.map(mapToSummaryListRow(pageModel.isInYear, _))))
+        }
+    }
+
+    @if(!pageModel.isInYear) {
+        @if(pageModel.deductionPeriods.isEmpty){
+            <p class="govuk-body">@link(ContractorSummaryController.addCisDeduction(pageModel.taxYear, pageModel.employerRef).url, "contractorSummary.add.link", Some("add-link"))</p>
+        }
+        @if(pageModel.deductionPeriods.nonEmpty && pageModel.deductionPeriods.size < 12) {
+            <p class="govuk-body">@link(ContractorSummaryController.addCisDeduction(pageModel.taxYear, pageModel.employerRef).url, "contractorSummary.addAnother.link", Some("add-another-link"))</p>
+        }
+    }
+    @button(alternativeText = "contractorSummary.buttonText", attributes = Map("id" -> "return-to-summary-button-id"), href = Some(DeductionsSummaryController.show(pageModel.taxYear).url))
+}
+
+@{
+// $COVERAGE-OFF$
+}
