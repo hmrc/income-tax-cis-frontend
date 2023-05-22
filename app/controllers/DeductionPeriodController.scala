@@ -17,7 +17,6 @@
 package controllers
 
 import actions.ActionsProvider
-import common.SessionValues.TEMP_EMPLOYER_REF
 import config.{AppConfig, ErrorHandler}
 import controllers.routes.{ContractorCYAController, LabourPayController}
 import forms.DeductionPeriodFormProvider
@@ -51,14 +50,13 @@ class DeductionPeriodController @Inject()(actionsProvider: ActionsProvider,
 
   def submit(taxYear: Int, contractor: String, month: Option[String] = None): Action[AnyContent] =
     actionsProvider.endOfYearWithSessionDataWithCustomerDeductionPeriod(taxYear, contractor, month).async { implicit request =>
-      val tempEmployerRef = request.session.get(TEMP_EMPLOYER_REF)
       val submittedMonths = request.cisUserData.cis.priorPeriodData.map(_.deductionPeriod)
       val unSubmittableMonths = month.map(monthValue => submittedMonths.filterNot(_ == Month.valueOf(monthValue.toUpperCase))).getOrElse(submittedMonths)
       val deductionPeriodForm = formProvider.deductionPeriodForm(request.user.isAgent, unSubmittableMonths)
 
       deductionPeriodForm.bindFromRequest().fold(
         formWithErrors => Future.successful(BadRequest(pageView(DeductionPeriodPage(taxYear, request.cisUserData, formWithErrors)))),
-        deductionPeriod => deductionPeriodService.submitDeductionPeriod(taxYear, contractor, request.user, deductionPeriod.month, tempEmployerRef).map {
+        deductionPeriod => deductionPeriodService.submitDeductionPeriod(taxYear, contractor, request.user, deductionPeriod.month).map {
           case Left(_) => errorHandler.internalServerError()
           case Right(cisUserData) => Redirect(getRedirectCall(taxYear, contractor, deductionPeriod, cisUserData))
         }

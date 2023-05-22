@@ -34,15 +34,10 @@ class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
                                   refreshIncomeSourceConnector: RefreshIncomeSourceConnector,
                                   clock: Clock)(implicit val ec: ExecutionContext) extends Logging {
 
-  // TODO: Check why we need the tempEmployerRef. Think of a way to get rid of it.
   def getSessionData(taxYear: Int,
                      employerRef: String,
-                     user: User,
-                     tempEmployerRef: Option[String]): Future[Either[DatabaseError, Option[CisUserData]]] =
-    cisUserDataRepository.find(taxYear, employerRef, user).flatMap {
-      case Right(None) if tempEmployerRef.isDefined => cisUserDataRepository.find(taxYear, tempEmployerRef.get, user)
-      case response => Future.successful(response)
-    }
+                     user: User): Future[Either[DatabaseError, Option[CisUserData]]] =
+    cisUserDataRepository.find(taxYear, employerRef, user)
 
   def createOrUpdateCISUserData(user: User,
                                 taxYear: Int,
@@ -91,9 +86,9 @@ class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
     }
   }
 
-  def checkCyaAndReturnData(taxYear: Int, employerRef: String, user: User, month: Month, tempEmployerRef: Option[String])
+  def checkCyaAndReturnData(taxYear: Int, employerRef: String, user: User, month: Month)
                            (implicit hc: HeaderCarrier): Future[Either[ServiceError, Option[CisUserData]]] = {
-    getSessionData(taxYear, employerRef, user, tempEmployerRef).flatMap {
+    getSessionData(taxYear, employerRef, user).flatMap {
       case Right(data@Some(cyaData)) if cyaData.cis.isAnUpdateFor(month) =>
         logger.info("[CISSessionService][checkCyaAndReturnData] CYA data is for updates being made to an existing period.")
         Future.successful(Right(data))

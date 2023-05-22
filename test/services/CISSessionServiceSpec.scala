@@ -79,18 +79,12 @@ class CISSessionServiceSpec extends UnitTest
     "return error when fails to get data" in {
       mockFindCYAData(taxYearEOY, aCisDeductions.employerRef, aUser, Left(DataNotFoundError))
 
-      await(underTest.getSessionData(taxYearEOY, aCisDeductions.employerRef, aUser, None)) shouldBe Left(DataNotFoundError)
+      await(underTest.getSessionData(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Left(DataNotFoundError)
     }
     "return data" in {
       mockFindCYAData(taxYearEOY, aCisDeductions.employerRef, aUser, Right(Some(aCisUserData)))
 
-      await(underTest.getSessionData(taxYearEOY, aCisDeductions.employerRef, aUser, None)) shouldBe Right(Some(aCisUserData))
-    }
-    "return data based on temp employer reference" in {
-      mockFindCYAData(taxYearEOY, aCisDeductions.employerRef, aUser, Right(None))
-      mockFindCYAData(taxYearEOY, "employerRef", aUser, Right(Some(aCisUserData.copy(employerRef = "employerRef"))))
-
-      await(underTest.getSessionData(taxYearEOY, aCisDeductions.employerRef, aUser, Some("employerRef"))) shouldBe Right(Some(aCisUserData.copy(employerRef = "employerRef")))
+      await(underTest.getSessionData(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Right(Some(aCisUserData))
     }
   }
 
@@ -130,18 +124,18 @@ class CISSessionServiceSpec extends UnitTest
       val cya = anIncomeTaxUserData.eoyCisDeductionsWith(aCisDeductions.employerRef).get.toCYA(Some(Month.MAY), Seq(Month.MAY), anyBoolean)
       mockCreateOrUpdateCYAData(aCisUserData.copy(cis = cya, lastUpdated = TestingClock.now()), Right(()))
 
-      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY, None)(hc)) shouldBe Right(Some(aCisUserData.copy(cis = cya, lastUpdated = TestingClock.now())))
+      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY)(hc)) shouldBe Right(Some(aCisUserData.copy(cis = cya, lastUpdated = TestingClock.now())))
     }
     "return session data" in {
       mockFindCYAData(taxYearEOY, aCisDeductions.employerRef, aUser, Right(Some(aCisUserData)))
 
-      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY, None)(hc)) shouldBe Right(Some(aCisUserData))
+      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY)(hc)) shouldBe Right(Some(aCisUserData))
     }
     "return session data for new submission" in {
       mockFindCYAData(taxYearEOY, aCisDeductions.employerRef, aUser, Right(Some(aCisUserData.copy(cis = aCisCYAModel.copy(
         periodData = Some(aCisCYAModel.periodData.get.copy(originallySubmittedPeriod = None)), priorPeriodData = Seq.empty)))))
 
-      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY, None)(hc)) shouldBe Right(Some(aCisUserData.copy(cis = aCisCYAModel.copy(
+      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY)(hc)) shouldBe Right(Some(aCisUserData.copy(cis = aCisCYAModel.copy(
         periodData = Some(aCisCYAModel.periodData.get.copy(originallySubmittedPeriod = None)), priorPeriodData = Seq.empty))))
     }
 
@@ -149,7 +143,7 @@ class CISSessionServiceSpec extends UnitTest
       mockFindCYAData(taxYearEOY, aCisDeductions.employerRef, aUser, Right(None))
       mockGetUserData(aUser.nino, taxYearEOY, Right(anIncomeTaxUserData.copy(cis = None)))
 
-      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY, None)(hc)) shouldBe Right(None)
+      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY)(hc)) shouldBe Right(None)
     }
 
     "handle when saving the data fails" in {
@@ -158,19 +152,19 @@ class CISSessionServiceSpec extends UnitTest
       val cya = anIncomeTaxUserData.eoyCisDeductionsWith(aCisDeductions.employerRef).get.toCYA(Some(Month.MAY), Seq(Month.MAY), anyBoolean)
       mockCreateOrUpdateCYAData(aCisUserData.copy(cis = cya, lastUpdated = TestingClock.now()), Left(DataNotUpdatedError))
 
-      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY, None)(hc)) shouldBe Left(DataNotUpdatedError)
+      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY)(hc)) shouldBe Left(DataNotUpdatedError)
     }
 
     "handle error from getting data" in {
       mockFindCYAData(taxYearEOY, aCisDeductions.employerRef, aUser, Right(None))
       mockGetUserData(aUser.nino, taxYearEOY, Left(APIErrorModel(INTERNAL_SERVER_ERROR, APIErrorBodyModel.parsingError)))
 
-      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY, None)(hc)) shouldBe Left(HttpParserError(INTERNAL_SERVER_ERROR))
+      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY)(hc)) shouldBe Left(HttpParserError(INTERNAL_SERVER_ERROR))
     }
     "handle error from getting session data" in {
       mockFindCYAData(taxYearEOY, aCisDeductions.employerRef, aUser, Left(DataNotFoundError))
 
-      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY, None)(hc)) shouldBe Left(DataNotFoundError)
+      await(underTest.checkCyaAndReturnData(taxYearEOY, aCisDeductions.employerRef, aUser, Month.MAY)(hc)) shouldBe Left(DataNotFoundError)
     }
   }
 }
