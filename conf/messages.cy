@@ -84,9 +84,8 @@ deductionsSummary.table.head.deductionsToDate = Didyniadau CIS hyd yma
 #################       Contractor Summary Page       #######################################
 
 contractorSummary.title = Didyniadau CIS contractwr
-contractorSummary.insetText.eoy.agent = Gallwch wneud newidiadau, ond ni allwch dynnu’r wybodaeth rydym wedi’i nodi ar ran eich cleient. Os oes gennych unrhyw gwestiynau am hyn, gallwch ffonio
-contractorSummary.insetText.eoy.individual = Gallwch wneud newidiadau ond ni allwch dynnu’r wybodaeth rydym wedi’i nodi ar eich cyfer. Os oes gennych unrhyw gwestiynau am hyn, gallwch ffonio
-contractorSummary.insetText.eoy.link = Llinell Gymorth CIS
+contractorSummary.insetText.eoy.agent = Gallwch wneud newidiadau, ond ni allwch dynnu’r wybodaeth rydym wedi’i nodi ar ran eich cleient. Darllenwch ragor am Gynllun y Diwydiant Adeiladu ar {0}
+contractorSummary.insetText.eoy.individual = Gallwch wneud newidiadau ond ni allwch dynnu’r wybodaeth rydym wedi’i nodi ar eich cyfer. Darllenwch ragor am Gynllun y Diwydiant Adeiladu ar {0}
 contractorSummary.lineItem = Mis treth yn dod i ben 5 {0}
 contractorSummary.lineItem.hiddenText = mis treth {0} yn dod i ben 5 {1}
 contractorSummary.addAnother.link = Ychwanegwch ddidyniad CIS arall

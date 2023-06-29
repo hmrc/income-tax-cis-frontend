@@ -39,7 +39,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
 
     val paragraphTextSelector = "#main-content > div > div > p.govuk-body"
     val insetTextSelector = "#main-content > div > div > div.govuk-inset-text"
-    val cisHelpLineLink = "#cis-helpline-link"
+    val cisHelpLineLink = "#cis-read-more-link"
     val addAnotherLink = "#add-another-link"
     val buttonSelector = "#return-to-summary-button-id"
 
@@ -75,12 +75,12 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
     val expectedEOYInsetText: String
   }
 
-  object CommonExpectedEN extends CommonExpectedResults {
+  object CommonExpected extends CommonExpectedResults {
     override val expectedTitle: String = "Contractor CIS deductions"
     override val expectedHeading: String = "XYZ Constructions"
     override val expectedAlternativeHeading: String => String = (employerRef: String) => s"Contractor: $employerRef"
     override val expectedCaption: Int => String = (taxYear: Int) => s"Construction Industry Scheme (CIS) deductions for 6 April ${taxYear - 1} to 5 April $taxYear"
-    override val expectedCIsHelplineLinkText: String = "CIS helpline (opens in new tab)"
+    override val expectedCIsHelplineLinkText: String = "GOV.UK (opens in new tab)"
     override val taxMonthLineItem: Int => String = (taxYear: Int) => s"Tax month end 5 May ${taxYear - 1}"
     override val taxMonthLineItem2: Int => String = (taxYear: Int) => s"Tax month end 5 February $taxYear"
     override val taxMonthLineItem3: Int => String = (taxYear: Int) => s"Tax month end 5 April $taxYear"
@@ -94,63 +94,28 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
     override val buttonText: String = "Return to CIS summary"
   }
 
-  object CommonExpectedCY extends CommonExpectedResults {
-    override val expectedTitle: String = "Didyniadau CIS contractwr"
-    override val expectedHeading: String = "XYZ Constructions"
-    override val expectedAlternativeHeading: String => String = (employerRef: String) => s"Contractwr: $employerRef"
-    override val expectedCaption: Int => String = (taxYear: Int) => s"Didyniadau Cynllun y Diwydiant Adeiladu (CIS) ar gyfer 6 Ebrill ${taxYear - 1} i 5 Ebrill $taxYear"
-    override val expectedCIsHelplineLinkText: String = "Llinell Gymorth CIS (yn agor tab newydd)"
-    override val taxMonthLineItem: Int => String = (taxYear: Int) => s"Mis treth yn dod i ben 5 Mai ${taxYear - 1}"
-    override val taxMonthLineItem2: Int => String = (taxYear: Int) => s"Mis treth yn dod i ben 5 Chwefror $taxYear"
-    override val taxMonthLineItem3: Int => String = (taxYear: Int) => s"Mis treth yn dod i ben 5 Ebrill $taxYear"
-    override val hiddenText: (String, Int) => String = (operation: String, taxYear: Int) => s"mis treth $operation yn dod i ben 5 Mai ${taxYear - 1}"
-    override val hiddenText2: (String, Int) => String = (operation: String, taxYear: Int) => s"mis treth $operation yn dod i ben 5 Chwefror $taxYear"
-    override val hiddenText3: String = s"mis treth Bwrw golwg yn dod i ben 5 Ebrill $taxYear"
-    override val viewText: String = "Bwrw golwg"
-    override val changeText: String = "Newid"
-    override val removeText: String = "Tynnu"
-    override val expectedAddAnotherLinkText: String = "Ychwanegwch ddidyniad CIS arall"
-    override val buttonText: String = "Yn ôl i grynodeb CIS"
-  }
-
-  object ExpectedIndividualEN extends SpecificExpectedResults {
+  object ExpectedIndividual extends SpecificExpectedResults {
     override val expectedParagraphText: String = "Your CIS deductions are based on the information we already hold about you."
     override val expectedInYearInsetText: String = s"You cannot update your CIS information until 6 April $taxYear."
     override val expectedEOYInsetText: String = "You can make changes but you cannot remove information we have entered for you. " +
-      "If you have any questions about this, you can call the CIS helpline (opens in new tab)."
+      "Read more about the Construction Industry Scheme at GOV.UK (opens in new tab)."
   }
 
-  object ExpectedIndividualCY extends SpecificExpectedResults {
-    override val expectedParagraphText: String = "Bydd eich didyniadau CIS yn seiliedig ar yr wybodaeth sydd eisoes gennym amdanoch."
-    override val expectedInYearInsetText: String = s"Ni allwch ddiweddaru’ch manylion CIS tan 6 Ebrill $taxYear."
-    override val expectedEOYInsetText: String = "Gallwch wneud newidiadau ond ni allwch dynnu’r wybodaeth rydym wedi’i nodi ar eich cyfer. Os oes gennych unrhyw gwestiynau am hyn," +
-      " gallwch ffonio Llinell Gymorth CIS (yn agor tab newydd)."
-  }
-
-  object ExpectedAgentEN extends SpecificExpectedResults {
+  object ExpectedAgent extends SpecificExpectedResults {
     override val expectedParagraphText: String = "Your client’s CIS deductions are based on the information we already hold about them."
     override val expectedInYearInsetText: String = s"You cannot update your client’s CIS information until 6 April $taxYear."
     override val expectedEOYInsetText: String = "You can make changes but you cannot remove information we have entered for your client. " +
-      "If you have any questions about this, you can call the CIS helpline (opens in new tab)."
-  }
-
-  object ExpectedAgentCY extends SpecificExpectedResults {
-    override val expectedParagraphText: String = "Mae didyniadau CIS eich cleient yn seiliedig ar yr wybodaeth sydd eisoes gennym amdano."
-    override val expectedInYearInsetText: String = s"Ni allwch ddiweddaru manylion CIS eich cleient tan 6 Ebrill $taxYear."
-    override val expectedEOYInsetText: String = "Gallwch wneud newidiadau, ond ni allwch dynnu’r wybodaeth rydym wedi’i nodi ar ran eich cleient. Os oes gennych unrhyw gwestiynau am hyn, gallwch ffonio" +
-      " Llinell Gymorth CIS (yn agor tab newydd)."
+      "Read more about the Construction Industry Scheme at GOV.UK (opens in new tab)."
   }
 
   override protected val userScenarios: Seq[UserScenario[CommonExpectedResults, SpecificExpectedResults]] = Seq(
-    UserScenario(isWelsh = false, isAgent = false, CommonExpectedEN, Some(ExpectedIndividualEN)),
-    UserScenario(isWelsh = false, isAgent = true, CommonExpectedEN, Some(ExpectedAgentEN)),
-    UserScenario(isWelsh = true, isAgent = false, CommonExpectedCY, Some(ExpectedIndividualCY)),
-    UserScenario(isWelsh = true, isAgent = true, CommonExpectedCY, Some(ExpectedAgentCY))
+    UserScenario(isWelsh = false, isAgent = false, CommonExpected, Some(ExpectedIndividual)),
+    UserScenario(isWelsh = false, isAgent = true, CommonExpected, Some(ExpectedAgent))
   )
 
   ".show" should {
     userScenarios.foreach { userScenario =>
-      s"language is ${welshTest(userScenario.isWelsh)} and request is from an ${agentTest(userScenario.isAgent)}" should {
+      s"Request is from an ${agentTest(userScenario.isAgent)}" should {
         "render the in year contractor summary page with multiple deduction periods" which {
           val pageModel = aContractorSummaryPage.copy(taxYear = taxYear, contractorName = Some("XYZ Constructions"), employerRef = employerRef, deductionPeriods = deductions)
 
@@ -197,7 +162,7 @@ class ContractorSummaryViewSpec extends ViewUnitTest {
           h1Check(userScenario.commonExpectedResults.expectedHeading)
           textOnPageCheck(userScenario.specificExpectedResults.get.expectedEOYInsetText, Selectors.insetTextSelector)
           linkCheck(userScenario.commonExpectedResults.expectedCIsHelplineLinkText, Selectors.cisHelpLineLink,
-            href = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/construction-industry-scheme")
+            href = "https://www.gov.uk/what-is-the-construction-industry-scheme")
           textOnPageCheck(userScenario.commonExpectedResults.taxMonthLineItem(taxYearEOY), Selectors.summaryListKeySelector(1))
           textOnPageCheck(userScenario.commonExpectedResults.changeText, Selectors.summaryListValueSelector(row = 1, cell = 2), additionalTestText = "(first row)")
           linkCheck(userScenario.commonExpectedResults.changeText + "" +
