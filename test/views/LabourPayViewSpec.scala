@@ -71,11 +71,11 @@ class LabourPayViewSpec extends ViewUnitTest {
 
 
   object ExpectedIndividualEN extends SpecificExpectedResults {
-    override val expectedTitle: String = "How much did your contractor pay you for labour?"
-    override val expectedTitleNoContractorName: String = "How much did this contractor pay you for labour?"
-    override val expectedErrorTitle: String = "Error: How much did your contractor pay you for labour?"
-    override val expectedH1: String => String = (contractor: String) => s"How much did $contractor pay you for labour?"
-    override val expectedH1NoContractorName: String = "How much did this contractor pay you for labour?"
+    override val expectedTitle: String = "Amount paid before tax by this contractor"
+    override val expectedTitleNoContractorName: String = "Amount paid before tax by this contractor"
+    override val expectedErrorTitle: String = "Error: Amount paid before tax by this contractor"
+    override val expectedH1: String => String = (contractor: String) => s"Amount paid before tax by $contractor"
+    override val expectedH1NoContractorName: String = "Amount paid before tax by this contractor"
     override val expectedP1: String => String = (statementDate: String) => s"Tell us the total amount that you were paid on $statementDate before any deductions were made."
     override val expectedP1Replay: String => String = (statementDate: String) => s"It’s the amount that you were paid on $statementDate before any deductions were made."
     override val expectedEmptyErrorText: String = "Enter the amount you were paid for labour"
