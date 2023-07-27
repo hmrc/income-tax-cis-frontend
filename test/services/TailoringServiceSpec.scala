@@ -17,15 +17,14 @@
 package services
 
 import models.tailoring.{ExcludeJourneyModel, ExcludedJourneysResponseModel}
-import models.{APIErrorBodyModel, APIErrorModel, FailedTailoringOverrideDeductionError, FailedTailoringRemoveDeductionError, HttpParserError, IncomeTaxUserData, InvalidOrUnfinishedSubmission, User}
-import support.builders.models.AuthorisationRequestBuilder.anAuthorisationRequest
+import models.{FailedTailoringOverrideDeductionError, FailedTailoringRemoveDeductionError, HttpParserError, InvalidOrUnfinishedSubmission}
 import support.builders.models.IncomeTaxUserDataBuilder
 import support.builders.models.UserBuilder.aUser
 import support.mocks.{MockCISSessionService, MockContractorCYAService, MockDeleteCISPeriodService, MockTailoringConnector}
 import support.{TaxYearProvider, UnitTest}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class TailoringServiceSpec extends UnitTest
   with TaxYearProvider

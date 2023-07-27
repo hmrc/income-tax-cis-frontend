@@ -118,16 +118,16 @@ deleteCISPeriodPage.p1 = You will remove the CIS deduction for the tax month end
 
 #################       Labour Pay Page       #######################################
 labourPayPage.title.agent = How much did this contractor pay your client for labour?
-labourPayPage.title.individual = How much did this contractor pay you for labour?
+labourPayPage.title.individual = Amount paid before tax by this contractor
 labourPayPage.title.agent.named = How much did the contractor pay your client for labour?
-labourPayPage.title.individual.named = How much did your contractor pay you for labour?
+labourPayPage.title.individual.named = Amount paid before tax by this contractor
 labourPayPage.heading.agent = How much did {0} pay your client for labour?
-labourPayPage.heading.individual = How much did {0} pay you for labour?
+labourPayPage.heading.individual = Amount paid before tax by {0}
 labourPayPage.p1.agent = Tell us the amount on your client’s {0} CIS statement, before any deductions were made.
-labourPayPage.p1.individual = Tell us the amount on your {0} CIS statement, before any deductions were made.
-labourPayPage.p.noVAT = Do not include VAT or cost of materials.
+labourPayPage.p1.individual = Tell us the total amount that you were paid on {0} before any deductions were made.
+labourPayPage.p.noVAT = Don’t tell us about VAT or cost of materials.
 labourPayPage.p1.replay.agent = It’s the amount on their {0} CIS statement, before any deductions were made.
-labourPayPage.p1.replay.individual = It’s the amount on your {0} CIS statement, before any deductions were made.
+labourPayPage.p1.replay.individual = It’s the amount that you were paid on {0} before any deductions were made.
 labourPayPage.error.noEntry.agent = Enter the amount your client was paid for labour
 labourPayPage.error.noEntry.individual = Enter the amount you were paid for labour
 labourPayPage.error.wrongFormat.agent = Enter the amount your client was paid for labour in the correct format
