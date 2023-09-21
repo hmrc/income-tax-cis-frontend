@@ -17,6 +17,8 @@ GET        /timeout                                                             
 GET         /:taxYear/summary                                                       controllers.DeductionsSummaryController.show(taxYear: Int)
 
 GET         /:taxYear/contractor                                                    controllers.ContractorSummaryController.show(taxYear: Int, contractor: String)
+GET         /:taxYear/contractor-values                                             controllers.ContractorSummaryController.showValues(taxYear: Int, contractor: String)
+
 GET         /:taxYear/add-cis-deduction                                             controllers.ContractorSummaryController.addCisDeduction(taxYear: Int, contractor: String)
 
 ###########################     Delete CIS Period pages               ########################

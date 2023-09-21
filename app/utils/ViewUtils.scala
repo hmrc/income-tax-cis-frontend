@@ -22,6 +22,7 @@ import uk.gov.hmrc.govukfrontend.views.Aliases
 import uk.gov.hmrc.govukfrontend.views.Aliases.SelectItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist._
+import uk.gov.hmrc.hmrcfrontend.views.viewmodels.addtoalist.ListItem
 import utils.DateMonthUtil.monthToTaxYearConverter
 
 import java.time.format.DateTimeFormatter
@@ -81,6 +82,16 @@ object ViewUtils {
       ))
     )
   }
+
+
+  def itemList(summaryList: SummaryList): Seq[ListItem] = {
+    summaryList.rows.map { summaryListRow =>
+    ListItem(summaryListRow.key.content.toString,
+      summaryListRow.value.content.toString,
+      summaryListRow.actions.map(_.items.head.content.toString).getOrElse(""))
+    }
+  }
+
 
   def ariaHiddenChangeLink(linkText: String): HtmlContent = {
     HtmlContent(s"""<span aria-hidden="true">$linkText</span>""")

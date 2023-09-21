@@ -16,10 +16,10 @@
 
 package models.pages
 
-import models.IncomeTaxUserData
+import models.{CisDeductions, IncomeTaxUserData, PeriodData}
 
-import java.time.Month
 import java.time.Month.APRIL
+import java.time.{LocalDate, Month}
 
 case class ContractorSummaryPage(taxYear: Int,
                                  isInYear: Boolean,
@@ -39,7 +39,36 @@ object ContractorSummaryPage {
             employerRef: String,
             incomeTaxUserData: IncomeTaxUserData): ContractorSummaryPage = {
 
-    val cisDeductions = if (isInYear) incomeTaxUserData.inYearCisDeductionsWith(employerRef).get else incomeTaxUserData.eoyCisDeductionsWith(employerRef).get
+    val dateNow: LocalDate = LocalDate.now()
+    val taxYearCutoffDate: LocalDate = LocalDate.parse(s"${dateNow.getYear}-04-05")
+
+    val taxYear: Int = if (dateNow.isAfter(taxYearCutoffDate)) dateNow.getYear + 1 else dateNow.getYear
+    val taxYearEOY: Int = taxYear - 1
+
+    val aPeriodData: PeriodData = PeriodData(
+      deductionPeriod = Month.MAY,
+      deductionAmount = Some(100.00),
+      costOfMaterials = Some(50.00),
+      grossAmountPaid = Some(450.00),
+      submissionDate = s"${taxYearEOY - 2}-05-11T16:38:57.489Z",
+      submissionId = Some("submissionId"),
+      source = "customer"
+    )
+
+    val cisDeductions = CisDeductions(
+      fromDate = "2020-04-06",
+      toDate = "2021-04-05",
+      contractorName = Some("Michele Lamy Paving Limited"),
+      employerRef = "123/AB123456",
+      totalDeductionAmount = Some(100.00),
+      totalCostOfMaterials = Some(50.00),
+      totalGrossAmountPaid = Some(450.00),
+      periodData = Seq(aPeriodData,
+        aPeriodData.copy(deductionPeriod = Month.JUNE),
+        aPeriodData.copy(deductionPeriod = Month.JULY))
+    )
+
+
     val deductionPeriods = cisDeductions.periodData.map(_.deductionPeriod)
     val months = Month.values().toIndexedSeq
     val monthsOrdered: Seq[Month] = months.drop(APRIL.getValue) ++ months.take(APRIL.getValue)
