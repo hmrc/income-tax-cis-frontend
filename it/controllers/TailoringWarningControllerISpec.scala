@@ -111,7 +111,6 @@ class TailoringWarningControllerISpec extends IntegrationTest
         stubPostWithoutResponseBody(s"/income-tax-cis/income-tax/nino/AA123456A/sources?taxYear=$taxYearEOY",OK, Json.toJson(aCisDeductions.toCISSubmission(taxYearEOY)).toString())
         stubPutWithoutResponseBody(s"/income-tax-cis/income-tax/nino/AA123456A/sources\\?taxYear=$taxYearEOY", Json.toJson(RefreshIncomeSourceRequest("cis")).toString, NO_CONTENT)
         auditStubs()
-        stubPost(s"/income-tax-nrs-proxy/${aUser.nino}/itsa-personal-income-submission", ACCEPTED, "{}")
         excludePostStub(aUser.nino, taxYearEOY)
         urlPost(fullUrl(url(taxYearEOY)),
           headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = "")

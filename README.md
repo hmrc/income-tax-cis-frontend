@@ -28,12 +28,11 @@ This service runs on port: `localhost:9338`
 
 ### Feature Switches
 
-| Feature | Environments Enabled In |
-| --- | --- |
-| Encryption | None|
-| Welsh Toggle | QA, Staging |
-| NRS | Local, QA, Staging, ET, Production |
-| taxYearError | Production |
+| Feature      | Environments Enabled In            |
+|--------------|------------------------------------|
+| Encryption   | None                               |
+| Welsh Toggle | QA, Staging                        |
+| taxYearError | Production                         |
 
 ### CIS Sources (Contractor and Customer Data)
 CIS data can come from different sources: Contractor and Customer. Contractor data is CIS data that HMRC have for the user within the tax year, prior to any updates made by the user. The CIS data displayed in-year is Contractor data.
@@ -45,14 +44,14 @@ Examples can be found here in the [income-tax-submission-stub](https://github.co
 ## Ninos with stub data for CIS
 
 ### In-Year
-| Nino | CIS data | Source |
-| --- | --- | --- |
+| Nino      | CIS data                              | Source     |
+|-----------|---------------------------------------|------------|
 | AC150000B | CIS User with multiple CIS deductions | Contractor |
 | AA123459A | CIS User with multiple CIS deductions | Contractor |
 
 ### End of Year
-| Nino | CIS data | Source
-| --- | --- | --- |
+| Nino      | CIS data                              | Source               |
+|-----------|---------------------------------------|----------------------|
 | AC150000B | CIS User with multiple CIS deductions | Contractor, Customer |
 
 

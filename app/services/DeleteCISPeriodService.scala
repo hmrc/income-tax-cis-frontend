@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,7 @@ package services
 import audit.{AuditService, DeleteCisPeriodAudit}
 import connectors.CISConnector
 import connectors.parsers.CISHttpParser.CISResponse
-import connectors.parsers.NrsSubmissionHttpParser.NrsSubmissionResponse
 import models._
-import models.nrs.{ContractorDetails, DeleteCisPeriodPayload}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
@@ -31,7 +29,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DeleteCISPeriodService @Inject()(cisSessionService: CISSessionService,
                                        auditService: AuditService,
-                                       nrsService: NrsService,
                                        cisConnector: CISConnector)(implicit val ec: ExecutionContext) {
 
   lazy val unfinishedSubmissionResponse: Future[Either[ServiceError, Unit]] = Future.successful(Left(InvalidOrUnfinishedSubmission))
@@ -68,7 +65,6 @@ class DeleteCISPeriodService @Inject()(cisSessionService: CISSessionService,
       case Left(error) => Future.successful(Left(HttpParserError(error.status)))
       case Right(_) =>
         handleAuditing(taxYear, employerRef, user, deductionPeriod, incomeTaxUserData)
-        handleNrs(employerRef, user, deductionPeriod, incomeTaxUserData)
         cisSessionService.refreshAndClear(user, employerRef, taxYear, clearCYA = false)
     }
   }
@@ -86,15 +82,4 @@ class DeleteCISPeriodService @Inject()(cisSessionService: CISSessionService,
     auditService.sendAudit[DeleteCisPeriodAudit](auditEvent.toAuditModel)
   }
 
-  private def handleNrs(employerRef: String,
-                        user: User,
-                        deductionPeriod: Month,
-                        incomeTaxUserData: IncomeTaxUserData)
-                       (implicit hc: HeaderCarrier): Future[NrsSubmissionResponse] = {
-    val customerDeductions: CisDeductions = incomeTaxUserData.customerCisDeductionsWith(employerRef).get
-    val periodData = customerDeductions.periodData.find(_.deductionPeriod == deductionPeriod).get
-
-    val nrsPayload = DeleteCisPeriodPayload(ContractorDetails(customerDeductions.contractorName, employerRef), periodData)
-    nrsService.submit(user.nino, nrsPayload, user.mtditid)
-  }
 }
