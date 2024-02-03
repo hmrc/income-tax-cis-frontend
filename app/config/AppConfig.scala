@@ -28,7 +28,6 @@ import scala.concurrent.duration.Duration
 class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
   val incomeTaxSubmissionUrlKey = "microservice.services.income-tax-submission.url"
-
   val contactFrontendUrlKey = "microservice.services.contact-frontend.url"
   val incomeTaxSubmissionFrontendUrlKey = "microservice.services.income-tax-submission-frontend.url"
   val basGatewayFrontendUrlKey = "microservice.services.bas-gateway-frontend.url"
@@ -36,7 +35,6 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   val viewAndChangeUrlKey = "microservice.services.view-and-change.url"
   val incomeTaxCISUrlKey = "microservice.services.income-tax-cis.url"
   val signInContinueUrlKey = "microservice.services.sign-in.continueUrl"
-  val incomeTaxNrsProxyUrlKey = "microservice.services.income-tax-nrs-proxy.url"
 
   private lazy val signInBaseUrl: String = servicesConfig.getString("microservice.services.sign-in.url")
   private lazy val signInContinueBaseUrl: String = servicesConfig.getString(signInContinueUrlKey)
@@ -49,8 +47,6 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   lazy val alwaysEOY: Boolean = servicesConfig.getBoolean("alwaysEOY")
 
   lazy val incomeTaxSubmissionBEBaseUrl: String = servicesConfig.getString(incomeTaxSubmissionUrlKey) + "/income-tax-submission-service"
-
-  lazy val nrsProxyBaseUrl: String = servicesConfig.getString(incomeTaxNrsProxyUrlKey)
 
   def incomeTaxSubmissionBaseUrl: String = servicesConfig.getString(incomeTaxSubmissionFrontendUrlKey) +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.context")
@@ -107,8 +103,6 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
     (lang: String) => controllers.routes.LanguageSwitchController.switchToLanguage(lang)
 
   lazy val welshToggleEnabled: Boolean = servicesConfig.getBoolean("feature-switch.welshToggleEnabled")
-
-  lazy val nrsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.nrsEnabled")
 
   lazy val tailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringEnabled")
 

@@ -17,7 +17,7 @@
 package actions
 
 import common.SessionValues._
-import config.{AppConfig, MockAuditService, MockNrsService}
+import config.{AppConfig, MockAuditService}
 import controllers.errors.routes.UnauthorisedUserErrorController
 import controllers.routes.{ContractorDetailsController, DeductionPeriodController}
 import models.{HttpParserError, IncomeTaxUserData}
@@ -37,8 +37,6 @@ import support.builders.models.audit.ViewCisPeriodAuditBuilder.aViewCisPeriodAud
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.builders.models.nrs.DeductionPeriodBuilder.aDeductionPeriod
-import support.builders.models.nrs.ViewCisPeriodPayloadBuilder.aViewCisPeriodPayload
 import support.mocks.{MockAuthorisedAction, MockCISSessionService, MockErrorHandler}
 import support.stubs.AppConfigStub
 import utils.InYearUtil
@@ -49,7 +47,6 @@ class ActionsProviderSpec extends ControllerUnitTest
   with MockAuthorisedAction
   with MockCISSessionService
   with MockAuditService
-  with MockNrsService
   with MockErrorHandler {
 
   private val anyBlock = (_: Request[AnyContent]) => Ok("any-result")
@@ -62,7 +59,6 @@ class ActionsProviderSpec extends ControllerUnitTest
     mockAuthorisedAction,
     mockCISSessionService,
     mockAuditService,
-    mockNrsService,
     mockErrorHandler,
     new InYearUtil,
     appConfig
@@ -272,7 +268,6 @@ class ActionsProviderSpec extends ControllerUnitTest
       mockAuthAsIndividual(Some(aUser.nino))
       mockGetPriorData(taxYear, aUser, Right(IncomeTaxUserData(cis = Some(allCISDeductions))))
       mockSendAudit(aViewCisPeriodAudit.toAuditModel)
-      mockSendNrs(aViewCisPeriodPayload)
 
       val underTest = actionsProvider.userPriorDataFor(taxYear, contractor = aCisDeductions.employerRef, month = "may")(block = anyBlock)
 
@@ -285,7 +280,6 @@ class ActionsProviderSpec extends ControllerUnitTest
       mockAuthAsIndividual(Some(aUser.nino))
       mockGetPriorData(taxYearEOY, aUser, Right(IncomeTaxUserData(cis = Some(anAllCISDeductions))))
       mockSendAudit(viewAudit.toAuditModel)
-      mockSendNrs(aViewCisPeriodPayload)
 
       val underTest = actionsProvider.userPriorDataFor(taxYearEOY, contractor = aCisDeductions.employerRef, month = "may")(block = anyBlock)
 
@@ -575,13 +569,10 @@ class ActionsProviderSpec extends ControllerUnitTest
     "get session data" in {
       val cisPeriod = aContractorDetailsAndPeriodData.copy(labour = Some(500), materialsCost = Some(250))
       val viewAudit = aViewCisPeriodAudit.copy(taxYear = taxYearEOY, cisPeriod = cisPeriod)
-      val viewNrsPayload = aViewCisPeriodPayload.
-        copy(customerDeductionPeriod = aDeductionPeriod.copy(labour = Some(500), materialsCost = Some(250)))
 
       mockAuthAsIndividual(Some(aUser.nino))
       mockCheckCyaAndReturnData(taxYearEOY, employerRef = aCisDeductions.employerRef, Month.MAY, result = Right(Some(aCisUserData)))
       mockSendAudit(viewAudit.toAuditModel)
-      mockSendNrs(viewNrsPayload)
 
       val underTest = actionsProvider.checkCyaExistsAndReturnSessionData(taxYearEOY, aCisDeductions.employerRef, "may")(block = anyBlock)
 

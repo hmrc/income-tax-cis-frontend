@@ -28,7 +28,6 @@ class AppConfigStub extends MockFactory with TaxYearProvider {
     override lazy val signInUrl: String = "/signIn"
 
     override lazy val incomeTaxSubmissionBEBaseUrl: String = s"http://localhost:11111"
-    override lazy val nrsProxyBaseUrl: String = "http://localhost:11111"
 
     override lazy val defaultTaxYear: Int = taxYear
 
@@ -50,8 +49,6 @@ class AppConfigStub extends MockFactory with TaxYearProvider {
     override lazy val taxYearErrorFeature: Boolean = _taxYearErrorFeature
 
     override lazy val welshToggleEnabled: Boolean = true
-
-    override lazy val nrsEnabled: Boolean = true
 
     override lazy val alwaysEOY: Boolean = false
 
