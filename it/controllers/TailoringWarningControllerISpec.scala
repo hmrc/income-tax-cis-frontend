@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,17 @@
 
 package controllers
 
-import controllers.routes.ContractorCYAController
-import forms.YesNoForm
 import models.RefreshIncomeSourceRequest
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
 import play.api.http.Status.{NO_CONTENT, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
-import play.mvc.Http.Status.ACCEPTED
 import support.IntegrationTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
-import support.builders.models.PeriodDataBuilder.aPeriodData
 import support.builders.models.UserBuilder.aUser
-import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
-import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
-import support.builders.models.submission.CISSubmissionBuilder.aCISSubmission
 import utils.ViewHelpers
 
 class TailoringWarningControllerISpec extends IntegrationTest
@@ -111,7 +104,6 @@ class TailoringWarningControllerISpec extends IntegrationTest
         stubPostWithoutResponseBody(s"/income-tax-cis/income-tax/nino/AA123456A/sources?taxYear=$taxYearEOY",OK, Json.toJson(aCisDeductions.toCISSubmission(taxYearEOY)).toString())
         stubPutWithoutResponseBody(s"/income-tax-cis/income-tax/nino/AA123456A/sources\\?taxYear=$taxYearEOY", Json.toJson(RefreshIncomeSourceRequest("cis")).toString, NO_CONTENT)
         auditStubs()
-        stubPost(s"/income-tax-nrs-proxy/${aUser.nino}/itsa-personal-income-submission", ACCEPTED, "{}")
         excludePostStub(aUser.nino, taxYearEOY)
         urlPost(fullUrl(url(taxYearEOY)),
           headers = Seq(HeaderNames.COOKIE -> playSessionCookies(taxYearEOY)), body = "")
