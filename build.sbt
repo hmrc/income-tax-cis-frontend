@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(
     majorVersion := 0,
-    scalaVersion := "2.13.10",
+    scalaVersion := "2.13.12",
     libraryDependencies ++= AppDependencies.compile ++ AppDependencies.test,
     TwirlKeys.templateImports ++= twirlImports,
     scalacOptions += "-Wconf:cat=unused-imports&src=html/.*:s",
