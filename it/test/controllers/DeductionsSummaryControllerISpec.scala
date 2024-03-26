@@ -17,7 +17,6 @@
 package controllers
 
 import models.tailoring.{ExcludeJourneyModel, ExcludedJourneysResponseModel}
-import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK}
 import play.api.libs.ws.WSResponse

@@ -16,18 +16,18 @@
 
 package utils
 
-import org.joda.time.DateTime
 import play.api.Logging
 
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 object DateTimeUtil extends Logging {
 
   val localDateTimeFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-  def parseDate(submittedOn: String): Option[DateTime] = {
+  def parseDate(submittedOn: String): Option[LocalDateTime] = {
     try {
-      Some(DateTime.parse(submittedOn))
+      Some(LocalDateTime.parse(submittedOn))
     } catch {
       case e: Exception =>
         logger.error(s"[DateTimeUtil][parseDate] Couldn't parse submission date to DateTime - ${e.getMessage}")

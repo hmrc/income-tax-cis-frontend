@@ -18,13 +18,10 @@ package models.mongo
 
 import models.User
 import models.submission.CISSubmission
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
-import utils.AesGcmAdCrypto
+import utils.{AesGcmAdCrypto, MongoJavaDateTimeFormats}
 import utils.SubmissionUtil.validateDataAndCreateSubmission
-
-import java.time.Month
+import java.time.{LocalDateTime, Month, ZoneId}
 
 case class CisUserData(sessionId: String,
                        mtdItId: String,
@@ -34,7 +31,7 @@ case class CisUserData(sessionId: String,
                        submissionId: Option[String],
                        isPriorSubmission: Boolean,
                        cis: CisCYAModel,
-                       lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)) {
+                       lastUpdated: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))) {
 
   def toSubmission: Option[CISSubmission] =
     cis.periodData match {
@@ -64,9 +61,9 @@ case class CisUserData(sessionId: String,
   )
 }
 
-object CisUserData extends MongoJodaFormats {
+object CisUserData extends MongoJavaDateTimeFormats {
 
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+  implicit val mongoJodaDateTimeFormats: Format[LocalDateTime] = localDateTimeFormat
 
   implicit val formats: Format[CisUserData] = Json.format[CisUserData]
 
@@ -74,7 +71,7 @@ object CisUserData extends MongoJodaFormats {
                  taxYear: Int,
                  employerRef: String,
                  cis: CisCYAModel,
-                 lastUpdated: DateTime,
+                 lastUpdated: LocalDateTime,
                  submissionId: Option[String] = None,
                  isPriorSubmission: Boolean = false): CisUserData = new CisUserData(
     sessionId = user.sessionId,
@@ -97,7 +94,7 @@ case class EncryptedCisUserData(sessionId: String,
                                 submissionId: Option[String],
                                 isPriorSubmission: Boolean,
                                 cis: EncryptedCisCYAModel,
-                                lastUpdated: DateTime = DateTime.now(DateTimeZone.UTC)) {
+                                lastUpdated: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))) {
 
   def decrypted(implicit aesGcmAdCrypto: AesGcmAdCrypto, associatedText: String): CisUserData = CisUserData(
     sessionId = sessionId,
@@ -112,8 +109,8 @@ case class EncryptedCisUserData(sessionId: String,
   )
 }
 
-object EncryptedCisUserData extends MongoJodaFormats {
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+object EncryptedCisUserData extends MongoJavaDateTimeFormats {
+  implicit val mongoJodaDateTimeFormats: Format[LocalDateTime] = localDateTimeFormat
 
   implicit val formats: Format[EncryptedCisUserData] = Json.format[EncryptedCisUserData]
 }

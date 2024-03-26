@@ -17,7 +17,6 @@
 package models.mongo
 
 import models.submission.{CISSubmission, PeriodData}
-import org.joda.time.DateTime
 import org.scalamock.scalatest.MockFactory
 import support.{TaxYearProvider, UnitTest}
 import support.builders.models.UserBuilder.aUser
@@ -26,7 +25,7 @@ import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 import utils.{AesGcmAdCrypto, TestingClock}
 
-import java.time.Month
+import java.time.{LocalDateTime, Month, ZoneId}
 
 class CisUserDataSpec extends UnitTest
   with MockFactory with TaxYearProvider {
@@ -159,7 +158,7 @@ class CisUserDataSpec extends UnitTest
         submissionId = Some("some-submission-id"),
         isPriorSubmission = true,
         cis = encryptedCisCYAModel,
-        lastUpdated = DateTime.now
+        lastUpdated = LocalDateTime.now(ZoneId.of("UTC"))
       )
 
       (encryptedCisCYAModel.decrypted(_: AesGcmAdCrypto, _: String)).expects(aesGcmAdCrypto, associatedText).returning(aCisCYAModel)

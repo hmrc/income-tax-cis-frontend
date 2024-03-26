@@ -17,9 +17,10 @@
 package support.builders.models.mongo
 
 import models.mongo.CisUserData
-import org.joda.time.{DateTime, DateTimeZone}
 import support.TaxYearUtils
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
+
+import java.time.{LocalDateTime, ZoneId}
 
 object CisUserDataBuilder {
 
@@ -32,6 +33,6 @@ object CisUserDataBuilder {
     submissionId = Some("submissionId"),
     isPriorSubmission = true,
     cis = aCisCYAModel,
-    lastUpdated = DateTime.now(DateTimeZone.UTC)
+    lastUpdated = LocalDateTime.now(ZoneId.of("UTC"))
   )
 }

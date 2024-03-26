@@ -21,19 +21,18 @@ import com.mongodb.client.model.Updates.set
 import config.AppConfig
 import models.User
 import models.mongo._
-import org.joda.time.{DateTime, DateTimeZone}
 import org.mongodb.scala.MongoException
 import org.mongodb.scala.model.{FindOneAndReplaceOptions, FindOneAndUpdateOptions}
 import play.api.Logging
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.Codecs.toBson
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
-import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
 import uk.gov.hmrc.play.http.logging.Mdc
-import utils.AesGcmAdCrypto
+import utils.{AesGcmAdCrypto, MongoJavaDateTimeFormats}
 import utils.PagerDutyHelper.PagerDutyKeys.{FAILED_TO_CREATE_UPDATE_CIS_DATA, FAILED_TO_ClEAR_CIS_DATA, FAILED_TO_FIND_CIS_DATA}
 import utils.PagerDutyHelper.{PagerDutyKeys, pagerDutyLog}
 
+import java.time.{LocalDateTime, ZoneId}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -63,7 +62,7 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
     lazy val start = "[CisUserDataRepositoryImpl][find]"
 
     val queryFilter = filter(user.sessionId, user.mtditid, user.nino, taxYear, employerRef)
-    val update = set("lastUpdated", toBson(DateTime.now(DateTimeZone.UTC))(MongoJodaFormats.dateTimeWrites))
+    val update = set("lastUpdated", toBson(LocalDateTime.now(ZoneId.of("UTC")))(MongoJavaDateTimeFormats.localDateTimeWrites))
     val options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
 
     val findResult = collection.findOneAndUpdate(queryFilter, update, options).toFutureOption().map(Right(_)).recover {

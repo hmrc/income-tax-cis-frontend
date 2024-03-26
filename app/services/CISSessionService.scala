@@ -19,7 +19,6 @@ package services
 import connectors.{IncomeTaxUserDataConnector, RefreshIncomeSourceConnector}
 import models._
 import models.mongo.{CisCYAModel, CisUserData, DataNotUpdatedError, DatabaseError}
-import org.joda.time.DateTimeZone
 import play.api.Logging
 import repositories.CisUserDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
@@ -54,7 +53,7 @@ class CISSessionService @Inject()(cisUserDataRepository: CisUserDataRepository,
       submissionId,
       isPriorSubmission,
       cisCYA,
-      clock.now(DateTimeZone.UTC)
+      clock.now()
     )
 
     cisUserDataRepository.createOrUpdate(cisUserData).map {
