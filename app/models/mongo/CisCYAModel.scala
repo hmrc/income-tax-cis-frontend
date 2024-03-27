@@ -16,14 +16,12 @@
 
 package models.mongo
 
-import org.joda.time.DateTime
 import play.api.libs.json.{Format, Json, OFormat}
 import uk.gov.hmrc.crypto.EncryptedValue
-import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
-import utils.AesGcmAdCrypto
+import utils.{AesGcmAdCrypto, MongoJavaDateTimeFormats}
 import utils.CypherSyntax.{DecryptableOps, EncryptableOps}
 
-import java.time.Month
+import java.time.{LocalDateTime, Month}
 
 case class CisCYAModel(contractorName: Option[String] = None,
                        periodData: Option[CYAPeriodData] = None,
@@ -66,8 +64,8 @@ case class EncryptedCisCYAModel(contractorName: Option[EncryptedValue] = None,
   )
 }
 
-object EncryptedCisCYAModel extends MongoJodaFormats {
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+object EncryptedCisCYAModel extends MongoJavaDateTimeFormats {
+  implicit val mongoJodaDateTimeFormats: Format[LocalDateTime] = localDateTimeFormat
   implicit lazy val encryptedValueOFormat: OFormat[EncryptedValue] = Json.format[EncryptedValue]
   implicit val formats: Format[EncryptedCisCYAModel] = Json.format[EncryptedCisCYAModel]
 }

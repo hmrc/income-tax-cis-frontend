@@ -17,14 +17,12 @@
 package models.mongo
 
 import models.submission.PeriodData
-import org.joda.time.DateTime
 import play.api.libs.json._
 import uk.gov.hmrc.crypto.EncryptedValue
-import uk.gov.hmrc.mongo.play.json.formats.MongoJodaFormats
-import utils.AesGcmAdCrypto
+import utils.{AesGcmAdCrypto, MongoJavaDateTimeFormats}
 import utils.CypherSyntax.{DecryptableOps, EncryptableOps}
 
-import java.time.Month
+import java.time.{LocalDateTime, Month}
 
 case class CYAPeriodData(deductionPeriod: Month,
                          grossAmountPaid: Option[BigDecimal] = None,
@@ -93,8 +91,8 @@ case class EncryptedCYAPeriodData(deductionPeriod: EncryptedValue,
   )
 }
 
-object EncryptedCYAPeriodData extends MongoJodaFormats {
-  implicit val mongoJodaDateTimeFormats: Format[DateTime] = dateTimeFormat
+object EncryptedCYAPeriodData extends MongoJavaDateTimeFormats {
+  implicit val mongoJodaDateTimeFormats: Format[LocalDateTime] = localDateTimeFormat
   implicit lazy val encryptedValueOFormat: OFormat[EncryptedValue] = Json.format[EncryptedValue]
   implicit val formats: Format[EncryptedCYAPeriodData] = Json.format[EncryptedCYAPeriodData]
 }

@@ -19,7 +19,6 @@ package repositories
 import com.mongodb.MongoTimeoutException
 import common.UUID
 import models.mongo._
-import org.joda.time.{DateTime, DateTimeZone}
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import org.mongodb.scala.{MongoException, MongoInternalException, MongoWriteException}
@@ -36,12 +35,13 @@ import uk.gov.hmrc.mongo.MongoUtils
 import utils.AesGcmAdCrypto
 import utils.PagerDutyHelper.PagerDutyKeys.FAILED_TO_CREATE_UPDATE_CIS_DATA
 
+import java.time.{LocalDateTime, ZoneId}
 import scala.concurrent.Future
 
 class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with DefaultAwaitTimeout {
 
   private val sessionIdOne = UUID.randomUUID
-  private val now = DateTime.now(DateTimeZone.UTC)
+  private val now = LocalDateTime.now(ZoneId.of("UTC"))
   private val userDataFull = aCisUserData.copy(sessionId = sessionIdOne)
   private val userDataOne = aCisUserData.copy(sessionId = sessionIdOne, taxYear = taxYear, lastUpdated = now)
   private val userOne = anAuthorisationRequest.copy(aUser.copy(userDataOne.mtdItId, None, userDataOne.nino, userDataOne.sessionId, Individual.toString))
@@ -148,7 +148,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
 
   "find" should {
     "get a document and update the TTL" in new EmptyDatabase {
-      private val now = DateTime.now(DateTimeZone.UTC)
+      private val now = LocalDateTime.now(ZoneId.of("UTC"))
       private val data = userDataOne.copy(lastUpdated = now)
 
       await(underTest.createOrUpdate(data)) mustBe Right(())

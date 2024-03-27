@@ -16,8 +16,9 @@
 
 package utils
 
-import org.joda.time.DateTime
 import support.UnitTest
+
+import java.time.LocalDateTime
 
 class DateTimeUtilSpec extends UnitTest {
 
@@ -26,7 +27,7 @@ class DateTimeUtilSpec extends UnitTest {
       DateTimeUtil.parseDate("no date") shouldBe None
     }
     "return date when a valid date" in {
-      DateTimeUtil.parseDate("2020-05-11T16:38:57.489Z") shouldBe Some(DateTime.parse("2020-05-11T16:38:57.489Z"))
+      DateTimeUtil.parseDate("2020-05-11T16:38:57.489") shouldBe Some(LocalDateTime.parse("2020-05-11T16:38:57.489"))
     }
   }
 }
