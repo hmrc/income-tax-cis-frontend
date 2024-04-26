@@ -1,0 +1,81 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Hint
+@import uk.gov.hmrc.govukfrontend.views.html.components.{GovukButton, GovukRadios}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.button.Button
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.{Fieldset, Legend}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.{RadioItem, Radios}
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language.{Cy, En}
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.addtoalist.AddToAList
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.addtoalist.ItemType
+@import uk.gov.hmrc.govukfrontend.views.html.components.{FormWithCSRF => PlayFrontendFormWithCSRF}
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.listwithactions.{ListWithActions, ListWithActionsItem, ListWithActionsAction}
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcListWithActions
+
+@this(
+    govukRadios: GovukRadios,
+    govukButton: GovukButton,
+    formWithCsrf: PlayFrontendFormWithCSRF,
+    hmrcListWithActions: HmrcListWithActions
+)
+
+@(params: AddToAList)(implicit messages: Messages, request: RequestHeader)
+@import params._
+
+@defining(if(params.language == Cy || messages.lang.code == "cy") Cy else En) { language =>
+
+  @defining(
+    itemType.getOrElse(language match {
+      case Cy => ItemType(
+        singular = "eitem",
+        plural = "o eitemau")
+      case _ => ItemType(
+        singular = "item",
+        plural = "items"
+      )
+    })
+  ) { itemType =>
+    <div class="govuk-form-group">
+      @hmrcListWithActions(ListWithActions(items = itemList map (item => {
+        val listWithAT = if(item.removeUrl.isEmpty) {
+        Seq.empty[ListWithActionsAction]
+        } else {
+            Seq(ListWithActionsAction(
+                content = Text(if (language == Cy) "Dileu" else "Remove"),
+                visuallyHiddenText = Some(if (language == Cy) s"Dileu’r ${item.name} o’r rhestr" else s"Remove ${item.name} from the list"),
+                href= item.removeUrl
+            ))
+        }
+
+        ListWithActionsItem(
+        name = Text(item.name),
+        actions = Seq(
+            ListWithActionsAction(
+                content = Text(if (language == Cy) "Newid" else "Continue"),
+                visuallyHiddenText = Some(if (language == Cy) s"Newid ${item.name}" else s"Change ${item.name}"),
+                href= item.changeUrl
+            )) ++
+            listWithAT
+          )
+        }
+        ),
+        classes = s"hmrc-list-with-actions"
+      ))
+    </div>
+    }
+}

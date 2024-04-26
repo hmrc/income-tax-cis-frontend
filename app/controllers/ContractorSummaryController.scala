@@ -19,19 +19,20 @@ package controllers
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
 import controllers.routes.DeductionPeriodController
+import models._
 import models.pages.ContractorSummaryPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.ContractorSummaryService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.{InYearUtil, SessionHelper}
-import views.html.ContractorSummaryView
+import views.html.ContractorSummaryViewValues
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class ContractorSummaryController @Inject()(actionsProvider: ActionsProvider,
-                                            pageView: ContractorSummaryView,
+                                            pageView: ContractorSummaryViewValues,
                                             inYearUtil: InYearUtil,
                                             contractorSummaryService: ContractorSummaryService,
                                             errorHandler: ErrorHandler)
@@ -40,6 +41,11 @@ class ContractorSummaryController @Inject()(actionsProvider: ActionsProvider,
 
   def show(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.userPriorDataFor(taxYear, contractor) { implicit request =>
     Ok(pageView(ContractorSummaryPage(taxYear, inYearUtil.inYear(taxYear), contractor, request.incomeTaxUserData)))
+  }
+
+  def showValues(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.endOfYear(taxYear) { implicit request =>
+    val anIncomeTaxUserData: IncomeTaxUserData = IncomeTaxUserData(cis = None)
+    Ok(pageView(ContractorSummaryPage(taxYear, inYearUtil.inYear(taxYear), contractor, anIncomeTaxUserData)))
   }
 
   def addCisDeduction(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.userPriorDataFor(taxYear, contractor).async { implicit request =>
