@@ -26,9 +26,9 @@ object PeriodDataBuilder {
 
   val aPeriodData: PeriodData = PeriodData(
     deductionPeriod = Month.MAY,
-    deductionAmount = Some(100.00),
-    costOfMaterials = Some(50.00),
-    grossAmountPaid = Some(450.00),
+    deductionAmount = Some(BigDecimal("100.00")),
+    costOfMaterials = Some(BigDecimal("50.00")),
+    grossAmountPaid = Some(BigDecimal("450.00")),
     submissionDate = s"${taxYearEOY - 2}-05-11T16:38:57.489Z",
     submissionId = Some("submissionId"),
     source = "customer"
