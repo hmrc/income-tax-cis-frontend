@@ -52,7 +52,7 @@
         None
     }
     else {
-        Some(ErrorMessage(content = HtmlContent(errorHtml(form.errors))))
+        Some(ErrorMessage.errorMessageWithDefaultStringsTranslated(content = HtmlContent(errorHtml(form.errors))))
     }
 }
 
