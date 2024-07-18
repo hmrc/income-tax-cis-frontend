@@ -23,9 +23,9 @@ import support.builders.models.CisDeductionsBuilder.aCisDeductions
 object CISSourceBuilder {
 
   val aCISSource: CISSource = CISSource(
-    totalDeductionAmount = Some(100.00),
-    totalCostOfMaterials = Some(50.00),
-    totalGrossAmountPaid = Some(450.00),
+    totalDeductionAmount = Some(BigDecimal("100.00")),
+    totalCostOfMaterials = Some(BigDecimal("50.00")),
+    totalGrossAmountPaid = Some(BigDecimal("450.00")),
     cisDeductions = Seq(aCisDeductions)
   )
 
