@@ -253,3 +253,8 @@ taxYear-error-template.paragraph.2 = Gwiriwch eich bod wedi nodi’r cyfeiriad g
 timeout.button = Mewngofnodi
 timeout.heading = Er eich diogelwch, gwnaethom eich allgofnodi
 timeout.p1 = Ni wnaethom gadw’ch atebion.
+
+#################       Section completed       ########################################
+sectionCompleted.title = A ydych wedi gorffen yr adran hon?
+sectionCompleted.hint = Byddwch yn dal i allu mynd yn ôl ac adolygu’r wybodaeth rydych wedi’i rhoi i ni.
+sectionCompleted.error.required = Dewiswch a ydych wedi llenwi’r adran hon

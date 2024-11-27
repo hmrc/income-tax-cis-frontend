@@ -254,3 +254,8 @@ taxYear-error-template.paragraph.2 = Check that you’ve entered the correct web
 timeout.button = Sign in
 timeout.heading = For your security, we signed you out
 timeout.p1 = We did not save your answers.
+
+#################       Section completed       ########################################
+sectionCompleted.title = Have you finished this section?
+sectionCompleted.hint = You’ll still be able to go back and review the information that you’ve given us.
+sectionCompleted.error.required = Select if you’ve completed this section

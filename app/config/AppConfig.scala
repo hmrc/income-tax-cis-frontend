@@ -53,6 +53,9 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
+
+  def commonTaskListUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear + "/tasklist"
+
   def incomeTaxSubmissionStartUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     "/start"
   def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl +
