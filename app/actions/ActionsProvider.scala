@@ -36,7 +36,7 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
 
   def endOfYear(taxYear: Int): ActionBuilder[AuthorisationRequest, AnyContent] =
     authAction
-      .andThen(TaxYearAction.taxYearAction(taxYear, appConfig, ec))
+      .andThen(TaxYearAction(taxYear, appConfig, ec))
       .andThen(EndOfYearFilterAction(taxYear, inYearUtil, appConfig))
 
   def tailoringEnabledFilter(taxYear: Int): ActionBuilder[AuthorisationRequest, AnyContent] =
@@ -45,27 +45,27 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
 
   def inYearWithPreviousDataFor(taxYear: Int, contractor: String): ActionBuilder[UserPriorDataRequest, AnyContent] =
     authAction
-      .andThen(TaxYearAction.taxYearAction(taxYear, appConfig, ec))
+      .andThen(TaxYearAction(taxYear, appConfig, ec))
       .andThen(InYearFilterAction(taxYear, inYearUtil, appConfig))
       .andThen(UserPriorDataRequestRefinerAction(taxYear, cisSessionService, errorHandler))
       .andThen(HasInYearPeriodDataWithEmployerRefFilterAction(taxYear, contractor, appConfig))
 
   def inYearWithPreviousDataFor(taxYear: Int, month: String, contractor: String): ActionBuilder[UserPriorDataRequest, AnyContent] =
     authAction
-      .andThen(TaxYearAction.taxYearAction(taxYear, appConfig, ec))
+      .andThen(TaxYearAction(taxYear, appConfig, ec))
       .andThen(InYearFilterAction(taxYear, inYearUtil, appConfig))
       .andThen(UserPriorDataRequestRefinerAction(taxYear, cisSessionService, errorHandler))
       .andThen(HasInYearDeductionsForEmployerRefAndMonthFilterAction(taxYear, contractor, month, errorHandler, appConfig))
 
   def priorCisDeductionsData(taxYear: Int): ActionBuilder[UserPriorDataRequest, AnyContent] = {
     authAction
-      .andThen(TaxYearAction.taxYearAction(taxYear, appConfig, ec))
+      .andThen(TaxYearAction(taxYear, appConfig, ec))
       .andThen(UserPriorDataRequestRefinerAction(taxYear, cisSessionService, errorHandler))
   }
 
   def exclusivelyCustomerPriorDataForEOY(taxYear: Int, contractor: String, month: String): ActionBuilder[UserPriorDataRequest, AnyContent] = {
     authAction
-      .andThen(TaxYearAction.taxYearAction(taxYear, appConfig, ec))
+      .andThen(TaxYearAction(taxYear, appConfig, ec))
       .andThen(EndOfYearFilterAction(taxYear, inYearUtil, appConfig))
       .andThen(UserPriorDataRequestRefinerAction(taxYear, cisSessionService, errorHandler))
       .andThen(HasEoyDeductionsForEmployerRefAndMonthFilterAction(taxYear, contractor, month, errorHandler, appConfig, needsToBeExclusivelyCustomerData = true))
@@ -73,14 +73,14 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
 
   def userPriorDataFor(taxYear: Int, contractor: String): ActionBuilder[UserPriorDataRequest, AnyContent] = {
     authAction
-      .andThen(TaxYearAction.taxYearAction(taxYear, appConfig, ec))
+      .andThen(TaxYearAction(taxYear, appConfig, ec))
       .andThen(UserPriorDataRequestRefinerAction(taxYear, cisSessionService, errorHandler))
       .andThen(getHasPeriodDataFilterActionFor(taxYear, contractor))
   }
 
   def userPriorDataFor(taxYear: Int, contractor: String, month: String): ActionBuilder[UserPriorDataRequest, AnyContent] = {
     authAction
-      .andThen(TaxYearAction.taxYearAction(taxYear, appConfig, ec))
+      .andThen(TaxYearAction(taxYear, appConfig, ec))
       .andThen(UserPriorDataRequestRefinerAction(taxYear, cisSessionService, errorHandler))
       .andThen(getHasMonthDataFilterActionFor(taxYear, contractor, month))
       .andThen(InYearViewCisPeriodAuditAction(taxYear, contractor, month, auditService))
@@ -88,14 +88,14 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
 
   def endOfYearWithSessionData(taxYear: Int, contractor: String, redirectIfPrior: Boolean): ActionBuilder[UserSessionDataRequest, AnyContent] =
     authAction
-      .andThen(TaxYearAction.taxYearAction(taxYear, appConfig, ec))
+      .andThen(TaxYearAction(taxYear, appConfig, ec))
       .andThen(EndOfYearFilterAction(taxYear, inYearUtil, appConfig))
       .andThen(UserSessionDataRequestRefinerAction(taxYear, contractor, cisSessionService, errorHandler, appConfig))
       .andThen(CisUserDataFilterAction(taxYear, contractor, appConfig, needsPeriodData = true, redirectIfPrior))
 
   def endOfYearWithSessionData(taxYear: Int, month: String, contractor: String): ActionBuilder[UserSessionDataRequest, AnyContent] =
     authAction
-      .andThen(TaxYearAction.taxYearAction(taxYear, appConfig, ec))
+      .andThen(TaxYearAction(taxYear, appConfig, ec))
       .andThen(MonthFilterAction(month, errorHandler))
       .andThen(EndOfYearFilterAction(taxYear, inYearUtil, appConfig))
       .andThen(UserSessionDataRequestRefinerAction(taxYear, contractor, cisSessionService, errorHandler, appConfig))
@@ -105,7 +105,7 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
                                                           contractor: String,
                                                           month: Option[String] = None): ActionBuilder[UserSessionDataRequest, AnyContent] =
     month.map(monthValue => authAction.andThen(MonthFilterAction(monthValue, errorHandler))).getOrElse(authAction)
-      .andThen(TaxYearAction.taxYearAction(taxYear, appConfig, ec))
+      .andThen(TaxYearAction(taxYear, appConfig, ec))
       .andThen(EndOfYearFilterAction(taxYear, inYearUtil, appConfig))
       .andThen(UserSessionDataRequestRefinerAction(taxYear, contractor, cisSessionService, errorHandler, appConfig))
       .andThen(CisUserDataFilterAction(taxYear, contractor, appConfig, needsPeriodData = false, redirectIfPrior = false))
@@ -113,7 +113,7 @@ class ActionsProvider @Inject()(authAction: AuthorisedAction,
 
   def checkCyaExistsAndReturnSessionData(taxYear: Int, contractor: String, month: String): ActionBuilder[UserSessionDataRequest, AnyContent] = {
     authAction
-      .andThen(TaxYearAction.taxYearAction(taxYear, appConfig, ec))
+      .andThen(TaxYearAction(taxYear, appConfig, ec))
       .andThen(OptionalCisCyaRefinerAction(taxYear, contractor, month, cisSessionService, errorHandler, appConfig))
       .andThen(ViewCisPeriodAuditAction(taxYear, auditService))
       .andThen(CisUserDataFinishedFilterAction(taxYear))

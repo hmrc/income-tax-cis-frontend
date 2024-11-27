@@ -27,14 +27,14 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 // TODO: Refactor
-class TaxYearAction @Inject()(taxYear: Int,
+case class TaxYearAction @Inject()(taxYear: Int,
                               appConfig: AppConfig,
                               ec: ExecutionContext)
   extends ActionRefiner[AuthorisationRequest, AuthorisationRequest] {
 
-  implicit val executionContext: ExecutionContext = ec
+  override protected[actions] def executionContext: ExecutionContext = ec
 
-  lazy val logger: Logger = Logger.apply(this.getClass)
+  private lazy val logger: Logger = Logger.apply(this.getClass)
 
   override def refine[A](request: AuthorisationRequest[A]): Future[Either[Result, AuthorisationRequest[A]]] = {
     implicit val implicitUser: AuthorisationRequest[A] = request
@@ -65,11 +65,4 @@ class TaxYearAction @Inject()(taxYear: Int,
       }
     )
   }
-}
-
-object TaxYearAction {
-  def taxYearAction(taxYear: Int,
-                    appConfig: AppConfig,
-                    ec: ExecutionContext): TaxYearAction =
-    new TaxYearAction(taxYear, appConfig, ec)
 }

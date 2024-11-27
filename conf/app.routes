@@ -20,8 +20,8 @@ GET         /:taxYear/contractor                                                
 GET         /:taxYear/add-cis-deduction                                             controllers.ContractorSummaryController.addCisDeduction(taxYear: Int, contractor: String)
 
 ###########################     Section Completed     ###########################
-GET         /:taxYear/cis/section-completed                                         controllers.SectionCompletedController.show(taxYear: Int, benefitType: models.BenefitType)
-POST        /:taxYear/cis/section-completed                                         controllers.SectionCompletedController.submit(taxYear: Int, benefitType: models.BenefitType)
+GET         /:taxYear/cis/section-completed                                         controllers.SectionCompletedController.show(taxYear: Int, cisType: models.CISType)
+POST        /:taxYear/cis/section-completed                                         controllers.SectionCompletedController.submit(taxYear: Int, cisType: models.CISType)
 
 ###########################     Delete CIS Period pages               ########################
 
