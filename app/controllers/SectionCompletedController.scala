@@ -21,7 +21,7 @@ import config.{AppConfig, ErrorHandler}
 import forms.YesNoForm
 import models.mongo.{JourneyAnswers, JourneyStatus}
 import models.mongo.JourneyStatus.{Completed, InProgress}
-import models.CISType
+import models.{CISType, Journey}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
@@ -31,7 +31,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.SectionCompletedView
 import actions.TaxYearAction
-import models.CISType.ConstructionIndustryScheme
+
 
 import java.time.Instant
 import javax.inject.Inject
@@ -48,47 +48,49 @@ class SectionCompletedController @Inject()(implicit val cc: MessagesControllerCo
 
   def form(): Form[Boolean] = YesNoForm.yesNoForm("sectionCompleted.error.required")
 
-  def journeyName(cisType: CISType): String = {
-    cisType match {
-      case ConstructionIndustryScheme => "ConstructionIndustryScheme"
-    }
-  }
-
-  def show(taxYear: Int, cisType: CISType): Action[AnyContent] =
+  def show(taxYear: Int, journey: String): Action[AnyContent] =
     (authAction andThen TaxYearAction(taxYear, appConfig, ec)).async { implicit user =>
-      sectionCompletedService.get(user.user.mtditid, taxYear, journeyName(cisType)).flatMap {
-        case Some(value) =>
-          value.data("status").validate[JourneyStatus].asOpt match {
-            case Some(JourneyStatus.Completed) =>
-              Future.successful(Ok(view(form().fill(true), taxYear, cisType)))
+      Journey.pathBindable.bind("journey", journey) match {
+        case (Right(journeyType)) =>
+          val journeyName = journeyType.toString
+          sectionCompletedService.get(user.user.mtditid, taxYear, journeyName).flatMap {
+            case Some(value) =>
+              value.data("status").validate[JourneyStatus].asOpt match {
+                case Some(JourneyStatus.Completed) =>
+                  Future.successful(Ok(view(form().fill(true), taxYear, journeyName)))
 
-            case Some(JourneyStatus.InProgress) =>
-              Future.successful(Ok(view(form().fill(false), taxYear, cisType)))
+                case Some(JourneyStatus.InProgress) =>
+                  Future.successful(Ok(view(form().fill(false), taxYear, journeyName)))
 
-            case _ => Future.successful(Ok(view(form(), taxYear, cisType)))
+                case _ => Future.successful(Ok(view(form(), taxYear, journeyName)))
+              }
+            case None => Future.successful(Ok(view(form(), taxYear, journeyName)))
           }
-        case None => Future.successful(Ok(view(form(), taxYear, cisType)))
+        case _ => Future.successful(errorHandler.handleError(BAD_REQUEST))
       }
     }
 
-
-  def submit(taxYear: Int, cisType: CISType): Action[AnyContent] = (authAction andThen TaxYearAction(taxYear, appConfig, ec)).async { implicit user =>
+  def submit(taxYear: Int, journey: String): Action[AnyContent] = (authAction andThen TaxYearAction(taxYear, appConfig, ec)).async { implicit user =>
     form()
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, taxYear, cisType))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, taxYear, journey))),
         answer => {
-          saveAndRedirect(answer, taxYear, cisType, user.user.mtditid)
+          val maybeJourney: Either[String, Journey] = Journey.pathBindable.bind("journey", journey)
+
+          maybeJourney match {
+            case (Right(journey)) => saveAndRedirect(answer, taxYear, journey, user.user.mtditid)
+            case _ =>
+              Future.successful(errorHandler.handleError(BAD_REQUEST))
+          }
+
         }
       )
   }
 
-  private def saveAndRedirect(answer: Boolean, taxYear: Int, cisType: CISType, mtditid: String)(implicit hc: HeaderCarrier): Future[Result] = {
+  private def saveAndRedirect(answer: Boolean, taxYear: Int, journey: Journey, mtditid: String)(implicit hc: HeaderCarrier): Future[Result] = {
     val status: JourneyStatus = if (answer) Completed else InProgress
-    val journeyName = cisType match {
-      case ConstructionIndustryScheme => "ConstructionIndustryScheme"
-    }
-    val model = JourneyAnswers(mtditid, taxYear, journeyName, Json.obj({
+    val model = JourneyAnswers(mtditid, taxYear, journey.toString, Json.obj({
       "status" -> status
     }), Instant.now)
     sectionCompletedService.set(model)

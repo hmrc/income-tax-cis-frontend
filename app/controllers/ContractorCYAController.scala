@@ -56,7 +56,8 @@ class ContractorCYAController @Inject()(actionsProvider: ActionsProvider,
           case Right(_) => Redirect(ContractorSummaryController.show(taxYear, contractor)).removingFromSession(SessionValues.TEMP_EMPLOYER_REF)
         }
       } else {
-        Future.successful(Redirect(ContractorSummaryController.show(taxYear, contractor)).removingFromSession(SessionValues.TEMP_EMPLOYER_REF))
+     //   Future.successful(Redirect(ContractorSummaryController.show(taxYear, contractor)).removingFromSession(SessionValues.TEMP_EMPLOYER_REF))
+        Future.successful(Redirect(SectionCompletedController.show(taxYear, journey)).removingFromSession(SessionValues.TEMP_EMPLOYER_REF))
       }
     }
 
