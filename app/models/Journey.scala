@@ -43,6 +43,6 @@ object Journey extends Enum[Journey] with PlayJsonEnum[Journey] {
 
   // Employment
   //TODO: Temporary name until journeys split out to non-linear
-  case object Employment extends Journey("employment-summary")
+  case object Cis extends Journey("cis")
 
 }

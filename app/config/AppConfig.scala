@@ -109,5 +109,7 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
   lazy val tailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringEnabled")
 
+  lazy val sectionCompletedQuestionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.sectionCompletedQuestionEnabled")
+
   lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
 }
