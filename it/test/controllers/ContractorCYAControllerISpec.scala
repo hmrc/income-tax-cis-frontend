@@ -70,6 +70,7 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
         authoriseAgentOrIndividual(isAgent = false)
         userDataStub(anIncomeTaxUserData, aUser.nino, taxYearEOY)
         val cisUrl = s"/income-tax-cis/income-tax/nino/AA123456A/sources?taxYear=$taxYearEOY"
+       // s"/income-tax-submission-service/income-tax/nino/$nino/sources/session\\?taxYear=$taxYear"
         val requestBody = Json.toJson(anUpdateCISSubmission.copy(
           periodData = Seq(submission.PeriodDataBuilder.aPeriodData)
         )).toString()
@@ -80,7 +81,7 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
       }
 
       result.status shouldBe SEE_OTHER
-      result.headers("Location").head shouldBe controllers.routes.ContractorSummaryController.show(taxYearEOY, aCisDeductions.employerRef).url
+      result.headers("Location").head shouldBe controllers.routes.SectionCompletedController.show(taxYearEOY, "cis").url
       await(repoUnderTest.find(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Right(None)
     }
 
@@ -96,7 +97,7 @@ class ContractorCYAControllerISpec extends IntegrationTest with ViewHelpers {
       }
 
       result.status shouldBe SEE_OTHER
-      result.headers("Location").head shouldBe controllers.routes.ContractorSummaryController.show(taxYearEOY, aCisDeductions.employerRef).url
+      result.headers("Location").head shouldBe controllers.routes.SectionCompletedController.show(taxYearEOY, "cis").url
       await(repoUnderTest.find(taxYearEOY, aCisDeductions.employerRef, aUser)) shouldBe Right(None)
     }
   }
