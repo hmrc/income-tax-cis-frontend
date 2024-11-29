@@ -24,7 +24,10 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class AppConfigStub extends MockFactory with TaxYearProvider {
 
-  def config(encrypt: Boolean = true, _taxYearErrorFeature: Boolean = false, enableTailoring: Boolean = false): AppConfig = new AppConfig(mock[ServicesConfig]) {
+  def config(encrypt: Boolean = true,
+             _taxYearErrorFeature: Boolean = false,
+             enableTailoring: Boolean = false,
+             _sectionCompletedQuestionEnabled: Boolean = false): AppConfig = new AppConfig(mock[ServicesConfig]) {
     override lazy val signInUrl: String = "/signIn"
 
     override lazy val incomeTaxSubmissionBEBaseUrl: String = s"http://localhost:11111"
@@ -64,5 +67,7 @@ class AppConfigStub extends MockFactory with TaxYearProvider {
     override lazy val useEncryption: Boolean = encrypt
 
     override lazy val incomeTaxCISBEUrl: String = "http://localhost:11111/income-tax-cis"
+
+    override lazy val sectionCompletedQuestionEnabled: Boolean = _sectionCompletedQuestionEnabled
   }
 }

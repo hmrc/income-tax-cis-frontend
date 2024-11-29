@@ -58,6 +58,10 @@ trait MockAuthorisedAction extends MockFactory {
       .returning(Future.successful(enrolments))
   }
 
+  protected def mockAuth(nino: Option[String]): CallHandler4[Predicate, Retrieval[_], HeaderCarrier, ExecutionContext, Future[Any]] = {
+    mockAuthAsIndividual(nino)
+  }
+
   protected def mockAuthAsIndividual(nino: Option[String]): CallHandler4[Predicate, Retrieval[_], HeaderCarrier, ExecutionContext, Future[Any]] = {
     val enrolments = Enrolments(Set(
       Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, aUser.mtditid)), "Activated"),

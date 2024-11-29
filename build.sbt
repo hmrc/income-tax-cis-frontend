@@ -103,5 +103,5 @@ lazy val it = project
 
 lazy val testSettings: Seq[Def.Setting[?]] = Seq(
   fork := true,
-  javaOptions ++= Seq("-Dconfig.resource=test.application.conf")
+  javaOptions ++= Seq("-Dconfig.resource=application.conf")
 )

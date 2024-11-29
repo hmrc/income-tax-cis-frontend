@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.routes.ContractorSummaryController
+import controllers.routes._
 import models.mongo.DataNotUpdatedError
 import models.{HttpParserError, InvalidOrUnfinishedSubmission}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER, SERVICE_UNAVAILABLE}
@@ -77,15 +77,46 @@ class ContractorCYAControllerSpec extends ControllerUnitTest
   }
 
   ".submit" should {
+    val underTestSectionCompletedEnabled = new ContractorCYAController(
+      mockActionsProvider,
+      pageView,
+      new InYearUtil(),
+      mockContractorCYAService,
+      mockErrorHandler,
+    )(cc, appConfig, ec)
 
+
+    "return successful response for end of year with section completed" in {
+      mockCheckCyaExistsAndReturnSessionData(taxYearEOY, contractor = "12345", month = "may", aCisUserData)
+      mockSubmitCisDeductionCYA(taxYearEOY, employerRef = "12345", aUser, aCisUserData, Right(()))
+
+
+      val result = underTestSectionCompletedEnabled.submit(taxYearEOY, Month.MAY.toString.toLowerCase, contractor = "12345").apply(fakeIndividualRequest)
+
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result).get shouldBe routes.ContractorSummaryController.show(taxYearEOY, "12345").url
+    }
+
+    "handle database error with section completed" in {
+      mockCheckCyaExistsAndReturnSessionData(taxYearEOY, contractor = "12345", month = "may", aCisUserData)
+      mockSubmitCisDeductionCYA(taxYearEOY, employerRef = "12345", aUser, aCisUserData, Left(DataNotUpdatedError))
+      mockInternalServerError(InternalServerError)
+
+      val result = underTestSectionCompletedEnabled.submit(taxYearEOY, Month.MAY.toString.toLowerCase, contractor = "12345").apply(fakeIndividualRequest)
+
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+    }
+
+    //
     "return successful response for end of year" in {
       mockCheckCyaExistsAndReturnSessionData(taxYearEOY, contractor = "12345", month = "may", aCisUserData)
       mockSubmitCisDeductionCYA(taxYearEOY, employerRef = "12345", aUser, aCisUserData, Right(()))
 
+
       val result = underTest.submit(taxYearEOY, Month.MAY.toString.toLowerCase, contractor = "12345").apply(fakeIndividualRequest)
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result).get shouldBe ContractorSummaryController.show(taxYearEOY, "12345").url
+      redirectLocation(result).get shouldBe routes.ContractorSummaryController.show(taxYearEOY, "12345").url
     }
 
     "handle database error" in {
@@ -118,6 +149,7 @@ class ContractorCYAControllerSpec extends ControllerUnitTest
       status(result) shouldBe SERVICE_UNAVAILABLE
     }
 
+    //
     "not make a call to the ContractorCYAService and return to Contractor Summary page when the period data hasn't changed" in {
       val cisCYAModel = aCisCYAModel.copy(periodData = Some(aCYAPeriodData), priorPeriodData = Seq(aCYAPeriodData))
       mockCheckCyaExistsAndReturnSessionData(taxYearEOY, contractor = "12345", month = "may", aCisUserData.copy(cis = cisCYAModel))
@@ -125,7 +157,7 @@ class ContractorCYAControllerSpec extends ControllerUnitTest
       val result = underTest.submit(taxYearEOY, Month.MAY.toString.toLowerCase, contractor = "12345").apply(fakeIndividualRequest)
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result).get shouldBe ContractorSummaryController.show(taxYearEOY, "12345").url
+      redirectLocation(result).get shouldBe routes.ContractorSummaryController.show(taxYearEOY, "12345").url
     }
   }
 }

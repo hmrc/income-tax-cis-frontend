@@ -21,7 +21,7 @@ import config.{AppConfig, ErrorHandler}
 import forms.YesNoForm
 import models.mongo.{JourneyAnswers, JourneyStatus}
 import models.mongo.JourneyStatus.{Completed, InProgress}
-import models.{CISType, Journey}
+import models.Journey
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
@@ -49,7 +49,7 @@ class SectionCompletedController @Inject()(implicit val cc: MessagesControllerCo
   def form(): Form[Boolean] = YesNoForm.yesNoForm("sectionCompleted.error.required")
 
   def show(taxYear: Int, journey: String): Action[AnyContent] =
-    (authAction andThen TaxYearAction(taxYear, appConfig, ec)).async { implicit user =>
+    (authAction andThen TaxYearAction.taxYearAction(taxYear, appConfig, ec)).async { implicit user =>
       Journey.pathBindable.bind("journey", journey) match {
         case (Right(journeyType)) =>
           val journeyName = journeyType.toString
@@ -70,7 +70,7 @@ class SectionCompletedController @Inject()(implicit val cc: MessagesControllerCo
       }
     }
 
-  def submit(taxYear: Int, journey: String): Action[AnyContent] = (authAction andThen TaxYearAction(taxYear, appConfig, ec)).async { implicit user =>
+  def submit(taxYear: Int, journey: String): Action[AnyContent] = (authAction andThen TaxYearAction.taxYearAction(taxYear, appConfig, ec)).async { implicit user =>
     form()
       .bindFromRequest()
       .fold(

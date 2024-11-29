@@ -60,7 +60,6 @@ class ContractorCYAController @Inject()(actionsProvider: ActionsProvider,
           case Left(HttpParserError(status)) => errorHandler.handleError(status)
           case Left(InvalidOrUnfinishedSubmission) => Redirect(ContractorCYAController.show(taxYear, month, contractor))
           case Left(_) => errorHandler.internalServerError()
-        //  case Right(_) => Redirect(ContractorSummaryController.show(taxYear, contractor)).removingFromSession(SessionValues.TEMP_EMPLOYER_REF)
           case Right(_) => redirectTo(taxYear, contractor)
         }
       } else {
