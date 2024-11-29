@@ -50,7 +50,7 @@ class SectionCompletedServiceISpec extends IntegrationTest {
   "SectionCompletedService" should {
 
     "return the correct journey answers from the connector" in {
-      stubFor(get(urlEqualTo(s"/income-tax-cis/journey-answers/$journeyName/$taxYear"))
+      stubFor(get(urlEqualTo(s"/income-tax-cis/income-tax/journey-answers/$journeyName/$taxYear"))
         .withHeader("MTDITID", equalTo(mtdItId))
         .willReturn(
           aResponse()
@@ -62,12 +62,12 @@ class SectionCompletedServiceISpec extends IntegrationTest {
       val result = await(service.get(mtdItId, taxYear, journeyName))
       result shouldBe Some(journeyAnswers)
 
-      verify(getRequestedFor(urlEqualTo(s"/income-tax-cis/journey-answers/$journeyName/$taxYear"))
+      verify(getRequestedFor(urlEqualTo(s"/income-tax-cis/income-tax/journey-answers/$journeyName/$taxYear"))
         .withHeader("MTDITID", equalTo(mtdItId)))
     }
 
     "set journey answers successfully via the connector" in {
-      stubFor(post(urlEqualTo("/income-tax-cis/journey-answers"))
+      stubFor(post(urlEqualTo("/income-tax-cis/income-tax/journey-answers"))
         .withHeader("MTDITID", equalTo(mtdItId))
         .withRequestBody(equalTo(Json.toJson(journeyAnswers).toString()))
         .willReturn(aResponse().withStatus(NO_CONTENT))
@@ -76,13 +76,13 @@ class SectionCompletedServiceISpec extends IntegrationTest {
       val result = await(service.set(journeyAnswers))
       result shouldBe Done
 
-      verify(postRequestedFor(urlEqualTo("/income-tax-cis/journey-answers"))
+      verify(postRequestedFor(urlEqualTo("/income-tax-cis/income-tax/journey-answers"))
         .withHeader("MTDITID", equalTo(mtdItId))
         .withRequestBody(equalTo(Json.toJson(journeyAnswers).toString())))
     }
 
     "keep journey alive successfully via the connector" in {
-      stubFor(post(urlEqualTo(s"/income-tax-cis/journey-answers/keep-alive/$journeyName/$taxYear"))
+      stubFor(post(urlEqualTo(s"/income-tax-cis/income-tax/journey-answers/keep-alive/$journeyName/$taxYear"))
         .withHeader("MTDITID", equalTo(mtdItId))
         .willReturn(aResponse().withStatus(NO_CONTENT))
       )
@@ -90,7 +90,7 @@ class SectionCompletedServiceISpec extends IntegrationTest {
       val result = await(service.keepAlive(mtdItId, taxYear, journeyName))
       result shouldBe Done
 
-      verify(postRequestedFor(urlEqualTo(s"/income-tax-cis/journey-answers/keep-alive/$journeyName/$taxYear"))
+      verify(postRequestedFor(urlEqualTo(s"/income-tax-cis/income-tax/journey-answers/keep-alive/$journeyName/$taxYear"))
         .withHeader("MTDITID", equalTo(mtdItId)))
     }
   }

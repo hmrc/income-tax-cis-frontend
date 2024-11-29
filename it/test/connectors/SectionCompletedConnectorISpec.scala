@@ -30,7 +30,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 import java.time.Instant
 
-class SectionCompletedConnectorISpec extends IntegrationTest {
+class SectionCompletedConnectorISpec extends IntegrationTest  {
 
   def stubGet(url: String, status: Integer, body: String): StubMapping =
     stubFor(get(urlMatching(url))
@@ -46,10 +46,10 @@ class SectionCompletedConnectorISpec extends IntegrationTest {
   lazy val httpClient: HttpClientV2 = app.injector.instanceOf[HttpClientV2]
 
   private def keepAliveUrl(journey: String, taxYear: Int) =
-    s"/income-tax-cis/journey-answers/keep-alive/$journey/$taxYear"
+    s"/income-tax-cis/income-tax/journey-answers/keep-alive/$journey/$taxYear"
 
   private def completedSectionUrl(journey: String, taxYear: Int) =
-    s"/income-tax-cis/journey-answers/$journey/$taxYear"
+    s"/income-tax-cis/income-tax/journey-answers/$journey/$taxYear"
 
 
   private val mtditId: String = "1234567890"
@@ -65,16 +65,16 @@ class SectionCompletedConnectorISpec extends IntegrationTest {
 
       stubGet(s"${completedSectionUrl(journeyName, taxYear)}", OK, Json.toJson(answers).toString)
 
-      val result = connector.get(mtditId, taxYear, journeyName).futureValue
+      val result: Option[JourneyAnswers] = await(connector.get(mtditId, taxYear, journeyName))
 
-      result.value mustEqual answers
+      result mustEqual Some(answers)
     }
 
     "must return None when the server returns NOT_FOUND" in {
 
       stubGet(s"${completedSectionUrl(journeyName, taxYear)}", NOT_FOUND, "{}")
 
-      val result = connector.get(mtditId, taxYear, journeyName).futureValue
+      val result = await(connector.get(mtditId, taxYear, journeyName))
 
       result must not be defined
     }
@@ -98,14 +98,14 @@ class SectionCompletedConnectorISpec extends IntegrationTest {
 
     "must post user answers to the server" in {
 
-      stubPost(s"/income-tax-cis/journey-answers", NO_CONTENT, "{}")
+      stubPost(s"/income-tax-cis/income-tax/journey-answers", NO_CONTENT, "{}")
 
 
       connector.set(answers).futureValue
     }
 
     "must return a failed future when the server returns error" in {
-      stubPost(s"/income-tax-cis/journey-answers", INTERNAL_SERVER_ERROR, "{}")
+      stubPost(s"/income-tax-cis/income-tax/journey-answers", INTERNAL_SERVER_ERROR, "{}")
 
 
       connector.set(answers).failed.futureValue
@@ -122,14 +122,14 @@ class SectionCompletedConnectorISpec extends IntegrationTest {
   ".keepAlive" when {
 
     "must post to the server" in {
-      stubPost(s"/income-tax-cis/journey-answers/keep-alive/$journeyName/$taxYear", NO_CONTENT, "{}")
+      stubPost(s"/income-tax-cis/income-tax/journey-answers/keep-alive/$journeyName/$taxYear", NO_CONTENT, "{}")
 
       connector.keepAlive(mtditId, taxYear, journeyName).futureValue
     }
 
     "must return a failed future when the server returns error" in {
 
-      stubPost(s"/income-tax-cis/journey-answers/keep-alive/$journeyName/$taxYear", INTERNAL_SERVER_ERROR, "{}")
+      stubPost(s"/income-tax-cis/income-tax/journey-answers/keep-alive/$journeyName/$taxYear", INTERNAL_SERVER_ERROR, "{}")
 
 
       connector.keepAlive(mtditId, taxYear, journeyName).failed.futureValue

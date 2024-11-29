@@ -57,12 +57,12 @@ class SectionCompletedControllerSpec extends ControllerUnitTest {
 
   val nino  = "AA123456A"
   val mtdId = "1234567890"
-  val journey = "employment-summary"
+  val journey = "cis"
   val journeyAnswers: JourneyAnswers = JourneyAnswers(
     mtdItId = mtdId,
     taxYear = taxYear,
     journey = journey,
-    data = Json.obj("journey" -> "employment-summary"),
+    data = Json.obj("journey" -> "cis"),
     lastUpdated = Calendar.getInstance().toInstant
   )
 
@@ -74,7 +74,7 @@ class SectionCompletedControllerSpec extends ControllerUnitTest {
     "display the SectionCompletedView" when {
       "journey name is correct and status is 'Completed'" in new Test {
         mockAuth(Some(nino))
-        private val journeyData = Json.obj("journey" -> "employment-summary", "status" -> "completed")
+        private val journeyData = Json.obj("journey" -> "cis", "status" -> "completed")
         mockGet(mtdId, taxYear, journey, Some(journeyAnswers.copy(data = journeyData)))
         private val sessionRequest = fakeIndividualRequest.withSession(
           SessionValues.TAX_YEAR -> taxYear.toString,
@@ -87,7 +87,7 @@ class SectionCompletedControllerSpec extends ControllerUnitTest {
 
       "journey name is correct and status is 'inProgress'" in new Test {
         mockAuth(Some(nino))
-        private val journeyData = Json.obj("journey" -> "employment-summary", "status" -> "inProgress")
+        private val journeyData = Json.obj("journey" -> "cis-summary", "status" -> "inProgress")
         mockGet(mtdId, taxYear, journey, Some(journeyAnswers.copy(data = journeyData)))
         private val sessionRequest = fakeIndividualRequest.withSession(
           SessionValues.TAX_YEAR -> taxYear.toString,
@@ -100,7 +100,7 @@ class SectionCompletedControllerSpec extends ControllerUnitTest {
 
       "journey name is correct and status is 'notStarted'" in new Test {
         mockAuth(Some(nino))
-        private val journeyData = Json.obj("journey" -> "employment-summary", "status" -> "notStarted")
+        private val journeyData = Json.obj("journey" -> "cis", "status" -> "notStarted")
         mockGet(mtdId, taxYear, journey, Some(journeyAnswers.copy(data = journeyData)))
         private val sessionRequest = fakeIndividualRequest.withSession(
           SessionValues.TAX_YEAR -> taxYear.toString,
