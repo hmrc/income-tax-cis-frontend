@@ -19,11 +19,11 @@ package controllers
 import actions.ActionsProvider
 import common.SessionValues
 import config.{AppConfig, ErrorHandler}
-import controllers.routes.{ContractorCYAController, ContractorSummaryController}
+import controllers.routes._
 import models.pages.ContractorCYAPage._
-import models.{HttpParserError, InvalidOrUnfinishedSubmission}
+import models.{HttpParserError, InvalidOrUnfinishedSubmission, UserSessionDataRequest}
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.ContractorCYAService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.{InYearUtil, SessionHelper}
@@ -46,6 +46,13 @@ class ContractorCYAController @Inject()(actionsProvider: ActionsProvider,
            contractor: String): Action[AnyContent] =
     if (inYearUtil.inYear(taxYear)) inYear(taxYear, month, contractor) else endOfYear(taxYear, month, contractor)
 
+  private def redirectTo(taxYear: Int, contractor: String)(implicit request: UserSessionDataRequest[_]): Result =
+    if (appConfig.sectionCompletedQuestionEnabled){
+      Redirect(SectionCompletedController.show(taxYear, "cis"))
+    } else {
+      Redirect(ContractorSummaryController.show(taxYear, contractor))
+    }.removingFromSession(SessionValues.TEMP_EMPLOYER_REF)
+
   def submit(taxYear: Int, month: String, contractor: String): Action[AnyContent] =
     actionsProvider.checkCyaExistsAndReturnSessionData(taxYear, contractor, month).async { implicit request =>
       if (request.cisUserData.cis.periodDataUpdated) {
@@ -53,10 +60,10 @@ class ContractorCYAController @Inject()(actionsProvider: ActionsProvider,
           case Left(HttpParserError(status)) => errorHandler.handleError(status)
           case Left(InvalidOrUnfinishedSubmission) => Redirect(ContractorCYAController.show(taxYear, month, contractor))
           case Left(_) => errorHandler.internalServerError()
-          case Right(_) => Redirect(ContractorSummaryController.show(taxYear, contractor)).removingFromSession(SessionValues.TEMP_EMPLOYER_REF)
+          case Right(_) => redirectTo(taxYear, contractor)
         }
       } else {
-        Future.successful(Redirect(ContractorSummaryController.show(taxYear, contractor)).removingFromSession(SessionValues.TEMP_EMPLOYER_REF))
+        Future.successful(redirectTo(taxYear, contractor))
       }
     }
 

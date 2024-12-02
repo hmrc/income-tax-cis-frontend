@@ -53,6 +53,10 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
 
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
+
+  // def commonTaskListUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear + "/tasklist"
+  def commonTaskListUrl(taxYear: Int): String = s"$incomeTaxSubmissionBaseUrl/$taxYear/tasklist"
+
   def incomeTaxSubmissionStartUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     "/start"
   def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl +
@@ -105,6 +109,8 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   lazy val welshToggleEnabled: Boolean = servicesConfig.getBoolean("feature-switch.welshToggleEnabled")
 
   lazy val tailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringEnabled")
+
+  lazy val sectionCompletedQuestionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.sectionCompletedQuestionEnabled")
 
   lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
 }
