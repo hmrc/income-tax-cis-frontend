@@ -107,7 +107,6 @@ class ContractorCYAControllerSpec extends ControllerUnitTest
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
-    //
     "return successful response for end of year" in {
       mockCheckCyaExistsAndReturnSessionData(taxYearEOY, contractor = "12345", month = "may", aCisUserData)
       mockSubmitCisDeductionCYA(taxYearEOY, employerRef = "12345", aUser, aCisUserData, Right(()))
@@ -149,7 +148,6 @@ class ContractorCYAControllerSpec extends ControllerUnitTest
       status(result) shouldBe SERVICE_UNAVAILABLE
     }
 
-    //
     "not make a call to the ContractorCYAService and return to Contractor Summary page when the period data hasn't changed" in {
       val cisCYAModel = aCisCYAModel.copy(periodData = Some(aCYAPeriodData), priorPeriodData = Seq(aCYAPeriodData))
       mockCheckCyaExistsAndReturnSessionData(taxYearEOY, contractor = "12345", month = "may", aCisUserData.copy(cis = cisCYAModel))
