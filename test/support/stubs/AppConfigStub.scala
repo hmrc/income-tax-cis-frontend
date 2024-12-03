@@ -16,7 +16,7 @@
 
 package support.stubs
 
-import config.AppConfig
+import config.{AppConfig, AppConfigImpl}
 import org.scalamock.scalatest.MockFactory
 import play.api.mvc.RequestHeader
 import support.TaxYearProvider
@@ -27,7 +27,7 @@ class AppConfigStub extends MockFactory with TaxYearProvider {
   def config(encrypt: Boolean = true,
              _taxYearErrorFeature: Boolean = false,
              enableTailoring: Boolean = false,
-             _sectionCompletedQuestionEnabled: Boolean = false): AppConfig = new AppConfig(mock[ServicesConfig]) {
+             _sectionCompletedQuestionEnabled: Boolean = false): AppConfig = new AppConfigImpl(mock[ServicesConfig]) {
     override lazy val signInUrl: String = "/signIn"
 
     override lazy val incomeTaxSubmissionBEBaseUrl: String = s"http://localhost:11111"

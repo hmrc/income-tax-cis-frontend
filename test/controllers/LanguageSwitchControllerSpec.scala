@@ -16,7 +16,7 @@
 
 package controllers
 
-import config.AppConfig
+import config.AppConfigImpl
 import play.api.http.Status
 import play.api.test.Helpers._
 import play.api.{Configuration, Environment}
@@ -28,7 +28,7 @@ class LanguageSwitchControllerSpec extends ControllerUnitTest {
   private val env = Environment.simple()
   private val configuration = Configuration.load(env)
   private val serviceConfig = new ServicesConfig(configuration)
-  private val mockFrontendAppConfig = new AppConfig(serviceConfig)
+  private val mockFrontendAppConfig = new AppConfigImpl(serviceConfig)
 
   private val underTest = new LanguageSwitchController(appConfig = mockFrontendAppConfig, controllerComponents = cc, messagesApi = stubMessagesApi())
 

@@ -16,6 +16,7 @@
 
 package config
 
+import com.google.inject.ImplementedBy
 import play.api.i18n.Lang
 import play.api.mvc.{Call, RequestHeader}
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
@@ -24,17 +25,51 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.duration.Duration
 
-@Singleton
-class AppConfig @Inject()(servicesConfig: ServicesConfig) {
+@ImplementedBy(classOf[AppConfigImpl])
+trait AppConfig {
+  def signInUrl: String
+  def defaultTaxYear: Int
+  def alwaysEOY: Boolean
+  def incomeTaxSubmissionBEBaseUrl: String
+  def incomeTaxSubmissionOverviewUrl(taxYear: Int): String
+  def commonTaskListUrl(taxYear: Int): String
+  def incomeTaxSubmissionStartUrl(taxYear: Int): String
+  def incomeTaxSubmissionIvRedirect: String
+  def incomeTaxCISBEUrl: String
+  def viewAndChangeEnterUtrUrl: String
+  def feedbackSurveyUrl(implicit isAgent: Boolean): String
+  def betaFeedbackUrl(implicit request: RequestHeader, isAgent: Boolean): String
+  def contactUrl(implicit isAgent: Boolean): String
+  def signOutUrl: String
+    
+  def timeoutDialogTimeout: Int
+  def timeoutDialogCountdown: Int
 
-  val incomeTaxSubmissionUrlKey = "microservice.services.income-tax-submission.url"
-  val contactFrontendUrlKey = "microservice.services.contact-frontend.url"
-  val incomeTaxSubmissionFrontendUrlKey = "microservice.services.income-tax-submission-frontend.url"
-  val basGatewayFrontendUrlKey = "microservice.services.bas-gateway-frontend.url"
-  val feedbackFrontendUrlKey = "microservice.services.feedback-frontend.url"
-  val viewAndChangeUrlKey = "microservice.services.view-and-change.url"
-  val incomeTaxCISUrlKey = "microservice.services.income-tax-cis.url"
-  val signInContinueUrlKey = "microservice.services.sign-in.continueUrl"
+  //Mongo config
+  def encryptionKey: String
+  def mongoTTL: Int
+  
+  def taxYearErrorFeature: Boolean
+  def languageMap: Map[String, Lang]
+  def routeToSwitchLanguage: String => Call
+  def welshToggleEnabled: Boolean
+  
+  def tailoringEnabled: Boolean
+  def sectionCompletedQuestionEnabled: Boolean
+  def useEncryption: Boolean
+  def emaSupportingAgentsEnabled: Boolean
+}
+
+@Singleton
+class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig {
+  private val incomeTaxSubmissionUrlKey = "microservice.services.income-tax-submission.url"
+  private val contactFrontendUrlKey = "microservice.services.contact-frontend.url"
+  private val incomeTaxSubmissionFrontendUrlKey = "microservice.services.income-tax-submission-frontend.url"
+  private val basGatewayFrontendUrlKey = "microservice.services.bas-gateway-frontend.url"
+  private val feedbackFrontendUrlKey = "microservice.services.feedback-frontend.url"
+  private val viewAndChangeUrlKey = "microservice.services.view-and-change.url"
+  private val incomeTaxCISUrlKey = "microservice.services.income-tax-cis.url"
+  private val signInContinueUrlKey = "microservice.services.sign-in.continueUrl"
 
   private lazy val signInBaseUrl: String = servicesConfig.getString("microservice.services.sign-in.url")
   private lazy val signInContinueBaseUrl: String = servicesConfig.getString(signInContinueUrlKey)
@@ -113,4 +148,6 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   lazy val sectionCompletedQuestionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.sectionCompletedQuestionEnabled")
 
   lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
+
+  lazy val emaSupportingAgentsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.ema-supporting-agents-enabled")
 }

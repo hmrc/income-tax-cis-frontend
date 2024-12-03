@@ -16,18 +16,18 @@
 
 package config
 
-import com.google.inject.AbstractModule
+import play.api.inject.{Binding, Module}
 import common.UUID
+import play.api.{Configuration, Environment}
 import repositories.{CisUserDataRepository, CisUserDataRepositoryImpl}
 import utils.{Clock, StartUpLogging}
 
-class Modules extends AbstractModule {
-
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-    bind(classOf[UUID]).toInstance(UUID)
-    bind(classOf[Clock]).toInstance(Clock)
-    bind(classOf[CisUserDataRepository]).to(classOf[CisUserDataRepositoryImpl]).asEagerSingleton()
-    bind(classOf[StartUpLogging]).asEagerSingleton()
-  }
+class Modules extends Module {
+  override def bindings(environment: Environment, configuration: Configuration): collection.Seq[Binding[_]] = Seq(
+    bind[AppConfig].to[AppConfigImpl],
+    bind[UUID].toInstance(UUID),
+    bind[Clock].toInstance(Clock),
+    bind[CisUserDataRepository].to[CisUserDataRepositoryImpl].eagerly(),
+    bind[StartUpLogging].toSelf
+  )
 }
