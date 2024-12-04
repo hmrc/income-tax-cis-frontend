@@ -28,7 +28,7 @@ class AppConfigSpec extends UnitTest
   private val mockServicesConfig: ServicesConfig = mock[ServicesConfig]
   private val appUrl = "http://localhost:9308"
 
-  private val underTest = new AppConfig(mockServicesConfig)
+  private val underTest = new AppConfigImpl(mockServicesConfig)
 
   (mockServicesConfig.getString(_: String)).expects("microservice.services.bas-gateway-frontend.url").returns("http://bas-gateway-frontend:9553")
 

@@ -36,7 +36,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import views.html.SectionCompletedView
 
 import java.util.Calendar
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class SectionCompletedControllerSpec extends ControllerUnitTest {
 
@@ -47,7 +46,6 @@ class SectionCompletedControllerSpec extends ControllerUnitTest {
 
     implicit val authorisedAction: AuthorisedAction = mockAuthorisedAction
     implicit val errorHandler: ErrorHandler = mockErrorHandler
-    implicit val ec: Any = ec
     implicit val sectionCompletedService: SectionCompletedService = mockSectionCompletedService
 
     class TestController extends SectionCompletedController() {}

@@ -32,7 +32,6 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import play.api.mvc.Result
-import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import play.api.test.Helpers.OK
 import play.api.{Application, Environment, Mode}
 import support.builders.models.IncomeTaxUserDataBuilder
