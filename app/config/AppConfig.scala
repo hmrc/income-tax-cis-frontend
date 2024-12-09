@@ -59,7 +59,7 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
     servicesConfig.getString("microservice.services.income-tax-cis-frontend.context")
   def sectionCompletedUrl(taxYear: Int): String =
     s"$incomeTaxCISFrontendBaseUrl/construction-industry-scheme-deductions/$taxYear/cis/section-completed?journey=cis"
-
+  
   def commonTaskListUrl(taxYear: Int): String = s"$incomeTaxSubmissionBaseUrl/$taxYear/tasklist"
 
   def incomeTaxSubmissionStartUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
