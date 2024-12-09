@@ -44,7 +44,7 @@ GET        /:taxYear/when-deductions-made                                       
 POST       /:taxYear/when-deductions-made                                           controllers.DeductionPeriodController.submit(taxYear: Int, contractor: String, month: Option[String])
 
 
-###########################     Labour Pay pages                 ########################
+###########################     Labour Pay pages            ########################
 
 GET        /:taxYear/labour-pay                                                     controllers.LabourPayController.show(taxYear: Int, month: String, contractor: String)
 POST       /:taxYear/labour-pay                                                     controllers.LabourPayController.submit(taxYear: Int, month: String, contractor: String)
