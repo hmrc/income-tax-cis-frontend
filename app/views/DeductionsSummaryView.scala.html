@@ -40,56 +40,68 @@
 
 @layout(pageTitle = title, taxYear = Some(pageModel.taxYear), isAgent = request.user.isAgent) {
 
-@heading(title, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
+    @heading(title, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
 
-@if(appConfig.tailoringEnabled && !pageModel.isInYear) {
-@govukSummaryList(SummaryList(Seq(summaryListRow(
-HtmlContent(messages("deductionsSummary.title")),
-HtmlContent( if(pageModel.gateway) messages("common.yes") else messages("common.no")),
-actions = if(!pageModel.isInYear) Seq((DeductionsFromPaymentsController.show(pageModel.taxYear), messages("common.change"), Some(messages("common.change")))) else Seq()
-))))
-}
+    @if(appConfig.tailoringEnabled && !pageModel.isInYear) {
+        @govukSummaryList(SummaryList(Seq(summaryListRow(
+            HtmlContent(messages("deductionsSummary.title")),
+            HtmlContent(if(pageModel.gateway) messages("common.yes") else messages("common.no")),
+            actions = if(!pageModel.isInYear) Seq((DeductionsFromPaymentsController.show(pageModel.taxYear), messages("common.change"), Some(messages("common.change")))) else Seq()
+        ))))
+    }
 
-    @if(pageModel.deductions.nonEmpty){
+    @if(pageModel.deductions.nonEmpty) {
         <p class="govuk-body">@messages(s"cis.deductionsInfo.p1.${if(request.user.isAgent) "agent" else "individual"}")</p>
 
-        @if(pageModel.isInYear)@{
+        @if(pageModel.isInYear) @{
             govukInsetText(InsetText(content = Text(messages(s"cis.insetText.${if(request.user.isAgent) "agent" else "individual"}", pageModel.taxYear.toString))))
         }
         @if(pageModel.gateway) {
 
-        <div class=@{s"govuk-!-padding-bottom-${if(pageModel.isInYear){4}else{0}}"}>
-        @{
-            val rows = pageModel.deductions.map{ deduction =>
-                val contractor = deduction.contractorName.getOrElse(messages("common.contractor.employerRef", deduction.employerRef))
-                val htmlLink = link(ContractorSummaryController.show(pageModel.taxYear, deduction.employerRef).url, contractor, isMessageKey = false)
-                Seq(
-                    TableRow(content = HtmlContent(htmlLink)),
-                    TableRow(content = Text(deduction.amount.map(value => bigDecimalCurrency(value.toString)).getOrElse("")))
-                )
+            <div class=@{
+                s"govuk-!-padding-bottom-${
+                    if(pageModel.isInYear) {
+                        4
+                    } else {
+                        0
+                    }
+                }"
+            }>
+            @{
+                val rows = pageModel.deductions.map { deduction =>
+                    val contractor = deduction.contractorName.getOrElse(messages("common.contractor.employerRef", deduction.employerRef))
+                    val htmlLink = link(ContractorSummaryController.show(pageModel.taxYear, deduction.employerRef).url, contractor, isMessageKey = false)
+                    Seq(
+                        TableRow(content = HtmlContent(htmlLink)),
+                        TableRow(content = Text(deduction.amount.map(value => bigDecimalCurrency(value.toString)).getOrElse("")))
+                    )
+                }
+
+                govukTable(Table(
+                    rows = rows,
+                    head = Some(Seq(HeadCell(content = Text(messages("deductionsSummary.table.head.contractor"))), HeadCell(content = Text(messages("deductionsSummary.table.head.deductionsToDate"))))),
+                    caption = Some(messages("deductionsSummary.table.caption")),
+                    captionClasses = "govuk-table__caption--m",
+                    firstCellIsHeader = true
+                ))
             }
-
-            govukTable(Table(
-                rows = rows,
-                head = Some(Seq(HeadCell(content = Text(messages("deductionsSummary.table.head.contractor"))), HeadCell(content = Text(messages("deductionsSummary.table.head.deductionsToDate"))))),
-                caption = Some(messages("deductionsSummary.table.caption")),
-                captionClasses = "govuk-table__caption--m",
-                firstCellIsHeader = true
-            ))
+            </div>
         }
-        </div>
-    }
-   }
-
-    @if(!pageModel.isInYear && pageModel.gateway){
-        <p class="govuk-body govuk-!-padding-bottom-3">@link(controllers.routes.ContractorDetailsController.show(pageModel.taxYear,None).url,if(pageModel.deductions.nonEmpty)"deductionsSummary.addAnother" else "deductionsSummary.addContractor",Some("add-contractor"))</p>
     }
 
-    @if(pageModel.deductions.isEmpty && pageModel.isInYear)@{
+    @if(!pageModel.isInYear && pageModel.gateway) {
+        <p class="govuk-body govuk-!-padding-bottom-3">@link(controllers.routes.ContractorDetailsController.show(pageModel.taxYear, None).url, if(pageModel.deductions.nonEmpty) "deductionsSummary.addAnother" else "deductionsSummary.addContractor", Some("add-contractor"))</p>
+    }
+
+    @if(pageModel.deductions.isEmpty && pageModel.isInYear) @{
         govukInsetText(InsetText(content = Text(messages(s"cis.insetText.${if(request.user.isAgent) "agent" else "individual"}", pageModel.taxYear.toString))))
     }
 
-    @button(href = Some(appConfig.incomeTaxSubmissionOverviewUrl(pageModel.taxYear)), alternativeText = "common.return.overview.buttonText", attributes = Map("id" -> "return-to-overview-button-id"))
+    @if(appConfig.sectionCompletedQuestionEnabled) {
+        @button(href = Some(appConfig.sectionCompletedUrl(pageModel.taxYear)), alternativeText = "common.saveAndContinue", attributes = Map("id" -> "save-and-continue-button-id"))
+    } else {
+        @button(href = Some(appConfig.incomeTaxSubmissionOverviewUrl(pageModel.taxYear)), alternativeText = "common.return.overview.buttonText", attributes = Map("id" -> "return-to-overview-button-id"))
+    }
 }
 
 @{
