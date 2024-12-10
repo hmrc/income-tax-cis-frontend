@@ -37,6 +37,7 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   val incomeTaxCISFrontendUrlKey = "microservice.services.income-tax-cis-frontend.url"
   val signInContinueUrlKey = "microservice.services.sign-in.continueUrl"
 
+
   private lazy val signInBaseUrl: String = servicesConfig.getString("microservice.services.sign-in.url")
   private lazy val signInContinueBaseUrl: String = servicesConfig.getString(signInContinueUrlKey)
   lazy val signInContinueUrlRedirect: String = SafeRedirectUrl(signInContinueBaseUrl).encodedUrl
@@ -116,6 +117,8 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   lazy val tailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringEnabled")
 
   lazy val sectionCompletedQuestionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.sectionCompletedQuestionEnabled")
+
+  lazy val tailoringPhase2Enabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringPhase2Enabled")
 
   lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
 }

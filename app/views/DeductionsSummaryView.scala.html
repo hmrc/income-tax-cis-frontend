@@ -97,7 +97,7 @@
         govukInsetText(InsetText(content = Text(messages(s"cis.insetText.${if(request.user.isAgent) "agent" else "individual"}", pageModel.taxYear.toString))))
     }
 
-    @if(appConfig.sectionCompletedQuestionEnabled) {
+    @if(appConfig.tailoringPhase2Enabled && appConfig.sectionCompletedQuestionEnabled) {
         @button(href = Some(appConfig.sectionCompletedUrl(pageModel.taxYear)), alternativeText = "common.saveAndContinue", attributes = Map("id" -> "save-and-continue-button-id"))
     } else {
         @button(href = Some(appConfig.incomeTaxSubmissionOverviewUrl(pageModel.taxYear)), alternativeText = "common.return.overview.buttonText", attributes = Map("id" -> "return-to-overview-button-id"))
