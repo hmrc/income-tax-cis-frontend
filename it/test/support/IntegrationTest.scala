@@ -71,7 +71,9 @@ trait IntegrationTest extends AnyWordSpec
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
     "taxYearErrorFeatureSwitch" -> "false",
     "useEncryption" -> "true",
-    "feature-switch.tailoringEnabled" -> "false"
+    "feature-switch.tailoringEnabled" -> "false",
+    "feature-switch.sectionCompletedQuestionEnabled" -> "true",
+    "feature-switch.ema-supporting-agents-enabled" -> "true"
   )
 
   override implicit lazy val app: Application = new GuiceApplicationBuilder()
