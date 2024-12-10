@@ -17,6 +17,7 @@
 package utils
 
 import config.AppConfig
+import featureswitch.core.config.UseEncryption
 import uk.gov.hmrc.crypto.EncryptedValue
 
 import javax.inject.{Inject, Singleton}
@@ -29,7 +30,7 @@ class AesGcmAdCrypto @Inject()(appConfig: AppConfig,
 
   def encrypt(valueToEncrypt: String)
              (implicit associatedText: String): EncryptedValue = {
-    if (appConfig.useEncryption) {
+    if (appConfig.isEnabled(UseEncryption)) {
       aesGcmAdCrypto.encrypt(valueToEncrypt, associatedText)
     } else {
       EncryptedValue(valueToEncrypt, s"$valueToEncrypt-Nonce")
@@ -38,7 +39,7 @@ class AesGcmAdCrypto @Inject()(appConfig: AppConfig,
 
   def decrypt(encryptedValue: EncryptedValue)
              (implicit associatedText: String): String = {
-    if (appConfig.useEncryption) {
+    if (appConfig.isEnabled(UseEncryption)) {
       aesGcmAdCrypto.decrypt(encryptedValue, associatedText)
     } else {
       encryptedValue.value

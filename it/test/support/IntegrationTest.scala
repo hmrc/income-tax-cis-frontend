@@ -69,8 +69,8 @@ trait IntegrationTest extends AnyWordSpec
     "microservice.services.income-tax-submission.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.view-and-change.url" -> s"http://$wiremockHost:$wiremockPort",
     "microservice.services.sign-in.url" -> s"/auth-login-stub/gg-sign-in",
-    "taxYearErrorFeatureSwitch" -> "false",
-    "useEncryption" -> "true",
+    "feature-switch.taxYearErrorFeatureSwitch" -> "false",
+    "feature-switch.useEncryption" -> "true",
     "feature-switch.tailoringEnabled" -> "false"
   )
 

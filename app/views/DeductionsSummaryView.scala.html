@@ -23,6 +23,7 @@
 @import controllers.routes.ContractorSummaryController
 @import controllers.routes.DeductionsFromPaymentsController
 @import utils.ViewUtils.summaryListRow
+@import featureswitch.core.config.Tailoring
 
 @this(
     layout: Layout,
@@ -42,7 +43,7 @@
 
 @heading(title, Some(messages("cis.caption", (pageModel.taxYear - 1).toString, pageModel.taxYear.toString)), "govuk-!-margin-bottom-2")
 
-@if(appConfig.tailoringEnabled && !pageModel.isInYear) {
+@if(appConfig.isEnabled(Tailoring) && !pageModel.isInYear) {
 @govukSummaryList(SummaryList(Seq(summaryListRow(
 HtmlContent(messages("deductionsSummary.title")),
 HtmlContent( if(pageModel.gateway) messages("common.yes") else messages("common.no")),

@@ -20,6 +20,7 @@ import actions.ActionsProvider
 import common.SessionValues
 import config.{AppConfig, ErrorHandler}
 import controllers.routes._
+import featureswitch.core.config.SectionCompletedQuestion
 import models.pages.ContractorCYAPage._
 import models.{HttpParserError, InvalidOrUnfinishedSubmission, UserSessionDataRequest}
 import play.api.i18n.I18nSupport
@@ -47,7 +48,7 @@ class ContractorCYAController @Inject()(actionsProvider: ActionsProvider,
     if (inYearUtil.inYear(taxYear)) inYear(taxYear, month, contractor) else endOfYear(taxYear, month, contractor)
 
   private def redirectTo(taxYear: Int, contractor: String)(implicit request: UserSessionDataRequest[_]): Result =
-    if (appConfig.sectionCompletedQuestionEnabled){
+    if (appConfig.isEnabled(SectionCompletedQuestion)){
       Redirect(SectionCompletedController.show(taxYear, "cis"))
     } else {
       Redirect(ContractorSummaryController.show(taxYear, contractor))

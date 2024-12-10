@@ -17,6 +17,7 @@
 package utils
 
 import config.AppConfig
+import featureswitch.core.config.AlwaysEOY
 import play.api.Logger
 
 import java.time.{LocalDateTime, ZoneId}
@@ -44,7 +45,7 @@ class InYearUtil @Inject()(implicit appConfig: AppConfig) {
       logger.info(s"[InYearAction][inYear] CIS pages for this request will not be in year.")
     }
 
-    if (appConfig.alwaysEOY) {
+    if (appConfig.isEnabled(AlwaysEOY)) {
       false
     } else {
       isNowBefore

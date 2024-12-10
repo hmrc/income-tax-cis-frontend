@@ -37,6 +37,7 @@ lazy val coverageSettings: Seq[Setting[?]] = {
     "testOnly.*",
     "testOnlyDoNotUseInAppConf.*",
     ".*feedback*.*",
+    ".*featureswitch.*",
     "partials.*",
     "controllers.testOnly.*",
     "forms.validation.mappings",
