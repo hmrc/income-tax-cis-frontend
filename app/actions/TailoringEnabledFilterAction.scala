@@ -17,6 +17,7 @@
 package actions
 
 import config.AppConfig
+import featureswitch.core.config.Tailoring
 import models.AuthorisationRequest
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionFilter, Result}
@@ -30,7 +31,7 @@ case class TailoringEnabledFilterAction(taxYear: Int,
   override protected[actions] def executionContext: ExecutionContext = ec
 
   override protected[actions] def filter[A](request: AuthorisationRequest[A]): Future[Option[Result]] = Future.successful {
-    if (appConfig.tailoringEnabled) {
+    if (appConfig.isEnabled(Tailoring)) {
       None
     } else {
       Some(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)))

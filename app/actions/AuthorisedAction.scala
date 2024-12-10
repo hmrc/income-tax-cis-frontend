@@ -19,6 +19,7 @@ package actions
 import common.{DelegatedAuthRules, EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
 import config.AppConfig
 import controllers.errors.routes.{AgentAuthErrorController, IndividualAuthErrorController, UnauthorisedUserErrorController}
+import featureswitch.core.config.EmaSupportingAgent
 import models.{AuthorisationRequest, User}
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -127,7 +128,7 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
     case _: NoActiveSession =>
       logger.info(s"$agentAuthLogString - No active session. Redirecting to ${appConfig.signInUrl}")
       signInRedirectFutureResult
-    case _: AuthorisationException if appConfig.emaSupportingAgentsEnabled =>
+    case _: AuthorisationException if appConfig.isEnabled(EmaSupportingAgent) =>
       authService.authorised(secondaryAgentPredicate(mtdItId))
         .retrieve(allEnrolments)(
           enrolments => handleForValidAgent(block, mtdItId, nino, enrolments, isSupportingAgent = true)

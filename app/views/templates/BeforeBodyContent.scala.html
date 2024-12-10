@@ -15,6 +15,7 @@
  *@
 
 @import views.html.templates.helpers.BetaBar
+@import featureswitch.core.config.WelshToggle
 
 @this(betaBar: BetaBar,hmrcLanguageSelect : HmrcLanguageSelect,govukBackLink: GovukBackLink)
 
@@ -22,7 +23,7 @@
 
 @betaBar(isAgent)
 
-@if(appConfig.welshToggleEnabled) {
+@if(appConfig.isEnabled(WelshToggle)) {
  @hmrcLanguageSelect(LanguageSelect(
    language = utils.LanguageUtil.checkLanguage,
      En -> appConfig.routeToSwitchLanguage("english").toString,

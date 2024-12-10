@@ -16,6 +16,7 @@
 
 package config
 
+import featureswitch.core.config.FeatureSwitching
 import com.google.inject.ImplementedBy
 import play.api.i18n.Lang
 import play.api.mvc.{Call, RequestHeader}
@@ -26,38 +27,32 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.duration.Duration
 
 @ImplementedBy(classOf[AppConfigImpl])
-trait AppConfig {
+trait AppConfig extends FeatureSwitching {
   def signInUrl: String
   def defaultTaxYear: Int
-  def alwaysEOY: Boolean
   def incomeTaxSubmissionBEBaseUrl: String
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String
   def commonTaskListUrl(taxYear: Int): String
   def incomeTaxSubmissionStartUrl(taxYear: Int): String
   def incomeTaxSubmissionIvRedirect: String
+  def selfUrl: String
   def incomeTaxCISBEUrl: String
   def viewAndChangeEnterUtrUrl: String
   def feedbackSurveyUrl(implicit isAgent: Boolean): String
   def betaFeedbackUrl(implicit request: RequestHeader, isAgent: Boolean): String
   def contactUrl(implicit isAgent: Boolean): String
   def signOutUrl: String
-    
+
   def timeoutDialogTimeout: Int
   def timeoutDialogCountdown: Int
 
   //Mongo config
   def encryptionKey: String
   def mongoTTL: Int
-  
-  def taxYearErrorFeature: Boolean
+
   def languageMap: Map[String, Lang]
   def routeToSwitchLanguage: String => Call
-  def welshToggleEnabled: Boolean
-  
-  def tailoringEnabled: Boolean
-  def sectionCompletedQuestionEnabled: Boolean
-  def useEncryption: Boolean
-  def emaSupportingAgentsEnabled: Boolean
+  def getFeatureSwitchValue(feature: String): Boolean
 }
 
 @Singleton
@@ -79,7 +74,6 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
   lazy val signInUrl: String = s"$signInBaseUrl?continue=$signInContinueUrlRedirect&origin=$signInOrigin"
 
   def defaultTaxYear: Int = servicesConfig.getInt("defaultTaxYear")
-  lazy val alwaysEOY: Boolean = servicesConfig.getBoolean("alwaysEOY")
 
   lazy val incomeTaxSubmissionBEBaseUrl: String = servicesConfig.getString(incomeTaxSubmissionUrlKey) + "/income-tax-submission-service"
 
@@ -96,6 +90,8 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
     "/start"
   def incomeTaxSubmissionIvRedirect: String = incomeTaxSubmissionBaseUrl +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.iv-redirect")
+
+  lazy val selfUrl: String = servicesConfig.baseUrl("income-tax-cis-frontend")
 
   lazy val incomeTaxCISBEUrl: String = s"${servicesConfig.getString(incomeTaxCISUrlKey)}/income-tax-cis"
 
@@ -131,8 +127,6 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
   lazy val encryptionKey: String = servicesConfig.getString("mongodb.encryption.key")
   lazy val mongoTTL: Int = Duration(servicesConfig.getString("mongodb.timeToLive")).toMinutes.toInt
 
-  def taxYearErrorFeature: Boolean = servicesConfig.getBoolean("taxYearErrorFeatureSwitch")
-
   def languageMap: Map[String, Lang] = Map(
     "english" -> Lang("en"),
     "cymraeg" -> Lang("cy")
@@ -141,13 +135,6 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
   def routeToSwitchLanguage: String => Call =
     (lang: String) => controllers.routes.LanguageSwitchController.switchToLanguage(lang)
 
-  lazy val welshToggleEnabled: Boolean = servicesConfig.getBoolean("feature-switch.welshToggleEnabled")
+  def getFeatureSwitchValue(feature: String): Boolean = servicesConfig.getBoolean(feature)
 
-  lazy val tailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringEnabled")
-
-  lazy val sectionCompletedQuestionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.sectionCompletedQuestionEnabled")
-
-  lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
-
-  lazy val emaSupportingAgentsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.ema-supporting-agents-enabled")
 }

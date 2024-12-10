@@ -17,6 +17,8 @@
 package support.stubs
 
 import config.{AppConfig, AppConfigImpl}
+import featureswitch.core.config._
+import featureswitch.core.models.FeatureSwitch
 import org.scalamock.scalatest.MockFactory
 import play.api.mvc.RequestHeader
 import support.TaxYearProvider
@@ -24,10 +26,12 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class AppConfigStub extends MockFactory with TaxYearProvider {
 
+  lazy val mockServicesConfig = mock[ServicesConfig]
+
   def config(encrypt: Boolean = true,
              _taxYearErrorFeature: Boolean = false,
              enableTailoring: Boolean = false,
-             _sectionCompletedQuestionEnabled: Boolean = false): AppConfig = new AppConfigImpl(mock[ServicesConfig]) {
+             _sectionCompletedQuestionEnabled: Boolean = false): AppConfig = new AppConfigImpl(mockServicesConfig) {
     override lazy val signInUrl: String = "/signIn"
 
     override lazy val incomeTaxSubmissionBEBaseUrl: String = s"http://localhost:11111"
@@ -49,14 +53,6 @@ class AppConfigStub extends MockFactory with TaxYearProvider {
     override lazy val timeoutDialogTimeout: Int = 900
     override lazy val timeoutDialogCountdown: Int = 120
 
-    override lazy val taxYearErrorFeature: Boolean = _taxYearErrorFeature
-
-    override lazy val welshToggleEnabled: Boolean = true
-
-    override lazy val alwaysEOY: Boolean = false
-
-    override lazy val tailoringEnabled: Boolean = enableTailoring
-
     override def viewAndChangeEnterUtrUrl: String = "/report-quarterly/income-and-expenses/view/agents/client-utr"
 
     override def incomeTaxSubmissionBaseUrl: String = ""
@@ -64,10 +60,20 @@ class AppConfigStub extends MockFactory with TaxYearProvider {
     override def incomeTaxSubmissionIvRedirect: String = "/update-and-submit-income-tax-return/iv-uplift"
 
     override lazy val encryptionKey: String = "encryptionKey12345"
-    override lazy val useEncryption: Boolean = encrypt
 
     override lazy val incomeTaxCISBEUrl: String = "http://localhost:11111/income-tax-cis"
 
-    override lazy val sectionCompletedQuestionEnabled: Boolean = _sectionCompletedQuestionEnabled
+
+    private def mockFeatureSwitchResponse(featureSwitch: FeatureSwitch, isEnabled: Boolean): Unit = {
+      sys.props.remove(featureSwitch.configName)
+      (mockServicesConfig.getBoolean(_: String)).expects(featureSwitch.configName).returning(isEnabled).anyNumberOfTimes()
+    }
+    mockFeatureSwitchResponse(WelshToggle, isEnabled = true)
+    mockFeatureSwitchResponse(AlwaysEOY, isEnabled = false)
+    mockFeatureSwitchResponse(AlwaysEOY, isEnabled = false)
+    mockFeatureSwitchResponse(UseEncryption, encrypt)
+    mockFeatureSwitchResponse(TaxYearError, _taxYearErrorFeature)
+    mockFeatureSwitchResponse(Tailoring, enableTailoring)
+    mockFeatureSwitchResponse(SectionCompletedQuestion, _sectionCompletedQuestionEnabled)
   }
 }

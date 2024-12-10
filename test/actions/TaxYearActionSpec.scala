@@ -19,6 +19,8 @@ package actions
 import common.SessionValues.{TAX_YEAR, VALID_TAX_YEARS}
 import config.AppConfig
 import controllers.errors.routes.TaxYearErrorController
+import featureswitch.core.config.TaxYearError
+import featureswitch.core.models.FeatureSwitch
 import models.AuthorisationRequest
 import org.scalamock.scalatest.MockFactory
 import play.api.http.Status.SEE_OTHER
@@ -56,7 +58,7 @@ class TaxYearActionSpec extends UnitTest
       "the tax year is within the list of valid tax years, and the tax year is equal to the session value if the feature switch is on" in {
         lazy val userRequest = AuthorisationRequest(aUser, request)
         lazy val result = {
-          (() => mockedConfig.taxYearErrorFeature).expects() returning true
+          (mockedConfig.isEnabled(_: FeatureSwitch)).expects(TaxYearError) returning true
           await(taxYearAction(validTaxYear).refine(userRequest))
         }
 
@@ -67,7 +69,7 @@ class TaxYearActionSpec extends UnitTest
         lazy val userRequest = anAuthorisationRequest.copy(request = fakeAgentRequest.withSession(TAX_YEAR -> validTaxYear.toString, VALID_TAX_YEARS -> validTaxYears))
 
         lazy val result = {
-          (() => mockedConfig.taxYearErrorFeature).expects() returning false
+          (mockedConfig.isEnabled(_: FeatureSwitch)).expects(TaxYearError) returning false
           await(taxYearAction(validTaxYear).refine(userRequest))
         }
 
@@ -97,7 +99,7 @@ class TaxYearActionSpec extends UnitTest
       "the tax year is different from that in session and the feature switch is off" which {
         lazy val userRequest = anAuthorisationRequest.copy(request = request)
         lazy val result = {
-          (() => mockedConfig.taxYearErrorFeature).expects() returning false
+          (mockedConfig.isEnabled(_: FeatureSwitch)).expects(TaxYearError) returning false
           mockedConfig.incomeTaxSubmissionOverviewUrl _ expects taxYearNotInSession returning
             "controllers.routes.OverviewPageController.show(taxYearNotInSession).url"
 
@@ -120,7 +122,7 @@ class TaxYearActionSpec extends UnitTest
       "the tax year is outside list of valid tax years and the feature switch is on" which {
         lazy val userRequest = anAuthorisationRequest.copy(request = request)
         lazy val result = {
-          (() => mockedConfig.taxYearErrorFeature).expects() returning true
+          (mockedConfig.isEnabled(_: FeatureSwitch)).expects(TaxYearError) returning true
           taxYearAction(invalidTaxYear).refine(userRequest)
         }
 

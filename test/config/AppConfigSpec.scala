@@ -16,6 +16,7 @@
 
 package config
 
+import featureswitch.core.config.WelshToggle
 import org.scalamock.scalatest.MockFactory
 import support.{FakeRequestHelper, UnitTest}
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
@@ -83,6 +84,36 @@ class AppConfigSpec extends UnitTest
       underTest.feedbackSurveyUrl shouldBe expectedFeedbackSurveyUrl
       underTest.contactUrl shouldBe expectedContactUrl
       underTest.signOutUrl shouldBe expectedSignOutUrl
+    }
+
+    ".isEnabled(fs: FeatureSwitch)" when {
+      "value has not been saved to Sys.props" should {
+        "return the value from AppConfig" in {
+          (mockServicesConfig.getBoolean _).expects(WelshToggle.configName).returns(false).once()
+          sys.props.get(WelshToggle.configName) shouldBe None
+          underTest.isEnabled(WelshToggle) shouldBe false
+        }
+      }
+
+      "value has been saved to Sys.pros" should {
+        "return `false`" when {
+          "feature is disabled" in {
+            (mockServicesConfig.getBoolean _).expects(WelshToggle.configName).never()
+            underTest.disable(WelshToggle)
+            sys.props.get(WelshToggle.configName) shouldBe Some("false")
+            underTest.isEnabled(WelshToggle) shouldBe false
+          }
+        }
+
+        "return `true`" when {
+          "feature is enabled" in {
+            (mockServicesConfig.getBoolean _).expects(WelshToggle.configName).never()
+            underTest.enable(WelshToggle)
+            sys.props.get(WelshToggle.configName) shouldBe Some("true")
+            underTest.isEnabled(WelshToggle) shouldBe true
+          }
+        }
+      }
     }
   }
 }

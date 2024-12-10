@@ -10,4 +10,11 @@
 # Failing to follow this rule may result in test routes deployed in production.
 
 # Add all the application routes to the prod.routes file
+
+GET        /update-and-submit-income-tax-return/construction-industry-scheme-deductions/test-only/feature-switches        featureswitch.frontend.controllers.FeatureSwitchFrontendController.show()
+POST       /update-and-submit-income-tax-return/construction-industry-scheme-deductions/test-only/feature-switches        featureswitch.frontend.controllers.FeatureSwitchFrontendController.submit()
+GET        /update-and-submit-income-tax-return/construction-industry-scheme-deductions/test-only/api/feature-switches    featureswitch.api.controllers.FeatureSwitchApiController.getFeatureSwitches()
++ nocsrf
+POST       /update-and-submit-income-tax-return/construction-industry-scheme-deductions/test-only/api/feature-switches    featureswitch.api.controllers.FeatureSwitchApiController.updateFeatureSwitches()
+
 ->         /                          prod.Routes

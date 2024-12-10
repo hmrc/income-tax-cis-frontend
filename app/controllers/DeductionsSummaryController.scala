@@ -18,6 +18,7 @@ package controllers
 
 import actions.ActionsProvider
 import config.{AppConfig, ErrorHandler}
+import featureswitch.core.config.Tailoring
 import models.pages.DeductionsSummaryPage
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -38,7 +39,7 @@ class DeductionsSummaryController @Inject()(actionsProvider: ActionsProvider,
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int): Action[AnyContent] = actionsProvider.priorCisDeductionsData(taxYear).async { implicit request =>
-    if (appConfig.tailoringEnabled){
+    if (appConfig.isEnabled(Tailoring)){
       tailoringService.getExcludedJourneys(taxYear = taxYear, request.user.nino, request.user.mtditid).map {
         case Left(_) => errorHandler.internalServerError()
         case Right(result) =>

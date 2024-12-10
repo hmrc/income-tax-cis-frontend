@@ -19,8 +19,10 @@ package actions
 import common.SessionValues.{CLIENT_MTDITID, CLIENT_NINO}
 import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
 import config.AppConfig
+import featureswitch.core.config.EmaSupportingAgent
+import featureswitch.core.models.FeatureSwitch
 import models.AuthorisationRequest
-import org.scalamock.handlers.{CallHandler0, CallHandler4}
+import org.scalamock.handlers.{CallHandler0, CallHandler1, CallHandler4}
 import org.scalamock.scalatest.MockFactory
 import play.api.Play.materializer
 import play.api.http.Status._
@@ -123,9 +125,9 @@ class AuthorisedActionSpec extends ControllerUnitTest
         .withIdentifier("MTDITID", mtdId)
         .withDelegatedAuthRule("mtd-it-auth-supp")
 
-    def mockMultipleAgentsSwitch(bool: Boolean): CallHandler0[Boolean] =
-      (mockAppConfig.emaSupportingAgentsEnabled _: () => Boolean)
-        .expects()
+    def mockMultipleAgentsSwitch(bool: Boolean): CallHandler1[FeatureSwitch, Boolean] =
+      (mockAppConfig.isEnabled(_: FeatureSwitch))
+        .expects(EmaSupportingAgent)
         .returning(bool)
         .anyNumberOfTimes()
 

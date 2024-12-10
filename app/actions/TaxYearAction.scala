@@ -18,6 +18,7 @@ package actions
 
 import common.SessionValues._
 import config.AppConfig
+import featureswitch.core.config.TaxYearError
 import models.AuthorisationRequest
 import play.api.Logger
 import play.api.mvc.Results.Redirect
@@ -40,7 +41,7 @@ class TaxYearAction @Inject()(taxYear: Int,
     implicit val implicitUser: AuthorisationRequest[A] = request
 
     def taxYearListCheck(validTaxYears: Seq[Int]): Either[Result, AuthorisationRequest[A]] = {
-      if (!appConfig.taxYearErrorFeature || validTaxYears.contains(taxYear)) {
+      if (!appConfig.isEnabled(TaxYearError) || validTaxYears.contains(taxYear)) {
         val sameTaxYear = request.session.get(TAX_YEAR).exists(_.toInt == taxYear)
         if (sameTaxYear) {
           Right(request)
