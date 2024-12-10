@@ -34,7 +34,9 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   val feedbackFrontendUrlKey = "microservice.services.feedback-frontend.url"
   val viewAndChangeUrlKey = "microservice.services.view-and-change.url"
   val incomeTaxCISUrlKey = "microservice.services.income-tax-cis.url"
+  val incomeTaxCISFrontendUrlKey = "microservice.services.income-tax-cis-frontend.url"
   val signInContinueUrlKey = "microservice.services.sign-in.continueUrl"
+
 
   private lazy val signInBaseUrl: String = servicesConfig.getString("microservice.services.sign-in.url")
   private lazy val signInContinueBaseUrl: String = servicesConfig.getString(signInContinueUrlKey)
@@ -54,7 +56,11 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
 
-  // def commonTaskListUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear + "/tasklist"
+  def incomeTaxCISFrontendBaseUrl: String = servicesConfig.getString(incomeTaxCISFrontendUrlKey) +
+    servicesConfig.getString("microservice.services.income-tax-cis-frontend.context")
+  def sectionCompletedUrl(taxYear: Int): String =
+    s"$incomeTaxCISFrontendBaseUrl/construction-industry-scheme-deductions/$taxYear/cis/section-completed?journey=cis"
+  
   def commonTaskListUrl(taxYear: Int): String = s"$incomeTaxSubmissionBaseUrl/$taxYear/tasklist"
 
   def incomeTaxSubmissionStartUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
@@ -111,6 +117,8 @@ class AppConfig @Inject()(servicesConfig: ServicesConfig) {
   lazy val tailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringEnabled")
 
   lazy val sectionCompletedQuestionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.sectionCompletedQuestionEnabled")
+
+  lazy val tailoringPhase2Enabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringPhase2Enabled")
 
   lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
 }
