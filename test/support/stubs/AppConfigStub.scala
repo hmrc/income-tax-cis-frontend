@@ -27,7 +27,8 @@ class AppConfigStub extends MockFactory with TaxYearProvider {
   def config(encrypt: Boolean = true,
              _taxYearErrorFeature: Boolean = false,
              enableTailoring: Boolean = false,
-             _sectionCompletedQuestionEnabled: Boolean = false): AppConfig = new AppConfigImpl(mock[ServicesConfig]) {
+             _sectionCompletedQuestionEnabled: Boolean = false,
+             _tailoringPhase2Enabled: Boolean = false): AppConfig = new AppConfigImpl(mock[ServicesConfig]) {
     override lazy val signInUrl: String = "/signIn"
 
     override lazy val incomeTaxSubmissionBEBaseUrl: String = s"http://localhost:11111"
@@ -69,5 +70,7 @@ class AppConfigStub extends MockFactory with TaxYearProvider {
     override lazy val incomeTaxCISBEUrl: String = "http://localhost:11111/income-tax-cis"
 
     override lazy val sectionCompletedQuestionEnabled: Boolean = _sectionCompletedQuestionEnabled
+
+    override lazy val tailoringPhase2Enabled: Boolean = _tailoringPhase2Enabled
   }
 }
