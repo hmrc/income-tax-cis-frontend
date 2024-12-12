@@ -32,6 +32,7 @@ trait AppConfig {
   def alwaysEOY: Boolean
   def incomeTaxSubmissionBEBaseUrl: String
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String
+  def sectionCompletedUrl(taxYear: Int): String
   def commonTaskListUrl(taxYear: Int): String
   def incomeTaxSubmissionStartUrl(taxYear: Int): String
   def incomeTaxSubmissionIvRedirect: String
@@ -58,6 +59,7 @@ trait AppConfig {
   def sectionCompletedQuestionEnabled: Boolean
   def useEncryption: Boolean
   def emaSupportingAgentsEnabled: Boolean
+  def tailoringPhase2Enabled: Boolean
 }
 
 @Singleton
@@ -69,6 +71,7 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
   private val feedbackFrontendUrlKey = "microservice.services.feedback-frontend.url"
   private val viewAndChangeUrlKey = "microservice.services.view-and-change.url"
   private val incomeTaxCISUrlKey = "microservice.services.income-tax-cis.url"
+  private val incomeTaxCISFrontendUrlKey = "microservice.services.income-tax-cis-frontend.url"
   private val signInContinueUrlKey = "microservice.services.sign-in.continueUrl"
 
   private lazy val signInBaseUrl: String = servicesConfig.getString("microservice.services.sign-in.url")
@@ -89,7 +92,11 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
   def incomeTaxSubmissionOverviewUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
     servicesConfig.getString("microservice.services.income-tax-submission-frontend.overview")
 
-  // def commonTaskListUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear + "/tasklist"
+  def incomeTaxCISFrontendBaseUrl: String = servicesConfig.getString(incomeTaxCISFrontendUrlKey) +
+    servicesConfig.getString("microservice.services.income-tax-cis-frontend.context")
+  def sectionCompletedUrl(taxYear: Int): String =
+    s"$incomeTaxCISFrontendBaseUrl/construction-industry-scheme-deductions/$taxYear/cis/section-completed?journey=cis"
+
   def commonTaskListUrl(taxYear: Int): String = s"$incomeTaxSubmissionBaseUrl/$taxYear/tasklist"
 
   def incomeTaxSubmissionStartUrl(taxYear: Int): String = incomeTaxSubmissionBaseUrl + "/" + taxYear +
@@ -146,6 +153,8 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
   lazy val tailoringEnabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringEnabled")
 
   lazy val sectionCompletedQuestionEnabled: Boolean = servicesConfig.getBoolean("feature-switch.sectionCompletedQuestionEnabled")
+
+  lazy val tailoringPhase2Enabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringPhase2Enabled")
 
   lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
 
