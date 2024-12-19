@@ -31,6 +31,7 @@ import play.api.test.Helpers.status
 import services.AuthService
 import support.ControllerUnitTest
 import support.builders.models.UserBuilder.aUser
+import support.mocks.MockErrorHandler
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
@@ -43,7 +44,7 @@ import uk.gov.hmrc.play.bootstrap.tools.Stubs.stubMessagesControllerComponents
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthorisedActionSpec extends ControllerUnitTest
-  with MockFactory {
+  with MockFactory with MockErrorHandler {
 
   private val nino = "AA123456A"
   private val mtdItId = "1234567890"
@@ -57,7 +58,7 @@ class AuthorisedActionSpec extends ControllerUnitTest
     .withHeaders(newHeaders = "X-Session-ID" -> aUser.sessionId)
     .withSession(CLIENT_MTDITID -> mtdItId, CLIENT_NINO -> nino)
 
-  private val underTest: AuthorisedAction = new AuthorisedAction(appConfig)(mockAuthService, stubMessagesControllerComponents())
+  private val underTest: AuthorisedAction = new AuthorisedAction(appConfig, mockErrorHandler)(mockAuthService, stubMessagesControllerComponents())
 
   def bodyOf(awaitable: Future[Result]): String = {
     val awaited = await(awaitable)
@@ -167,7 +168,8 @@ class AuthorisedActionSpec extends ControllerUnitTest
       mockSignInUrl()
 
       new AuthorisedAction(
-        appConfig = mockAppConfig
+        appConfig = mockAppConfig,
+        errorHandler = mockErrorHandler
       )(
         authService = mockAuthService,
         mcc = stubMessagesControllerComponents()
@@ -335,8 +337,7 @@ class AuthorisedActionSpec extends ControllerUnitTest
     "NINO and MTD IT ID are present in the session" which {
       "results in a NoActiveSession error to be returned from Auth" should {
         "return a redirect to the login page" in new AgentTest {
-          object AuthException extends NoActiveSession("Some reason")
-          mockAuthReturnException(AuthException, primaryAgentPredicate(mtdItId))
+          mockAuthReturnException(BearerTokenExpired(), primaryAgentPredicate(mtdItId))
 
           val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
             request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
@@ -348,12 +349,27 @@ class AuthorisedActionSpec extends ControllerUnitTest
         }
       }
 
+      "results in an Exception other than an AuthException error being returned for Primary Agent check" should {
+        "render an ISE page" in new AgentTest {
+          mockMultipleAgentsSwitch(false)
+
+          mockAuthReturnException(new Exception("bang"), primaryAgentPredicate(mtdItId))
+          mockInternalServerError(InternalServerError)
+
+          val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
+            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            hc = emptyHeaderCarrier
+          )
+
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+        }
+      }
+
       "[EMA disabled] results in an AuthorisationException error being returned from Auth" should {
         "return a redirect to the agent error page" in new AgentTest {
           mockMultipleAgentsSwitch(false)
 
-          object AuthException extends AuthorisationException("Some reason")
-          mockAuthReturnException(AuthException, primaryAgentPredicate(mtdItId))
+          mockAuthReturnException(InsufficientEnrolments(), primaryAgentPredicate(mtdItId))
 
           val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
             request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
@@ -366,12 +382,26 @@ class AuthorisedActionSpec extends ControllerUnitTest
       }
 
       "[EMA enabled] results in an AuthorisationException error being returned from Auth" should {
+        "render an ISE page when secondary agent auth call also fails with non-Auth exception" in new AgentTest {
+          mockMultipleAgentsSwitch(true)
+
+          mockAuthReturnException(InsufficientEnrolments(), primaryAgentPredicate(mtdItId))
+          mockAuthReturnException(new Exception("bang"), secondaryAgentPredicate(mtdItId))
+          mockInternalServerError(InternalServerError)
+
+          lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
+            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            hc = emptyHeaderCarrier
+          )
+
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+        }
+
         "return a redirect to the agent error page when secondary agent auth call also fails" in new AgentTest {
           mockMultipleAgentsSwitch(true)
 
-          object AuthException extends AuthorisationException("Some reason")
-          mockAuthReturnException(AuthException, primaryAgentPredicate(mtdItId))
-          mockAuthReturnException(AuthException, secondaryAgentPredicate(mtdItId))
+          mockAuthReturnException(InsufficientEnrolments(), primaryAgentPredicate(mtdItId))
+          mockAuthReturnException(InsufficientEnrolments(), secondaryAgentPredicate(mtdItId))
 
           lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
             request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
@@ -385,8 +415,7 @@ class AuthorisedActionSpec extends ControllerUnitTest
         "handle appropriately when a supporting agent is properly authorised" in new AgentTest {
           mockMultipleAgentsSwitch(true)
 
-          object AuthException extends AuthorisationException("Some reason")
-          mockAuthReturnException(AuthException, primaryAgentPredicate(mtdItId))
+          mockAuthReturnException(InsufficientEnrolments(), primaryAgentPredicate(mtdItId))
           mockAuthReturn(supportingAgentEnrolment, secondaryAgentPredicate(mtdItId))
 
           lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
@@ -474,11 +503,10 @@ class AuthorisedActionSpec extends ControllerUnitTest
 
     "return a redirect" when {
       "the authorisation service returns an AuthorisationException exception" in {
-        object AuthException extends AuthorisationException("Some reason")
         lazy val result = {
           (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
             .expects(*, *, *, *)
-            .returning(Future.failed(AuthException))
+            .returning(Future.failed(InsufficientEnrolments()))
 
           underTest.invokeBlock(fakeAgentRequest, block)
         }
