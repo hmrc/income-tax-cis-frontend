@@ -17,7 +17,7 @@
 package actions
 
 import common.{DelegatedAuthRules, EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
-import config.AppConfig
+import config.{AppConfig, ErrorHandler}
 import controllers.errors.routes.{AgentAuthErrorController, IndividualAuthErrorController, UnauthorisedUserErrorController}
 import models.{AuthorisationRequest, User}
 import play.api.Logger
@@ -35,7 +35,8 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class AuthorisedAction @Inject()(appConfig: AppConfig)
+class AuthorisedAction @Inject()(appConfig: AppConfig,
+                                 errorHandler: ErrorHandler)
                                 (implicit val authService: AuthService, val mcc: MessagesControllerComponents)
   extends ActionBuilder[AuthorisationRequest, AnyContent] with I18nSupport {
 
@@ -136,10 +137,16 @@ class AuthorisedAction @Inject()(appConfig: AppConfig)
           case _: AuthorisationException =>
             logger.info(s"$agentAuthLogString - Agent does not have delegated primary or secondary authority for Client.")
             agentErrorRedirectResult
+          case e =>
+            logger.info(s"$agentAuthLogString - Unexpected exception of type '${e.getClass.getSimpleName}' was caught.")
+            errorHandler.internalServerError()
         }
     case _: AuthorisationException =>
       logger.info(s"$agentAuthLogString - Agent does not have delegated authority for Client.")
       Future.successful(agentErrorRedirectResult)
+    case e =>
+      logger.info(s"$agentAuthLogString - Unexpected exception of type '${e.getClass.getSimpleName}' was caught.")
+      Future.successful(errorHandler.internalServerError())
   }
 
   private def handleForValidAgent[A](block: AuthorisationRequest[A] => Future[Result],
