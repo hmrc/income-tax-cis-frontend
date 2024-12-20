@@ -55,14 +55,15 @@ class AuthorisedAction @Inject()(appConfig: AppConfig,
     authService.authorised().retrieve(affinityGroup) {
       case Some(AffinityGroup.Agent) => agentAuthentication(block)(request, headerCarrier)
       case Some(affinityGroup) => individualAuthentication(block, affinityGroup)(request, headerCarrier)
-      case _ => logger.info(s"[AuthorisedAction][invokeBlock] - User failed to authenticate")
-        throw AuthorisationException.fromString("[AuthorisedAction][invokeBlock] - User failed to authenticate")
+      case _ =>
+        logger.warn(s"[AuthorisedAction][invokeBlock] - No Affinity Group returned on Auth response")
+        throw AuthorisationException.fromString("[AuthorisedAction][invokeBlock] - No Affinity Group returned on Auth response")
     } recover {
       case _: NoActiveSession =>
         logger.info(s"[AuthorisedAction][invokeBlock] - No active session. Redirecting to ${appConfig.signInUrl}")
         Redirect(appConfig.signInUrl)
       case _: AuthorisationException =>
-        logger.info(s"[AuthorisedAction][invokeBlock] - User failed to authenticate")
+        logger.warn(s"[AuthorisedAction][invokeBlock] - User failed to authenticate")
         Redirect(UnauthorisedUserErrorController.show)
     }
   }
@@ -75,7 +76,7 @@ class AuthorisedAction @Inject()(appConfig: AppConfig,
       case _ => request.headers.get(SessionKeys.sessionId) match {
         case Some(sessionId) => block(sessionId)
         case _ =>
-          logger.info(errorLogString)
+          logger.warn(errorLogString)
           errorAction
       }
     }
@@ -96,14 +97,14 @@ class AuthorisedAction @Inject()(appConfig: AppConfig,
             request = request
           )))
           case (_, None) =>
-            logger.info(s"[AuthorisedAction][individualAuthentication] - No active session. Redirecting to ${appConfig.signInUrl}")
+            logger.warn(s"[AuthorisedAction][individualAuthentication] - No active session. Redirecting to ${appConfig.signInUrl}")
             Future.successful(Redirect(appConfig.signInUrl))
           case (None, _) =>
-            logger.info(s"[AuthorisedAction][individualAuthentication] - User has no MTD IT enrolment. Redirecting user to sign up for MTD.")
+            logger.warn(s"[AuthorisedAction][individualAuthentication] - User has no MTD IT enrolment. Redirecting user to sign up for MTD.")
             Future.successful(Redirect(IndividualAuthErrorController.show))
         }
       case _ =>
-        logger.info("[AuthorisedAction][individualAuthentication] User has confidence level below 250, routing user to IV uplift.")
+        logger.warn("[AuthorisedAction][individualAuthentication] User has confidence level below 250, routing user to IV uplift.")
         Future(Redirect(appConfig.incomeTaxSubmissionIvRedirect))
     }
   }
@@ -135,17 +136,17 @@ class AuthorisedAction @Inject()(appConfig: AppConfig,
         )
         .recover {
           case _: AuthorisationException =>
-            logger.info(s"$agentAuthLogString - Agent does not have delegated primary or secondary authority for Client.")
+            logger.warn(s"$agentAuthLogString - Agent does not have delegated primary or secondary authority for Client.")
             agentErrorRedirectResult
           case e =>
-            logger.info(s"$agentAuthLogString - Unexpected exception of type '${e.getClass.getSimpleName}' was caught.")
+            logger.error(s"$agentAuthLogString - Unexpected exception of type '${e.getClass.getSimpleName}' was caught.")
             errorHandler.internalServerError()
         }
     case _: AuthorisationException =>
-      logger.info(s"$agentAuthLogString - Agent does not have delegated authority for Client.")
+      logger.warn(s"$agentAuthLogString - Agent does not have delegated authority for Client.")
       Future.successful(agentErrorRedirectResult)
     case e =>
-      logger.info(s"$agentAuthLogString - Unexpected exception of type '${e.getClass.getSimpleName}' was caught.")
+      logger.error(s"$agentAuthLogString - Unexpected exception of type '${e.getClass.getSimpleName}' was caught.")
       Future.successful(errorHandler.internalServerError())
   }
 
