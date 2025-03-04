@@ -58,7 +58,6 @@ trait AppConfig {
   def tailoringEnabled: Boolean
   def sectionCompletedQuestionEnabled: Boolean
   def useEncryption: Boolean
-  def emaSupportingAgentsEnabled: Boolean
   def tailoringPhase2Enabled: Boolean
 }
 
@@ -157,6 +156,4 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
   lazy val tailoringPhase2Enabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringPhase2Enabled")
 
   lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
-
-  lazy val emaSupportingAgentsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.ema-supporting-agents-enabled")
 }
