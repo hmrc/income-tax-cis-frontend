@@ -132,7 +132,7 @@ class AuthorisedAction @Inject()(appConfig: AppConfig,
     case _: AuthorisationException => authService
       .authorised(secondaryAgentPredicate(mtdItId))
       .retrieve(allEnrolments) {
-        populateAgent(block, mtdItId, nino, _, isSecondaryAgent = true)
+        enrolments => handleForValidAgent(block, mtdItId, nino, enrolments, isSupportingAgent = true)
       }.recoverWith {
         case _: AuthorisationException =>
           logger.warn(s"$agentAuthLogString - Agent does not have secondary delegated authority for Client.")
@@ -166,7 +166,10 @@ class AuthorisedAction @Inject()(appConfig: AppConfig,
                   errorLogString = s"$agentAuthLogString - No session id in request",
                   errorAction = Future.successful(Redirect(appConfig.signInUrl))
                 )(sessionId =>
-                  block(User(mtdItId, Some(arn), nino, sessionId, isSupportingAgent))
+                  block(AuthorisationRequest(
+                    user = User(mtdItId, Some(arn), nino, AffinityGroup.Agent.toString, sessionId, isSupportingAgent),
+                    request = request
+                  ))
                 )
               case None =>
                 logger.warn(s"$agentAuthLogString - Agent with no HMRC-AS-AGENT enrolment. Rendering unauthorised view.")
