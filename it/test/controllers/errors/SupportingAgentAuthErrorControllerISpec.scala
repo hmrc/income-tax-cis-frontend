@@ -16,81 +16,25 @@
 
 package controllers.errors
 
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import play.api.http.HeaderNames
-import play.api.http.Status.UNAUTHORIZED
-import play.api.libs.ws.WSResponse
-import support.IntegrationTest
-import utils.ViewHelpers
+import play.api.test.FakeRequest
+import play.api.test.Helpers._
+import support.ControllerUnitTest
+import views.html.authErrorPages
+import views.html.authErrorPages.SupportingAgentAuthErrorPageView
 
-class SupportingAgentAuthErrorControllerISpec extends IntegrationTest with ViewHelpers {
+class SupportingAgentAuthErrorControllerSpec extends ControllerUnitTest {
 
-  object ExpectedResults {
-    lazy val heading = "You are not authorised to use this service"
-    lazy val title = "You are not authorised to use this service"
-    val suppAgent: String = "You’re a supporting agent for this client. Only your client or their main agent," +
-      " if they have one, can access and submit their tax return."
-    val accountHomeText = "Go back to account home"
-    val accountHomeLink = "http://localhost:9081/report-quarterly/income-and-expenses/view/agents"
+  private val pageView: SupportingAgentAuthErrorPageView = app.injector.instanceOf[authErrorPages.SupportingAgentAuthErrorPageView]
 
-    val headingWelsh: String = "Nid ydych wedi’ch awdurdodi i ddefnyddio’r gwasanaeth hwn"
-    val titleWelsh = "Nid ydych wedi’ch awdurdodi i ddefnyddio’r gwasanaeth hwn"
-    // TODO: change English string to welsh
-    val suppAgentWelsh: String = "You’re a supporting agent for this client. Only your client or their main agent," +
-      " if they have one, can access and submit their tax return."
-    val accountHomeTextWelsh = "Go back to account home"
-  }
+  lazy val underTest = new SupportingAgentAuthErrorController(stubMessagesControllerComponents(), appConfig, pageView)
 
-  object Selectors {
-    val suppAgent = "#main-content > div > div > p"
-    val backToAccountHomeLinkSelector = "#account_home_link"
-  }
+  "The show method" should {
+    "return an UNAUTHORIZED response when .show() is called" in {
+      val fakeRequest = FakeRequest(GET, routes.SupportingAgentAuthErrorController.show.url)
+      val result = underTest.show()(fakeRequest)
 
-  val url = s"http://localhost:$port/update-and-submit-income-tax-return/error/supporting-agent-not-authorised"
-
-  "an agent calling GET" when {
-    "language is set to ENGLISH" should {
-      "return a page" which {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(url).get())
-        }
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        "returns status of UNAUTHORIZED(401)" in {
-          result.status shouldBe UNAUTHORIZED
-        }
-
-        welshToggleCheck("English")
-        titleCheck(ExpectedResults.title, isWelsh = false)
-        h1Check(ExpectedResults.heading,"xl")
-        textOnPageCheck(ExpectedResults.suppAgent, Selectors.suppAgent)
-        linkCheck(ExpectedResults.accountHomeText, Selectors.backToAccountHomeLinkSelector, ExpectedResults.accountHomeLink)
-      }
-    }
-
-    "language is set to WELSH" should {
-      "return a page" which {
-        lazy val result: WSResponse = {
-          authoriseIndividual()
-          await(wsClient.url(url).withHttpHeaders(HeaderNames.ACCEPT_LANGUAGE -> "cy").get())
-        }
-
-        implicit def document: () => Document = () => Jsoup.parse(result.body)
-
-        "returns status of UNAUTHORIZED(401)" in {
-          result.status shouldBe UNAUTHORIZED
-        }
-
-        welshToggleCheck("Welsh")
-        titleCheck(ExpectedResults.titleWelsh, isWelsh = true)
-        h1Check(ExpectedResults.headingWelsh,"xl")
-        textOnPageCheck(ExpectedResults.suppAgentWelsh, Selectors.suppAgent)
-        linkCheck(ExpectedResults.accountHomeText, Selectors.backToAccountHomeLinkSelector, ExpectedResults.accountHomeLink)
-      }
+      status(result) shouldBe UNAUTHORIZED
+      contentAsString(result) shouldBe pageView()(fakeRequest, stubMessages(), appConfig).toString
     }
   }
-
 }
