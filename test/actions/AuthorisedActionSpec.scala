@@ -124,12 +124,6 @@ class AuthorisedActionSpec extends ControllerUnitTest
         .withIdentifier("MTDITID", mtdId)
         .withDelegatedAuthRule("mtd-it-auth-supp")
 
-    def mockMultipleAgentsSwitch(bool: Boolean): CallHandler0[Boolean] =
-      (mockAppConfig.emaSupportingAgentsEnabled _: () => Boolean)
-        .expects()
-        .returning(bool)
-        .anyNumberOfTimes()
-
     val primaryAgentEnrolment: Enrolments = Enrolments(Set(
       Enrolment(EnrolmentKeys.Individual, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.individualId, mtdItId)), "Activated"),
       Enrolment(EnrolmentKeys.Agent, Seq(EnrolmentIdentifier(EnrolmentIdentifiers.agentReference, arn)), "Activated")
@@ -351,7 +345,6 @@ class AuthorisedActionSpec extends ControllerUnitTest
 
       "results in an Exception other than an AuthException error being returned for Primary Agent check" should {
         "render an ISE page" in new AgentTest {
-          mockMultipleAgentsSwitch(false)
 
           mockAuthReturnException(new Exception("bang"), primaryAgentPredicate(mtdItId))
           mockInternalServerError(InternalServerError)
@@ -362,28 +355,12 @@ class AuthorisedActionSpec extends ControllerUnitTest
           )
 
           status(result) shouldBe INTERNAL_SERVER_ERROR
+          bodyOf(result) shouldBe "An unexpected error occurred"
         }
       }
 
-      "[EMA disabled] results in an AuthorisationException error being returned from Auth" should {
-        "return a redirect to the agent error page" in new AgentTest {
-          mockMultipleAgentsSwitch(false)
-
-          mockAuthReturnException(InsufficientEnrolments(), primaryAgentPredicate(mtdItId))
-
-          val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
-            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
-            hc = emptyHeaderCarrier
-          )
-
-          status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe s"$baseUrl/error/you-need-client-authorisation"
-        }
-      }
-
-      "[EMA enabled] results in an AuthorisationException error being returned from Auth" should {
+      "results in an AuthorisationException error being returned from Auth" should {
         "render an ISE page when secondary agent auth call also fails with non-Auth exception" in new AgentTest {
-          mockMultipleAgentsSwitch(true)
 
           mockAuthReturnException(InsufficientEnrolments(), primaryAgentPredicate(mtdItId))
           mockAuthReturnException(new Exception("bang"), secondaryAgentPredicate(mtdItId))
@@ -398,7 +375,6 @@ class AuthorisedActionSpec extends ControllerUnitTest
         }
 
         "return a redirect to the agent error page when secondary agent auth call also fails" in new AgentTest {
-          mockMultipleAgentsSwitch(true)
 
           mockAuthReturnException(InsufficientEnrolments(), primaryAgentPredicate(mtdItId))
           mockAuthReturnException(InsufficientEnrolments(), secondaryAgentPredicate(mtdItId))
@@ -412,8 +388,7 @@ class AuthorisedActionSpec extends ControllerUnitTest
           redirectUrl(result) shouldBe s"$baseUrl/error/you-need-client-authorisation"
         }
 
-        "handle appropriately when a supporting agent is properly authorised" in new AgentTest {
-          mockMultipleAgentsSwitch(true)
+        "handle appropriately when a supporting agent is not authorised" in new AgentTest {
 
           mockAuthReturnException(InsufficientEnrolments(), primaryAgentPredicate(mtdItId))
           mockAuthReturn(supportingAgentEnrolment, secondaryAgentPredicate(mtdItId))
@@ -423,8 +398,8 @@ class AuthorisedActionSpec extends ControllerUnitTest
             hc = validHeaderCarrier
           )
 
-          status(result) shouldBe OK
-          bodyOf(result) shouldBe s"$mtdItId $arn"
+          status(result) shouldBe SEE_OTHER
+          redirectUrl(result) shouldBe s"$baseUrl/error/supporting-agent-not-authorised"
         }
       }
 
