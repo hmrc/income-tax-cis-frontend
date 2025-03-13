@@ -343,6 +343,21 @@ class AuthorisedActionSpec extends ControllerUnitTest
         }
       }
 
+      "results in an Exception other than an AuthException error being returned for Primary Agent check" should {
+        "render an ISE page" in new AgentTest {
+
+          mockAuthReturnException(new Exception("bang"), primaryAgentPredicate(mtdItId))
+          mockInternalServerError(InternalServerError)
+
+          val result: Future[Result] = testAuth.agentAuthentication(testBlock)(
+            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            hc = emptyHeaderCarrier
+          )
+
+          status(result) shouldBe INTERNAL_SERVER_ERROR
+        }
+      }
+
       "results in an AuthorisationException error being returned from Auth" should {
         "render an ISE page when secondary agent auth call also fails with non-Auth exception" in new AgentTest {
 
