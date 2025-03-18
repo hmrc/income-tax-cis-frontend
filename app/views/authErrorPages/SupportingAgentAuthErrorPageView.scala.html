@@ -22,13 +22,15 @@
 @()(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 @layout(messages("error.supp.agent.unauthorised.title"), true) {
 
-  @heading(messages("error.supp.agent.unauthorised.title"), None)
+  @heading(messages("error.supp.agent.unauthorised.title"), None, size = "xl")
 
   <p class="govuk-body">@messages(s"error.supp.agent.unauthorised.paragraph")</p>
 
-  <a class="govuk-link" id="account_home_link" href="@appConfig.viewAndChangeAgentsUrl">
-    @messages("error.supp.agent.unauthorised.link")
-  </a>
+  <p class="govuk-body">
+      <a class="govuk-link" id="account_home_link" href="@appConfig.viewAndChangeAgentsUrl">
+      @messages("error.supp.agent.unauthorised.link")
+      </a>
+  </p>
 
 }
 

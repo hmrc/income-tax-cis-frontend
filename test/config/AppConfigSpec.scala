@@ -66,6 +66,7 @@ class AppConfigSpec extends UnitTest
 
       underTest.incomeTaxSubmissionBaseUrl shouldBe "http://income-tax-submission-frontend/update-and-submit-income-tax-return"
       underTest.viewAndChangeEnterUtrUrl shouldBe "http://view-and-change/report-quarterly/income-and-expenses/view/agents/client-utr"
+      underTest.viewAndChangeAgentsUrl shouldBe "http://view-and-change/report-quarterly/income-and-expenses/view/agents"
       underTest.incomeTaxSubmissionBEBaseUrl shouldBe "http://income-tax-submission/income-tax-submission-service"
       underTest.incomeTaxSubmissionIvRedirect shouldBe "http://income-tax-submission-frontend/update-and-submit-income-tax-return/iv-uplift"
     }
