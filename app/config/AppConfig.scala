@@ -38,6 +38,7 @@ trait AppConfig {
   def incomeTaxSubmissionIvRedirect: String
   def incomeTaxCISBEUrl: String
   def viewAndChangeEnterUtrUrl: String
+  def viewAndChangeAgentsUrl: String
   def feedbackSurveyUrl(implicit isAgent: Boolean): String
   def betaFeedbackUrl(implicit request: RequestHeader, isAgent: Boolean): String
   def contactUrl(implicit isAgent: Boolean): String
@@ -58,7 +59,6 @@ trait AppConfig {
   def tailoringEnabled: Boolean
   def sectionCompletedQuestionEnabled: Boolean
   def useEncryption: Boolean
-  def emaSupportingAgentsEnabled: Boolean
   def tailoringPhase2Enabled: Boolean
 }
 
@@ -109,6 +109,8 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
   private lazy val vcBaseUrl: String = servicesConfig.getString(viewAndChangeUrlKey)
   def viewAndChangeEnterUtrUrl: String = s"$vcBaseUrl/report-quarterly/income-and-expenses/view/agents/client-utr"
 
+  def viewAndChangeAgentsUrl: String = s"$vcBaseUrl/report-quarterly/income-and-expenses/view/agents"
+
   lazy private val appUrl: String = servicesConfig.getString("microservice.url")
   lazy private val contactFrontEndUrl = servicesConfig.getString(contactFrontendUrlKey)
 
@@ -157,6 +159,4 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
   lazy val tailoringPhase2Enabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringPhase2Enabled")
 
   lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
-
-  lazy val emaSupportingAgentsEnabled: Boolean = servicesConfig.getBoolean("feature-switch.ema-supporting-agents-enabled")
 }
