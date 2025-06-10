@@ -16,6 +16,8 @@
 
 package models
 
+import scala.util.control.NoStackTrace
+
 trait ServiceError
 
 case class HttpParserError(status: Int) extends ServiceError
@@ -23,3 +25,4 @@ case object EmptyPriorCisDataError extends ServiceError
 case object InvalidOrUnfinishedSubmission extends ServiceError
 case object FailedTailoringRemoveDeductionError extends ServiceError
 case object FailedTailoringOverrideDeductionError extends ServiceError
+case class MissingAgentClientDetails(message: String) extends Exception(message) with NoStackTrace with ServiceError

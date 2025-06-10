@@ -16,10 +16,20 @@
 
 package support
 
+import models.session.SessionData
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+import support.builders.models.UserBuilder.{aUser, anAgentUser}
 
 trait UnitTest extends AnyWordSpec
   with FutureAwaits with DefaultAwaitTimeout
-  with Matchers
+  with Matchers {
+
+  val sessionId: String = aUser.sessionId
+  val mtditid: String = aUser.mtditid
+  val nino: String = aUser.nino
+  val arn: String = anAgentUser.arn.get
+
+  val sessionData: SessionData = SessionData(sessionId, mtditid, nino)
+}

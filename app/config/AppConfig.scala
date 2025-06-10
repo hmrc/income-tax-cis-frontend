@@ -61,6 +61,7 @@ trait AppConfig {
   def sectionCompletedQuestionEnabled: Boolean
   def useEncryption: Boolean
   def tailoringPhase2Enabled: Boolean
+  def sessionCookieServiceEnabled: Boolean
 }
 
 @Singleton
@@ -161,4 +162,6 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
   lazy val tailoringPhase2Enabled: Boolean = servicesConfig.getBoolean("feature-switch.tailoringPhase2Enabled")
 
   lazy val useEncryption: Boolean = servicesConfig.getBoolean("useEncryption")
+
+  lazy val sessionCookieServiceEnabled: Boolean = servicesConfig.getBoolean("feature-switch.sessionCookieServiceEnabled")
 }

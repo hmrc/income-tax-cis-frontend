@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-package models.session
+package support.mocks
 
-import play.api.libs.json.{Format, Json}
+import config.AppConfig
+import org.scalamock.handlers.CallHandler0
+import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 
-case class SessionData(sessionId: String,
-                       mtditid: String,
-                       nino: String,
-                       utr: Option[String] = None)
+trait MockAppConfig extends MockFactory { _: TestSuite =>
 
-object SessionData {
-  implicit val format: Format[SessionData] = Json.format[SessionData]
+  val mockAppConfig: AppConfig = mock[AppConfig]
+
+  def mockSessionServiceEnabled(response: Boolean): CallHandler0[Boolean] =
+    (() => mockAppConfig.sessionCookieServiceEnabled)
+      .expects()
+      .returning(response)
 }
