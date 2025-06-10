@@ -25,19 +25,24 @@ import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import views.html.templates.{InternalServerErrorTemplate, NotFoundTemplate, ServiceUnavailableTemplate}
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ErrorHandler @Inject()(internalServerErrorTemplate: InternalServerErrorTemplate,
                              serviceUnavailableTemplate: ServiceUnavailableTemplate,
                              val messagesApi: MessagesApi,
                              notFoundTemplate: NotFoundTemplate)
-                            (implicit appConfig: AppConfig) extends FrontendErrorHandler with I18nSupport {
+                            (implicit appConfig: AppConfig, override val ec: ExecutionContext) extends FrontendErrorHandler with I18nSupport {
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]): Html =
-    internalServerErrorTemplate()
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit rh: RequestHeader): Future[Html] = {
+    implicit val request: Request[_] = rh.withBody(EmptyContent)
+    Future.successful(internalServerErrorTemplate())
+  }
 
-  override def notFoundTemplate(implicit request: Request[_]): Html = notFoundTemplate()
+  override def notFoundTemplate(implicit rh: RequestHeader): Future[Html] = {
+    implicit val request: Request[_] = rh.withBody(EmptyContent)
+    Future.successful(notFoundTemplate())
+  }
 
   def internalServerError()(implicit request: Request[_]): Result = {
     InternalServerError(internalServerErrorTemplate())
@@ -52,7 +57,9 @@ class ErrorHandler @Inject()(internalServerErrorTemplate: InternalServerErrorTem
 
   override def onClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] =
     statusCode match {
-      case NOT_FOUND => Future.successful(NotFound(notFoundTemplate(request.withBody(body = ""))))
+      case NOT_FOUND =>
+        implicit val req: Request[_] = request.withBody(EmptyContent)
+        Future.successful(NotFound(notFoundTemplate()))
       case _ => Future.successful(InternalServerError(internalServerErrorTemplate()(request.withBody(body = ""), request2Messages(request), appConfig)))
     }
 }

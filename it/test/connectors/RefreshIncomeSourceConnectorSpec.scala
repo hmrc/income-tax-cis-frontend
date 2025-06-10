@@ -30,7 +30,7 @@ import scala.concurrent.duration.Duration
 
 class RefreshIncomeSourceConnectorSpec extends ConnectorIntegrationTest with TaxYearProvider {
 
-  private lazy val underTest: RefreshIncomeSourceConnector = new RefreshIncomeSourceConnector(httpClient, appConfig)
+  private lazy val underTest: RefreshIncomeSourceConnector = new RefreshIncomeSourceConnector(httpClientV2, appConfig)
 
   private implicit val headerCarrierWithSession: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(aUser.sessionId)))
 

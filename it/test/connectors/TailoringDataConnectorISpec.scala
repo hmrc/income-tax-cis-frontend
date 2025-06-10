@@ -38,7 +38,7 @@ class TailoringDataConnectorISpec extends ConnectorIntegrationTest with TaxYearP
 
   implicit private val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> mtditid, "X-Session-ID" -> sessionId)
 
-  private lazy val underTest = new TailoringDataConnector(httpClient, appConfig)
+  private lazy val underTest = new TailoringDataConnector(httpClientV2, appConfig)
 
   ".clearExcludedJourney" should {
     "Return a success result" when {

@@ -26,7 +26,8 @@ import support.UnitTest
 import utils.ViewTest
 import views.html.templates.{InternalServerErrorTemplate, NotFoundTemplate, ServiceUnavailableTemplate}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class ErrorHandlerSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
@@ -38,7 +39,7 @@ class ErrorHandlerSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
   private val mockMessagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   private val mockFrontendAppConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
-  private val underTest = new ErrorHandler(internalServerErrorTemplate, serviceUnavailableTemplate, mockMessagesApi, notFoundTemplate)(mockFrontendAppConfig)
+  private val underTest = new ErrorHandler(internalServerErrorTemplate, serviceUnavailableTemplate, mockMessagesApi, notFoundTemplate)(mockFrontendAppConfig, implicitly[ExecutionContext])
 
   private val h1Expected = "Page not found"
   private val expectedTitle = s"$h1Expected - $serviceName - $govUkExtension"
@@ -61,7 +62,7 @@ class ErrorHandlerSpec extends UnitTest with GuiceOneAppPerSuite with ViewTest {
 
   "the NotFoundTemplate" should {
     "return the notFoundTemplate when an incorrect web address when been entered" which {
-      lazy val view = underTest.notFoundTemplate
+      lazy val view = await(underTest.notFoundTemplate)
       lazy implicit val document: Document = Jsoup.parse(view.body)
 
       "displays the correct page title" in {

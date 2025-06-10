@@ -32,7 +32,7 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
 
   private implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid, "X-Session-ID" -> aUser.sessionId)
 
-  private lazy val underTest = new IncomeTaxUserDataConnector(httpClient, appConfig)
+  private lazy val underTest = new IncomeTaxUserDataConnector(httpClientV2, appConfig)
 
   "IncomeTaxUserDataConnector" should {
     "Return a success result" when {
