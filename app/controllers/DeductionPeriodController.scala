@@ -40,7 +40,7 @@ class DeductionPeriodController @Inject()(actionsProvider: ActionsProvider,
                                           deductionPeriodService: DeductionPeriodService,
                                           errorHandler: ErrorHandler,
                                           formProvider: DeductionPeriodFormProvider)
-                                         (implicit mcc: MessagesControllerComponents, ec: ExecutionContext, appConfig: AppConfig)
+                                         (implicit mcc: MessagesControllerComponents, ec: ExecutionContext, val appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport with SessionHelper with Logging {
 
   def show(taxYear: Int, contractor: String): Action[AnyContent] =

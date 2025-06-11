@@ -36,7 +36,7 @@ class DeleteCISPeriodController @Inject()(actionsProvider: ActionsProvider,
                                           view: DeleteCISPeriodView,
                                           errorHandler: ErrorHandler,
                                           deleteCISPeriodService: DeleteCISPeriodService)
-                                         (implicit val mcc: MessagesControllerComponents, ec: ExecutionContext, appConfig: AppConfig)
+                                         (implicit val mcc: MessagesControllerComponents, ec: ExecutionContext, val appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int,

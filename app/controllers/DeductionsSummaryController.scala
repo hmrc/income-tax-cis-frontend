@@ -34,7 +34,7 @@ class DeductionsSummaryController @Inject()(actionsProvider: ActionsProvider,
                                             pageView: DeductionsSummaryView,
                                             tailoringService: TailoringService,
                                             errorHandler: ErrorHandler)
-                                           (implicit cc: MessagesControllerComponents, appConfig: AppConfig, executionContext: ExecutionContext)
+                                           (implicit cc: MessagesControllerComponents, val appConfig: AppConfig, executionContext: ExecutionContext)
   extends FrontendController(cc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int): Action[AnyContent] = actionsProvider.priorCisDeductionsData(taxYear).async { implicit request =>
