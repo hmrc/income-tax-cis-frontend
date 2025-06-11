@@ -33,7 +33,7 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
 
   private lazy val underTest = new IncomeTaxUserDataConnector(httpClient, appConfig)
 
-  private val taxYearEOY = 2023
+  private val taxYearEOY = 2024
 
   "IncomeTaxUserDataConnector" should {
     "Return a success result" when {

@@ -28,6 +28,7 @@ import scala.concurrent.duration.Duration
 @ImplementedBy(classOf[AppConfigImpl])
 trait AppConfig {
   def signInUrl: String
+  def vcSessionServiceBaseUrl: String
   def defaultTaxYear: Int
   def alwaysEOY: Boolean
   def incomeTaxSubmissionBEBaseUrl: String
@@ -80,6 +81,7 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
 
   private lazy val signInOrigin = servicesConfig.getString("appName")
   lazy val signInUrl: String = s"$signInBaseUrl?continue=$signInContinueUrlRedirect&origin=$signInOrigin"
+  lazy val vcSessionServiceBaseUrl: String = servicesConfig.baseUrl("income-tax-session-data")
 
   def defaultTaxYear: Int = servicesConfig.getInt("defaultTaxYear")
   lazy val alwaysEOY: Boolean = servicesConfig.getBoolean("alwaysEOY")
