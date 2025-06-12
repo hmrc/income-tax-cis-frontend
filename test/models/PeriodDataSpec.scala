@@ -36,7 +36,7 @@ class PeriodDataSpec extends UnitTest with LogCapturing {
           "deductionAmount" -> Some(100.00),
           "costOfMaterials" -> Some(50.00),
           "grossAmountPaid" -> Some(450.00),
-          "submissionDate" -> s"${taxYearEOY - 2}-05-11T16:38:57.489Z",
+          "submissionDate" -> s"${taxYearEOY - 1}-05-11T16:38:57.489Z",
           "submissionId" -> Some("submissionId"),
           "source" -> "customer"
         )
@@ -49,9 +49,9 @@ class PeriodDataSpec extends UnitTest with LogCapturing {
       "returns the month when a valid month and day is parsed" in {
         val result =
           s"""{
-             |   "deductionFromDate": "${taxYearEOY - 2}-04-06",
-             |   "deductionToDate": "${taxYearEOY - 2}-05-05",
-             |   "submissionDate": "${taxYearEOY - 2}-05-11T16:38:57.489Z",
+             |   "deductionFromDate": "${taxYearEOY - 1}-04-06",
+             |   "deductionToDate": "${taxYearEOY - 1}-05-05",
+             |   "submissionDate": "${taxYearEOY - 1}-05-11T16:38:57.489Z",
              |   "source": "customer"
              |}""".stripMargin
 
@@ -63,9 +63,9 @@ class PeriodDataSpec extends UnitTest with LogCapturing {
       "returns a month and logs when the month is invalid" in {
         val result =
           s"""{
-             |   "deductionFromDate": "${taxYearEOY - 2}-04-06",
-             |   "deductionToDate": "${taxYearEOY - 2}-07-05",
-             |   "submissionDate": "${taxYearEOY - 2}-05-11T16:38:57.489Z",
+             |   "deductionFromDate": "${taxYearEOY - 1}-04-06",
+             |   "deductionToDate": "${taxYearEOY - 1}-07-05",
+             |   "submissionDate": "${taxYearEOY - 1}-05-11T16:38:57.489Z",
              |   "source": "customer"
              |}""".stripMargin
 
@@ -75,16 +75,16 @@ class PeriodDataSpec extends UnitTest with LogCapturing {
             data.deductionPeriod shouldBe Month.JULY
 
             logs.map(_.toString).contains("[ERROR] INVALID_PERIOD_DATES [PeriodData][validatePeriodDatesAndReturnMonth]" +
-              s" The retrieved period dates are invalid. fromDate - ${taxYearEOY - 2}-04-06, toDate - ${taxYearEOY - 2}-07-05") shouldBe true
+              s" The retrieved period dates are invalid. fromDate - ${taxYearEOY - 1}-04-06, toDate - ${taxYearEOY - 1}-07-05") shouldBe true
         }
       }
 
       "returns a month and logs when the day is invalid" in {
         val result =
           s"""{
-             |   "deductionFromDate": "${taxYearEOY - 2}-04-06",
-             |   "deductionToDate": "${taxYearEOY - 2}-05-02",
-             |   "submissionDate": "${taxYearEOY - 2}-05-11T16:38:57.489Z",
+             |   "deductionFromDate": "${taxYearEOY - 1}-04-06",
+             |   "deductionToDate": "${taxYearEOY - 1}-05-02",
+             |   "submissionDate": "${taxYearEOY - 1}-05-11T16:38:57.489Z",
              |   "source": "customer"
              |}""".stripMargin
 
@@ -94,7 +94,7 @@ class PeriodDataSpec extends UnitTest with LogCapturing {
             data.deductionPeriod shouldBe Month.MAY
 
             logs.map(_.toString).contains("[ERROR] INVALID_PERIOD_DATES [PeriodData][validatePeriodDatesAndReturnMonth]" +
-              s" The retrieved period dates are invalid. fromDate - ${taxYearEOY - 2}-04-06, toDate - ${taxYearEOY - 2}-05-02") shouldBe true
+              s" The retrieved period dates are invalid. fromDate - ${taxYearEOY - 1}-04-06, toDate - ${taxYearEOY - 1}-05-02") shouldBe true
         }
       }
     }
@@ -106,9 +106,9 @@ class PeriodDataSpec extends UnitTest with LogCapturing {
             intercept[Exception] {
               val result =
                 s"""{
-                   |   "deductionFromDate": "${taxYearEOY - 2}-04-06",
+                   |   "deductionFromDate": "${taxYearEOY - 1}-04-06",
                    |   "deductionToDate": "invalid-to-date",
-                   |   "submissionDate": "${taxYearEOY - 2}-05-11T16:38:57.489Z",
+                   |   "submissionDate": "${taxYearEOY - 1}-05-11T16:38:57.489Z",
                    |   "source": "customer"
                    |}""".stripMargin
 

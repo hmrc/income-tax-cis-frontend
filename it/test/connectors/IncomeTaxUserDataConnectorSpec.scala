@@ -20,7 +20,8 @@ import models.{APIErrorBodyModel, APIErrorModel, IncomeTaxUserData}
 import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.test.Helpers.OK
-import support.ConnectorIntegrationTest
+import support.TaxYearUtils.taxYearEOY
+import support.{ConnectorIntegrationTest, TaxYearUtils}
 import support.builders.models.IncomeTaxUserDataBuilder.anIncomeTaxUserData
 import support.builders.models.UserBuilder.aUser
 import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
@@ -32,8 +33,6 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
   private implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid, "X-Session-ID" -> aUser.sessionId)
 
   private lazy val underTest = new IncomeTaxUserDataConnector(httpClient, appConfig)
-
-  private val taxYearEOY = 2024
 
   "IncomeTaxUserDataConnector" should {
     "Return a success result" when {
@@ -53,8 +52,8 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
              |      "totalGrossAmountPaid": 450.00,
              |      "cisDeductions": [
              |        {
-             |          "fromDate": "${taxYearEOY - 3}-04-06",
-             |          "toDate": "${taxYearEOY - 2}-04-05",
+             |          "fromDate": "${taxYearEOY - 1}-04-06",
+             |          "toDate": "$taxYearEOY-04-05",
              |          "contractorName": "ABC Steelworks",
              |          "employerRef": "123/AB123456",
              |          "totalDeductionAmount": 100.00,
@@ -62,8 +61,8 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
              |          "totalGrossAmountPaid": 450.00,
              |          "periodData": [
              |            {
-             |              "deductionFromDate": "${taxYearEOY - 3}-04-06",
-             |              "deductionToDate": "${taxYearEOY - 3}-05-05",
+             |              "deductionFromDate": "${taxYearEOY - 1}-04-06",
+             |              "deductionToDate": "${taxYearEOY - 1}-05-05",
              |              "deductionAmount": 100.00,
              |              "costOfMaterials": 50.00,
              |              "grossAmountPaid": 450.00,
@@ -81,8 +80,8 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
              |      "totalGrossAmountPaid": 450.00,
              |      "cisDeductions": [
              |        {
-             |          "fromDate": "${taxYearEOY - 3}-04-06",
-             |          "toDate": "${taxYearEOY - 2}-04-05",
+             |          "fromDate": "${taxYearEOY - 1}-04-06",
+             |          "toDate": "$taxYearEOY-04-05",
              |          "contractorName": "ABC Steelworks",
              |          "employerRef": "123/AB123456",
              |          "totalDeductionAmount": 100.00,
@@ -90,8 +89,8 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
              |          "totalGrossAmountPaid": 450.00,
              |          "periodData": [
              |            {
-             |              "deductionFromDate": "${taxYearEOY - 3}-04-06",
-             |              "deductionToDate": "${taxYearEOY - 3}-05-05",
+             |              "deductionFromDate": "${taxYearEOY - 1}-04-06",
+             |              "deductionToDate": "${taxYearEOY - 1}-05-05",
              |              "deductionAmount": 100.00,
              |              "costOfMaterials": 50.00,
              |              "grossAmountPaid": 450.00,

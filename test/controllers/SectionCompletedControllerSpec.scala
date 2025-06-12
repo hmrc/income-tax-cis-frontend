@@ -168,7 +168,7 @@ class SectionCompletedControllerSpec extends ControllerUnitTest {
 
         private val result = target.submit(taxYear, journey).apply(sessionRequest)
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some("/2026/tasklist")
+        redirectLocation(result) shouldBe Some(s"/$taxYear/tasklist")
       }
     }
     "error handler called" when {
