@@ -31,7 +31,7 @@ import scala.concurrent.duration.Duration
 
 class CISConnectorSpec extends ConnectorIntegrationTest with TaxYearProvider {
 
-  private lazy val underTest: CISConnector = new CISConnector(httpClient, appConfig)
+  private lazy val underTest: CISConnector = new CISConnector(httpClientV2, appConfig)
 
   private implicit val headerCarrierWithSession: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(aUser.sessionId)))
 

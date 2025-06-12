@@ -21,11 +21,11 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
-import uk.gov.hmrc.http.test.HttpClientSupport
+import uk.gov.hmrc.http.test.HttpClientV2Support
 
 trait ConnectorIntegrationTest extends AnyWordSpec with Matchers
   with FutureAwaits with DefaultAwaitTimeout
-  with HttpClientSupport
+  with HttpClientV2Support
   with AppConfigHelper
   with WireMockHelper with WiremockStubHelpers
   with BeforeAndAfterAll {

@@ -19,23 +19,30 @@ package connectors
 import config.AppConfig
 import connectors.parsers.CISHttpParser.CISResponse
 import models.submission.CISSubmission
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CISConnector @Inject()(val http: HttpClient, val config: AppConfig)(implicit ec: ExecutionContext) {
+class CISConnector @Inject()(val http: HttpClientV2, val config: AppConfig)(implicit ec: ExecutionContext) {
 
   def submit(nino: String, taxYear: Int, submission: CISSubmission)(implicit hc: HeaderCarrier): Future[CISResponse] = {
     import connectors.parsers.CISHttpParser.{CISHttpReads, CISResponse}
     val cisUrl: String = config.incomeTaxCISBEUrl + s"/income-tax/nino/$nino/sources?taxYear=$taxYear"
-    http.POST[CISSubmission, CISResponse](cisUrl, submission)
+    http
+      .post(url"$cisUrl")
+      .withBody(Json.toJson(submission))
+      .execute[CISResponse]
   }
 
   def delete(nino: String, taxYear: Int, submissionId: String)(implicit hc: HeaderCarrier): Future[CISResponse] = {
     import connectors.parsers.DeleteCISHttpParser.DeleteCISHttpReads
 
     val cisUrl: String = config.incomeTaxCISBEUrl + s"/income-tax/nino/$nino/sources/$submissionId?taxYear=$taxYear"
-    http.DELETE[CISResponse](cisUrl)
+    http
+      .delete(url"$cisUrl")
+      .execute[CISResponse]
   }
 }

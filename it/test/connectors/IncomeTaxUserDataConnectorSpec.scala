@@ -32,7 +32,7 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
 
   private implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders("mtditid" -> aUser.mtditid, "X-Session-ID" -> aUser.sessionId)
 
-  private lazy val underTest = new IncomeTaxUserDataConnector(httpClient, appConfig)
+  private lazy val underTest = new IncomeTaxUserDataConnector(httpClientV2, appConfig)
 
   "IncomeTaxUserDataConnector" should {
     "Return a success result" when {
@@ -66,7 +66,7 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
              |              "deductionAmount": 100.00,
              |              "costOfMaterials": 50.00,
              |              "grossAmountPaid": 450.00,
-             |              "submissionDate": "${taxYearEOY - 1}-05-11T16:38:57.489Z",
+             |              "submissionDate": "${taxYearEOY - 2}-05-11T16:38:57.489Z",
              |              "submissionId": "submissionId",
              |              "source": "customer"
              |            }
@@ -94,7 +94,7 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
              |              "deductionAmount": 100.00,
              |              "costOfMaterials": 50.00,
              |              "grossAmountPaid": 450.00,
-             |              "submissionDate": "${taxYearEOY - 1}-05-11T16:38:57.489Z",
+             |              "submissionDate": "${taxYearEOY - 2}-05-11T16:38:57.489Z",
              |              "submissionId": "submissionId",
              |              "source": "customer"
              |            }
