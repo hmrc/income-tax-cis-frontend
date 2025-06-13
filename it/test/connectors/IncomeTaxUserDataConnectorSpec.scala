@@ -66,7 +66,7 @@ class IncomeTaxUserDataConnectorSpec extends ConnectorIntegrationTest {
              |              "deductionAmount": 100.00,
              |              "costOfMaterials": 50.00,
              |              "grossAmountPaid": 450.00,
-             |              "submissionDate": "${taxYearEOY - 2}-05-11T16:38:57.489Z",
+             |              "submissionDate": "${taxYearEOY - 1}-05-11T16:38:57.489Z",
              |              "submissionId": "submissionId",
              |              "source": "customer"
              |            }
