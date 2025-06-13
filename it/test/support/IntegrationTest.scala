@@ -38,6 +38,7 @@ import play.api.{Application, Environment, Mode}
 import support.builders.models.IncomeTaxUserDataBuilder
 import support.builders.models.UserBuilder.aUser
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Awaitable, ExecutionContext, Future}
@@ -50,6 +51,10 @@ trait IntegrationTest extends AnyWordSpec
   with BeforeAndAfterAll
   with TaxYearProvider
   with DatabaseHelper {
+
+  val nino: String = aCisUserData.nino
+  val mtditid: String = aCisUserData.mtdItId
+  val sessionId: String = aCisUserData.sessionId
 
   protected implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
   protected implicit val headerCarrier: HeaderCarrier = HeaderCarrier().withExtraHeaders(headers = "mtditid" -> aUser.mtditid)

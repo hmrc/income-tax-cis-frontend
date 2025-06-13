@@ -18,13 +18,14 @@ package support.builders.models
 
 import models.CisDeductions
 import play.api.libs.json.{JsObject, Json}
+import support.TaxYearUtils.taxYearEOY
 import support.builders.models.PeriodDataBuilder.aPeriodData
 
 object CisDeductionsBuilder {
 
   val aCisDeductions: CisDeductions = CisDeductions(
-    fromDate = "2020-04-06",
-    toDate = "2021-04-05",
+    fromDate = s"${taxYearEOY - 1}-04-06",
+    toDate = s"$taxYearEOY-04-05",
     contractorName = Some("ABC Steelworks"),
     employerRef = "123/AB123456",
     totalDeductionAmount = Some(BigDecimal("100.00")),

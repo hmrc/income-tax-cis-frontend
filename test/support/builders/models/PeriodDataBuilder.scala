@@ -29,7 +29,7 @@ object PeriodDataBuilder {
     deductionAmount = Some(BigDecimal("100.00")),
     costOfMaterials = Some(BigDecimal("50.00")),
     grossAmountPaid = Some(BigDecimal("450.00")),
-    submissionDate = s"${taxYearEOY - 2}-05-11T16:38:57.489Z",
+    submissionDate = s"${taxYearEOY - 1}-05-11T16:38:57.489Z",
     submissionId = Some("submissionId"),
     source = "customer"
   )
