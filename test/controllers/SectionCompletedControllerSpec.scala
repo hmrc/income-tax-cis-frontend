@@ -37,11 +37,11 @@ import views.html.SectionCompletedView
 
 import java.util.Calendar
 
-class SectionCompletedControllerSpec extends ControllerUnitTest {
+class SectionCompletedControllerSpec extends ControllerUnitTest with MockAuthorisedAction with MockSectionCompletedService with MockErrorHandler {
 
   implicit val view: SectionCompletedView = app.injector.instanceOf[SectionCompletedView]
 
-  trait Test extends MockAuthorisedAction with MockSectionCompletedService with MockErrorHandler {
+  trait Test {
     val hc: HeaderCarrier = HeaderCarrier()
 
     implicit val authorisedAction: AuthorisedAction = mockAuthorisedAction
@@ -53,11 +53,9 @@ class SectionCompletedControllerSpec extends ControllerUnitTest {
     lazy val target = new TestController()
   }
 
-  val nino  = "AA123456A"
-  val mtdId = "1234567890"
   val journey = "cis"
   val journeyAnswers: JourneyAnswers = JourneyAnswers(
-    mtdItId = mtdId,
+    mtdItId = mtditid,
     taxYear = taxYear,
     journey = journey,
     data = Json.obj("journey" -> "cis"),
@@ -65,7 +63,7 @@ class SectionCompletedControllerSpec extends ControllerUnitTest {
   )
 
   val predicate: Predicate = Enrolment("HMRC-MTD-IT")
-    .withIdentifier("MTDITID", mtdId)
+    .withIdentifier("MTDITID", mtditid)
     .withDelegatedAuthRule("mtd-it-auth")
 
   ".show" should {
@@ -73,7 +71,7 @@ class SectionCompletedControllerSpec extends ControllerUnitTest {
       "journey name is correct and status is 'Completed'" in new Test {
         mockAuth(Some(nino))
         private val journeyData = Json.obj("journey" -> "cis", "status" -> "completed")
-        mockGet(mtdId, taxYear, journey, Some(journeyAnswers.copy(data = journeyData)))
+        mockGet(mtditid, taxYear, journey, Some(journeyAnswers.copy(data = journeyData)))
         private val sessionRequest = fakeIndividualRequest.withSession(
           SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.VALID_TAX_YEARS -> taxYear.toString
@@ -86,7 +84,7 @@ class SectionCompletedControllerSpec extends ControllerUnitTest {
       "journey name is correct and status is 'inProgress'" in new Test {
         mockAuth(Some(nino))
         private val journeyData = Json.obj("journey" -> "cis-summary", "status" -> "inProgress")
-        mockGet(mtdId, taxYear, journey, Some(journeyAnswers.copy(data = journeyData)))
+        mockGet(mtditid, taxYear, journey, Some(journeyAnswers.copy(data = journeyData)))
         private val sessionRequest = fakeIndividualRequest.withSession(
           SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.VALID_TAX_YEARS -> taxYear.toString
@@ -99,7 +97,7 @@ class SectionCompletedControllerSpec extends ControllerUnitTest {
       "journey name is correct and status is 'notStarted'" in new Test {
         mockAuth(Some(nino))
         private val journeyData = Json.obj("journey" -> "cis", "status" -> "notStarted")
-        mockGet(mtdId, taxYear, journey, Some(journeyAnswers.copy(data = journeyData)))
+        mockGet(mtditid, taxYear, journey, Some(journeyAnswers.copy(data = journeyData)))
         private val sessionRequest = fakeIndividualRequest.withSession(
           SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.VALID_TAX_YEARS -> taxYear.toString
@@ -111,7 +109,7 @@ class SectionCompletedControllerSpec extends ControllerUnitTest {
 
       "journey name is correct but Service.get returns no data" in new Test {
         mockAuth(Some(nino))
-        mockGet(mtdId, taxYear, journey, None)
+        mockGet(mtditid, taxYear, journey, None)
         private val sessionRequest = fakeIndividualRequest.withSession(
           SessionValues.TAX_YEAR -> taxYear.toString,
           SessionValues.VALID_TAX_YEARS -> taxYear.toString

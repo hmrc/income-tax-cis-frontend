@@ -38,7 +38,7 @@ class MaterialsAmountController @Inject()(actionsProvider: ActionsProvider,
                                           pageView: MaterialsAmountView,
                                           materialsService: MaterialsService,
                                           errorHandler: ErrorHandler)
-                                         (implicit mcc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
+                                         (implicit mcc: MessagesControllerComponents, val appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int,

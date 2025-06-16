@@ -41,7 +41,7 @@ class ContractorDetailsController @Inject()(actionsProvider: ActionsProvider,
                                             contractorDetailsService: ContractorDetailsService,
                                             errorHandler: ErrorHandler,
                                             cisSessionService: CISSessionService)
-                                           (implicit mcc: MessagesControllerComponents, ec: ExecutionContext, appConfig: AppConfig)
+                                           (implicit mcc: MessagesControllerComponents, ec: ExecutionContext, val appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   // TODO: I think getting the employerRefs for show does not make sense

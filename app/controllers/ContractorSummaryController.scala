@@ -35,7 +35,7 @@ class ContractorSummaryController @Inject()(actionsProvider: ActionsProvider,
                                             inYearUtil: InYearUtil,
                                             contractorSummaryService: ContractorSummaryService,
                                             errorHandler: ErrorHandler)
-                                           (implicit mcc: MessagesControllerComponents, appConfig: AppConfig, ec: ExecutionContext)
+                                           (implicit mcc: MessagesControllerComponents, val appConfig: AppConfig, ec: ExecutionContext)
   extends FrontendController(mcc) with I18nSupport with SessionHelper {
 
   def show(taxYear: Int, contractor: String): Action[AnyContent] = actionsProvider.userPriorDataFor(taxYear, contractor) { implicit request =>
