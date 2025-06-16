@@ -37,11 +37,11 @@ import views.html.SectionCompletedView
 
 import java.util.Calendar
 
-class SectionCompletedControllerSpec extends ControllerUnitTest {
+class SectionCompletedControllerSpec extends ControllerUnitTest with MockAuthorisedAction with MockSectionCompletedService with MockErrorHandler {
 
   implicit val view: SectionCompletedView = app.injector.instanceOf[SectionCompletedView]
 
-  trait Test extends MockAuthorisedAction with MockSectionCompletedService with MockErrorHandler {
+  trait Test {
     val hc: HeaderCarrier = HeaderCarrier()
 
     implicit val authorisedAction: AuthorisedAction = mockAuthorisedAction

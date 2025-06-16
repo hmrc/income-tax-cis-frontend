@@ -18,13 +18,13 @@ package actions
 
 import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
 import config.{AppConfig, ErrorHandler}
-import controllers.errors.routes.{AgentAuthErrorController, IndividualAuthErrorController, UnauthorisedUserErrorController, SupportingAgentAuthErrorController}
-import models.{AuthorisationRequest, User}
+import controllers.errors.routes.{AgentAuthErrorController, IndividualAuthErrorController, SupportingAgentAuthErrorController, UnauthorisedUserErrorController}
+import models.{AuthorisationRequest, MissingAgentClientDetails, User}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results._
 import play.api.mvc._
-import services.AuthService
+import services.{AuthService, SessionDataService}
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{affinityGroup, allEnrolments, confidenceLevel}
 import uk.gov.hmrc.auth.core.retrieve.~
@@ -36,8 +36,10 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthorisedAction @Inject()(val appConfig: AppConfig,
+                                 authService: AuthService,
+                                 sessionDataService: SessionDataService,
                                  errorHandler: ErrorHandler)
-                                (implicit val authService: AuthService, val mcc: MessagesControllerComponents)
+                                (val mcc: MessagesControllerComponents)
   extends ActionBuilder[AuthorisationRequest, AnyContent] with I18nSupport with Logging with SessionHelper {
 
   override implicit val executionContext: ExecutionContext = mcc.executionContext
@@ -94,6 +96,20 @@ class AuthorisedAction @Inject()(val appConfig: AppConfig,
     }
   }
 
+  private[actions] def agentAuthentication[A](block: AuthorisationRequest[A] => Future[Result],
+                                              sessionId: String
+                                             )(implicit request: Request[A], hc: HeaderCarrier): Future[Result] =
+    sessionDataService.getSessionData(sessionId).flatMap { sessionData =>
+        authService
+          .authorised(EnrolmentHelper.agentAuthPredicate(sessionData.mtditid))
+          .retrieve(allEnrolments)(
+            enrollments => handleForValidAgent(block, sessionData.mtditid, sessionData.nino, sessionId, enrollments, isSupportingAgent = false)
+          )
+          .recoverWith(agentRecovery(block, sessionData.mtditid, sessionData.nino, sessionId))
+    }.recover {
+      case _: MissingAgentClientDetails =>
+        Redirect(appConfig.viewAndChangeEnterUtrUrl)
+    }
 
   private def agentRecovery[A](block: AuthorisationRequest[A] => Future[Result],
                                mtdItId: String,
@@ -140,24 +156,5 @@ class AuthorisedAction @Inject()(val appConfig: AppConfig,
           logger.warn(s"[AuthorisedAction][agentAuthentication] - Agent with no HMRC-AS-AGENT enrolment. Rendering unauthorised view.")
           Future.successful(Redirect(controllers.errors.routes.YouNeedAgentServicesController.show))
       }
-    }
-
-  private[actions] def agentAuthentication[A](block: AuthorisationRequest[A] => Future[Result],
-                                              sessionId: String
-                                             )(implicit request: Request[A], hc: HeaderCarrier): Future[Result] =
-    (
-      request.session.get(SessionValues.CLIENT_MTDITID),
-      request.session.get(SessionValues.CLIENT_NINO)
-    ) match {
-      case (Some(mtdItId), Some(nino)) =>
-        authService
-          .authorised(EnrolmentHelper.agentAuthPredicate(mtdItId))
-          .retrieve(allEnrolments)(
-            enrollments => handleForValidAgent(block, mtdItId, nino, sessionId, enrollments, isSupportingAgent = false)
-          )
-          .recoverWith(agentRecovery(block, mtdItId, nino, sessionId))
-      case (_, _) =>
-        logger.info(s"[AuthorisedAction][agentAuthentication] - Agent does not have session key values. Redirecting to view & change.")
-        Future.successful(Redirect(appConfig.viewAndChangeEnterUtrUrl))
     }
 }

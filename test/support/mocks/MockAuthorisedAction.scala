@@ -22,6 +22,7 @@ import org.scalamock.handlers.CallHandler4
 import org.scalamock.scalatest.MockFactory
 import play.api.test.Helpers.stubMessagesControllerComponents
 import services.AuthService
+import support.UnitTest
 import support.builders.models.UserBuilder.aUser
 import support.stubs.AppConfigStub
 import uk.gov.hmrc.auth.core._
@@ -33,13 +34,15 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockAuthorisedAction extends MockFactory with MockErrorHandler {
+trait MockAuthorisedAction extends MockFactory
+  with MockErrorHandler
+  with MockSessionDataService { _: UnitTest =>
 
   private val mockAppConfig = new AppConfigStub().config()
   private val mockAuthConnector = mock[AuthConnector]
   private val mockAuthService = new AuthService(mockAuthConnector)
 
-  protected val mockAuthorisedAction: AuthorisedAction = new AuthorisedAction(mockAppConfig, mockErrorHandler)(mockAuthService, stubMessagesControllerComponents())
+  protected val mockAuthorisedAction: AuthorisedAction = new AuthorisedAction(mockAppConfig, mockAuthService, mockSessionDataService, mockErrorHandler)(stubMessagesControllerComponents())
 
   protected def mockAuthAsAgent(): CallHandler4[Predicate, Retrieval[_], HeaderCarrier, ExecutionContext, Future[Any]] = {
     val enrolments: Enrolments = Enrolments(Set(
@@ -48,6 +51,8 @@ trait MockAuthorisedAction extends MockFactory with MockErrorHandler {
     ))
 
     val agentRetrievals: Some[AffinityGroup] = Some(AffinityGroup.Agent)
+
+    mockGetSessionData(sessionId)(sessionData)
 
     (mockAuthConnector.authorise(_: Predicate, _: Retrieval[_])(_: HeaderCarrier, _: ExecutionContext))
       .expects(*, Retrievals.affinityGroup, *, *)
