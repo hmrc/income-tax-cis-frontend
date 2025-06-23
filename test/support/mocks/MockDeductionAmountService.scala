@@ -20,11 +20,12 @@ import models.mongo.CisUserData
 import models.{ServiceError, User}
 import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import services.DeductionAmountService
 
 import scala.concurrent.Future
 
-trait MockDeductionAmountService extends MockFactory {
+trait MockDeductionAmountService extends MockFactory { _: TestSuite =>
 
   protected val mockDeductionAmountService: DeductionAmountService = mock[DeductionAmountService]
 

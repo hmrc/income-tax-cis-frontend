@@ -16,7 +16,7 @@
 
 package actions
 
-import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
+import common.{EnrolmentIdentifiers, EnrolmentKeys}
 import config.{AppConfig, ErrorHandler}
 import controllers.errors.routes.{AgentAuthErrorController, IndividualAuthErrorController, SupportingAgentAuthErrorController, UnauthorisedUserErrorController}
 import models.{AuthorisationRequest, MissingAgentClientDetails, User}

@@ -20,13 +20,13 @@ import models.mongo.JourneyAnswers
 import models.Done
 import org.scalamock.handlers.{CallHandler2, CallHandler4}
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import services.SectionCompletedService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockSectionCompletedService extends MockFactory {
-
+trait MockSectionCompletedService extends MockFactory { _: TestSuite =>
   protected val mockSectionCompletedService: SectionCompletedService = mock[SectionCompletedService]
 
   def mockGet(mtdItId: String, taxYear: Int, journey: String, result: Option[JourneyAnswers]): CallHandler4[String, Int, String, HeaderCarrier, Future[Option[JourneyAnswers]]] = {

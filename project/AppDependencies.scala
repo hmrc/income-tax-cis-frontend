@@ -31,22 +31,22 @@ object AppDependencies {
 
   val compile: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"                   %% "bootstrap-frontend-play-30"   % bootstrapPlay30Version,
-    "uk.gov.hmrc"                   %% "play-frontend-hmrc-play-30"   % "12.1.0",
+    "uk.gov.hmrc"                   %% "play-frontend-hmrc-play-30"   % "12.6.0",
     "uk.gov.hmrc.mongo"             %% "hmrc-mongo-play-30"           % mongoPlay30Version,
-    "com.fasterxml.jackson.module"  %% "jackson-module-scala"       % "2.17.0",
-    "com.beachape"                  %% "enumeratum"                 % "1.7.3",
-    "com.beachape"                  %% "enumeratum-play-json"       % "1.7.3" excludeAll (jacksonAndPlayExclusions: _*)
+    "com.fasterxml.jackson.module"  %% "jackson-module-scala"         % "2.19.1",
+    "com.beachape"                  %% "enumeratum"                   % "1.9.0",
+    "com.beachape"                  %% "enumeratum-play-json"         % "1.9.0" excludeAll (jacksonAndPlayExclusions: _*)
   )
 
   val test: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc"               %% "bootstrap-test-play-30"     % bootstrapPlay30Version    % Test,
-    "uk.gov.hmrc.mongo"         %% "hmrc-mongo-test-play-30"    % mongoPlay30Version        % Test,
-    "org.scalatest"             %% "scalatest"                  % "3.2.17"                  % Test,
-    "org.jsoup"                 %  "jsoup"                      % "1.16.2"                  % Test,
-    "org.scalatestplus.play"    %% "scalatestplus-play"         % "5.1.0"                   % Test,
-    "com.github.tomakehurst"    %  "wiremock-jre8-standalone"   % "3.0.1"                   % Test,
-    "org.scalamock"             %% "scalamock"                  % "5.2.0"                   % Test,
-    "com.vladsch.flexmark"       %  "flexmark-all"              % "0.64.8"                  % Test,
-    "org.mockito"               %% "mockito-scala"              % "1.17.37"                 % Test
-  )
+    "uk.gov.hmrc"               %% "bootstrap-test-play-30"     % bootstrapPlay30Version,
+    "uk.gov.hmrc.mongo"         %% "hmrc-mongo-test-play-30"    % mongoPlay30Version,
+    "org.scalatest"             %% "scalatest"                  % "3.2.19",
+    "org.jsoup"                 %  "jsoup"                      % "1.21.1",
+    "org.scalatestplus.play"    %% "scalatestplus-play"         % "7.0.1",
+    "com.github.tomakehurst"    %  "wiremock-jre8-standalone"   % "3.0.1",
+    "org.scalamock"             %% "scalamock"                  % "7.3.3",
+    "com.vladsch.flexmark"      %  "flexmark-all"               % "0.64.8",
+    "org.mockito"               %% "mockito-scala"              % "2.0.0"
+  ).map(_ % "test")
 }

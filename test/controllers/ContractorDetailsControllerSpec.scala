@@ -25,7 +25,6 @@ import models.forms.ContractorDetails
 import models.mongo.{CisCYAModel, DataNotFoundError}
 import org.jsoup.Jsoup
 import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, OK}
-import play.api.libs.json.Json.{stringify, toJson}
 import play.api.mvc.Results.{InternalServerError, Redirect}
 import play.api.test.Helpers.{contentAsString, contentType, status}
 import sttp.model.Method.POST

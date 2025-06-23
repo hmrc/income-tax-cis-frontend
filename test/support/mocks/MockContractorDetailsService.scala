@@ -21,12 +21,13 @@ import models.mongo.{CisUserData, DatabaseError}
 import models.{HttpParserError, ServiceError, User}
 import org.scalamock.handlers.{CallHandler3, CallHandler4}
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import services.ContractorDetailsService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockContractorDetailsService extends MockFactory {
+trait MockContractorDetailsService extends MockFactory { _: TestSuite =>
 
   protected val mockContractorDetailsService: ContractorDetailsService = mock[ContractorDetailsService]
 

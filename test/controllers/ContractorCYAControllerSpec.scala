@@ -16,7 +16,6 @@
 
 package controllers
 
-import controllers.routes._
 import models.mongo.DataNotUpdatedError
 import models.{HttpParserError, InvalidOrUnfinishedSubmission}
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, OK, SEE_OTHER, SERVICE_UNAVAILABLE}

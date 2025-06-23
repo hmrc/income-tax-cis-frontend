@@ -19,13 +19,14 @@ package support.mocks
 import models.{IncomeTaxUserData, ServiceError, User}
 import org.scalamock.handlers.CallHandler6
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import services.DeleteCISPeriodService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.Month
 import scala.concurrent.Future
 
-trait MockDeleteCISPeriodService extends MockFactory {
+trait MockDeleteCISPeriodService extends MockFactory { _: TestSuite =>
 
   protected val mockService: DeleteCISPeriodService = mock[DeleteCISPeriodService]
 
