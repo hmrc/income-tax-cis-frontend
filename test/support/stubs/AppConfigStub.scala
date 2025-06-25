@@ -17,12 +17,12 @@
 package support.stubs
 
 import config.{AppConfig, AppConfigImpl}
-import org.scalamock.scalatest.MockFactory
+import org.scalatestplus.mockito.MockitoSugar.mock
 import play.api.mvc.RequestHeader
 import support.TaxYearProvider
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-class AppConfigStub extends MockFactory with TaxYearProvider {
+class AppConfigStub extends TaxYearProvider {
 
   def config(encrypt: Boolean = true,
              _taxYearErrorFeature: Boolean = false,

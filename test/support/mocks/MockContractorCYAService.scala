@@ -21,12 +21,13 @@ import models.submission.CISSubmission
 import models.{ServiceError, User}
 import org.scalamock.handlers.CallHandler5
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import services.ContractorCYAService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockContractorCYAService extends MockFactory {
+trait MockContractorCYAService extends MockFactory { _: TestSuite =>
 
   protected val mockContractorCYAService: ContractorCYAService = mock[ContractorCYAService]
 

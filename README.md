@@ -11,20 +11,32 @@ you will need to have the following:
 
 The service manager profile for this service is:
 
-    sm --start INCOME_TAX_CIS_FRONTEND
+    sm2 --start INCOME_TAX_CIS_FRONTEND
 Run the following command to start the remaining services locally:
 
     sudo mongod (If not already running)
-    sm --start INCOME_TAX_SUBMISSION_ALL -r
+    sm2 --start INCOME_TAX_SUBMISSION_ALL -r
 
 To run the service locally:
 
     sudo mongod (If not already running)
-    sm --start INCOME_TAX_SUBMISSION_ALL -r
-    sm --stop INCOME_TAX_CIS_FRONTEND
+    sm2 --start INCOME_TAX_SUBMISSION_ALL -r
+    sm2 --stop INCOME_TAX_CIS_FRONTEND
     ./run.sh **OR** sbt -Dplay.http.router=testOnlyDoNotUseInAppConf.Routes run
 
 This service runs on port: `localhost:9338`
+
+To test the branch you're working on locally. You will need to run `sm2 --stop INCOME_TAX_CIS_FRONTEND` followed by
+`./run.sh`
+
+### Running Tests
+
+- Run Unit Tests:  `sbt test`
+- Run Integration Tests: `sbt it/test`
+- Run Unit and Integration Tests: `sbt test it/test`
+- Run Unit and Integration Tests with coverage report: `./check.sh`<br/>
+  which runs `sbt clean coverage test it/test coverageReport dependencyUpdates`
+
 
 ### Feature Switches
 

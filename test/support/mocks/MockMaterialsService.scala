@@ -20,11 +20,12 @@ import models.mongo.CisUserData
 import models.{ServiceError, User}
 import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import services.MaterialsService
 
 import scala.concurrent.Future
 
-trait MockMaterialsService extends MockFactory {
+trait MockMaterialsService extends MockFactory { _: TestSuite =>
 
   protected val mockMaterialsService: MaterialsService = mock[MaterialsService]
 

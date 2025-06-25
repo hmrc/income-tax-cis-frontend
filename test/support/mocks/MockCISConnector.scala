@@ -21,11 +21,12 @@ import connectors.parsers.CISHttpParser.CISResponse
 import models.submission.CISSubmission
 import org.scalamock.handlers.CallHandler4
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockCISConnector extends MockFactory {
+trait MockCISConnector extends MockFactory { _: TestSuite =>
 
   protected val mockCISConnector: CISConnector = mock[CISConnector]
 

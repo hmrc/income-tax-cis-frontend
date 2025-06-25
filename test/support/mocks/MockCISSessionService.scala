@@ -20,13 +20,14 @@ import models.mongo.{CisCYAModel, CisUserData, DatabaseError}
 import models.{HttpParserError, IncomeTaxUserData, ServiceError, User}
 import org.scalamock.handlers.{CallHandler3, CallHandler5, CallHandler6}
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import services.CISSessionService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.Month
 import scala.concurrent.Future
 
-trait MockCISSessionService extends MockFactory {
+trait MockCISSessionService extends MockFactory { _: TestSuite =>
 
   protected val mockCISSessionService: CISSessionService = mock[CISSessionService]
 

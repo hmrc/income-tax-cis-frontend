@@ -21,11 +21,12 @@ import connectors.parsers.RefreshIncomeSourceHttpParser.RefreshIncomeSourceRespo
 import models.APIErrorModel
 import org.scalamock.handlers.CallHandler3
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockRefreshIncomeSourceConnector extends MockFactory {
+trait MockRefreshIncomeSourceConnector extends MockFactory { _: TestSuite =>
 
   protected val mockRefreshIncomeSourceConnector: RefreshIncomeSourceConnector = mock[RefreshIncomeSourceConnector]
 

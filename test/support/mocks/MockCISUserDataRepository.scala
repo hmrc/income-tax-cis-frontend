@@ -20,11 +20,12 @@ import models.User
 import models.mongo.{CisUserData, DatabaseError}
 import org.scalamock.handlers.{CallHandler1, CallHandler3}
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import repositories.CisUserDataRepository
 
 import scala.concurrent.Future
 
-trait MockCISUserDataRepository extends MockFactory {
+trait MockCISUserDataRepository extends MockFactory { _: TestSuite =>
 
   protected val mockCisUserDataRepository: CisUserDataRepository = mock[CisUserDataRepository]
 

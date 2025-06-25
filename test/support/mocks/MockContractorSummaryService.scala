@@ -19,11 +19,12 @@ package support.mocks
 import models.{IncomeTaxUserData, ServiceError, User}
 import org.scalamock.handlers.CallHandler4
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.TestSuite
 import services.ContractorSummaryService
 
 import scala.concurrent.Future
 
-trait MockContractorSummaryService extends MockFactory {
+trait MockContractorSummaryService extends MockFactory { _: TestSuite =>
 
   protected val mockContractorSummaryService: ContractorSummaryService = mock[ContractorSummaryService]
 
