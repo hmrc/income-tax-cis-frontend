@@ -22,15 +22,17 @@ import models.mongo.JourneyAnswers
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps, UpstreamErrorResponse}
 import models.Done
 import java.net.URL
 import javax.inject.Inject
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class SectionCompletedConnector @Inject()(appConfig: AppConfig, httpClient: HttpClientV2)(implicit ec: ExecutionContext) {
 
-  private def keepAliveUrl(journey: String, taxYear:Int) =
+  private def keepAliveUrl(journey: String, taxYear: Int) =
     url"${appConfig.incomeTaxCISBEUrl}/income-tax/journey-answers/keep-alive/$journey/$taxYear"
 
   def completedSectionUrl(journey: String, taxYear: Int): URL =
