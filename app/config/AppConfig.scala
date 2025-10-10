@@ -19,9 +19,9 @@ package config
 import com.google.inject.ImplementedBy
 import play.api.i18n.Lang
 import play.api.mvc.{Call, RequestHeader}
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
+import java.net.URLEncoder
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.duration.Duration
 
@@ -78,7 +78,7 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
 
   private lazy val signInBaseUrl: String = servicesConfig.getString("microservice.services.sign-in.url")
   private lazy val signInContinueBaseUrl: String = servicesConfig.getString(signInContinueUrlKey)
-  lazy val signInContinueUrlRedirect: String = SafeRedirectUrl(signInContinueBaseUrl).encodedUrl
+  lazy val signInContinueUrlRedirect: String = URLEncoder.encode(signInContinueBaseUrl, "UTF-8")
 
   private lazy val signInOrigin = servicesConfig.getString("appName")
   lazy val signInUrl: String = s"$signInBaseUrl?continue=$signInContinueUrlRedirect&origin=$signInOrigin"
@@ -121,7 +121,7 @@ class AppConfigImpl @Inject()(servicesConfig: ServicesConfig) extends AppConfig 
   lazy private val contactFormServiceAgent = "update-and-submit-income-tax-return-agent"
   def contactFormServiceIdentifier(implicit isAgent: Boolean): String = if(isAgent) contactFormServiceAgent else contactFormServiceIndividual
 
-  private def requestUri(implicit request: RequestHeader): String = SafeRedirectUrl(appUrl + request.uri).encodedUrl
+  private def requestUri(implicit request: RequestHeader): String = URLEncoder.encode(appUrl + request.uri, "UTF-8")
 
   private lazy val feedbackFrontendUrl = servicesConfig.getString(feedbackFrontendUrlKey)
 
