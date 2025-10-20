@@ -18,8 +18,9 @@ package config
 
 import org.scalamock.scalatest.MockFactory
 import support.{FakeRequestHelper, UnitTest}
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
+import java.net.URLEncoder
 
 class AppConfigSpec extends UnitTest
   with MockFactory
@@ -49,7 +50,7 @@ class AppConfigSpec extends UnitTest
   "AppConfig" should {
     "return correct feedbackUrl when the user is an individual" in {
       implicit val isAgent: Boolean = false
-      val expectedBackUrl = SafeRedirectUrl(appUrl + fakeIndividualRequest.uri).encodedUrl
+      val expectedBackUrl = URLEncoder.encode(appUrl + fakeIndividualRequest.uri, "UTf-8")
       val expectedServiceIdentifier = "update-and-submit-income-tax-return"
       val expectedBetaFeedbackUrl = s"http://contact-frontend:9250/contact/beta-feedback?service=$expectedServiceIdentifier&backUrl=$expectedBackUrl"
       val expectedFeedbackSurveyUrl = s"http://feedback-frontend:9514/feedback/$expectedServiceIdentifier"
@@ -73,7 +74,7 @@ class AppConfigSpec extends UnitTest
 
     "return the correct feedback url when the user is an agent" in {
       implicit val isAgent: Boolean = true
-      val expectedBackUrl = SafeRedirectUrl(appUrl + fakeAgentRequest.uri).encodedUrl
+      val expectedBackUrl = URLEncoder.encode(appUrl + fakeAgentRequest.uri, "UTF-8")
       val expectedServiceIdentifierAgent = "update-and-submit-income-tax-return-agent"
       val expectedBetaFeedbackUrl = s"http://contact-frontend:9250/contact/beta-feedback?service=$expectedServiceIdentifierAgent&backUrl=$expectedBackUrl"
       val expectedFeedbackSurveyUrl = s"http://feedback-frontend:9514/feedback/$expectedServiceIdentifierAgent"

@@ -20,7 +20,6 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor,
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import models.mongo.JourneyAnswers
 import models.mongo.JourneyStatus.Completed
-import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.concurrent.ScalaFutures.convertScalaFuture
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import play.api.http.Status._

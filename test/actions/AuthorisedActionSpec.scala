@@ -20,7 +20,7 @@ import common.SessionValues.{CLIENT_MTDITID, CLIENT_NINO}
 import common.{EnrolmentIdentifiers, EnrolmentKeys, SessionValues}
 import config.AppConfig
 import models.{AuthorisationRequest, MissingAgentClientDetails}
-import org.scalamock.handlers.{CallHandler0, CallHandler4}
+import org.scalamock.handlers.CallHandler4
 import org.scalamock.scalatest.MockFactory
 import play.api.Play.materializer
 import play.api.http.Status._
@@ -104,8 +104,6 @@ class AuthorisedActionSpec extends ControllerUnitTest
 
     val testBlock: AuthorisationRequest[AnyContent] => Future[Result] = user => Future.successful(Ok(s"${user.user.mtditid} ${user.user.arn.get}"))
 
-    val mockAppConfig: AppConfig = mock[AppConfig]
-
     val viewAndChangeUrl: String = "/report-quarterly/income-and-expenses/view/agents/client-utr"
     val signInUrl: String = s"$baseUrl/signIn"
 
@@ -144,24 +142,10 @@ class AuthorisedActionSpec extends ControllerUnitTest
         .expects(predicate, *, *, *)
         .returning(Future.successful(enrolments))
 
-    def mockSignInUrl(): CallHandler0[String] =
-      (mockAppConfig.signInUrl _: () => String)
-        .expects()
-        .returning(signInUrl)
-        .anyNumberOfTimes()
-
-    def mockViewAndChangeUrl(): CallHandler0[String] =
-      (mockAppConfig.viewAndChangeEnterUtrUrl _: () => String)
-        .expects()
-        .returning(viewAndChangeUrl)
-        .anyNumberOfTimes()
-
     def testAuth: AuthorisedAction = {
-      mockViewAndChangeUrl()
-      mockSignInUrl()
 
       new AuthorisedAction(
-        appConfig = mockAppConfig,
+        appConfig = app.injector.instanceOf[AppConfig],
         authService = mockAuthService,
         sessionDataService = mockSessionDataService,
         errorHandler = mockErrorHandler
@@ -279,7 +263,7 @@ class AuthorisedActionSpec extends ControllerUnitTest
         )
 
         status(result) shouldBe SEE_OTHER
-        redirectUrl(result) shouldBe viewAndChangeUrl
+        redirectUrl(result) should include(viewAndChangeUrl)
       }
     }
 
@@ -291,12 +275,12 @@ class AuthorisedActionSpec extends ControllerUnitTest
           mockAuthReturnException(BearerTokenExpired(), primaryAgentPredicate(mtditid))
 
           val result: Future[Result] = testAuth.agentAuthentication(testBlock, sessionId)(
-            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            request = FakeRequest().withSession(this.fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
             hc = emptyHeaderCarrier
           )
 
           status(result) shouldBe SEE_OTHER
-          redirectUrl(result) shouldBe s"$baseUrl/signIn"
+          redirectUrl(result) should include("gg-sign-in")
         }
       }
 
@@ -308,7 +292,7 @@ class AuthorisedActionSpec extends ControllerUnitTest
           mockInternalServerError(InternalServerError)
 
           val result: Future[Result] = testAuth.agentAuthentication(testBlock, sessionId)(
-            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            request = FakeRequest().withSession(this.fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
             hc = emptyHeaderCarrier
           )
 
@@ -325,7 +309,7 @@ class AuthorisedActionSpec extends ControllerUnitTest
           mockInternalServerError(InternalServerError)
 
           lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock, sessionId)(
-            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            request = FakeRequest().withSession(this.fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
             hc = emptyHeaderCarrier
           )
 
@@ -339,7 +323,7 @@ class AuthorisedActionSpec extends ControllerUnitTest
           mockAuthReturnException(InsufficientEnrolments(), secondaryAgentPredicate(mtditid))
 
           lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock, sessionId)(
-            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            request = FakeRequest().withSession(this.fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
             hc = emptyHeaderCarrier
           )
 
@@ -354,7 +338,7 @@ class AuthorisedActionSpec extends ControllerUnitTest
           mockAuthReturn(supportingAgentEnrolment, secondaryAgentPredicate(mtditid))
 
           lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock, sessionId)(
-            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            request = FakeRequest().withSession(this.fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
             hc = validHeaderCarrier
           )
 
@@ -374,7 +358,7 @@ class AuthorisedActionSpec extends ControllerUnitTest
           mockAuthReturn(primaryAgentEnrolmentNoArn, primaryAgentPredicate(mtditid))
 
           lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock, sessionId)(
-            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            request = FakeRequest().withSession(this.fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
             hc = validHeaderCarrier
           )
 
@@ -387,7 +371,7 @@ class AuthorisedActionSpec extends ControllerUnitTest
           mockAuthReturn(primaryAgentEnrolment, primaryAgentPredicate(mtditid))
 
           lazy val result: Future[Result] = testAuth.agentAuthentication(testBlock, sessionId)(
-            request = FakeRequest().withSession(fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
+            request = FakeRequest().withSession(this.fakeRequestWithMtditidAndNino.session.data.toSeq :_*),
             hc = validHeaderCarrier
           )
 

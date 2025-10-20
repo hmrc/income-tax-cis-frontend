@@ -45,19 +45,19 @@ class TailoringServiceSpec extends UnitTest
 
   ".removeCISData" should {
     "return a successful result" in {
-          mockRemoveCISDeductionTailoring(taxYear, aUser, IncomeTaxUserDataBuilder.anIncomeTaxUserData, Right())
-          mockSubmitCisDeductionCYATailoring(taxYear, aUser, Right())
+          mockRemoveCISDeductionTailoring(taxYear, aUser, IncomeTaxUserDataBuilder.anIncomeTaxUserData, Right((): Unit))
+          mockSubmitCisDeductionCYATailoring(taxYear, aUser, Right((): Unit))
           val response = underTest.removeCISData(taxYear, aUser, IncomeTaxUserDataBuilder.anIncomeTaxUserData)
-          await(response) shouldBe Right()
+          await(response) shouldBe Right((): Unit)
     }
     "return an error result when remove fails" in {
           mockRemoveCISDeductionTailoring(taxYear, aUser, IncomeTaxUserDataBuilder.anIncomeTaxUserData, Left(InvalidOrUnfinishedSubmission))
-          mockSubmitCisDeductionCYATailoring(taxYear, aUser, Right())
+          mockSubmitCisDeductionCYATailoring(taxYear, aUser, Right((): Unit))
           val response = underTest.removeCISData(taxYear, aUser, IncomeTaxUserDataBuilder.anIncomeTaxUserData)
           await(response) shouldBe Left(FailedTailoringRemoveDeductionError)
     }
     "return an error result when update fails" in {
-          mockRemoveCISDeductionTailoring(taxYear, aUser, IncomeTaxUserDataBuilder.anIncomeTaxUserData, Right())
+          mockRemoveCISDeductionTailoring(taxYear, aUser, IncomeTaxUserDataBuilder.anIncomeTaxUserData, Right((): Unit))
           mockSubmitCisDeductionCYATailoring(taxYear, aUser, Left(HttpParserError(500)))
           val response = underTest.removeCISData(taxYear, aUser, IncomeTaxUserDataBuilder.anIncomeTaxUserData)
           await(response) shouldBe Left(FailedTailoringOverrideDeductionError)

@@ -57,7 +57,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
 
   class EmptyDatabase {
     await(underTest.collection.drop().toFuture())
-    await(underTest.ensureIndexes)
+    await(underTest.ensureIndexes())
     count mustBe 0
   }
 

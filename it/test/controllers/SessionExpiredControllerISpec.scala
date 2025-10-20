@@ -16,7 +16,6 @@
 
 package controllers
 
-import common.SessionValues
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.http.Status.OK

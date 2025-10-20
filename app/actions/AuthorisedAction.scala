@@ -18,7 +18,7 @@ package actions
 
 import common.{EnrolmentIdentifiers, EnrolmentKeys}
 import config.{AppConfig, ErrorHandler}
-import controllers.errors.routes.{AgentAuthErrorController, IndividualAuthErrorController, SupportingAgentAuthErrorController, UnauthorisedUserErrorController}
+import controllers.errors.routes.{AgentAuthErrorController, IndividualAuthErrorController, UnauthorisedUserErrorController}
 import models.{AuthorisationRequest, MissingAgentClientDetails, User}
 import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}

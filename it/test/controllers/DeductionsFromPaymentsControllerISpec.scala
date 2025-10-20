@@ -19,10 +19,8 @@ package controllers
 import forms.YesNoForm
 import models.tailoring.{ExcludeJourneyModel, ExcludedJourneysResponseModel}
 import org.scalatest.BeforeAndAfterEach
-import play.api.{Application, Environment, Mode}
 import play.api.http.HeaderNames
 import play.api.http.Status._
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{route, writeableOf_AnyContentAsFormUrlEncoded}
