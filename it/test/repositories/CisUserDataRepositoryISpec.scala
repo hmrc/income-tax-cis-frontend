@@ -111,7 +111,7 @@ class CisUserDataRepositoryISpec extends IntegrationTest with FutureAwaits with 
       await(underTest.createOrUpdate(userDataOne)) mustBe Right(())
       count mustBe 1
 
-      await(underTest.createOrUpdate(userDataOne.copy(sessionId = "1234567890"))).left.toOption.get.message must include("Command failed with error 11000 (DuplicateKey)")
+      await(underTest.createOrUpdate(userDataOne.copy(sessionId = "1234567890"))).left.toOption.get.message must include("Command execution failed on MongoDB server with error 11000 (DuplicateKey)")
       count mustBe 1
     }
 
