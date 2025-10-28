@@ -28,7 +28,7 @@ trait DatabaseHelper {
 
   def dropCISDB(): Unit = {
     await(cisDatabase.collection.deleteMany(filter = Document()).toFuture())
-    await(cisDatabase.ensureIndexes)
+    await(cisDatabase.ensureIndexes())
   }
 
   def insertCyaData(cya: CisUserData): Unit = {
