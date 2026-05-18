@@ -22,7 +22,8 @@ import models.mongo._
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{IndexModel, IndexOptions}
 import org.mongodb.scala.{MongoException, MongoInternalException, MongoWriteException}
-import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.mongodb.scala.SingleObservableFuture
+import org.scalatest.matchers.must.Matchers._
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import support.IntegrationTest

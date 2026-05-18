@@ -19,6 +19,7 @@ package support
 import models.User
 import models.mongo.CisUserData
 import org.mongodb.scala.Document
+import org.mongodb.scala.SingleObservableFuture
 import repositories.CisUserDataRepositoryImpl
 
 trait DatabaseHelper {

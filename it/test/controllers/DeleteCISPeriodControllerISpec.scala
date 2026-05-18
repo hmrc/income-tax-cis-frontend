@@ -24,6 +24,8 @@ import play.api.http.HeaderNames
 import play.api.http.Status.{NO_CONTENT, OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
+import play.api.libs.ws.writeableOf_urlEncodedSimpleForm
+import play.api.libs.ws.writeableOf_JsValue
 import repositories.CisUserDataRepositoryImpl
 import support.IntegrationTest
 import support.builders.models.AllCISDeductionsBuilder.anAllCISDeductions

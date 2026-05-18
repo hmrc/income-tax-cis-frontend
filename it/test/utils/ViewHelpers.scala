@@ -23,6 +23,10 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.HeaderNames
 import play.api.libs.ws.{BodyWritable, WSClient, WSResponse}
+import play.api.libs.ws.writeableOf_String
+import play.api.libs.ws.writeableOf_urlEncodedSimpleForm
+import play.api.libs.ws.writeableOf_JsValue
+import play.api.libs.ws.DefaultBodyReadables.readableAsString
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 
 trait ViewHelpers {

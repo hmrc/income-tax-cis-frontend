@@ -22,6 +22,7 @@ import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
+import play.api.libs.ws.writeableOf_String
 import repositories.CisUserDataRepositoryImpl
 import support.IntegrationTest
 import support.builders.models.CisDeductionsBuilder.aCisDeductions

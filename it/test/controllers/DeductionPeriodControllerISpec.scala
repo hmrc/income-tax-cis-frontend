@@ -20,6 +20,8 @@ import controllers.routes.ContractorCYAController
 import play.api.http.HeaderNames
 import play.api.http.Status.{OK, SEE_OTHER}
 import play.api.libs.ws.WSResponse
+import play.api.libs.ws.writeableOf_urlEncodedSimpleForm
+import play.api.libs.ws.DefaultBodyReadables.readableAsString
 import support.builders.models.CisDeductionsBuilder.aCisDeductions
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
