@@ -39,14 +39,14 @@ object AppDependencies {
   )
 
   val test: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc"               %% "bootstrap-test-play-30"     % bootstrapPlay30Version    % Test,
-    "uk.gov.hmrc.mongo"         %% "hmrc-mongo-test-play-30"    % mongoPlay30Version        % Test,
-    "org.scalatest"             %% "scalatest"                  % "3.2.19"                  % Test,
-    "org.jsoup"                 %  "jsoup"                      % "1.22.1"                  % Test,
-    "org.scalatestplus.play"    %% "scalatestplus-play"         % "7.0.2"                   % Test,
-    "com.github.tomakehurst"    %  "wiremock-jre8-standalone"   % "3.0.1"                   % Test,
-    "org.scalamock"             %% "scalamock"                  % "7.5.5"                   % Test,
-    "com.vladsch.flexmark"       %  "flexmark-all"              % "0.64.8"                  % Test,
-    "org.mockito"               %% "mockito-scala"              % "2.1.0"                   % Test
+    "uk.gov.hmrc"            %% "bootstrap-test-play-30"     % bootstrapPlay30Version    % Test,
+    "uk.gov.hmrc.mongo"      %% "hmrc-mongo-test-play-30"    % mongoPlay30Version        % Test,
+    "org.scalatest"          %% "scalatest"                  % "3.2.19"                  % Test,
+    "org.jsoup"              %  "jsoup"                      % "1.22.1"                  % Test,
+    "org.scalatestplus.play" %% "scalatestplus-play"         % "7.0.2"                   % Test,
+    "com.github.tomakehurst" %  "wiremock-jre8-standalone"   % "3.0.1"                   % Test,
+    "com.vladsch.flexmark"   %  "flexmark-all"               % "0.64.8"                  % Test,
+    "org.mockito"            %  "mockito-core"               % "5.12.0"                  % Test,
+    "org.scalatestplus"      %% "mockito-5-12"               % "3.2.19.0"                % Test
   )
 }

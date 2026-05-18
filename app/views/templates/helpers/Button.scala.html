@@ -15,15 +15,16 @@
  *@
 
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.button.{Button => GovukButtonModel}
 
 @this(govukButton : GovukButton)
 
 @(alternativeText: String = "common.continue", classes: Option[String] = None, attributes: Map[String, String] = Map("id" -> "continue"), href: Option[String] = None)(implicit messages: Messages)
 
-@govukButton(Button(
-    attributes = attributes,
-    preventDoubleClick = Some(true),
+@govukButton(GovukButtonModel(
     content = Text(messages(alternativeText)),
+    href = href,
     classes = classes.getOrElse(""),
-    href = href
+    attributes = attributes,
+    preventDoubleClick = Some(true)
 ))

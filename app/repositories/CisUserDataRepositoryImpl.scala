@@ -75,10 +75,7 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
       case Left(error) => Left(error)
       case Right(encryptedData) =>
         Try {
-          encryptedData.map { encryptedCisUserData: EncryptedCisUserData =>
-            implicit val associatedText: String = encryptedCisUserData.mtdItId
-            encryptedCisUserData.decrypted
-          }
+          encryptedData.map(decryptOne)
         }.toEither match {
           case Left(t: Throwable) => handleEncryptionDecryptionException(t.asInstanceOf[Exception], start)
           case Right(decryptedData) => Right(decryptedData)
@@ -86,11 +83,16 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
     }
   }
 
+  private def decryptOne(e: EncryptedCisUserData)(implicit aesGcmAdCrypto: AesGcmAdCrypto): CisUserData = {
+    implicit val associatedText: String = e.mtdItId
+    e.decrypted
+  }
+
   def createOrUpdate(cisUserData: CisUserData): Future[Either[DatabaseError, Unit]] = {
     lazy val start = "[CisUserDataRepositoryImpl][update]"
 
     Try {
-      implicit val associatedText: String = cisUserData.mtdItId
+      given String = cisUserData.mtdItId
       cisUserData.encrypted
     }.toEither match {
       case Left(t: Throwable) => Future.successful(handleEncryptionDecryptionException(t.asInstanceOf[Exception], start))

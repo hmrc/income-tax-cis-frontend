@@ -38,13 +38,13 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SectionCompletedController @Inject()(implicit val cc: MessagesControllerComponents,
-                                                authAction: AuthorisedAction,
-                                                view: SectionCompletedView,
-                                                errorHandler: ErrorHandler,
-                                                implicit val appConfig: AppConfig,
-                                                sectionCompletedService: SectionCompletedService,
-                                                ec: ExecutionContext
-                                               ) extends FrontendController(cc) with I18nSupport {
+                                                 authAction: AuthorisedAction,
+                                                 view: SectionCompletedView,
+                                                 errorHandler: ErrorHandler,
+                                                 val appConfig: AppConfig,
+                                                 sectionCompletedService: SectionCompletedService,
+                                                 ec: ExecutionContext
+                                                ) extends FrontendController(cc) with I18nSupport {
 
   def form(): Form[Boolean] = YesNoForm.yesNoForm("sectionCompleted.error.required")
 
