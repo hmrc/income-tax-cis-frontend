@@ -17,22 +17,29 @@
 package support.mocks
 
 import models.{IncomeTaxUserData, ServiceError, User}
-import org.scalamock.handlers.CallHandler4
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import services.ContractorSummaryService
 
 import scala.concurrent.Future
 
-trait MockContractorSummaryService extends MockFactory { _: TestSuite =>
+trait MockContractorSummaryService { this: TestSuite =>
 
-  protected val mockContractorSummaryService: ContractorSummaryService = mock[ContractorSummaryService]
+
+  protected val mockContractorSummaryService: ContractorSummaryService =
+    org.mockito.Mockito.mock(classOf[ContractorSummaryService])
 
   def mockSaveCYAForNewCisDeduction(taxYear: Int,
                                 employerRef: String,
-                                result: Either[ServiceError, Unit]): CallHandler4[Int, String, IncomeTaxUserData, User, Future[Either[ServiceError, Unit]]] = {
-    (mockContractorSummaryService.saveCYAForNewCisDeduction(_: Int, _: String, _: IncomeTaxUserData, _: User))
-      .expects(taxYear, employerRef, *, *)
-      .returns(Future.successful(result))
+                                result: Either[ServiceError, Unit]): Unit = {
+    when(
+      mockContractorSummaryService.saveCYAForNewCisDeduction(
+        any[Int](),
+        any[String](),
+        any[IncomeTaxUserData](),
+        any[User]()
+      )
+    ).thenReturn(Future.successful(result))
   }
 }

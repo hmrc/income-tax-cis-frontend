@@ -17,7 +17,8 @@
 package models.mongo
 
 import models.submission.{CISSubmission, PeriodData}
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{mock, when}
 import support.{TaxYearProvider, UnitTest}
 import support.builders.models.UserBuilder.aUser
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
@@ -27,14 +28,13 @@ import utils.{AesGcmAdCrypto, TestingClock}
 
 import java.time.{LocalDateTime, Month, ZoneId}
 
-class CisUserDataSpec extends UnitTest
-  with MockFactory with TaxYearProvider {
+class CisUserDataSpec extends UnitTest with TaxYearProvider {
 
-  private implicit val aesGcmAdCrypto: AesGcmAdCrypto = mock[AesGcmAdCrypto]
+  private implicit val aesGcmAdCrypto: AesGcmAdCrypto = mock(classOf[AesGcmAdCrypto])
   private implicit val associatedText: String = "some-associated-text"
 
-  private val cisCYAModel = mock[CisCYAModel]
-  private val encryptedCisCYAModel = mock[EncryptedCisCYAModel]
+  private val cisCYAModel: CisCYAModel = mock(classOf[CisCYAModel])
+  private val encryptedCisCYAModel: EncryptedCisCYAModel = mock(classOf[EncryptedCisCYAModel])
 
   "CisUserData.toSubmission" should {
     "return None when no period data" in {
@@ -51,16 +51,16 @@ class CisUserDataSpec extends UnitTest
           PeriodData(
             deductionFromDate = s"$taxYearEndOfYearMinusOne-04-06",
             deductionToDate = s"$taxYearEndOfYearMinusOne-05-05",
-            grossAmountPaid = Some(500.0),
-            deductionAmount = 100.0,
-            costOfMaterials = Some(250.0)
+            grossAmountPaid = Some(BigDecimal(500.0)),
+            deductionAmount = BigDecimal(100.0),
+            costOfMaterials = Some(BigDecimal(250.0))
           ),
           PeriodData(
             deductionFromDate = s"$taxYearEndOfYearMinusOne-10-06",
             deductionToDate = s"$taxYearEndOfYearMinusOne-11-05",
-            grossAmountPaid = Some(500.0),
-            deductionAmount = 100.0,
-            costOfMaterials = Some(250.0)
+            grossAmountPaid = Some(BigDecimal(500.0)),
+            deductionAmount = BigDecimal(100.0),
+            costOfMaterials = Some(BigDecimal(250.0))
           )
         ), Some("submissionId"))
       )
@@ -113,7 +113,7 @@ class CisUserDataSpec extends UnitTest
       val encryptedCisCYAModel = EncryptedCisCYAModel()
       val underTest = aCisUserData.copy(cis = cisCYAModel)
 
-      (cisCYAModel.encrypted(_: AesGcmAdCrypto, _: String)).expects(aesGcmAdCrypto, associatedText).returning(encryptedCisCYAModel)
+      when(cisCYAModel.encrypted(eqTo(aesGcmAdCrypto), eqTo(associatedText))).thenReturn(encryptedCisCYAModel)
 
       underTest.encrypted shouldBe EncryptedCisUserData(
         sessionId = underTest.sessionId,
@@ -161,7 +161,8 @@ class CisUserDataSpec extends UnitTest
         lastUpdated = LocalDateTime.now(ZoneId.of("UTC"))
       )
 
-      (encryptedCisCYAModel.decrypted(_: AesGcmAdCrypto, _: String)).expects(aesGcmAdCrypto, associatedText).returning(aCisCYAModel)
+
+      when(encryptedCisCYAModel.decrypted(eqTo(aesGcmAdCrypto), eqTo(associatedText))).thenReturn(aCisCYAModel)
 
       underTest.decrypted shouldBe CisUserData(
         sessionId = underTest.sessionId,

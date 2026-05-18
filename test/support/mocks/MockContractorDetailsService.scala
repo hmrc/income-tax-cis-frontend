@@ -19,31 +19,41 @@ package support.mocks
 import models.forms.ContractorDetails
 import models.mongo.{CisUserData, DatabaseError}
 import models.{HttpParserError, ServiceError, User}
-import org.scalamock.handlers.{CallHandler3, CallHandler4}
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import services.ContractorDetailsService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockContractorDetailsService extends MockFactory { _: TestSuite =>
+trait MockContractorDetailsService { this: TestSuite =>
 
-  protected val mockContractorDetailsService: ContractorDetailsService = mock[ContractorDetailsService]
+
+  protected val mockContractorDetailsService: ContractorDetailsService =
+    org.mockito.Mockito.mock(classOf[ContractorDetailsService])
 
   def mockSaveContractorDetails(taxYear: Int,
                                 user: User,
                                 optCisUserData: Option[CisUserData],
                                 formData: ContractorDetails,
-                                result: Either[DatabaseError, CisUserData]): CallHandler4[Int, User, Option[CisUserData], ContractorDetails, Future[Either[ServiceError, CisUserData]]] = {
-    (mockContractorDetailsService.saveContractorDetails _)
-      .expects(taxYear, user, optCisUserData, formData)
-      .returns(Future.successful(result))
+                                result: Either[DatabaseError, CisUserData]): Unit = {
+    when(
+      mockContractorDetailsService.saveContractorDetails(
+        eqTo(taxYear),
+        eqTo(user),
+        eqTo(optCisUserData),
+        eqTo(formData)
+      )
+    ).thenReturn(Future.successful(result))
   }
 
-  def mockGetPriorEmployerRefs(employerRefs: Either[HttpParserError, Seq[String]]): CallHandler3[Int, User, HeaderCarrier, Future[Either[HttpParserError, Seq[String]]]] = {
-    (mockContractorDetailsService.getPriorEmployerRefs(_: Int, _: User)(_: HeaderCarrier))
-      .expects(*, *, *)
-      .returns(Future.successful(employerRefs))
+  def mockGetPriorEmployerRefs(employerRefs: Either[HttpParserError, Seq[String]]): Unit = {
+    when(
+      mockContractorDetailsService.getPriorEmployerRefs(
+        any[Int](),
+        any[User]()
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(employerRefs))
   }
 }

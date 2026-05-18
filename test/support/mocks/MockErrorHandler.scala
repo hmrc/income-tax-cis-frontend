@@ -18,23 +18,25 @@ package support.mocks
 
 import config.ErrorHandler
 import models.AuthorisationRequest
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import play.api.mvc.{Request, Result}
 
-trait MockErrorHandler extends MockFactory { _: TestSuite =>
+trait MockErrorHandler { this: TestSuite =>
 
-  protected val mockErrorHandler: ErrorHandler = mock[ErrorHandler]
+
+  protected val mockErrorHandler: ErrorHandler = org.mockito.Mockito.mock(classOf[ErrorHandler])
 
   def mockHandleError(status: Int, result: Result): Unit = {
-    (mockErrorHandler.handleError(_: Int)(_: Request[_]))
-      .expects(status, *)
-      .returns(result)
+    when(
+      mockErrorHandler.handleError(org.mockito.ArgumentMatchers.eq(status))(any[Request[_]]())
+    ).thenReturn(result)
   }
 
   def mockInternalServerError(result: Result): Unit = {
-    (mockErrorHandler.internalServerError()(_: AuthorisationRequest[_]))
-      .expects(*)
-      .returns(result)
+    when(
+      mockErrorHandler.internalServerError()(any[AuthorisationRequest[_]]())
+    ).thenReturn(result)
   }
 }

@@ -19,20 +19,25 @@ package support.mocks
 import connectors.IncomeTaxUserDataConnector
 import connectors.parsers.IncomeTaxUserDataHttpParser.IncomeTaxUserDataResponse
 import models.{APIErrorModel, IncomeTaxUserData}
-import org.scalamock.handlers.CallHandler3
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockIncomeTaxUserDataConnector extends MockFactory { _: TestSuite =>
+trait MockIncomeTaxUserDataConnector { this: TestSuite =>
 
-  protected val mockIncomeTaxUserDataConnector: IncomeTaxUserDataConnector = mock[IncomeTaxUserDataConnector]
 
-  def mockGetUserData(nino: String, taxYear: Int, result: Either[APIErrorModel, IncomeTaxUserData]): CallHandler3[String, Int, HeaderCarrier, Future[IncomeTaxUserDataResponse]] = {
-    (mockIncomeTaxUserDataConnector.getUserData(_: String, _: Int)(_: HeaderCarrier))
-      .expects(nino, taxYear, *)
-      .returning(Future.successful(result))
+  protected val mockIncomeTaxUserDataConnector: IncomeTaxUserDataConnector =
+    org.mockito.Mockito.mock(classOf[IncomeTaxUserDataConnector])
+
+  def mockGetUserData(nino: String, taxYear: Int, result: Either[APIErrorModel, IncomeTaxUserData]): Unit = {
+    when(
+      mockIncomeTaxUserDataConnector.getUserData(
+        eqTo(nino),
+        eqTo(taxYear)
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(result))
   }
 }

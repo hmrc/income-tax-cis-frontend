@@ -18,27 +18,34 @@ package support.mocks
 
 import models.mongo.CisUserData
 import models.{ServiceError, User}
-import org.scalamock.handlers.CallHandler4
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import services.DeductionPeriodService
 
 import java.time.Month
 import scala.concurrent.Future
 
-trait MockDeductionPeriodService extends MockFactory { _: TestSuite =>
+trait MockDeductionPeriodService { this: TestSuite =>
 
-  protected val mockDeductionPeriodService: DeductionPeriodService = mock[DeductionPeriodService]
+
+  protected val mockDeductionPeriodService: DeductionPeriodService =
+    org.mockito.Mockito.mock(classOf[DeductionPeriodService])
 
   def mockSubmitMonth(taxYear: Int,
                       employerRef: String,
                       user: User,
                       month: Month,
                       result: Either[ServiceError, CisUserData]
-                     ): CallHandler4[Int, String, User, Month, Future[Either[ServiceError, CisUserData]]] = {
-    (mockDeductionPeriodService.submitDeductionPeriod(_: Int, _: String, _: User, _: Month))
-      .expects(taxYear, employerRef, user, month)
-      .returns(Future.successful(result))
+                     ): Unit = {
+    when(
+      mockDeductionPeriodService.submitDeductionPeriod(
+        eqTo(taxYear),
+        eqTo(employerRef),
+        eqTo(user),
+        eqTo(month)
+      )
+    ).thenReturn(Future.successful(result))
   }
 
 

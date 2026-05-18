@@ -20,7 +20,6 @@ import config.AppConfig
 import models.AuthorisationRequest
 import org.jsoup.nodes.{Document, Element}
 import org.jsoup.select.Elements
-import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.{Assertion, BeforeAndAfterEach}
@@ -40,7 +39,6 @@ import scala.concurrent.{Await, Awaitable, Future}
 // TODO: Get rid of this trait
 trait ViewTest extends AnyWordSpec
   with Matchers
-  with MockFactory
   with BeforeAndAfterEach
   with GuiceOneAppPerSuite
   with FakeRequestHelper {

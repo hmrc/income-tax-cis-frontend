@@ -16,7 +16,8 @@
 
 package models.mongo
 
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{mock, when}
 import support.UnitTest
 import support.builders.models.mongo.CYAPeriodDataBuilder.aCYAPeriodData
 import support.builders.models.mongo.CisCYAModelBuilder.aCisCYAModel
@@ -25,17 +26,16 @@ import utils.AesGcmAdCrypto
 
 import java.time.Month
 
-class CisCYAModelSpec extends UnitTest
-  with MockFactory {
+class CisCYAModelSpec extends UnitTest {
 
-  private implicit val aesGcmAdCrypto: AesGcmAdCrypto = mock[AesGcmAdCrypto]
+  private implicit val aesGcmAdCrypto: AesGcmAdCrypto = mock(classOf[AesGcmAdCrypto])
   private implicit val associatedText: String = "some-associated-text"
 
   private val encryptedContractorName = EncryptedValue("encryptedContractorName", "some-nonce")
-  private val cyaPeriodData1 = mock[CYAPeriodData]
-  private val cyaPeriodData2 = mock[CYAPeriodData]
-  private val encryptedPeriodData1 = mock[EncryptedCYAPeriodData]
-  private val encryptedPeriodData2 = mock[EncryptedCYAPeriodData]
+  private val cyaPeriodData1: CYAPeriodData = mock(classOf[CYAPeriodData])
+  private val cyaPeriodData2: CYAPeriodData = mock(classOf[CYAPeriodData])
+  private val encryptedPeriodData1: EncryptedCYAPeriodData = mock(classOf[EncryptedCYAPeriodData])
+  private val encryptedPeriodData2: EncryptedCYAPeriodData = mock(classOf[EncryptedCYAPeriodData])
 
   "CisCYAModel.isFinished" should {
     "return false when periodData does not exist" in {
@@ -145,10 +145,9 @@ class CisCYAModelSpec extends UnitTest
     "return EncryptedCisCYAModel" in {
       val underTest = CisCYAModel(Some("some-contractor-name"), Some(cyaPeriodData1), Seq(cyaPeriodData1, cyaPeriodData2))
 
-      (aesGcmAdCrypto.encrypt(_: String)(_: String)).expects(underTest.contractorName.get, associatedText).returning(encryptedContractorName)
-      (cyaPeriodData1.encrypted(_: AesGcmAdCrypto, _: String)).expects(*, *).returning(encryptedPeriodData1)
-      (cyaPeriodData1.encrypted(_: AesGcmAdCrypto, _: String)).expects(*, *).returning(encryptedPeriodData1)
-      (cyaPeriodData2.encrypted(_: AesGcmAdCrypto, _: String)).expects(*, *).returning(encryptedPeriodData2)
+      when(aesGcmAdCrypto.encrypt(eqTo(underTest.contractorName.get))(eqTo(associatedText))).thenReturn(encryptedContractorName)
+      when(cyaPeriodData1.encrypted(any[AesGcmAdCrypto](), any[String]())).thenReturn(encryptedPeriodData1)
+      when(cyaPeriodData2.encrypted(any[AesGcmAdCrypto](), any[String]())).thenReturn(encryptedPeriodData2)
 
       underTest.encrypted shouldBe EncryptedCisCYAModel(
         contractorName = Some(encryptedContractorName),
@@ -160,11 +159,9 @@ class CisCYAModelSpec extends UnitTest
 
   "EncryptedCisCYAModel.decrypted" should {
     "return CisCYAModel" in {
-      (aesGcmAdCrypto.decrypt(_: EncryptedValue)(_: String))
-        .expects(encryptedContractorName, associatedText).returning(value = "contractor-name")
-      (encryptedPeriodData1.decrypted(_: AesGcmAdCrypto, _: String)).expects(*, *).returning(cyaPeriodData1)
-      (encryptedPeriodData1.decrypted(_: AesGcmAdCrypto, _: String)).expects(*, *).returning(cyaPeriodData1)
-      (encryptedPeriodData2.decrypted(_: AesGcmAdCrypto, _: String)).expects(*, *).returning(cyaPeriodData2)
+      when(aesGcmAdCrypto.decrypt(eqTo(encryptedContractorName))(eqTo(associatedText))).thenReturn("contractor-name")
+      when(encryptedPeriodData1.decrypted(any[AesGcmAdCrypto](), any[String]())).thenReturn(cyaPeriodData1)
+      when(encryptedPeriodData2.decrypted(any[AesGcmAdCrypto](), any[String]())).thenReturn(cyaPeriodData2)
 
       EncryptedCisCYAModel(Some(encryptedContractorName),
         Some(encryptedPeriodData1),

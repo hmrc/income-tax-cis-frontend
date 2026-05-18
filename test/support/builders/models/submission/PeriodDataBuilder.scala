@@ -23,8 +23,8 @@ object PeriodDataBuilder extends TaxYearProvider {
   val aPeriodData: PeriodData = PeriodData(
     deductionFromDate = s"$taxYearEndOfYearMinusOne-04-06",
     deductionToDate = s"$taxYearEndOfYearMinusOne-05-05",
-    grossAmountPaid = Some(500),
-    deductionAmount = 100,
-    costOfMaterials = Some(250)
+    grossAmountPaid = Some(BigDecimal(500)),
+    deductionAmount = BigDecimal(100),
+    costOfMaterials = Some(BigDecimal(250))
   )
 }

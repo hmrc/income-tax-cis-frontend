@@ -19,32 +19,42 @@ package support.mocks
 import connectors.CISConnector
 import connectors.parsers.CISHttpParser.CISResponse
 import models.submission.CISSubmission
-import org.scalamock.handlers.CallHandler4
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockCISConnector extends MockFactory { _: TestSuite =>
+trait MockCISConnector { this: TestSuite =>
 
-  protected val mockCISConnector: CISConnector = mock[CISConnector]
+
+  protected val mockCISConnector: CISConnector =
+    org.mockito.Mockito.mock(classOf[CISConnector])
 
   def mockSubmit(nino: String,
                  taxYear: Int,
                  submission: CISSubmission,
-                 result: CISResponse): CallHandler4[String, Int, CISSubmission, HeaderCarrier, Future[CISResponse]] = {
-    (mockCISConnector.submit(_: String, _: Int, _: CISSubmission)(_: HeaderCarrier))
-      .expects(nino, taxYear, submission, *)
-      .returning(Future.successful(result))
+                 result: CISResponse): Unit = {
+    when(
+      mockCISConnector.submit(
+        eqTo(nino),
+        eqTo(taxYear),
+        eqTo(submission)
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(result))
   }
 
   def mockDelete(nino: String,
                  taxYear: Int,
                  submissionId: String,
-                 result: CISResponse): CallHandler4[String, Int, String, HeaderCarrier, Future[CISResponse]] = {
-    (mockCISConnector.delete(_: String, _: Int, _: String)(_: HeaderCarrier))
-      .expects(nino, taxYear, submissionId, *)
-      .returning(Future.successful(result))
+                 result: CISResponse): Unit = {
+    when(
+      mockCISConnector.delete(
+        eqTo(nino),
+        eqTo(taxYear),
+        eqTo(submissionId)
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(result))
   }
 }

@@ -18,8 +18,8 @@ package support.mocks
 
 import models.mongo.{CisCYAModel, CisUserData, DatabaseError}
 import models.{HttpParserError, IncomeTaxUserData, ServiceError, User}
-import org.scalamock.handlers.{CallHandler3, CallHandler5, CallHandler6}
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import services.CISSessionService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -27,34 +27,48 @@ import uk.gov.hmrc.http.HeaderCarrier
 import java.time.Month
 import scala.concurrent.Future
 
-trait MockCISSessionService extends MockFactory { _: TestSuite =>
+trait MockCISSessionService { this: TestSuite =>
 
-  protected val mockCISSessionService: CISSessionService = mock[CISSessionService]
+
+  protected val mockCISSessionService: CISSessionService =
+    org.mockito.Mockito.mock(classOf[CISSessionService])
 
   def mockGetPriorData(taxYear: Int,
                        user: User,
                        result: Either[HttpParserError, IncomeTaxUserData]
-                      ): CallHandler3[User, Int, HeaderCarrier, Future[Either[HttpParserError, IncomeTaxUserData]]] = {
-    (mockCISSessionService.getPriorData(_: User, _: Int)(_: HeaderCarrier))
-      .expects(user, taxYear, *)
-      .returns(Future.successful(result))
+                      ): Unit = {
+    when(
+      mockCISSessionService.getPriorData(
+        eqTo(user),
+        eqTo(taxYear)
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(result))
   }
 
   def mockRefreshAndClear(taxYear: Int, employerRef: String,
-                          result: Either[ServiceError, Unit]): CallHandler5[User, String, Int, Boolean, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
-    (mockCISSessionService.refreshAndClear(_: User, _: String, _: Int, _: Boolean)(_: HeaderCarrier))
-      .expects(*, employerRef, taxYear, *, *)
-      .returning(Future.successful(result))
+                          result: Either[ServiceError, Unit]): Unit = {
+    when(
+      mockCISSessionService.refreshAndClear(
+        any[User](),
+        eqTo(employerRef),
+        eqTo(taxYear),
+        any[Boolean]()
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(result))
   }
 
   def mockGetSessionData(taxYear: Int,
                          user: User,
                          employerRef: String,
                          result: Either[DatabaseError, Option[CisUserData]]
-                        ): CallHandler3[Int, String, User, Future[Either[DatabaseError, Option[CisUserData]]]] = {
-    (mockCISSessionService.getSessionData(_: Int, _: String, _: User))
-      .expects(taxYear, employerRef, user)
-      .returns(Future.successful(result))
+                        ): Unit = {
+    when(
+      mockCISSessionService.getSessionData(
+        eqTo(taxYear),
+        eqTo(employerRef),
+        eqTo(user)
+      )
+    ).thenReturn(Future.successful(result))
   }
 
   def mockCreateOrUpdateCISUserData(taxYear: Int,
@@ -64,19 +78,31 @@ trait MockCISSessionService extends MockFactory { _: TestSuite =>
                                     isPriorSubmission: Boolean,
                                     cisCYAModel: CisCYAModel,
                                     result: Either[DatabaseError, CisUserData]
-                                   ): CallHandler6[User, Int, String, Option[String], Boolean, CisCYAModel, Future[Either[DatabaseError, CisUserData]]] = {
-    (mockCISSessionService.createOrUpdateCISUserData(_: User, _: Int, _: String, _: Option[String], _: Boolean, _: CisCYAModel))
-      .expects(user, taxYear, employerRef, submissionId, isPriorSubmission, cisCYAModel)
-      .returns(Future.successful(result))
+                                   ): Unit = {
+    when(
+      mockCISSessionService.createOrUpdateCISUserData(
+        eqTo(user),
+        eqTo(taxYear),
+        eqTo(employerRef),
+        eqTo(submissionId),
+        eqTo(isPriorSubmission),
+        eqTo(cisCYAModel)
+      )
+    ).thenReturn(Future.successful(result))
   }
 
   def mockCheckCyaAndReturnData(taxYear: Int,
                                 employerRef: String,
                                 month: Month,
                                 result: Either[ServiceError, Option[CisUserData]]
-                               ): CallHandler5[Int, String, User, Month, HeaderCarrier, Future[Either[ServiceError, Option[CisUserData]]]] = {
-    (mockCISSessionService.checkCyaAndReturnData(_: Int, _: String, _: User, _: Month)(_: HeaderCarrier))
-      .expects(taxYear, employerRef, *, month, *)
-      .returns(Future.successful(result))
+                               ): Unit = {
+    when(
+      mockCISSessionService.checkCyaAndReturnData(
+        eqTo(taxYear),
+        eqTo(employerRef),
+        any[User](),
+        eqTo(month)
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(result))
   }
 }

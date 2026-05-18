@@ -19,8 +19,8 @@ package support.mocks
 import actions.ActionsProvider
 import models.mongo.CisUserData
 import models.{AuthorisationRequest, IncomeTaxUserData, UserPriorDataRequest, UserSessionDataRequest}
-import org.scalamock.handlers.{CallHandler1, CallHandler2, CallHandler3}
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import play.api.mvc._
 import support.UnitTest
 import support.builders.models.UserBuilder.aUser
@@ -28,12 +28,10 @@ import support.builders.models.mongo.CisUserDataBuilder.aCisUserData
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockActionsProvider extends MockFactory
-  with MockAuthorisedAction
-  with MockCISSessionService
-  with MockErrorHandler { _: UnitTest =>
+trait MockActionsProvider extends MockAuthorisedAction with MockCISSessionService with MockErrorHandler { this: UnitTest =>
 
-  protected val mockActionsProvider: ActionsProvider = mock[ActionsProvider]
+  protected val mockActionsProvider: ActionsProvider =
+    org.mockito.Mockito.mock(classOf[ActionsProvider])
 
   private def userPriorDataRequestActionBuilder(incomeTaxUserData: IncomeTaxUserData): ActionBuilder[UserPriorDataRequest, AnyContent] =
     new ActionBuilder[UserPriorDataRequest, AnyContent] {
@@ -66,7 +64,7 @@ trait MockActionsProvider extends MockFactory
     }
 
   def mockEndOfYearWithSessionData(taxYear: Int,
-                                   cisUserData: CisUserData): CallHandler3[Int, String, Boolean, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+                                   cisUserData: CisUserData): Unit = {
     val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
       override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => throw new NotImplementedError)
 
@@ -76,14 +74,14 @@ trait MockActionsProvider extends MockFactory
       override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
     }
 
-    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String, _: Boolean))
-      .expects(taxYear, cisUserData.employerRef, *)
-      .returns(value = actionBuilder)
+    when(
+      mockActionsProvider.endOfYearWithSessionData(any[Int](), any[String](), any[Boolean]())
+    ).thenReturn(actionBuilder)
   }
 
   def mockEndOfYearWithSessionData(taxYear: Int,
                                    month: String,
-                                   employerRef: String): CallHandler3[Int, String, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+                                   employerRef: String): Unit = {
     val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
       override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => throw new NotImplementedError)
 
@@ -93,14 +91,14 @@ trait MockActionsProvider extends MockFactory
       override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
     }
 
-    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String, _: String))
-      .expects(taxYear, month, employerRef)
-      .returns(value = actionBuilder)
+    when(
+      mockActionsProvider.endOfYearWithSessionData(any[Int](), any[String](), any[String]())
+    ).thenReturn(actionBuilder)
   }
 
   def mockEndOfYearWithSessionDataWithCustomerDeductionPeriod(taxYear: Int,
                                                               cisUserData: CisUserData,
-                                                              month: Option[String] = None): CallHandler3[Int, String, Option[String], ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+                                                              month: Option[String] = None): Unit = {
     val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
       override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => throw new NotImplementedError)
 
@@ -110,14 +108,14 @@ trait MockActionsProvider extends MockFactory
       override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
     }
 
-    (mockActionsProvider.endOfYearWithSessionDataWithCustomerDeductionPeriod(_: Int, _: String, _: Option[String]))
-      .expects(taxYear, cisUserData.employerRef, month)
-      .returns(value = actionBuilder)
+    when(
+      mockActionsProvider.endOfYearWithSessionDataWithCustomerDeductionPeriod(any[Int](), any[String](), any[Option[String]]())
+    ).thenReturn(actionBuilder)
   }
 
   def mockEndOfYearWithSessionData(taxYear: Int,
                                    month: String,
-                                   cisUserData: CisUserData): CallHandler3[Int, String, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
+                                   cisUserData: CisUserData): Unit = {
     val actionBuilder: ActionBuilder[UserSessionDataRequest, AnyContent] = new ActionBuilder[UserSessionDataRequest, AnyContent] {
       override def parser: BodyParser[AnyContent] = BodyParser("anyContent")(_ => throw new NotImplementedError)
 
@@ -127,70 +125,70 @@ trait MockActionsProvider extends MockFactory
       override protected def executionContext: ExecutionContext = ExecutionContext.Implicits.global
     }
 
-    (mockActionsProvider.endOfYearWithSessionData(_: Int, _: String, _: String))
-      .expects(taxYear, month, cisUserData.employerRef)
-      .returns(value = actionBuilder)
+    when(
+      mockActionsProvider.endOfYearWithSessionData(any[Int](), any[String](), any[String]())
+    ).thenReturn(actionBuilder)
   }
 
   def mockPriorCisDeductionsData(taxYear: Int,
-                                 result: IncomeTaxUserData): CallHandler1[Int, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
-    (mockActionsProvider.priorCisDeductionsData(_: Int))
-      .expects(taxYear)
-      .returns(value = userPriorDataRequestActionBuilder(result))
+                                 result: IncomeTaxUserData): Unit = {
+    when(
+      mockActionsProvider.priorCisDeductionsData(any[Int]())
+    ).thenReturn(userPriorDataRequestActionBuilder(result))
   }
 
   def mockInYearWithPreviousDataFor(taxYear: Int,
                                     month: String,
                                     contractor: String,
                                     result: IncomeTaxUserData
-                                   ): CallHandler3[Int, String, String, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
-    (mockActionsProvider.inYearWithPreviousDataFor(_: Int, _: String, _: String))
-      .expects(taxYear, month, contractor)
-      .returns(value = userPriorDataRequestActionBuilder(result))
+                                   ): Unit = {
+    when(
+      mockActionsProvider.inYearWithPreviousDataFor(any[Int](), any[String](), any[String]())
+    ).thenReturn(userPriorDataRequestActionBuilder(result))
   }
 
   def mockUserPriorDataFor(taxYear: Int,
                            contractor: String,
                            result: IncomeTaxUserData
-                          ): CallHandler2[Int, String, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
-    (mockActionsProvider.userPriorDataFor(_: Int, _: String))
-      .expects(taxYear, contractor)
-      .returns(value = userPriorDataRequestActionBuilder(result))
+                          ): Unit = {
+    when(
+      mockActionsProvider.userPriorDataFor(any[Int](), any[String]())
+    ).thenReturn(userPriorDataRequestActionBuilder(result))
   }
 
   def mockUserPriorDataFor(taxYear: Int,
                            contractor: String,
                            month: String,
                            result: IncomeTaxUserData
-                          ): CallHandler3[Int, String, String, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
-    (mockActionsProvider.userPriorDataFor(_: Int, _: String, _: String))
-      .expects(taxYear, contractor, month)
-      .returns(value = userPriorDataRequestActionBuilder(result))
+                          ): Unit = {
+    when(
+      mockActionsProvider.userPriorDataFor(any[Int](), any[String](), any[String]())
+    ).thenReturn(userPriorDataRequestActionBuilder(result))
   }
 
   def mockCheckCyaExistsAndReturnSessionData(taxYear: Int,
                                              contractor: String,
                                              month: String,
                                              result: CisUserData
-                                            ): CallHandler3[Int, String, String, ActionBuilder[UserSessionDataRequest, AnyContent]] = {
-    (mockActionsProvider.checkCyaExistsAndReturnSessionData(_: Int, _: String, _: String))
-      .expects(taxYear, contractor, month)
-      .returns(value = userSessionDataRequestActionBuilder(result))
+                                            ): Unit = {
+    when(
+      mockActionsProvider.checkCyaExistsAndReturnSessionData(any[Int](), any[String](), any[String]())
+    ).thenReturn(userSessionDataRequestActionBuilder(result))
   }
 
   def mockExclusivelyCustomerPriorDataForEOY(taxYear: Int,
                                              contractor: String,
                                              month: String,
                                              result: IncomeTaxUserData
-                             ): CallHandler3[Int, String, String, ActionBuilder[UserPriorDataRequest, AnyContent]] = {
-    (mockActionsProvider.exclusivelyCustomerPriorDataForEOY(_: Int, _: String, _: String))
-      .expects(taxYear, contractor, month)
-      .returns(value = userPriorDataRequestActionBuilder(result))
+                             ): Unit = {
+    when(
+      mockActionsProvider.exclusivelyCustomerPriorDataForEOY(any[Int](), any[String](), any[String]())
+    ).thenReturn(userPriorDataRequestActionBuilder(result))
   }
 
-  def mockNotInYear(taxYear: Int): CallHandler1[Int, ActionBuilder[AuthorisationRequest, AnyContent]] = {
-    (mockActionsProvider.endOfYear(_: Int))
-      .expects(taxYear)
-      .returns(value = authorisationRequestActionBuilder)
+  def mockNotInYear(taxYear: Int): Unit = {
+    when(
+      mockActionsProvider.endOfYear(any[Int]())
+    ).thenReturn(authorisationRequestActionBuilder)
   }
 }

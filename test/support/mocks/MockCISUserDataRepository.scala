@@ -18,36 +18,45 @@ package support.mocks
 
 import models.User
 import models.mongo.{CisUserData, DatabaseError}
-import org.scalamock.handlers.{CallHandler1, CallHandler3}
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import repositories.CisUserDataRepository
 
 import scala.concurrent.Future
 
-trait MockCISUserDataRepository extends MockFactory { _: TestSuite =>
+trait MockCISUserDataRepository { this: TestSuite =>
 
-  protected val mockCisUserDataRepository: CisUserDataRepository = mock[CisUserDataRepository]
+
+  protected val mockCisUserDataRepository: CisUserDataRepository =
+    org.mockito.Mockito.mock(classOf[CisUserDataRepository])
 
   def mockFindCYAData(taxYear: Int, employerRef: String, user: User,
-                      result: Either[DatabaseError, Option[CisUserData]]): CallHandler3[Int, String,
-    User, Future[Either[DatabaseError, Option[CisUserData]]]] = {
-    (mockCisUserDataRepository.find(_: Int, _: String, _: User))
-      .expects(taxYear, employerRef, user)
-      .returning(Future.successful(result))
+                      result: Either[DatabaseError, Option[CisUserData]]): Unit = {
+    when(
+      mockCisUserDataRepository.find(
+        eqTo(taxYear),
+        eqTo(employerRef),
+        eqTo(user)
+      )
+    ).thenReturn(Future.successful(result))
   }
 
   def mockCreateOrUpdateCYAData(data: CisUserData,
-                                result: Either[DatabaseError, Unit]): CallHandler1[CisUserData, Future[Either[DatabaseError, Unit]]] = {
-    (mockCisUserDataRepository.createOrUpdate(_: CisUserData))
-      .expects(data)
-      .returning(Future.successful(result))
+                                result: Either[DatabaseError, Unit]): Unit = {
+    when(
+      mockCisUserDataRepository.createOrUpdate(eqTo(data))
+    ).thenReturn(Future.successful(result))
   }
 
   def mockClear(taxYear: Int, employerRef: String,
-                result: Boolean): CallHandler3[Int, String, User, Future[Boolean]] = {
-    (mockCisUserDataRepository.clear(_: Int, _: String, _: User))
-      .expects(taxYear, employerRef, *)
-      .returning(Future.successful(result))
+                result: Boolean): Unit = {
+    when(
+      mockCisUserDataRepository.clear(
+        eqTo(taxYear),
+        eqTo(employerRef),
+        any[User]()
+      )
+    ).thenReturn(Future.successful(result))
   }
 }

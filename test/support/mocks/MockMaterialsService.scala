@@ -18,32 +18,42 @@ package support.mocks
 
 import models.mongo.CisUserData
 import models.{ServiceError, User}
-import org.scalamock.handlers.CallHandler3
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import services.MaterialsService
 
 import scala.concurrent.Future
 
-trait MockMaterialsService extends MockFactory { _: TestSuite =>
+trait MockMaterialsService { this: TestSuite =>
 
-  protected val mockMaterialsService: MaterialsService = mock[MaterialsService]
+
+  protected val mockMaterialsService: MaterialsService =
+    org.mockito.Mockito.mock(classOf[MaterialsService])
 
   def mockSaveQuestion(user: User,
                        cisUserData: CisUserData,
                        questionValue: Boolean,
-                       result: Either[ServiceError, CisUserData]): CallHandler3[User, CisUserData, Boolean, Future[Either[ServiceError, CisUserData]]] = {
-    (mockMaterialsService.saveQuestion(_: User, _: CisUserData, _: Boolean))
-      .expects(user, cisUserData, questionValue)
-      .returning(Future.successful(result))
+                       result: Either[ServiceError, CisUserData]): Unit = {
+    when(
+      mockMaterialsService.saveQuestion(
+        eqTo(user),
+        eqTo(cisUserData),
+        eqTo(questionValue)
+      )
+    ).thenReturn(Future.successful(result))
   }
 
   def mockSaveAmount(user: User,
                      cisUserData: CisUserData,
                      amount: BigDecimal,
-                     result: Either[ServiceError, Unit]): CallHandler3[User, CisUserData, BigDecimal, Future[Either[ServiceError, Unit]]] = {
-    (mockMaterialsService.saveAmount(_: User, _: CisUserData, _: BigDecimal))
-      .expects(user, cisUserData, amount)
-      .returning(Future.successful(result))
+                     result: Either[ServiceError, Unit]): Unit = {
+    when(
+      mockMaterialsService.saveAmount(
+        eqTo(user),
+        eqTo(cisUserData),
+        eqTo(amount)
+      )
+    ).thenReturn(Future.successful(result))
   }
 }
