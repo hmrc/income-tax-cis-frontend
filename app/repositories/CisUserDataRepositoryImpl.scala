@@ -83,7 +83,7 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
     }
   }
 
-  private def decryptOne(e: EncryptedCisUserData)(implicit aesGcmAdCrypto: AesGcmAdCrypto): CisUserData = {
+  private def decryptOne(e: EncryptedCisUserData): CisUserData = {
     implicit val associatedText: String = e.mtdItId
     e.decrypted
   }
@@ -92,7 +92,7 @@ class CisUserDataRepositoryImpl @Inject()(mongo: MongoComponent, appConfig: AppC
     lazy val start = "[CisUserDataRepositoryImpl][update]"
 
     Try {
-      given String = cisUserData.mtdItId
+      given associatedText: String = cisUserData.mtdItId
       cisUserData.encrypted
     }.toEither match {
       case Left(t: Throwable) => Future.successful(handleEncryptionDecryptionException(t.asInstanceOf[Exception], start))

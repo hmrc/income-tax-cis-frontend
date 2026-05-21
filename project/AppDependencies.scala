@@ -33,9 +33,9 @@ object AppDependencies {
     "uk.gov.hmrc"                   %% "bootstrap-frontend-play-30"   % bootstrapPlay30Version,
     "uk.gov.hmrc"                   %% "play-frontend-hmrc-play-30"   % "12.32.0",
     "uk.gov.hmrc.mongo"             %% "hmrc-mongo-play-30"           % mongoPlay30Version,
-    "com.fasterxml.jackson.module"  %% "jackson-module-scala"         % "2.21.1",
-    "com.beachape"                  %% "enumeratum"                   % "1.9.6",
-    "com.beachape"                  %% "enumeratum-play-json"         % "1.9.6" excludeAll (jacksonAndPlayExclusions: _*)
+    "com.fasterxml.jackson.module"  %% "jackson-module-scala"         % "2.19.0",
+    "com.beachape"                  %% "enumeratum"                   % "1.9.0",
+    "com.beachape"                  %% "enumeratum-play-json"         % "1.9.0" excludeAll (jacksonAndPlayExclusions: _*)
   )
 
   val test: Seq[ModuleID] = Seq(
@@ -44,8 +44,7 @@ object AppDependencies {
     "org.scalatest"          %% "scalatest"                  % "3.2.19"                  % Test,
     "org.jsoup"              %  "jsoup"                      % "1.22.1"                  % Test,
     "org.scalatestplus.play" %% "scalatestplus-play"         % "7.0.2"                   % Test,
-    "com.github.tomakehurst" %  "wiremock-jre8-standalone"   % "3.0.1"                   % Test,
-    "com.vladsch.flexmark"   %  "flexmark-all"               % "0.64.8"                  % Test,
+    "org.wiremock"           %  "wiremock-standalone"        % "3.13.1"                  % Test,
     "org.mockito"            %  "mockito-core"               % "5.12.0"                  % Test,
     "org.scalatestplus"      %% "mockito-5-12"               % "3.2.19.0"                % Test
   )

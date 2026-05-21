@@ -71,21 +71,17 @@ class SectionCompletedController @Inject()(implicit val cc: MessagesControllerCo
     }
 
   def submit(taxYear: Int, journey: String): Action[AnyContent] = (authAction andThen TaxYearAction.taxYearAction(taxYear, appConfig, ec)).async { implicit user =>
-    form()
-      .bindFromRequest()
-      .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, taxYear, journey))),
-        answer => {
-          val maybeJourney: Either[String, Journey] = Journey.pathBindable.bind("journey", journey)
-
-          maybeJourney match {
-            case (Right(journey)) => saveAndRedirect(answer, taxYear, journey, user.user.mtditid)
-            case _ =>
-              Future.successful(errorHandler.handleError(BAD_REQUEST))
-          }
-
-        }
-      )
+    Journey.pathBindable.bind("journey", journey) match {
+      case Right(journeyType) =>
+        form()
+          .bindFromRequest()
+          .fold(
+            formWithErrors => Future.successful(BadRequest(view(formWithErrors, taxYear, journeyType.toString))),
+            answer => saveAndRedirect(answer, taxYear, journeyType, user.user.mtditid)
+          )
+      case _ =>
+        Future.successful(errorHandler.handleError(BAD_REQUEST))
+    }
   }
 
   private def saveAndRedirect(answer: Boolean, taxYear: Int, journey: Journey, mtditid: String)(implicit hc: HeaderCarrier): Future[Result] = {
@@ -93,8 +89,7 @@ class SectionCompletedController @Inject()(implicit val cc: MessagesControllerCo
     val model = JourneyAnswers(mtditid, taxYear, journey.toString, Json.obj({
       "status" -> status
     }), Instant.now)
-    sectionCompletedService.set(model)
-    Future.successful(Redirect(appConfig.commonTaskListUrl(taxYear)))
+    sectionCompletedService.set(model).map(_ => Redirect(appConfig.commonTaskListUrl(taxYear)))
   }
 
 }

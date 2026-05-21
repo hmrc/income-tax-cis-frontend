@@ -19,7 +19,7 @@ package support.mocks
 import actions.ActionsProvider
 import models.mongo.CisUserData
 import models.{AuthorisationRequest, IncomeTaxUserData, UserPriorDataRequest, UserSessionDataRequest}
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import play.api.mvc._
 import support.UnitTest
@@ -75,7 +75,7 @@ trait MockActionsProvider extends MockAuthorisedAction with MockCISSessionServic
     }
 
     when(
-      mockActionsProvider.endOfYearWithSessionData(any[Int](), any[String](), any[Boolean]())
+      mockActionsProvider.endOfYearWithSessionData(eqTo(taxYear), eqTo(cisUserData.employerRef), any[Boolean]())
     ).thenReturn(actionBuilder)
   }
 
@@ -92,7 +92,7 @@ trait MockActionsProvider extends MockAuthorisedAction with MockCISSessionServic
     }
 
     when(
-      mockActionsProvider.endOfYearWithSessionData(any[Int](), any[String](), any[String]())
+      mockActionsProvider.endOfYearWithSessionData(eqTo(taxYear), eqTo(month), eqTo(employerRef))
     ).thenReturn(actionBuilder)
   }
 
@@ -109,7 +109,7 @@ trait MockActionsProvider extends MockAuthorisedAction with MockCISSessionServic
     }
 
     when(
-      mockActionsProvider.endOfYearWithSessionDataWithCustomerDeductionPeriod(any[Int](), any[String](), any[Option[String]]())
+      mockActionsProvider.endOfYearWithSessionDataWithCustomerDeductionPeriod(eqTo(taxYear), eqTo(cisUserData.employerRef), any[Option[String]]())
     ).thenReturn(actionBuilder)
   }
 
@@ -126,14 +126,14 @@ trait MockActionsProvider extends MockAuthorisedAction with MockCISSessionServic
     }
 
     when(
-      mockActionsProvider.endOfYearWithSessionData(any[Int](), any[String](), any[String]())
+      mockActionsProvider.endOfYearWithSessionData(eqTo(taxYear), eqTo(month), eqTo(cisUserData.employerRef))
     ).thenReturn(actionBuilder)
   }
 
   def mockPriorCisDeductionsData(taxYear: Int,
                                  result: IncomeTaxUserData): Unit = {
     when(
-      mockActionsProvider.priorCisDeductionsData(any[Int]())
+      mockActionsProvider.priorCisDeductionsData(eqTo(taxYear))
     ).thenReturn(userPriorDataRequestActionBuilder(result))
   }
 
@@ -143,7 +143,7 @@ trait MockActionsProvider extends MockAuthorisedAction with MockCISSessionServic
                                     result: IncomeTaxUserData
                                    ): Unit = {
     when(
-      mockActionsProvider.inYearWithPreviousDataFor(any[Int](), any[String](), any[String]())
+      mockActionsProvider.inYearWithPreviousDataFor(eqTo(taxYear), eqTo(month), eqTo(contractor))
     ).thenReturn(userPriorDataRequestActionBuilder(result))
   }
 
@@ -152,7 +152,7 @@ trait MockActionsProvider extends MockAuthorisedAction with MockCISSessionServic
                            result: IncomeTaxUserData
                           ): Unit = {
     when(
-      mockActionsProvider.userPriorDataFor(any[Int](), any[String]())
+      mockActionsProvider.userPriorDataFor(eqTo(taxYear), eqTo(contractor))
     ).thenReturn(userPriorDataRequestActionBuilder(result))
   }
 
@@ -162,7 +162,7 @@ trait MockActionsProvider extends MockAuthorisedAction with MockCISSessionServic
                            result: IncomeTaxUserData
                           ): Unit = {
     when(
-      mockActionsProvider.userPriorDataFor(any[Int](), any[String](), any[String]())
+      mockActionsProvider.userPriorDataFor(eqTo(taxYear), eqTo(contractor), eqTo(month))
     ).thenReturn(userPriorDataRequestActionBuilder(result))
   }
 
@@ -172,7 +172,7 @@ trait MockActionsProvider extends MockAuthorisedAction with MockCISSessionServic
                                              result: CisUserData
                                             ): Unit = {
     when(
-      mockActionsProvider.checkCyaExistsAndReturnSessionData(any[Int](), any[String](), any[String]())
+      mockActionsProvider.checkCyaExistsAndReturnSessionData(eqTo(taxYear), eqTo(contractor), eqTo(month))
     ).thenReturn(userSessionDataRequestActionBuilder(result))
   }
 
@@ -182,13 +182,13 @@ trait MockActionsProvider extends MockAuthorisedAction with MockCISSessionServic
                                              result: IncomeTaxUserData
                              ): Unit = {
     when(
-      mockActionsProvider.exclusivelyCustomerPriorDataForEOY(any[Int](), any[String](), any[String]())
+      mockActionsProvider.exclusivelyCustomerPriorDataForEOY(eqTo(taxYear), eqTo(contractor), eqTo(month))
     ).thenReturn(userPriorDataRequestActionBuilder(result))
   }
 
   def mockNotInYear(taxYear: Int): Unit = {
     when(
-      mockActionsProvider.endOfYear(any[Int]())
+      mockActionsProvider.endOfYear(eqTo(taxYear))
     ).thenReturn(authorisationRequestActionBuilder)
   }
 }
