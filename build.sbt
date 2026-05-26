@@ -18,7 +18,7 @@ import uk.gov.hmrc.DefaultBuildSettings
 
 val appName = "income-tax-cis-frontend"
 
-ThisBuild / majorVersion := 1
+ThisBuild / majorVersion := 0
 ThisBuild / scalaVersion := "3.3.7"
 
 lazy val coverageSettings: Seq[Setting[?]] = {
@@ -66,7 +66,6 @@ lazy val microservice = Project(appName, file("."))
     TwirlKeys.templateImports ++= twirlImports,
     scalacOptions ++= Seq(
       "-Wconf:msg=unused import&src=html/.*:s",
-      "-Wconf:msg=unused import&src=.*routes.*:s",
       "-Wconf:msg=unused.*&src=.*routes.*:s"
     )
   )
