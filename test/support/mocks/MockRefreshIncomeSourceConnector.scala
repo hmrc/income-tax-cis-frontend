@@ -19,20 +19,25 @@ package support.mocks
 import connectors.RefreshIncomeSourceConnector
 import connectors.parsers.RefreshIncomeSourceHttpParser.RefreshIncomeSourceResponse
 import models.APIErrorModel
-import org.scalamock.handlers.CallHandler3
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockRefreshIncomeSourceConnector extends MockFactory { _: TestSuite =>
+trait MockRefreshIncomeSourceConnector { this: TestSuite =>
 
-  protected val mockRefreshIncomeSourceConnector: RefreshIncomeSourceConnector = mock[RefreshIncomeSourceConnector]
 
-  def mockRefresh(nino: String, taxYear: Int, result: Either[APIErrorModel, Unit]): CallHandler3[Int, String, HeaderCarrier, Future[RefreshIncomeSourceResponse]] = {
-    (mockRefreshIncomeSourceConnector.put(_: Int,_: String)(_: HeaderCarrier))
-      .expects(taxYear, nino, *)
-      .returning(Future.successful(result))
+  protected val mockRefreshIncomeSourceConnector: RefreshIncomeSourceConnector =
+    org.mockito.Mockito.mock(classOf[RefreshIncomeSourceConnector])
+
+  def mockRefresh(nino: String, taxYear: Int, result: Either[APIErrorModel, Unit]): Unit = {
+    when(
+      mockRefreshIncomeSourceConnector.put(
+        eqTo(taxYear),
+        eqTo(nino)
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(result))
   }
 }

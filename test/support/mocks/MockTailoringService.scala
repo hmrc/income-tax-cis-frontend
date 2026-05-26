@@ -18,23 +18,28 @@ package support.mocks
 
 import connectors.parsers.GetExcludedJourneysHttpParser.ExcludedJourneysResponse
 import models.tailoring.ExcludedJourneysResponseModel
-import org.scalamock.handlers.CallHandler4
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import services.TailoringService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockTailoringService extends MockFactory { _: TestSuite =>
+trait MockTailoringService { this: TestSuite =>
 
-  val mockTailoringService: TailoringService = mock[TailoringService]
 
-  def mockGetExcludedJourneysFromService(userData: ExcludedJourneysResponseModel, taxYear: Int, nino: String): CallHandler4[Int, String, String, HeaderCarrier, Future[ExcludedJourneysResponse]] = {
-    (mockTailoringService.getExcludedJourneys( _: Int, _: String, _: String)(_: HeaderCarrier))
-        .expects(taxYear, nino, *, *)
-        .returns(Future.successful(Right(userData)))
-        .anyNumberOfTimes()
+  val mockTailoringService: TailoringService =
+    org.mockito.Mockito.mock(classOf[TailoringService])
+
+  def mockGetExcludedJourneysFromService(userData: ExcludedJourneysResponseModel, taxYear: Int, nino: String): Unit = {
+    when(
+      mockTailoringService.getExcludedJourneys(
+        eqTo(taxYear),
+        eqTo(nino),
+        any[String]()
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(Right(userData)))
   }
 
 }

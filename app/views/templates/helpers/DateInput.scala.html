@@ -15,6 +15,9 @@
  *@
 
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.dateinput.{DateInput => GovukDateInputModel, InputItem}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.{Fieldset, Legend}
 @import play.api.data.FormError
 
 @this(
@@ -72,41 +75,42 @@
     }
 }
 
-@govukDateInput(DateInput(
-    id,
-    Some(name),
+@{govukDateInput(GovukDateInputModel(
+    id = id,
+    namePrefix = Some(name),
     hint = hint.map(hintHtml => Hint(
-    content = HtmlContent(hintHtml)
+        content = HtmlContent(hintHtml)
     )),
     fieldset = Some(Fieldset(
         legend = Some(Legend(
-        content = HtmlContent(contentHtml),
-        isPageHeading = false,
-        classes = classes
+            content = HtmlContent(contentHtml),
+            isPageHeading = false,
+            classes = classes
         ))
     )),
     items = Seq(
         InputItem(
-            classes = s"govuk-input--width-2 ${addErrorClass(Seq(form("invalidFormat").error, form("emptyDay").error, form("emptyDayMonth").error, form("emptyDayYear").error, form("emptyAll").error))}",
+            id = s"$name-day",
             name = "day",
             label = Some(messages("date.input.day")),
             value = form(s"$name-day").value,
-            id = s"$name-day"
+            classes = s"govuk-input--width-2 ${addErrorClass(Seq(form("invalidFormat").error, form("emptyDay").error, form("emptyDayMonth").error, form("emptyDayYear").error, form("emptyAll").error))}"
         ),
         InputItem(
-            classes = s"govuk-input--width-2 ${addErrorClass(Seq(form("invalidFormat").error, form("emptyMonth").error, form("emptyDayMonth").error, form("emptyMonthYear").error, form("emptyAll").error))}",
+            id = s"$name-month",
             name = "month",
             label = Some(messages("date.input.month")),
             value = form(s"$name-month").value,
-            id = s"$name-month"
+            classes = s"govuk-input--width-2 ${addErrorClass(Seq(form("invalidFormat").error, form("emptyMonth").error, form("emptyDayMonth").error, form("emptyMonthYear").error, form("emptyAll").error))}"
         ),
         InputItem(
-            classes = s"govuk-input--width-4 ${addErrorClass(Seq(form("invalidFormat").error, form("emptyYear").error, form("emptyMonthYear").error, form("emptyDayYear").error, form("emptyAll").error))}",
+            id = s"$name-year",
             name = "year",
             label = Some(messages("date.input.year")),
             value = form(s"$name-year").value,
-            id = s"$name-year"
+            classes = s"govuk-input--width-4 ${addErrorClass(Seq(form("invalidFormat").error, form("emptyYear").error, form("emptyMonthYear").error, form("emptyDayYear").error, form("emptyAll").error))}"
         )
     ),
     errorMessage = errorMessage
-))
+)
+)}

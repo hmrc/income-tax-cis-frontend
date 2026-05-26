@@ -17,8 +17,8 @@
 package support.mocks
 
 import models.{IncomeTaxUserData, ServiceError, User}
-import org.scalamock.handlers.CallHandler6
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import services.DeleteCISPeriodService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -26,26 +26,41 @@ import uk.gov.hmrc.http.HeaderCarrier
 import java.time.Month
 import scala.concurrent.Future
 
-trait MockDeleteCISPeriodService extends MockFactory { _: TestSuite =>
+trait MockDeleteCISPeriodService { this: TestSuite =>
 
-  protected val mockService: DeleteCISPeriodService = mock[DeleteCISPeriodService]
+
+  protected val mockService: DeleteCISPeriodService =
+    org.mockito.Mockito.mock(classOf[DeleteCISPeriodService])
 
   def mockRemoveCISDeduction(taxYear: Int,
                              employerRef: String,
                              user: User,
                              deductionPeriod: Month,
                              incomeTaxUserData: IncomeTaxUserData,
-                             result: Either[ServiceError, Unit]): CallHandler6[Int, String, User, Month, IncomeTaxUserData, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
-    (mockService.removeCisDeduction(_: Int, _: String, _: User, _: Month, _: IncomeTaxUserData)(_: HeaderCarrier))
-      .expects(taxYear, employerRef, user, deductionPeriod, incomeTaxUserData, *)
-      .returns(Future.successful(result))
+                             result: Either[ServiceError, Unit]): Unit = {
+    when(
+      mockService.removeCisDeduction(
+        eqTo(taxYear),
+        eqTo(employerRef),
+        eqTo(user),
+        eqTo(deductionPeriod),
+        eqTo(incomeTaxUserData)
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(result))
   }
+
   def mockRemoveCISDeductionTailoring(taxYear: Int,
                              user: User,
                              incomeTaxUserData: IncomeTaxUserData,
-                             result: Either[ServiceError, Unit]): CallHandler6[Int, String, User, Month, IncomeTaxUserData, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
-    (mockService.removeCisDeduction(_: Int, _: String, _: User, _: Month, _: IncomeTaxUserData)(_: HeaderCarrier))
-      .expects(taxYear, *, user, *, incomeTaxUserData, *)
-      .returns(Future.successful(result)).anyNumberOfTimes()
+                             result: Either[ServiceError, Unit]): Unit = {
+    when(
+      mockService.removeCisDeduction(
+        eqTo(taxYear),
+        any[String](),
+        eqTo(user),
+        any[Month](),
+        eqTo(incomeTaxUserData)
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(result))
   }
 }

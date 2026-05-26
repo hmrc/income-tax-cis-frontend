@@ -54,7 +54,7 @@ object ContractorDetailsForm extends InputFilters {
       mapping(
         contractorName -> trimmedText.verifying(nameNotEmpty andThen nameNotCharLimit andThen validateNameFormat),
         employerReferenceNumber -> spacesRemovedText.verifying(refNotEmpty andThen validateRefFormat andThen notDuplicateEmployerRef(employerRefs))
-      )(ContractorDetails.apply)(ContractorDetails.unapply).transform[ContractorDetails](
+      )(ContractorDetails.apply)(m => Some(Tuple.fromProductTyped(m))).transform[ContractorDetails](
         details => details.copy(
           contractorName = filter(details.contractorName),
           employerReferenceNumber = filter(details.employerReferenceNumber.replaceAll(" ", ""))

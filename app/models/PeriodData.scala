@@ -40,9 +40,9 @@ case class PeriodData(deductionPeriod: Month,
   def toZeroSubmissionPeriodData(taxYear: Int): submission.PeriodData = {
     submission.PeriodData(taxYear = taxYear,
       deductionPeriod = deductionPeriod,
-      grossAmountPaid = this.grossAmountPaid.map(_ => 0),
-      deductionAmount = 0,
-      costOfMaterials = this.costOfMaterials.map(_ => 0)
+      grossAmountPaid = this.grossAmountPaid.map(_ => BigDecimal(0)),
+      deductionAmount = BigDecimal(0),
+      costOfMaterials = this.costOfMaterials.map(_ => BigDecimal(0))
     )
   }
 }

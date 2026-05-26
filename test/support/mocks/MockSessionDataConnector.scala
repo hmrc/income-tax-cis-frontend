@@ -19,26 +19,29 @@ package support.mocks
 import connectors.SessionDataConnector
 import models.APIErrorModel
 import models.session.SessionData
-import org.scalamock.handlers.CallHandler1
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockSessionDataConnector extends MockFactory { this: TestSuite =>
+trait MockSessionDataConnector { this: TestSuite =>
 
-  val mockSessionDataConnector: SessionDataConnector = mock[SessionDataConnector]
 
-  private type MockType = CallHandler1[HeaderCarrier, Future[Either[APIErrorModel, Option[SessionData]]]]
+  val mockSessionDataConnector: SessionDataConnector =
+    org.mockito.Mockito.mock(classOf[SessionDataConnector])
 
-  private def mockFunction: MockType =
-    (mockSessionDataConnector.getSessionData(_: HeaderCarrier)).expects(*)
+  def mockGetSessionDataFromSessionStore(resp: Either[APIErrorModel, Option[SessionData]]): Unit = {
+    when(
+      mockSessionDataConnector.getSessionData(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(resp))
+  }
 
-  def mockGetSessionDataFromSessionStore(resp: Either[APIErrorModel, Option[SessionData]]): MockType =
-    mockFunction.returning(Future.successful(resp))
-
-  def mockGetSessionDataFromSessionStoreException(err: Throwable): MockType =
-    mockFunction.returning(Future.failed(err))
+  def mockGetSessionDataFromSessionStoreException(err: Throwable): Unit = {
+    when(
+      mockSessionDataConnector.getSessionData(any[HeaderCarrier]())
+    ).thenReturn(Future.failed(err))
+  }
 }
 

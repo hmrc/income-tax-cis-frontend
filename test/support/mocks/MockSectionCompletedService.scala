@@ -18,27 +18,33 @@ package support.mocks
 
 import models.mongo.JourneyAnswers
 import models.Done
-import org.scalamock.handlers.{CallHandler2, CallHandler4}
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import services.SectionCompletedService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockSectionCompletedService extends MockFactory { _: TestSuite =>
-  protected val mockSectionCompletedService: SectionCompletedService = mock[SectionCompletedService]
+trait MockSectionCompletedService { this: TestSuite =>
 
-  def mockGet(mtdItId: String, taxYear: Int, journey: String, result: Option[JourneyAnswers]): CallHandler4[String, Int, String, HeaderCarrier, Future[Option[JourneyAnswers]]] = {
-    (mockSectionCompletedService.get(_: String, _: Int, _: String)(_:HeaderCarrier))
-      .expects(mtdItId, taxYear, journey, *)
-      .returns(Future.successful(result))
+  protected val mockSectionCompletedService: SectionCompletedService =
+    org.mockito.Mockito.mock(classOf[SectionCompletedService])
+
+  def mockGet(mtdItId: String, taxYear: Int, journey: String, result: Option[JourneyAnswers]): Unit = {
+    when(
+      mockSectionCompletedService.get(
+        eqTo(mtdItId),
+        eqTo(taxYear),
+        eqTo(journey)
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(result))
   }
 
-  def mockSet(result: Done): CallHandler2[JourneyAnswers, HeaderCarrier, Future[Done]] = {
-    (mockSectionCompletedService.set(_: JourneyAnswers)(_:HeaderCarrier))
-      .expects(*, *)
-      .returns(Future.successful(result))
+  def mockSet(result: Done): Unit = {
+    when(
+      mockSectionCompletedService.set(any[JourneyAnswers]())(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(result))
   }
 
 }

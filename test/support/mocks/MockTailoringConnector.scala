@@ -21,36 +21,44 @@ import connectors.parsers.ClearExcludedJourneysHttpParser.ClearExcludedJourneysR
 import connectors.parsers.GetExcludedJourneysHttpParser.ExcludedJourneysResponse
 import connectors.parsers.PostExcludedJourneyHttpParser.PostExcludedJourneyResponse
 import models.tailoring.ExcludedJourneysResponseModel
-import org.scalamock.handlers.CallHandler3
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockTailoringConnector extends MockFactory { _: TestSuite =>
+trait MockTailoringConnector { this: TestSuite =>
 
-  val mockTailoringDataConnector: TailoringDataConnector = mock[TailoringDataConnector]
 
-  def mockGetExcludedJourneys(userData: ExcludedJourneysResponseModel, taxYear: Int, nino: String): CallHandler3[Int, String, HeaderCarrier, Future[ExcludedJourneysResponse]] = {
-    (mockTailoringDataConnector.getExcludedJourneys( _: Int, _: String)(_: HeaderCarrier))
-        .expects(taxYear, nino, *)
-        .returns(Future.successful(Right(userData)))
-        .anyNumberOfTimes()
+  val mockTailoringDataConnector: TailoringDataConnector =
+    org.mockito.Mockito.mock(classOf[TailoringDataConnector])
+
+  def mockGetExcludedJourneys(userData: ExcludedJourneysResponseModel, taxYear: Int, nino: String): Unit = {
+    when(
+      mockTailoringDataConnector.getExcludedJourneys(
+        eqTo(taxYear),
+        eqTo(nino)
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(Right(userData)))
   }
 
-  def mockClearExcludedJourneys(taxYear: Int, nino: String): CallHandler3[Int, String, HeaderCarrier, Future[ClearExcludedJourneysResponse]] = {
-    (mockTailoringDataConnector.clearExcludedJourney( _: Int, _: String)(_: HeaderCarrier))
-        .expects(taxYear, nino, *)
-        .returns(Future.successful(Right(true)))
-        .anyNumberOfTimes()
+  def mockClearExcludedJourneys(taxYear: Int, nino: String): Unit = {
+    when(
+      mockTailoringDataConnector.clearExcludedJourney(
+        eqTo(taxYear),
+        eqTo(nino)
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(Right(true)))
   }
 
-  def mockPostExcludedJourneys(taxYear: Int, nino: String): CallHandler3[Int, String, HeaderCarrier, Future[PostExcludedJourneyResponse]] = {
-    (mockTailoringDataConnector.postExcludedJourney( _: Int, _: String)(_: HeaderCarrier))
-        .expects(taxYear, nino, *)
-        .returns(Future.successful(Right(true)))
-        .anyNumberOfTimes()
+  def mockPostExcludedJourneys(taxYear: Int, nino: String): Unit = {
+    when(
+      mockTailoringDataConnector.postExcludedJourney(
+        eqTo(taxYear),
+        eqTo(nino)
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(Right(true)))
   }
 
 }

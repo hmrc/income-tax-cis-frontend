@@ -36,7 +36,7 @@ private[repositories] object CisUserDataIndexes {
   def indexes(appConfig: AppConfig): Seq[IndexModel] = {
     Seq(
       IndexModel(lookUpIndex, IndexOptions().unique(true).name("UserDataLookupIndex")),
-      IndexModel(ascending("lastUpdated"), IndexOptions().expireAfter(appConfig.mongoTTL, TimeUnit.MINUTES).name("UserDataTTL"))
+      IndexModel(ascending("lastUpdated"), IndexOptions().expireAfter(appConfig.mongoTTL.toLong, TimeUnit.MINUTES).name("UserDataTTL"))
     )
   }
 }

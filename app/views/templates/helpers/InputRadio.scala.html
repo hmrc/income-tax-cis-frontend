@@ -37,7 +37,7 @@
 }
 
 @govukRadios(Radios(
-    classes = s"${if(inline){"govuk-radios--inline"}}",
+    classes = if(inline){"govuk-radios--inline"} else "",
     name = name,
     fieldset = Some(Fieldset(
         legend = Some(Legend(

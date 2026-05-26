@@ -16,36 +16,34 @@
 
 package config
 
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{mock, when}
 import support.{FakeRequestHelper, UnitTest}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.net.URLEncoder
 
 class AppConfigSpec extends UnitTest
-  with MockFactory
   with FakeRequestHelper {
 
-  private val mockServicesConfig: ServicesConfig = mock[ServicesConfig]
+  private val mockServicesConfig: ServicesConfig = mock(classOf[ServicesConfig])
   private val appUrl = "http://localhost:9308"
+
+  when(mockServicesConfig.getString("microservice.services.bas-gateway-frontend.url")).thenReturn("http://bas-gateway-frontend:9553")
+  when(mockServicesConfig.getString("microservice.services.feedback-frontend.url")).thenReturn("http://feedback-frontend:9514")
+  when(mockServicesConfig.getString("microservice.services.contact-frontend.url")).thenReturn("http://contact-frontend:9250")
+  when(mockServicesConfig.getString("microservice.services.income-tax-submission.url")).thenReturn("http://income-tax-submission")
+  when(mockServicesConfig.getString("microservice.services.income-tax-submission-frontend.url")).thenReturn("http://income-tax-submission-frontend")
+  when(mockServicesConfig.getString("microservice.services.income-tax-submission-frontend.context")).thenReturn("/update-and-submit-income-tax-return")
+  when(mockServicesConfig.getString("microservice.services.income-tax-submission-frontend.iv-redirect")).thenReturn("/iv-uplift")
+  when(mockServicesConfig.getString("microservice.services.view-and-change.url")).thenReturn("http://view-and-change")
+  when(mockServicesConfig.getString("microservice.services.sign-in.url")).thenReturn("http://sign-in")
+  when(mockServicesConfig.getString("microservice.services.sign-in.continueUrl")).thenReturn("http://sign-in-continue-url")
+  when(mockServicesConfig.getString("microservice.url")).thenReturn(appUrl)
+  when(mockServicesConfig.getString("appName")).thenReturn("income-tax-cis-frontend")
 
   private val underTest = new AppConfigImpl(mockServicesConfig)
 
-  (mockServicesConfig.getString(_: String)).expects("microservice.services.bas-gateway-frontend.url").returns("http://bas-gateway-frontend:9553")
-
-  (mockServicesConfig.getString(_: String)).expects("microservice.services.feedback-frontend.url").returns("http://feedback-frontend:9514")
-
-  (mockServicesConfig.getString(_: String)).expects("microservice.services.contact-frontend.url").returns("http://contact-frontend:9250")
-  (mockServicesConfig.getString(_: String)).expects("microservice.services.income-tax-submission.url").returns("http://income-tax-submission")
-  (mockServicesConfig.getString(_: String)).expects("microservice.services.income-tax-submission-frontend.url").returns("http://income-tax-submission-frontend").twice()
-  (mockServicesConfig.getString(_: String)).expects("microservice.services.income-tax-submission-frontend.context").returns("/update-and-submit-income-tax-return").twice()
-  (mockServicesConfig.getString(_: String)).expects("microservice.services.income-tax-submission-frontend.iv-redirect").returns("/iv-uplift")
-  (mockServicesConfig.getString(_: String)).expects("microservice.services.view-and-change.url").returns("http://view-and-change")
-  (mockServicesConfig.getString(_: String)).expects("microservice.services.sign-in.url").returns("http://sign-in")
-  (mockServicesConfig.getString(_: String)).expects("microservice.services.sign-in.continueUrl").returns("http://sign-in-continue-url")
-
-  (mockServicesConfig.getString _).expects("microservice.url").returns(appUrl)
-  (mockServicesConfig.getString _).expects("appName").returns("income-tax-cis-frontend")
 
   "AppConfig" should {
     "return correct feedbackUrl when the user is an individual" in {

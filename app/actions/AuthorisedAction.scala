@@ -58,13 +58,13 @@ class AuthorisedAction @Inject()(val appConfig: AppConfig,
         case _ =>
           logger.warn(s"[AuthorisedAction][invokeBlock] - No Affinity Group returned on Auth response")
           throw AuthorisationException.fromString("[AuthorisedAction][invokeBlock] - No Affinity Group returned on Auth response")
-      } recover {
-        case _: NoActiveSession =>
-          Redirect(appConfig.signInUrl)
-        case _: AuthorisationException =>
-          logger.warn(s"[AuthorisedAction][invokeBlock] - User failed to authenticate")
-          Redirect(UnauthorisedUserErrorController.show)
-      }
+       } recover {
+         case _: NoActiveSession =>
+           Redirect(appConfig.signInUrl)
+         case _: AuthorisationException =>
+           logger.warn(s"[AuthorisedAction][invokeBlock] - User failed to authenticate")
+           Redirect(UnauthorisedUserErrorController.show())
+       }
     }
   }
 
@@ -86,9 +86,9 @@ class AuthorisedAction @Inject()(val appConfig: AppConfig,
           case (_, None) =>
             logger.info(s"[AuthorisedAction][individualAuthentication] - User has no NINO. Redirecting to ${appConfig.signInUrl}")
             Future.successful(Redirect(appConfig.signInUrl))
-          case (None, _) =>
-            logger.info(s"[AuthorisedAction][individualAuthentication] - User has no MTD IT enrolment. Redirecting user to sign up for MTD.")
-            Future.successful(Redirect(IndividualAuthErrorController.show))
+           case (None, _) =>
+             logger.info(s"[AuthorisedAction][individualAuthentication] - User has no MTD IT enrolment. Redirecting user to sign up for MTD.")
+             Future.successful(Redirect(IndividualAuthErrorController.show()))
         }
       case _ =>
         logger.info("[AuthorisedAction][individualAuthentication] User has confidence level below 250, routing user to IV uplift.")
@@ -123,9 +123,9 @@ class AuthorisedAction @Inject()(val appConfig: AppConfig,
       .retrieve(allEnrolments) {
         enrolments => handleForValidAgent(block, mtdItId, nino, sessionId, enrolments, isSupportingAgent = true)
       }.recover {
-        case _: AuthorisationException =>
-          logger.info(s"[AuthorisedAction][agentAuthentication] - Agent does not have delegated authority for Client.")
-          Redirect(AgentAuthErrorController.show)
+         case _: AuthorisationException =>
+           logger.info(s"[AuthorisedAction][agentAuthentication] - Agent does not have delegated authority for Client.")
+           Redirect(AgentAuthErrorController.show())
         case e =>
           logger.error(s"[AuthorisedAction][agentAuthentication] - Unexpected exception of type '${e.getClass.getSimpleName}' was caught.")
           errorHandler.internalServerError()
@@ -154,7 +154,7 @@ class AuthorisedAction @Inject()(val appConfig: AppConfig,
           ))
         case None =>
           logger.warn(s"[AuthorisedAction][agentAuthentication] - Agent with no HMRC-AS-AGENT enrolment. Rendering unauthorised view.")
-          Future.successful(Redirect(controllers.errors.routes.YouNeedAgentServicesController.show))
+          Future.successful(Redirect(controllers.errors.routes.YouNeedAgentServicesController.show()))
       }
     }
 }

@@ -18,23 +18,29 @@ package support.mocks
 
 import models.mongo.CisUserData
 import models.{ServiceError, User}
-import org.scalamock.handlers.CallHandler3
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import services.LabourPayService
 
 import scala.concurrent.Future
 
- trait MockLabourPayService extends MockFactory { _: TestSuite =>
+trait MockLabourPayService { this: TestSuite =>
 
-  protected val mockLabourPayService: LabourPayService = mock[LabourPayService]
+
+  protected val mockLabourPayService: LabourPayService =
+    org.mockito.Mockito.mock(classOf[LabourPayService])
 
   def mockSaveLabourPay(user: User,
                         cisUserData: CisUserData,
                         amount: BigDecimal,
-                        result: Either[ServiceError, CisUserData]): CallHandler3[User, CisUserData, BigDecimal, Future[Either[ServiceError, CisUserData]]] = {
-    (mockLabourPayService.saveLabourPay(_: User, _: CisUserData, _: BigDecimal))
-      .expects(user, cisUserData, amount)
-      .returning(Future.successful(result))
+                        result: Either[ServiceError, CisUserData]): Unit = {
+    when(
+      mockLabourPayService.saveLabourPay(
+        eqTo(user),
+        eqTo(cisUserData),
+        eqTo(amount)
+      )
+    ).thenReturn(Future.successful(result))
   }
 }

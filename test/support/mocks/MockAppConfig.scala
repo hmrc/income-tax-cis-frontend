@@ -17,16 +17,14 @@
 package support.mocks
 
 import config.AppConfig
-import org.scalamock.handlers.CallHandler0
-import org.scalamock.scalatest.MockFactory
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 
-trait MockAppConfig extends MockFactory { _: TestSuite =>
+trait MockAppConfig { this: TestSuite =>
 
-  val mockAppConfig: AppConfig = mock[AppConfig]
 
-  def mockSessionServiceEnabled(response: Boolean): CallHandler0[Boolean] =
-    (() => mockAppConfig.sessionCookieServiceEnabled)
-      .expects()
-      .returning(response)
+  val mockAppConfig: AppConfig = org.mockito.Mockito.mock(classOf[AppConfig])
+
+  def mockSessionServiceEnabled(response: Boolean): Unit =
+    when(mockAppConfig.sessionCookieServiceEnabled).thenReturn(response)
 }

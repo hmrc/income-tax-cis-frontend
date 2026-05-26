@@ -21,6 +21,7 @@ import connectors.parsers.ClearExcludedJourneysHttpParser.ClearExcludedJourneysR
 import connectors.parsers.GetExcludedJourneysHttpParser.{ExcludedJourneysResponse, GetExcludedJourneysHttpReads}
 import connectors.parsers.PostExcludedJourneyHttpParser.{PostExcludedJourneyHttpReads, PostExcludedJourneyResponse}
 import play.api.libs.json.Json
+import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 

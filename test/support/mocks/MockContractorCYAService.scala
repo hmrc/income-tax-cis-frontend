@@ -19,32 +19,45 @@ package support.mocks
 import models.mongo.CisUserData
 import models.submission.CISSubmission
 import models.{ServiceError, User}
-import org.scalamock.handlers.CallHandler5
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import services.ContractorCYAService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait MockContractorCYAService extends MockFactory { _: TestSuite =>
+trait MockContractorCYAService { this: TestSuite =>
 
-  protected val mockContractorCYAService: ContractorCYAService = mock[ContractorCYAService]
+
+  protected val mockContractorCYAService: ContractorCYAService =
+    org.mockito.Mockito.mock(classOf[ContractorCYAService])
 
   def mockSubmitCisDeductionCYA(taxYear: Int,
                                 employerRef: String,
                                 user: User,
                                 cisUserData: CisUserData,
-                                result: Either[ServiceError, Unit]): CallHandler5[Int, String, User, CisUserData, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
-    (mockContractorCYAService.submitCisDeductionCYA(_: Int, _: String, _: User, _: CisUserData)(_: HeaderCarrier))
-      .expects(taxYear, employerRef, user, cisUserData, *)
-      .returns(Future.successful(result))
+                                result: Either[ServiceError, Unit]): Unit = {
+    when(
+      mockContractorCYAService.submitCisDeductionCYA(
+        eqTo(taxYear),
+        eqTo(employerRef),
+        eqTo(user),
+        eqTo(cisUserData)
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(result))
   }
+
   def mockSubmitCisDeductionCYATailoring(taxYear: Int,
                                 user: User,
-                                result: Either[ServiceError, Unit]): CallHandler5[Int, String, User, CISSubmission, HeaderCarrier, Future[Either[ServiceError, Unit]]] = {
-    (mockContractorCYAService.submitZeroCisDeductionTailor(_: Int, _: String, _: User, _: CISSubmission)(_: HeaderCarrier))
-      .expects(taxYear, *, user, *, *)
-      .returns(Future.successful(result)).anyNumberOfTimes()
+                                result: Either[ServiceError, Unit]): Unit = {
+    when(
+      mockContractorCYAService.submitZeroCisDeductionTailor(
+        eqTo(taxYear),
+        any[String](),
+        eqTo(user),
+        any[CISSubmission]()
+      )(any[HeaderCarrier]())
+    ).thenReturn(Future.successful(result))
   }
 }

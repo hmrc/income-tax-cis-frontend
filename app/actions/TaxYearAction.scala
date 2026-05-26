@@ -48,9 +48,9 @@ class TaxYearAction @Inject()(taxYear: Int,
           logger.info("[TaxYearAction][refine] Tax year provided is different than that in session. Redirecting to overview.")
           Left(Redirect(appConfig.incomeTaxSubmissionOverviewUrl(taxYear)).addingToSession(TAX_YEAR -> taxYear.toString))
         }
-      } else {
-        logger.info(s"[TaxYearAction][refine] Invalid tax year, redirecting to error page")
-        Left(Redirect(controllers.errors.routes.TaxYearErrorController.show))
+       } else {
+         logger.info(s"[TaxYearAction][refine] Invalid tax year, redirecting to error page")
+         Left(Redirect(controllers.errors.routes.TaxYearErrorController.show()))
       }
     }
 

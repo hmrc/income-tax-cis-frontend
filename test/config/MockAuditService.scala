@@ -17,8 +17,8 @@
 package config
 
 import audit.{AuditModel, AuditService}
-import org.scalamock.handlers.CallHandler
-import org.scalamock.scalatest.MockFactory
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatest.TestSuite
 import play.api.libs.json.Writes
 import uk.gov.hmrc.http.HeaderCarrier
@@ -26,13 +26,13 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait MockAuditService extends MockFactory { _: TestSuite =>
+trait MockAuditService { this: TestSuite =>
 
-  val mockAuditService: AuditService = mock[AuditService]
+  val mockAuditService: AuditService = org.mockito.Mockito.mock(classOf[AuditService])
 
-  def mockSendAudit[T](event: AuditModel[T]): CallHandler[Future[AuditResult]] = {
-    (mockAuditService.sendAudit(_: AuditModel[T])(_: HeaderCarrier, _: ExecutionContext, _: Writes[T]))
-      .expects(event, *, *, *)
-      .returning(Future.successful(AuditResult.Success))
+  def mockSendAudit[T](event: AuditModel[T]): Unit = {
+    when(
+      mockAuditService.sendAudit(any[AuditModel[T]]())(any[HeaderCarrier](), any[ExecutionContext](), any[Writes[T]]())
+    ).thenReturn(Future.successful(AuditResult.Success))
   }
 }

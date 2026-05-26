@@ -79,9 +79,9 @@ class IncomeTaxUserDataSpec extends UnitTest with TaxYearProvider {
           None,None,List(submission.PeriodData(
             deductionFromDate = s"$taxYearEndOfYearMinusOne-06-06",
             deductionToDate = s"$taxYearEndOfYearMinusOne-07-05",
-            grossAmountPaid = Some(450.0),
-            deductionAmount = 100.0,
-            costOfMaterials = Some(50.0)
+            grossAmountPaid = Some(BigDecimal(450.0)),
+            deductionAmount = BigDecimal(100.0),
+            costOfMaterials = Some(BigDecimal(50.0))
           )),Some("submissionId")
         )
       )
